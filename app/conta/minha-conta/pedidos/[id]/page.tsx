@@ -16,8 +16,8 @@ const STATUS_LABEL: Record<string, string> = {
   cancelado: 'Cancelado',
 }
 
-const PIX_KEY = '78a52520-b4c3-400a-842b-f94878274813'
-const PIX_HOLDER = 'DISTRIBUIDORA FIOS NOBRE'
+const PIX_KEY = '52347525000100'
+const PIX_HOLDER = 'FIER GLOBAL'
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 const fmtUsd = (n: number) => `$ ${n.toFixed(2)}`
 

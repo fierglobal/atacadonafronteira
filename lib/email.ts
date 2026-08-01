@@ -1,5 +1,5 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY
-const FROM = 'Atacado na Fronteira <noreply@atacadonafronteira.app>'
+const FROM = 'Atacado na Fronteira <noreply@atacadonafronteira.com>'
 
 async function send(to: string, subject: string, html: string) {
   if (!RESEND_API_KEY) { console.error('[email] RESEND_API_KEY não configurada'); return null }
@@ -28,7 +28,7 @@ function layout(content: string, accent = '#8b5cf6') {
         <hr style="border:none;border-top:1px solid #1a1a1a;margin:28px 0">
         <p style="font-size:12px;color:#444;margin:0;text-align:center">
           Atacado na Fronteira — produtos importados do Paraguai<br>
-          <a href="https://atacadonafronteira.app" style="color:${accent};text-decoration:none">atacadonafronteira.app</a>
+          <a href="https://atacadonafronteira.com" style="color:${accent};text-decoration:none">atacadonafronteira.com</a>
         </p>
       </td></tr>
     </table>
@@ -58,7 +58,7 @@ export async function emailProntoRetirada(email: string, nome: string, orderNum:
         </p>
       </td></tr>
     </table>
-    <a href="https://atacadonafronteira.app/conta/minha-conta/pedidos"
+    <a href="https://atacadonafronteira.com/conta/minha-conta/pedidos"
        style="display:inline-block;background:#8b5cf6;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">
       Ver meu pedido
     </a>`)
@@ -85,7 +85,7 @@ export async function emailConfirmacaoPedido(
       <tr><td colspan="2" style="padding-top:12px;font-size:16px;font-weight:900;color:#fff">Total</td></tr>
       <tr><td></td><td style="text-align:right;font-size:20px;font-weight:900;color:#8b5cf6">R$ ${totalBrl.toFixed(2).replace('.', ',')}</td></tr>
     </table>
-    <a href="https://atacadonafronteira.app/checkout"
+    <a href="https://atacadonafronteira.com/checkout"
        style="display:inline-block;background:#8b5cf6;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">
       Ver detalhes do pedido
     </a>`)
@@ -114,7 +114,7 @@ export async function emailComprovanteRecebido(
        style="display:inline-block;background:#f59e0b;color:#000;font-weight:900;font-size:15px;padding:12px 28px;border-radius:10px;text-decoration:none;margin-right:12px">
       Ver comprovante
     </a>
-    <a href="https://atacadonafronteira.app/admin/pedidos"
+    <a href="https://atacadonafronteira.com/admin/pedidos"
        style="display:inline-block;background:#1a1a1a;color:#fff;font-weight:700;font-size:14px;padding:12px 20px;border-radius:10px;text-decoration:none;border:1px solid #333">
       Abrir admin
     </a>`, '#f59e0b')

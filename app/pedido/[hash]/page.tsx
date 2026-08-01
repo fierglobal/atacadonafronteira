@@ -111,7 +111,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
         </div>
 
         <p style={{ marginTop: 40, textAlign: 'center', fontSize: 10, color: '#aaa' }}>
-          atacadonafronteira.app · documento gerado automaticamente
+          atacadonafronteira.com · documento gerado automaticamente
         </p>
       </body>
     </html>

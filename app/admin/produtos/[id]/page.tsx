@@ -1140,7 +1140,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               <label style={lbl}>SLUG <span style={{ color: 'var(--a-text3)', fontWeight: 400 }}>(gerado automaticamente do título)</span></label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 0, background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 8, overflow: 'hidden' }}>
                 <span style={{ padding: '10px 12px', fontSize: 12, color: 'var(--a-text3)', background: 'var(--a-surface)', borderRight: '1px solid var(--a-border)', whiteSpace: 'nowrap' }}>
-                  atacadonafronteira.app/produto/
+                  atacadonafronteira.com/produto/
                 </span>
                 <input value={form.slug} onChange={e => { setSlugManual(true); setForm(f => ({ ...f, slug: e.target.value })) }}
                   placeholder="nome-do-produto"
@@ -1148,7 +1148,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               </div>
               {form.slug && (
                 <p style={{ fontSize: 11, color: '#00e5ff', marginTop: 6 }}>
-                  atacadonafronteira.app/produto/{form.slug}
+                  atacadonafronteira.com/produto/{form.slug}
                 </p>
               )}
             </div>
@@ -1178,7 +1178,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                   {form.meta_titulo || form.titulo || form.name}
                 </p>
                 <p style={{ fontSize: 13, color: '#006621', margin: '0 0 4px', fontFamily: 'Arial, sans-serif' }}>
-                  atacadonafronteira.app/produto/{form.slug || 'produto'}
+                  atacadonafronteira.com/produto/{form.slug || 'produto'}
                 </p>
                 <p style={{ fontSize: 13, color: '#545454', margin: 0, fontFamily: 'Arial, sans-serif', lineHeight: 1.5 }}>
                   {form.meta_descricao || form.descricao_curta || form.descricao?.slice(0, 155) + '...' || 'Sem descrição'}

@@ -21,7 +21,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>1. Aceitação</h2>
-          <p style={p}>Ao usar o site atacadonafronteira.app você concorda com estes Termos. Se não concordar, não use o serviço.</p>
+          <p style={p}>Ao usar o site atacadonafronteira.com você concorda com estes Termos. Se não concordar, não use o serviço.</p>
         </div>
 
         <div style={sec}>
@@ -48,7 +48,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>6. Cancelamento e reembolso</h2>
-          <p style={p}>Você pode cancelar pedidos pendentes (não retirados) entrando em contato pelo WhatsApp. Reembolso via PIX em até 3 dias úteis. Pedidos retirados não admitem devolução de produto em perfeito estado, exceto vício oculto comprovado.</p>
+          <p style={p}>Você pode cancelar pedidos pendentes (não retirados) entrando em contato conosco (veja seção 13). Reembolso via PIX em até 3 dias úteis. Pedidos retirados não admitem devolução de produto em perfeito estado, exceto vício oculto comprovado.</p>
         </div>
 
         <div style={sec}>
@@ -83,7 +83,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>13. Contato</h2>
-          <p style={p}>WhatsApp: <a href="https://wa.me/595994222774" style={{ color: '#6d28d9' }}>+595 994 222 774</a></p>
+          <p style={p}>Canais de atendimento em atualização. Consulte a página inicial para os canais disponíveis no momento.</p>
         </div>
       </div>
     </div>

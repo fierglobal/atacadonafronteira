@@ -63,7 +63,7 @@ export default async function ProdutoLayout({ children, params }: { children: Re
       price: typeof p.usd_price === 'number' ? p.usd_price.toFixed(2) : undefined,
       priceCurrency: 'USD',
       availability: p.estoque === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-      url: `https://atacadonafronteira.app/produtos/${id}`,
+      url: `https://atacadonafronteira.com/produtos/${id}`,
     },
   } : null
 

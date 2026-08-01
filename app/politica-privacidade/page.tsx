@@ -21,7 +21,7 @@ export default function Privacidade() {
 
         <div style={sec}>
           <h2 style={h2}>1. Quem somos</h2>
-          <p style={p}>Atacado na Fronteira opera o site <strong>atacadonafronteira.app</strong> para venda de produtos via retirada na loja física. Esta política descreve como tratamos seus dados pessoais conforme a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
+          <p style={p}>Atacado na Fronteira opera o site <strong>atacadonafronteira.com</strong> para venda de produtos via retirada na loja física. Esta política descreve como tratamos seus dados pessoais conforme a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018).</p>
         </div>
 
         <div style={sec}>
@@ -65,7 +65,7 @@ export default function Privacidade() {
             <li>Portabilidade</li>
             <li>Revogação de consentimento</li>
           </ul>
-          <p style={p}>Para exercer: envie WhatsApp para <a href="https://wa.me/595994222774" style={{ color: '#6d28d9' }}>+595 994 222 774</a> ou e-mail.</p>
+          <p style={p}>Para exercer: entre em contato pelos canais informados na seção 11 (Contato) desta política.</p>
         </div>
 
         <div style={sec}>
@@ -90,7 +90,7 @@ export default function Privacidade() {
 
         <div style={sec}>
           <h2 style={h2}>11. Contato</h2>
-          <p style={p}>Encarregado de dados (DPO): WhatsApp <a href="https://wa.me/595994222774" style={{ color: '#6d28d9' }}>+595 994 222 774</a></p>
+          <p style={p}>Encarregado de dados (DPO): canal de contato em atualização. Consulte a página inicial para os canais disponíveis no momento.</p>
         </div>
       </div>
     </div>

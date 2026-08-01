@@ -15,12 +15,12 @@ export type Config = {
 }
 
 const DEFAULTS: Config = {
-  pix_key: '78a52520-b4c3-400a-842b-f94878274813',
-  pix_holder: 'DISTRIBUIDORA FIOS NOBRE',
+  pix_key: '52347525000100',
+  pix_holder: 'FIER GLOBAL',
   brl_rate: 5.20,
   admin_email: '',
   store_name: 'Atacado na Fronteira',
-  whatsapp: '595994222774',
+  whatsapp: '', // sem WhatsApp definido pro Atacado na Fronteira ainda — não usar o número do cliente antigo
   pedido_minimo_brl: null,
   estimated_ready_time: 'Após a confirmação do PIX, seu pedido fica pronto para retirada em até 24 horas úteis.',
   pix_expiry_minutes: 30,

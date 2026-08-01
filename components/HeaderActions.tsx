@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import { WHATSAPP_ENABLED } from '@/lib/site'
 
 type Cat = { id: string; nome: string }
 
@@ -93,10 +94,12 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', textDecoration: 'none', borderRadius: 8, borderTop: '1px solid #ececec', marginTop: 4, paddingTop: 14, letterSpacing: '0.08em' }}>
             ONDE RETIRAR
           </a>
-          <a href={contatoHref} target="_blank" rel="noopener" onClick={() => setMobileMenu(false)}
-            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', textDecoration: 'none', borderRadius: 8, letterSpacing: '0.08em' }}>
-            CONTATO
-          </a>
+          {WHATSAPP_ENABLED && (
+            <a href={contatoHref} target="_blank" rel="noopener" onClick={() => setMobileMenu(false)}
+              style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', textDecoration: 'none', borderRadius: 8, letterSpacing: '0.08em' }}>
+              CONTATO
+            </a>
+          )}
           <a href={userName ? '/conta/minha-conta' : '/conta/login'} onClick={() => setMobileMenu(false)}
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', textDecoration: 'none', borderRadius: 8, letterSpacing: '0.08em' }}>
             {userName ? `Minha Conta (${userName.split(' ')[0]})` : 'Entrar / Cadastrar'}
