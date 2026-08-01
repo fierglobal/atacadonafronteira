@@ -61,57 +61,44 @@ function CardImg({ src, alt }: { src: string | null; alt: string }) {
 
 const DEFAULT_BANNERS = [
   {
-    tag: 'MARCA PREMIUM',
-    title: ['OXYGEN', 'PEPTÍDEOS'],
-    sub: 'A linha de referência no mercado. Mais de 3 anos de excelência com tecnologia farmacêutica de ponta.',
-    cta: 'EXPLORAR LINHA',
-    href: '/produtos/963435a3-89b5-4041-9636-3bd76facea19',
-    color: '#12fd00',
-    bg: 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(13,156,0,0.18) 0%, transparent 60%), linear-gradient(135deg, #050a05 0%, #0a0a0a 50%, #0a1a0a 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/963435a3-89b5-4041-9636-3bd76facea19/7fe9199b-f18d-4ac9-8925-1398ea0e3e8b.webp',
-    brandFilter: 'OXYGEN',
+    tag: 'MAIS VENDIDO',
+    title: ['BIOGENESIS', 'EMAGRECIMENTO'],
+    sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.',
+    cta: 'VER OFERTA',
+    href: '/produtos/3ff19b39-7178-497e-abfe-47d4c8d47eef',
+    color: '#c084fc',
+    bg: 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(168,85,247,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(250,204,21,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
+    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/3ff19b39-7178-497e-abfe-47d4c8d47eef/img_6355.webp',
+    brandFilter: 'BIOGENESIS',
   },
   {
-    tag: 'QUALIDADE FARMACÊUTICA',
-    title: ['COOPER', 'PHARMACEUTICAL'],
-    sub: 'Pioneira em peptídeos injetáveis com rastreabilidade completa. Estoque imediato para revendedores.',
-    cta: 'VER LINHA COOPER',
-    href: '/produtos/7279b9d6-6293-418d-a007-8b632c154286',
-    color: '#a855f7',
-    bg: 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(168,85,247,0.15) 0%, transparent 60%), linear-gradient(135deg, #0a050f 0%, #0a0a0a 50%, #0f0a14 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/7279b9d6-6293-418d-a007-8b632c154286/ef926e29-d701-45b6-ac2d-f3ffc0aa4820.webp',
-    brandFilter: 'COOPER',
+    tag: 'IMPORTADO ORIGINAL',
+    title: ['PERFUMES', 'ÁRABES'],
+    sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.',
+    cta: 'VER PERFUMES',
+    href: '/produtos/39123d03-5f42-481e-a49b-44ea317aa57b',
+    color: '#facc15',
+    bg: 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(250,204,21,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(168,85,247,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
+    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/39123d03-5f42-481e-a49b-44ea317aa57b/atacado-al-haramain-amber-oud-gold-edition-extreme-refil-paraguai-scaled-1.webp',
+    brandFilter: 'AL HARAMAIN',
   },
   {
-    tag: 'DISTRIBUIDOR OFICIAL',
-    title: ['ZPHC', 'PERFORMANCE'],
-    sub: 'A marca de performance mais respeitada da Europa. Agora disponível com estoque permanente no Brasil.',
-    cta: 'VER PRODUTOS ZPHC',
+    tag: 'LINHA PREMIUM',
+    title: ['ZPHC', 'PEPTÍDEOS'],
+    sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.',
+    cta: 'EXPLORAR ZPHC',
     href: '/produtos/e02c1c13-0809-4f0d-a297-60e4f0a25526',
-    color: '#4890ff',
-    bg: 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(72,144,255,0.15) 0%, transparent 60%), linear-gradient(135deg, #05080f 0%, #0a0a0a 50%, #0a0d1a 100%)',
+    color: '#a78bfa',
+    bg: 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(168,85,247,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(250,204,21,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
     productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/e02c1c13-0809-4f0d-a297-60e4f0a25526/atacado-zphc-zptrop-320-iu-10-vial.webp',
     brandFilter: 'ZPHC',
-  },
-  {
-    tag: 'ENTRADA PROFISSIONAL',
-    title: ['MUSCLE', 'PHARMA'],
-    sub: 'Linha de entrada com qualidade farmacêutica. O ponto de partida ideal para quem está crescendo no mercado.',
-    cta: 'EXPLORAR MUSCLE',
-    href: '/produtos/cac84ac9-fa75-4ecf-af1c-70334b3af694',
-    color: '#f59e0b',
-    bg: 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(245,158,11,0.12) 0%, transparent 60%), linear-gradient(135deg, #0f0a05 0%, #0a0a0a 50%, #14100a 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/cac84ac9-fa75-4ecf-af1c-70334b3af694/e2408efd-a059-47f0-81e9-a4e8234e0535.webp',
-    brandFilter: 'MUSCLE',
   },
 ]
 
 const BG_BY_COLOR: Record<string, string> = {
-  '#12fd00': 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(13,156,0,0.18) 0%, transparent 60%), linear-gradient(135deg, #050a05 0%, #0a0a0a 50%, #0a1a0a 100%)',
-  '#00e5ff': 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(0,229,255,0.15) 0%, transparent 60%), linear-gradient(135deg, #050a0a 0%, #0a0a0a 50%, #0a141a 100%)',
-  '#a855f7': 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(168,85,247,0.15) 0%, transparent 60%), linear-gradient(135deg, #0a050f 0%, #0a0a0a 50%, #0f0a14 100%)',
-  '#f59e0b': 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(245,158,11,0.12) 0%, transparent 60%), linear-gradient(135deg, #0f0a05 0%, #0a0a0a 50%, #14100a 100%)',
-  '#4890ff': 'radial-gradient(ellipse 80% 80% at 30% 50%, rgba(72,144,255,0.15) 0%, transparent 60%), linear-gradient(135deg, #05080f 0%, #0a0a0a 50%, #0a0d1a 100%)',
+  '#c084fc': 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(168,85,247,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(250,204,21,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
+  '#facc15': 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(250,204,21,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(168,85,247,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
+  '#a78bfa': 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(168,85,247,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(250,204,21,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
 }
 
 const dec = (s: string | null) => {
@@ -1062,7 +1049,7 @@ export default function Home() {
                     </div>
 
                     {/* Biogenises Banner */}
-                    <div onClick={() => { setActiveBrand('BIOGENISES'); setActiveCategoria('') }}
+                    <div onClick={() => { setActiveBrand('BIOGENESIS'); setActiveCategoria('') }}
                       onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(139,92,246,0.38)'; el.style.boxShadow = '0 12px 40px rgba(0,30,0,0.8), 0 0 40px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' }}
                       onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(139,92,246,0.14)'; el.style.boxShadow = '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' }}
                       style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '28px 32px', background: 'linear-gradient(135deg, #030a03 0%, #051405 40%, #071d07 70%, #0a2408 100%)', border: '1px solid rgba(139,92,246,0.14)', boxShadow: '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, transition: 'box-shadow 0.2s, border-color 0.2s', minHeight: 160 }}>
@@ -1148,7 +1135,7 @@ export default function Home() {
                     {p.descricao_curta && (
                       <p style={{ fontSize: 10.5, color: '#737373', lineHeight: 1.4, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.descricao_curta}</p>
                     )}
-                    <div className="price-display" style={{ borderTop: '1px solid #ececec', paddingTop: 10 }}>
+                    <div className="price-display" style={{ borderTop: '1px solid #ececec', paddingTop: 10, marginTop: 'auto' }}>
                       {promo ? (
                         <>
                           <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {fmt(p.usd_price, currency.rate, currency.code)}</div>
