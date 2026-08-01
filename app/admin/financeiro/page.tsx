@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
+export const dynamic = 'force-dynamic'
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 const fmtUSD = (n: number) => `USD ${n.toFixed(2)}`
@@ -33,7 +34,7 @@ export default async function Financeiro() {
   const sumUSD = (list: typeof orders) => list.reduce((s, o) => s + o.total_usd, 0)
 
   const cards = [
-    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), usd: sumUSD(confirmados(mesAtual)), color: '#12fd00' },
+    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), usd: sumUSD(confirmados(mesAtual)), color: '#8b5cf6' },
     { label: 'Pendente PIX — Mês Atual', brl: sumBRL(pendentes(mesAtual)), usd: sumUSD(pendentes(mesAtual)), color: '#f59e0b' },
     { label: 'Confirmado — Mês Anterior', brl: sumBRL(confirmados(mesAnterior)), usd: sumUSD(confirmados(mesAnterior)), color: '#00e5ff' },
     { label: 'Cancelado — Mês Atual', brl: sumBRL(cancelados(mesAtual)), usd: sumUSD(cancelados(mesAtual)), color: '#ef4444' },
@@ -55,44 +56,44 @@ export default async function Financeiro() {
   })
 
   return (
-    <div style={{ padding: '32px 36px', background: '#080808', minHeight: '100vh' }}>
+    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Financeiro</h1>
-        <p style={{ color: '#444', fontSize: 13, marginTop: 4 }}>Pagamentos PIX</p>
+        <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Pagamentos PIX</p>
       </div>
 
       {/* Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 32 }}>
         {cards.map(c => (
-          <div key={c.label} style={{ background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 12, padding: '20px 24px' }}>
-            <p style={{ fontSize: 10, color: '#444', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 12 }}>{c.label.toUpperCase()}</p>
+          <div key={c.label} style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '20px 24px' }}>
+            <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 12 }}>{c.label.toUpperCase()}</p>
             <p style={{ fontSize: 28, fontWeight: 900, color: c.color, margin: '0 0 4px' }}>{fmt(c.brl)}</p>
-            <p style={{ fontSize: 12, color: '#333', margin: 0 }}>{fmtUSD(c.usd)}</p>
+            <p style={{ fontSize: 12, color: 'var(--a-text3)', margin: 0 }}>{fmtUSD(c.usd)}</p>
           </div>
         ))}
       </div>
 
       {/* Daily table */}
-      <div style={{ background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 12, overflow: 'hidden' }}>
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid #111' }}>
+      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--a-border)' }}>
           <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>Últimos 14 dias</p>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #111' }}>
+            <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
               {['Data', 'Confirmado (BRL)', 'Pendente (BRL)'].map(h => (
-                <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 10, color: '#333', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
+                <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {Object.entries(days).reverse().map(([day, vals]) => (
-              <tr key={day} style={{ borderBottom: '1px solid #0d0d0d' }}>
-                <td style={{ padding: '11px 20px', fontSize: 12, color: '#555' }}>{day}</td>
-                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.confirmado > 0 ? 700 : 400, color: vals.confirmado > 0 ? '#12fd00' : '#222' }}>
+              <tr key={day} style={{ borderBottom: '1px solid var(--a-surface)' }}>
+                <td style={{ padding: '11px 20px', fontSize: 12, color: 'var(--a-text2)' }}>{day}</td>
+                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.confirmado > 0 ? 700 : 400, color: vals.confirmado > 0 ? '#8b5cf6' : 'var(--a-text3)' }}>
                   {vals.confirmado > 0 ? fmt(vals.confirmado) : '—'}
                 </td>
-                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.pendente > 0 ? 700 : 400, color: vals.pendente > 0 ? '#f59e0b' : '#222' }}>
+                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.pendente > 0 ? 700 : 400, color: vals.pendente > 0 ? '#f59e0b' : 'var(--a-text3)' }}>
                   {vals.pendente > 0 ? fmt(vals.pendente) : '—'}
                 </td>
               </tr>

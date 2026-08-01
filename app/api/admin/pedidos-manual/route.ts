@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { requireAdmin } from '@/lib/admin-auth'
+import { requireAdmin, logAudit } from '@/lib/admin-auth'
 import { getConfig } from '@/lib/config'
 
 export async function POST(req: Request) {
-  const auth = await requireAdmin()
+  const auth = await requireAdmin('pedidos', 'rw')
   if (auth) return auth
 
   const { customer, itens } = await req.json()
@@ -43,6 +43,8 @@ export async function POST(req: Request) {
   if (ie) return NextResponse.json({ error: ie.message }, { status: 500 })
 
   await supabaseAdmin.from('order_status_history').insert({ order_id: order.id, status: 'pendente_pagamento' })
+
+  await logAudit({ action: 'create', entity: 'pedido', entity_id: order.id, diff: { customer, itens, orderNum } })
 
   return NextResponse.json({ ok: true, orderNum })
 }
