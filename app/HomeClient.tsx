@@ -119,8 +119,8 @@ const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
 const PROMO_BANNER_AFTER = 10
 
-const TRUST_ITEMS = [
-  { icon: '📦', text: '+200 PRODUTOS EM ESTOQUE' },
+const trustItems = (nProdutos: number) => [
+  ...(nProdutos > 0 ? [{ icon: '📦', text: `${nProdutos} PRODUTOS EM ESTOQUE` }] : []),
   { icon: '⚡', text: 'PIX CONFIRMADO EM < 30 MIN' },
   { icon: '🇧🇷', text: 'ATENDIMENTO 100% EM PORTUGUÊS' },
   ...(WHATSAPP_ENABLED ? [{ icon: '💬', text: 'RESPOSTA WHATSAPP EM 12 MIN' }] : []),
@@ -629,11 +629,11 @@ export default function Home() {
                 <div className="hero-stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   <span className="hero-stat-chip">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    200+ produtos
+                    {products.length || 166} produtos
                   </span>
                   <span className="hero-stat-chip">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                    50+ marcas
+                    {brands.length - 1 || 34} marcas
                   </span>
                   <span className="hero-stat-chip">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -729,7 +729,7 @@ export default function Home() {
       <div style={{ borderTop: '1px solid rgba(139,92,246,0.15)', borderBottom: '1px solid rgba(139,92,246,0.15)', background: '#050a05', padding: '10px 0', overflow: 'hidden' }}>
         <div className="trust-ticker">
           <div className="trust-track">
-            {[...TRUST_ITEMS, ...TRUST_ITEMS].map((item, i) => (
+            {[...trustItems(products.length), ...trustItems(products.length)].map((item, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#8b5cf6', borderRight: '1px solid rgba(139,92,246,0.15)', textShadow: '0 0 8px rgba(139,92,246,0.5)' }}>
                 <span style={{ fontSize: 13 }}>{item.icon}</span>
                 {item.text}

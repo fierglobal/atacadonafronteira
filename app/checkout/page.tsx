@@ -926,8 +926,8 @@ export default function Checkout() {
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
-                  <span>Frete</span>
-                  <span style={{ color: '#6d28d9', fontWeight: 700 }}>A combinar</span>
+                  <span>Retirada em loja</span>
+                  <span style={{ color: '#6d28d9', fontWeight: 700 }}>Sem custo</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                   <span style={{ color: '#0a0a0a' }}>Total</span>
@@ -1156,8 +1156,8 @@ export default function Checkout() {
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
-                <span>Frete</span>
-                <span style={{ color: '#6d28d9', fontWeight: 700 }}>A combinar</span>
+                <span>Retirada em loja</span>
+                <span style={{ color: '#6d28d9', fontWeight: 700 }}>Sem custo</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                 <span style={{ color: '#0a0a0a' }}>Total</span>

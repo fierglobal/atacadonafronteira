@@ -8,16 +8,15 @@ type Banner = {
 }
 
 const DEFAULT_BANNERS: Banner[] = [
-  { tag: 'TECNOLOGIA BIOLÓGICA DE PONTA', title1: 'PEPTÍDEOS DE', title2: 'ALTA PERFORMANCE', sub: 'Pureza farmacêutica. Importado direto. Resultados reais.', cta: 'VER CATÁLOGO', color: '#8b5cf6', productImg: '', productLabel: '' },
-  { tag: '54 PRODUTOS DISPONÍVEIS', title1: 'BIOGENESIS · ZPHC', title2: 'THERA · TNL', sub: 'As maiores marcas do mercado em estoque. Atacado e varejo.', cta: 'EXPLORAR MARCAS', color: '#00e5ff', productImg: '', productLabel: '' },
-  { tag: 'ATACADO NA FRONTEIRA OFICIAL', title1: 'COMPRE DIRETO', title2: 'DA FONTE', sub: 'Melhores preços em USD · Entrega para todo o Brasil', cta: 'FAZER PEDIDO', color: '#ff2cf7', productImg: '', productLabel: '' },
+  { tag: 'MAIS VENDIDO', title1: 'BIOGENESIS', title2: 'EMAGRECIMENTO', sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.', cta: 'VER OFERTA', color: '#c084fc', productImg: '', productLabel: '' },
+  { tag: 'IMPORTADO ORIGINAL', title1: 'PERFUMES', title2: 'ÁRABES', sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.', cta: 'VER PERFUMES', color: '#facc15', productImg: '', productLabel: '' },
+  { tag: 'LINHA PREMIUM', title1: 'ZPHC', title2: 'PEPTÍDEOS', sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.', cta: 'EXPLORAR ZPHC', color: '#a78bfa', productImg: '', productLabel: '' },
 ]
 
 const COLORS = [
-  { value: '#8b5cf6', label: 'Verde' },
-  { value: '#00e5ff', label: 'Ciano' },
-  { value: '#ff2cf7', label: 'Magenta' },
-  { value: '#f59e0b', label: 'Âmbar' },
+  { value: '#c084fc', label: 'Roxo claro' },
+  { value: '#a78bfa', label: 'Roxo' },
+  { value: '#facc15', label: 'Amarelo' },
 ]
 
 const inp = { width: '100%', padding: '9px 12px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', boxSizing: 'border-box' as const }
