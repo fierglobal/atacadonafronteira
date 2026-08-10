@@ -53,7 +53,6 @@ export default async function SiteHeader() {
               {c.nome.toUpperCase()}
             </a>
           ))}
-          <a href="/onde-retirar" className="nav-cat-btn">ONDE RETIRAR</a>
         </nav>
 
         <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} />

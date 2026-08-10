@@ -1,5 +1,4 @@
-// Fonte única do domínio público. Domínio final confirmado: atacadonafronteira.com
-// (ainda não registrado/apontado — enquanto isso isto aqui é só placeholder).
+// Fonte única do domínio público. Registrado e apontado em 2026-08-10.
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://atacadonafronteira.com'
 

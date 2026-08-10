@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const SITE_OFFLINE = true
+const SITE_OFFLINE = false
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
