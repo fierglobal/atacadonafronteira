@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { rateLimit, getIp } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
+  const rl = rateLimit(`conta-confirm:${getIp(req)}`, 10, 60_000)
+  if (!rl.ok) return NextResponse.json({ error: 'Muitas requisições' }, { status: 429 })
   const { userId } = await req.json()
   if (!userId) return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
 

@@ -1,5 +1,6 @@
 'use client'
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 export type Currency = { code: string; label: string; flag: string; rate: number }
 export const currencies: Currency[] = [
@@ -34,11 +35,29 @@ type CarrinhoCtx = {
 
 const Ctx = createContext<CarrinhoCtx | null>(null)
 
+function mergeCarts(local: CartItem[], remote: CartItem[], preferRemote: boolean): CartItem[] {
+  const map = new Map<string, CartItem>()
+  const first = preferRemote ? local : remote
+  const second = preferRemote ? remote : local
+  for (const i of first) if (i?.id) map.set(i.id, i)
+  for (const i of second) {
+    if (!i?.id) continue
+    const existing = map.get(i.id)
+    if (existing) map.set(i.id, { ...existing, quantity: Math.max(existing.quantity, i.quantity) })
+    else map.set(i.id, i)
+  }
+  return Array.from(map.values())
+}
+
 export function CarrinhoProvider({ children }: { children: ReactNode }) {
   const [itens, setItens] = useState<CartItem[]>([])
   const [currency, setCurrency] = useState<Currency>(currencies[0])
   const [sidebarAberto, setSidebarAberto] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
+  const remoteLoadedRef = useRef(false)
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const skipNextSaveRef = useRef(true)
 
   useEffect(() => {
     try {
@@ -57,6 +76,50 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(t)
   }, [toast])
 
+  useEffect(() => {
+    const supabase = getSupabaseClient()
+    supabase.auth.getUser().then(({ data: { user } }: any) => {
+      setUserId(user?.id || null)
+    })
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt: any, session: any) => {
+      setUserId(session?.user?.id || null)
+      if (!session?.user) remoteLoadedRef.current = false
+    })
+    return () => sub.subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (!userId || remoteLoadedRef.current) return
+    remoteLoadedRef.current = true
+    fetch('/api/cart/load').then(r => r.json()).then((d: { itens: CartItem[]; updatedAt: string | null }) => {
+      const remote = Array.isArray(d.itens) ? d.itens : []
+      if (!remote.length) return
+      const localTs = Number(localStorage.getItem('apnovo_cart_ts') || 0)
+      const remoteTs = d.updatedAt ? new Date(d.updatedAt).getTime() : 0
+      const preferRemote = remoteTs >= localTs
+      setItens(prev => {
+        const merged = mergeCarts(prev, remote, preferRemote)
+        skipNextSaveRef.current = true
+        return merged
+      })
+    }).catch(() => {})
+  }, [userId])
+
+  useEffect(() => {
+    if (!userId) return
+    if (skipNextSaveRef.current) { skipNextSaveRef.current = false; return }
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      const total_usd = itens.reduce((acc, i) => acc + i.usd * i.quantity, 0)
+      fetch('/api/cart/save', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itens, total_usd }),
+      }).catch(() => {})
+      try { localStorage.setItem('apnovo_cart_ts', String(Date.now())) } catch {}
+    }, 2000)
+    return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
+  }, [itens, userId])
+
   const adicionar = (item: Omit<CartItem, 'quantity'>) => {
     setItens(prev => {
       const exists = prev.find(i => i.id === item.id)
@@ -68,6 +131,9 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
       return [...prev, { ...item, quantity: 1 }]
     })
     setSidebarAberto(true)
+    import('@vercel/analytics').then(({ track }) => {
+      track('add_to_cart', { product_id: item.id || '', product_name: item.name, brand: item.brand || '', usd: item.usd })
+    }).catch(() => {})
   }
 
   const remover = (id: string) => setItens(prev => prev.filter(i => i.id !== id))
@@ -85,7 +151,7 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={{ itens, currency, setCurrency, sidebarAberto, abrirSidebar: () => setSidebarAberto(true), fecharSidebar: () => setSidebarAberto(false), adicionar, remover, atualizar, limpar, totalUsd, quantidade }}>
       {children}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#12fd00', color: '#000', borderRadius: 99, padding: '10px 22px', fontSize: 13, fontWeight: 700, zIndex: 99999, pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(18,253,0,0.3)' }}>
+        <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#8b5cf6', color: '#000', borderRadius: 99, padding: '10px 22px', fontSize: 13, fontWeight: 700, zIndex: 99999, pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(139,92,246,0.3)' }}>
           {toast}
         </div>
       )}

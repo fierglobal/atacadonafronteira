@@ -14,7 +14,7 @@ export default function MeuPerfil() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       setProfile(p || { nome: '', cpf: '', telefone: '', cep: '', endereco: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' })
@@ -37,24 +37,29 @@ export default function MeuPerfil() {
     setProfile(p => p ? { ...p, [k]: e.target.value } : p)
 
   const inp = {
-    width: '100%', padding: '10px 12px', background: '#0a0a0a',
-    border: '1px solid #222', borderRadius: 8, color: '#fff',
+    width: '100%', padding: '10px 12px', background: '#ffffff',
+    border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a',
     fontSize: 14, boxSizing: 'border-box' as const,
   }
-  const lbl = { display: 'block', fontSize: 10, fontWeight: 700, color: '#444', letterSpacing: '0.08em', marginBottom: 5 } as const
+  const lbl = { display: 'block', fontSize: 10, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 5 } as const
 
   if (loading) return <div style={{ minHeight: 200 }} />
 
   return (
     <div>
-      <style>{`input:focus { border-color: rgba(18,253,0,0.4) !important; outline: none; }`}</style>
-      <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, marginTop: 0 }}>Meu Perfil</h1>
-      <p style={{ fontSize: 12, color: '#444', marginBottom: 28 }}>Gerencie seus dados cadastrais</p>
+      <style>{`
+        input:focus { border-color: rgba(109,40,217,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(109,40,217,0.08); }
+        @media (max-width: 640px) {
+          .mc-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+      <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, marginTop: 0, color: '#0a0a0a' }}>Meu Perfil</h1>
+      <p style={{ fontSize: 12, color: '#737373', marginBottom: 28 }}>Gerencie seus dados cadastrais</p>
 
       {profile && (
-        <div style={{ background: '#0e0e0e', border: '1px solid #1a1a1a', borderRadius: 14, padding: '24px' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'grid', gap: 16 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="mc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
                 <label style={lbl}>NOME</label>
                 <input value={profile.nome} onChange={set('nome')} style={inp} />
@@ -64,7 +69,7 @@ export default function MeuPerfil() {
                 <input value={profile.telefone} onChange={set('telefone')} style={inp} />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+            <div className="mc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
                 <label style={lbl}>CPF</label>
                 <input value={profile.cpf} onChange={set('cpf')} style={inp} />
@@ -74,7 +79,7 @@ export default function MeuPerfil() {
                 <input value={profile.cep} onChange={set('cep')} style={inp} />
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 14 }}>
+            <div className="mc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: 14 }}>
               <div>
                 <label style={lbl}>ENDEREÇO</label>
                 <input value={profile.endereco} onChange={set('endereco')} style={inp} />
@@ -88,7 +93,7 @@ export default function MeuPerfil() {
               <label style={lbl}>COMPLEMENTO</label>
               <input value={profile.complemento} onChange={set('complemento')} style={inp} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 72px', gap: 14 }}>
+            <div className="mc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 72px', gap: 14 }}>
               <div>
                 <label style={lbl}>BAIRRO</label>
                 <input value={profile.bairro} onChange={set('bairro')} style={inp} />
@@ -104,7 +109,7 @@ export default function MeuPerfil() {
             </div>
           </div>
           <button onClick={save} disabled={saving}
-            style={{ marginTop: 20, padding: '11px 28px', background: saved ? 'rgba(18,253,0,0.1)' : '#12fd00', color: saved ? '#12fd00' : '#000', border: saved ? '1px solid #12fd00' : 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
+            style={{ marginTop: 20, padding: '11px 28px', background: saved ? 'rgba(109,40,217,0.08)' : '#8b5cf6', color: saved ? '#6d28d9' : '#000', border: saved ? '1px solid rgba(109,40,217,0.4)' : 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 4px 16px rgba(109,40,217,0.25)' }}>
             {saving ? 'Salvando...' : saved ? '✓ Salvo' : 'Salvar Dados'}
           </button>
         </div>
