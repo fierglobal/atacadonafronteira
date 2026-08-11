@@ -4,10 +4,10 @@ import { useState, useEffect, useMemo, useRef, Fragment } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
-import { WHATSAPP_ENABLED } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
 
-const CONTATO_HREF = 'https://wa.me/595994222774'
+const CONTATO_HREF = WHATSAPP_HREF
 
 type Product = {
   id: string; name: string; brand: string | null; usd_price: number
@@ -1120,7 +1120,7 @@ export default function Home() {
 
       {/* WhatsApp FAB */}
       {WHATSAPP_ENABLED && (
-        <a href="https://wa.me/595994222774" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"
+        <a href={WHATSAPP_HREF} target="_blank" rel="noopener" aria-label="Falar no WhatsApp"
           style={{ position: 'fixed', bottom: 24, right: 24, width: 52, height: 52, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(37,211,102,0.4)', zIndex: 50, transition: 'transform 0.2s, opacity 0.3s', opacity: fabVisible ? 1 : 0, pointerEvents: fabVisible ? 'auto' : 'none', transform: fabVisible ? 'scale(1)' : 'scale(0.6)' }}
           onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.1)'}
           onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.transform = fabVisible ? 'scale(1)' : 'scale(0.6)'}>

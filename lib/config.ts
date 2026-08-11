@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import { WHATSAPP_NUMBER } from '@/lib/site'
 
 export type Config = {
   pix_key: string
@@ -20,7 +21,7 @@ const DEFAULTS: Config = {
   brl_rate: 5.20,
   admin_email: '',
   store_name: 'Atacado na Fronteira',
-  whatsapp: '', // sem WhatsApp definido pro Atacado na Fronteira ainda — não usar o número do cliente antigo
+  whatsapp: WHATSAPP_NUMBER,
   pedido_minimo_brl: null,
   estimated_ready_time: 'Após a confirmação do PIX, seu pedido fica pronto para retirada em até 24 horas úteis.',
   pix_expiry_minutes: 30,

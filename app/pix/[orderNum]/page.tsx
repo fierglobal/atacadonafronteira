@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import QRCode from 'qrcode'
-import { WHATSAPP_ENABLED } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 const PIX_KEY = '52347525000100'
 const PIX_HOLDER = 'FIER GLOBAL'
 const PIX_CITY = 'MARINGA'
-const WHATSAPP = '595994222774'
+const WHATSAPP = WHATSAPP_NUMBER
 
 function crc16(str: string): string {
   let crc = 0xFFFF
