@@ -25,8 +25,8 @@ type Product = {
 const BADGE_COLORS: Record<string, { bg: string; color: string; border: string }> = {
   'novo': { bg: 'rgba(0,180,210,0.08)', color: '#0891b2', border: 'rgba(0,180,210,0.35)' },
   'mais vendido': { bg: 'rgba(245,158,11,0.10)', color: '#b45309', border: 'rgba(245,158,11,0.4)' },
-  'promoção': { bg: 'rgba(109,40,217,0.08)', color: '#6d28d9', border: 'rgba(109,40,217,0.35)' },
-  'promocao': { bg: 'rgba(109,40,217,0.08)', color: '#6d28d9', border: 'rgba(109,40,217,0.35)' },
+  'promoção': { bg: 'rgba(66, 14, 118,0.08)', color: '#420E76', border: 'rgba(66, 14, 118,0.35)' },
+  'promocao': { bg: 'rgba(66, 14, 118,0.08)', color: '#420E76', border: 'rgba(66, 14, 118,0.35)' },
   'lançamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
   'lancamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
 }
@@ -69,7 +69,7 @@ function renderBlock(linhas: string[]) {
     if (l.startsWith('- ') || l.startsWith('* ')) {
       return (
         <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 6, alignItems: 'flex-start' }}>
-          <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#6d28d9', opacity: 0.85 }} />
+          <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#420E76', opacity: 0.85 }} />
           <span style={{ flex: 1 }}>{renderInline(l.slice(2))}</span>
         </div>
       )
@@ -87,7 +87,7 @@ function Descricao({ texto }: { texto: string }) {
         if (l.startsWith('## ')) return <p key={i} style={{ fontWeight: 800, color: '#0a0a0a', margin: '18px 0 8px', fontSize: 11, letterSpacing: '0.12em' }}>{l.slice(3).toUpperCase()}</p>
         if (l.startsWith('- ') || l.startsWith('* ')) return (
           <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 6, alignItems: 'flex-start' }}>
-            <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#6d28d9', opacity: 0.85 }} />
+            <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#420E76', opacity: 0.85 }} />
             <span style={{ flex: 1 }}>{renderInline(l.slice(2))}</span>
           </div>
         )
@@ -134,10 +134,10 @@ function DescricaoTabs({ texto }: { texto: string }) {
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.08em',
-              color: active === t.key ? '#6d28d9' : '#737373',
+              color: active === t.key ? '#420E76' : '#737373',
               background: 'transparent',
               border: 'none',
-              borderBottom: active === t.key ? '2px solid #8b5cf6' : '2px solid transparent',
+              borderBottom: active === t.key ? '2px solid #A965ED' : '2px solid transparent',
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               transition: 'color 0.15s, border-color 0.15s',
@@ -306,10 +306,10 @@ export default function ProdutoPage() {
       : null
 
   const stockStatus = (p: Product) => {
-    if (p.estoque === null) return { label: 'Em estoque', color: '#6d28d9', bg: 'rgba(109,40,217,0.06)', border: 'rgba(109,40,217,0.3)' }
+    if (p.estoque === null) return { label: 'Em estoque', color: '#420E76', bg: 'rgba(66, 14, 118,0.06)', border: 'rgba(66, 14, 118,0.3)' }
     if (p.estoque === 0) return { label: 'Sem estoque', color: '#dc2626', bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.3)' }
     if (p.estoque <= 5) return { label: `Últimas ${p.estoque} unidades`, color: '#b45309', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.35)' }
-    return { label: `${p.estoque} em estoque`, color: '#6d28d9', bg: 'rgba(109,40,217,0.06)', border: 'rgba(109,40,217,0.3)' }
+    return { label: `${p.estoque} em estoque`, color: '#420E76', bg: 'rgba(66, 14, 118,0.06)', border: 'rgba(66, 14, 118,0.3)' }
   }
 
   return (
@@ -319,7 +319,7 @@ export default function ProdutoPage() {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .qty-btn:hover { background: rgba(109,40,217,0.08) !important; color: #6d28d9 !important; }
+        .qty-btn:hover { background: rgba(66, 14, 118,0.08) !important; color: #420E76 !important; }
         .rel-card:hover { border-color: #d4d4d4 !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
         .rel-card:hover .rel-img { filter: brightness(1.02); }
         .rel-card { transition: all 0.2s ease; }
@@ -363,12 +363,12 @@ export default function ProdutoPage() {
             {/* Breadcrumb */}
             <nav style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 36, fontSize: 11, color: '#737373', fontWeight: 600, letterSpacing: '0.04em' }}>
               <span style={{ cursor: 'pointer', transition: 'color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6d28d9' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#420E76' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#737373' }}
                 onClick={() => router.push('/')}>INÍCIO</span>
               <span>›</span>
               <span style={{ cursor: 'pointer', transition: 'color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#6d28d9' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#420E76' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#737373' }}
                 onClick={() => router.push('/#saude')}>CATÁLOGO</span>
               {product.brand && (
@@ -412,7 +412,7 @@ export default function ProdutoPage() {
                       { icon: '◆', label: 'Autenticado' },
                     ].map(b => (
                       <div key={b.label} style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, padding: '12px 8px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                        <div style={{ fontSize: 14, marginBottom: 4, color: '#6d28d9', opacity: 0.8 }}>{b.icon}</div>
+                        <div style={{ fontSize: 14, marginBottom: 4, color: '#420E76', opacity: 0.8 }}>{b.icon}</div>
                         <div style={{ fontSize: 10, color: '#737373', fontWeight: 700, letterSpacing: '0.05em' }}>{b.label.toUpperCase()}</div>
                       </div>
                     ))}
@@ -425,7 +425,7 @@ export default function ProdutoPage() {
 
                 {/* brand label */}
                 {product.brand && (
-                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#6d28d9', marginBottom: 10, textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#420E76', marginBottom: 10, textTransform: 'uppercase' }}>
                     {product.brand}
                   </div>
                 )}
@@ -489,13 +489,13 @@ export default function ProdutoPage() {
                 {/* PRICE */}
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
-                  <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#6d28d9', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                  <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                     {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
                   </div>
                   {unitPrice < product.usd_price && (
                     <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
                       <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>{currency.code} {fmt(product.usd_price, currency.rate, currency.code)}</span>
-                      <span style={{ color: '#6d28d9', fontWeight: 700 }}>
+                      <span style={{ color: '#420E76', fontWeight: 700 }}>
                         −{Math.round((1 - unitPrice / product.usd_price) * 100)}% por volume
                       </span>
                     </div>
@@ -530,14 +530,14 @@ export default function ProdutoPage() {
                           const active = qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max)
                           const label = t.qty_max == null
                             ? (<span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                <span style={{ fontSize: 10, background: 'rgba(109,40,217,0.08)', color: '#6d28d9', padding: '2px 6px', borderRadius: 4, fontWeight: 800 }}>{t.qty_min}+</span>
+                                <span style={{ fontSize: 10, background: 'rgba(66, 14, 118,0.08)', color: '#420E76', padding: '2px 6px', borderRadius: 4, fontWeight: 800 }}>{t.qty_min}+</span>
                                 <span style={{ opacity: 0.7 }}>un.</span>
                               </span>)
                             : (<>{t.qty_min}–{t.qty_max} un.</>)
                           return (
-                            <tr key={i} style={{ background: active ? 'rgba(109,40,217,0.06)' : 'transparent', borderTop: '1px solid #ececec' }}>
-                              <td style={{ padding: '10px 8px', color: active ? '#6d28d9' : '#404040', fontWeight: active ? 800 : 600 }}>{label}</td>
-                              <td style={{ padding: '10px 8px', textAlign: 'right', color: active ? '#6d28d9' : '#0a0a0a', fontWeight: active ? 900 : 700, fontVariantNumeric: 'tabular-nums' }}>
+                            <tr key={i} style={{ background: active ? 'rgba(66, 14, 118,0.06)' : 'transparent', borderTop: '1px solid #ececec' }}>
+                              <td style={{ padding: '10px 8px', color: active ? '#420E76' : '#404040', fontWeight: active ? 800 : 600 }}>{label}</td>
+                              <td style={{ padding: '10px 8px', textAlign: 'right', color: active ? '#420E76' : '#0a0a0a', fontWeight: active ? 900 : 700, fontVariantNumeric: 'tabular-nums' }}>
                                 {currency.code} {fmt(Number(t.usd_price), currency.rate, currency.code)}
                               </td>
                             </tr>
@@ -568,13 +568,13 @@ export default function ProdutoPage() {
                   {(multiplicador > 1 || vendaMinima > 1 || product.unidade_venda) && (
                     <div style={{ fontSize: 11, color: '#737373', marginTop: 10, lineHeight: 1.5 }}>
                       {product.unidade_venda && <span>Unidade: <span style={{ color: '#404040' }}>{product.unidade_venda}</span> · </span>}
-                      {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#6d28d9', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
+                      {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#420E76', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
                       {multiplicador > 1 && vendaMinima > 1 && <span> · </span>}
-                      {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#6d28d9', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
+                      {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
                     </div>
                   )}
                   <div style={{ fontSize: 13, color: '#404040', marginTop: 10 }}>
-                    Total: <span style={{ color: '#6d28d9', fontWeight: 800 }}>{currency.code} {fmt(unitPrice * qty, currency.rate, currency.code)}</span>
+                    Total: <span style={{ color: '#420E76', fontWeight: 800 }}>{currency.code} {fmt(unitPrice * qty, currency.rate, currency.code)}</span>
                   </div>
                 </div>
 
@@ -589,12 +589,12 @@ export default function ProdutoPage() {
                       <button onClick={handleAdd} className="add-btn"
                         style={{
                           flex: 1, padding: '18px 0', borderRadius: 12, border: 'none',
-                          background: added ? 'rgba(109,40,217,0.12)' : '#8b5cf6',
-                          color: added ? '#6d28d9' : '#000',
+                          background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
+                          color: added ? '#420E76' : '#ffffff',
                           fontSize: 14, fontWeight: 800, letterSpacing: '0.1em',
                           cursor: 'pointer',
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                          boxShadow: added ? 'none' : '0 4px 12px rgba(109,40,217,0.18)',
+                          boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
                         }}>
                         {added ? (
                           <>
@@ -609,8 +609,8 @@ export default function ProdutoPage() {
                         )}
                       </button>
                       <button onClick={handleBuyNow}
-                        style={{ flex: '0 0 auto', padding: '18px 22px', borderRadius: 12, border: '1px solid rgba(109,40,217,0.4)', background: '#ffffff', color: '#6d28d9', fontSize: 13, fontWeight: 800, letterSpacing: '0.08em', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(109,40,217,0.06)' }}
+                        style={{ flex: '0 0 auto', padding: '18px 22px', borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 13, fontWeight: 800, letterSpacing: '0.08em', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
                         onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
                         COMPRAR AGORA
                       </button>
@@ -619,8 +619,8 @@ export default function ProdutoPage() {
 
                   {added && (
                     <button onClick={abrirSidebar}
-                      style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: '1px solid rgba(109,40,217,0.4)', background: '#ffffff', color: '#6d28d9', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(109,40,217,0.06)' }}
+                      style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
                       VER CARRINHO →
                     </button>
@@ -738,14 +738,14 @@ export default function ProdutoPage() {
                         <p style={{ fontSize: 11, fontWeight: 600, color: '#0a0a0a', margin: '0 0 10px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                           {p.name}
                         </p>
-                        <div style={{ fontSize: 15, fontWeight: 900, color: '#6d28d9' }}>
+                        <div style={{ fontSize: 15, fontWeight: 900, color: '#420E76' }}>
                           {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-                          style={{ marginTop: 10, width: '100%', padding: '8px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(109,40,217,0.4)', color: '#6d28d9', fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#8b5cf6'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#6d28d9' }}>
+                          style={{ marginTop: 10, width: '100%', padding: '8px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#A965ED'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#420E76' }}>
                           + ADICIONAR
                         </button>
                       </div>
@@ -777,14 +777,14 @@ export default function ProdutoPage() {
                         <p style={{ fontSize: 10.5, fontWeight: 600, color: '#0a0a0a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: 28 }}>
                           {cj.name}
                         </p>
-                        <div style={{ fontSize: 13, fontWeight: 900, color: '#6d28d9' }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#420E76' }}>
                           {currency.code} {fmt(cj.usd_price, currency.rate, currency.code)}
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: cj.id, name: cj.name, usd: cj.usd_price, img: cj.img_url ?? PLACEHOLDER }) }}
-                          style={{ marginTop: 'auto', width: '100%', padding: '6px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(109,40,217,0.4)', color: '#6d28d9', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#8b5cf6'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#6d28d9' }}>
+                          style={{ marginTop: 'auto', width: '100%', padding: '6px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#A965ED'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#420E76' }}>
                           + ADICIONAR
                         </button>
                       </div>
@@ -810,7 +810,7 @@ export default function ProdutoPage() {
                     <div key={r.id} style={{ padding: '20px 0', borderBottom: idx < reviews.length - 1 ? '1px solid #ececec' : 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                         <span style={{ fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{r.nome}</span>
-                        <span style={{ color: '#fbbf24', letterSpacing: 2, fontSize: 13 }}>{Array.from({ length: 5 }, (_, i) => i < r.rating ? '★' : '☆').join('')}</span>
+                        <span style={{ color: '#F7C528', letterSpacing: 2, fontSize: 13 }}>{Array.from({ length: 5 }, (_, i) => i < r.rating ? '★' : '☆').join('')}</span>
                         <span style={{ fontSize: 11, color: '#a3a3a3' }}>{new Date(r.created_at).toLocaleDateString('pt-BR')}</span>
                       </div>
                       {r.comentario && <p style={{ fontSize: 13, color: '#404040', margin: 0, lineHeight: 1.7 }}>{r.comentario}</p>}
@@ -825,7 +825,7 @@ export default function ProdutoPage() {
               <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: 11, fontWeight: 800, color: '#525252', marginBottom: 20, letterSpacing: '0.14em' }}>DEIXE SUA AVALIAÇÃO</p>
                 {reviewSent ? (
-                  <div style={{ textAlign: 'center', padding: '20px 0', color: '#6d28d9' }}>
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: '#420E76' }}>
                     <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Obrigado!</p>
                     <p style={{ fontSize: 12, color: '#737373', marginTop: 6 }}>Sua avaliação será publicada após aprovação.</p>
                   </div>
@@ -842,7 +842,7 @@ export default function ProdutoPage() {
                       <div style={{ display: 'flex', gap: 8 }}>
                         {[1, 2, 3, 4, 5].map(n => (
                           <button key={n} onClick={() => setReviewForm(f => ({ ...f, rating: n }))}
-                            style={{ fontSize: 22, background: 'none', border: 'none', cursor: 'pointer', color: n <= reviewForm.rating ? '#fbbf24' : '#d4d4d4', transition: 'color 0.1s' }}>
+                            style={{ fontSize: 22, background: 'none', border: 'none', cursor: 'pointer', color: n <= reviewForm.rating ? '#F7C528' : '#d4d4d4', transition: 'color 0.1s' }}>
                             ★
                           </button>
                         ))}
@@ -856,7 +856,7 @@ export default function ProdutoPage() {
                         style={{ width: '100%', padding: '11px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a', fontSize: 13, resize: 'none', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                     </div>
                     <button onClick={submitReview} disabled={reviewSending || !reviewForm.nome.trim()}
-                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : '#8b5cf6', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#000', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(109,40,217,0.18)' }}>
+                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : '#A965ED', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#000', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)' }}>
                       {reviewSending ? 'ENVIANDO...' : 'ENVIAR AVALIAÇÃO'}
                     </button>
                   </div>
@@ -880,18 +880,18 @@ export default function ProdutoPage() {
             }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.12em' }}>PREÇO ATACADO</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#6d28d9', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
                   {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
                 </div>
               </div>
               <button onClick={handleAdd}
                 style={{
                   padding: '14px 22px', borderRadius: 10, border: 'none',
-                  background: added ? 'rgba(109,40,217,0.12)' : '#8b5cf6',
-                  color: added ? '#6d28d9' : '#000',
+                  background: added ? 'rgba(66, 14, 118,0.12)' : '#A965ED',
+                  color: added ? '#420E76' : '#000',
                   fontSize: 12, fontWeight: 800, letterSpacing: '0.08em',
                   cursor: 'pointer', whiteSpace: 'nowrap',
-                  boxShadow: added ? 'none' : '0 4px 12px rgba(109,40,217,0.18)',
+                  boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
                 }}>
                 {added ? 'ADICIONADO' : 'ADICIONAR'}
               </button>

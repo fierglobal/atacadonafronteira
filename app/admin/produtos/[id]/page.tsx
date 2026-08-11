@@ -480,7 +480,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
         {tab === 'basico' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
-              <p style={sec('#8b5cf6')}>INFORMAÇÕES BÁSICAS</p>
+              <p style={sec('#A965ED')}>INFORMAÇÕES BÁSICAS</p>
               <div style={{ marginBottom: 14 }}>
                 <label style={lbl}>TÍTULO DO PRODUTO <span style={{ color: 'var(--a-text3)', fontWeight: 400 }}>(exibido na loja)</span></label>
                 <input value={form.titulo} onChange={setTitulo} placeholder="Nome claro e atrativo do produto" style={IS} />
@@ -507,10 +507,10 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                 <label style={lbl}>BADGES</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
                   {form.badges.map((b, i) => (
-                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 14, fontSize: 11, fontWeight: 700, color: '#8b5cf6' }}>
+                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.3)', borderRadius: 14, fontSize: 11, fontWeight: 700, color: '#A965ED' }}>
                       {b}
                       <button type="button" onClick={() => removeBadge(i)}
-                        style={{ background: 'none', border: 'none', color: '#8b5cf6', cursor: 'pointer', padding: 0, fontSize: 14, lineHeight: 1 }}>×</button>
+                        style={{ background: 'none', border: 'none', color: '#A965ED', cursor: 'pointer', padding: 0, fontSize: 14, lineHeight: 1 }}>×</button>
                     </span>
                   ))}
                 </div>
@@ -578,16 +578,16 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
             <div style={card}>
               <p style={sec()}>STATUS</p>
               {isAgendado && (
-                <div style={{ display: 'inline-block', padding: '5px 12px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 6, color: '#8b5cf6', fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
+                <div style={{ display: 'inline-block', padding: '5px 12px', background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.3)', borderRadius: 6, color: '#A965ED', fontSize: 12, fontWeight: 700, marginBottom: 12 }}>
                   Agendado para {fmtAgendado}
                 </div>
               )}
               <button type="button" onClick={() => setForm(f => ({ ...f, ativo: !f.ativo }))}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                <div style={{ position: 'relative', width: 44, height: 24, borderRadius: 12, background: form.ativo ? '#8b5cf6' : 'var(--a-border)', transition: 'background 0.2s' }}>
+                <div style={{ position: 'relative', width: 44, height: 24, borderRadius: 12, background: form.ativo ? '#A965ED' : 'var(--a-border)', transition: 'background 0.2s' }}>
                   <span style={{ position: 'absolute', top: 3, left: form.ativo ? 22 : 3, width: 18, height: 18, borderRadius: 9, background: form.ativo ? '#000' : 'var(--a-text3)', boxShadow: '0 1px 3px rgba(0,0,0,0.3)', transition: 'left 0.2s', display: 'block' }} />
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: form.ativo ? '#8b5cf6' : 'var(--a-text3)' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: form.ativo ? '#A965ED' : 'var(--a-text3)' }}>
                   {form.ativo ? 'Produto ativo — visível na loja' : 'Produto inativo — oculto da loja'}
                 </span>
               </button>
@@ -616,8 +616,8 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               </div>
 
               {margem !== null && (
-                <div style={{ marginTop: 14, padding: '10px 16px', borderRadius: 8, background: margem >= 20 ? 'rgba(139,92,246,0.06)' : 'rgba(239,68,68,0.06)', border: `1px solid ${margem >= 20 ? 'rgba(139,92,246,0.25)' : 'rgba(239,68,68,0.25)'}`, display: 'flex', gap: 20, alignItems: 'center' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: margem >= 20 ? '#8b5cf6' : '#ef4444' }}>
+                <div style={{ marginTop: 14, padding: '10px 16px', borderRadius: 8, background: margem >= 20 ? 'rgba(169, 101, 237,0.06)' : 'rgba(239,68,68,0.06)', border: `1px solid ${margem >= 20 ? 'rgba(169, 101, 237,0.25)' : 'rgba(239,68,68,0.25)'}`, display: 'flex', gap: 20, alignItems: 'center' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: margem >= 20 ? '#A965ED' : '#ef4444' }}>
                     Margem: {margem.toFixed(1)}%
                   </span>
                   <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
@@ -687,7 +687,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
             </div>
 
             {form.usd_price_promo && parseFloat(form.usd_price_promo) > 0 && parseFloat(form.usd_price) > 0 && (
-              <div style={{ padding: '12px 16px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 9, fontSize: 13, color: '#8b5cf6', fontWeight: 600 }}>
+              <div style={{ padding: '12px 16px', background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 9, fontSize: 13, color: '#A965ED', fontWeight: 600 }}>
                 Desconto de {((parseFloat(form.usd_price) - parseFloat(form.usd_price_promo)) / parseFloat(form.usd_price) * 100).toFixed(1)}% — de USD {parseFloat(form.usd_price).toFixed(2)} por USD {parseFloat(form.usd_price_promo).toFixed(2)}
               </div>
             )}
@@ -699,7 +699,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <p style={sec('#8b5cf6')}>GALERIA DE IMAGENS</p>
+                <p style={sec('#A965ED')}>GALERIA DE IMAGENS</p>
                 {form.imagens.length > 1 && <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>Arraste para reordenar · 1ª = principal</span>}
               </div>
 
@@ -712,10 +712,10 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                       onDragLeave={() => setDragOverIdx(null)}
                       onDrop={e => { e.preventDefault(); if (dragIdx !== null && dragIdx !== i) reorder(dragIdx, i); setDragIdx(null); setDragOverIdx(null) }}
                       onDragEnd={() => { setDragIdx(null); setDragOverIdx(null) }}
-                      style={{ position: 'relative', width: 100, height: 100, borderRadius: 10, overflow: 'hidden', cursor: 'grab', flexShrink: 0, border: i === 0 ? '2.5px solid #8b5cf6' : dragOverIdx === i ? '2px dashed #8b5cf6' : '1.5px solid var(--a-border)', opacity: dragIdx === i ? 0.4 : 1 }}>
+                      style={{ position: 'relative', width: 100, height: 100, borderRadius: 10, overflow: 'hidden', cursor: 'grab', flexShrink: 0, border: i === 0 ? '2.5px solid #A965ED' : dragOverIdx === i ? '2px dashed #A965ED' : '1.5px solid var(--a-border)', opacity: dragIdx === i ? 0.4 : 1 }}>
                       <Image src={url} alt="" fill style={{ objectFit: 'cover', pointerEvents: 'none' }} unoptimized />
                       {i === 0 && (
-                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(139,92,246,0.85)', color: '#000', fontSize: 9, fontWeight: 800, textAlign: 'center', padding: '3px 0', letterSpacing: '0.06em' }}>PRINCIPAL</div>
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(169, 101, 237,0.85)', color: '#000', fontSize: 9, fontWeight: 800, textAlign: 'center', padding: '3px 0', letterSpacing: '0.06em' }}>PRINCIPAL</div>
                       )}
                       <button type="button" onClick={() => removeImagem(i)}
                         style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
@@ -728,7 +728,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                 <p style={{ fontSize: 13, color: 'var(--a-text3)', textAlign: 'center', padding: '20px 0' }}>Nenhuma imagem</p>
               )}
 
-              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 8, cursor: uploading ? 'not-allowed' : 'pointer', background: 'rgba(139,92,246,0.08)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)', opacity: uploading ? 0.6 : 1, marginBottom: 10 }}>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 13, fontWeight: 700, padding: '11px', borderRadius: 8, cursor: uploading ? 'not-allowed' : 'pointer', background: 'rgba(169, 101, 237,0.08)', color: '#A965ED', border: '1px solid rgba(169, 101, 237,0.3)', opacity: uploading ? 0.6 : 1, marginBottom: 10 }}>
                 {uploading ? 'Enviando...' : '↑ Fazer upload de imagem'}
                 <input type="file" accept="image/*" style={{ display: 'none' }} disabled={uploading}
                   onChange={e => { const f = e.target.files?.[0]; if (f) uploadImagem(f); e.target.value = '' }} />
@@ -838,7 +838,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
         {tab === 'variacoes' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
-              <p style={sec('#8b5cf6')}>GRADE DE VARIAÇÕES</p>
+              <p style={sec('#A965ED')}>GRADE DE VARIAÇÕES</p>
 
               {variantes.length === 0 && !novaVariante && (
                 <p style={{ fontSize: 13, color: 'var(--a-text3)', marginBottom: 16 }}>Nenhuma variação cadastrada. Use para Cor, Tamanho, Voltagem, etc.</p>
@@ -850,7 +850,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
                       {v.atributos.map((a, i) => (
-                        <span key={i} style={{ fontSize: 11, background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(139,92,246,0.2)', fontWeight: 700 }}>
+                        <span key={i} style={{ fontSize: 11, background: 'rgba(169, 101, 237,0.1)', color: '#A965ED', padding: '2px 8px', borderRadius: 4, border: '1px solid rgba(169, 101, 237,0.2)', fontWeight: 700 }}>
                           {a.nome}: {a.valor}
                         </span>
                       ))}
@@ -870,8 +870,8 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
               {/* Formulário nova variante */}
               {novaVariante ? (
-                <div style={{ padding: 16, background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 10, marginTop: 8 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', letterSpacing: '0.06em', marginBottom: 14 }}>NOVA VARIAÇÃO</p>
+                <div style={{ padding: 16, background: 'rgba(169, 101, 237,0.05)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 10, marginTop: 8 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#A965ED', letterSpacing: '0.06em', marginBottom: 14 }}>NOVA VARIAÇÃO</p>
 
                   {/* Atributos */}
                   {novaVariante.atributos.map((a, i) => (
@@ -885,7 +885,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                     </div>
                   ))}
                   <button onClick={() => setNovaVariante(v => v ? { ...v, atributos: [...v.atributos, { nome: '', valor: '' }] } : v)}
-                    style={{ fontSize: 12, color: '#8b5cf6', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 14, fontWeight: 700 }}>
+                    style={{ fontSize: 12, color: '#A965ED', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 14, fontWeight: 700 }}>
                     + Adicionar atributo
                   </button>
 
@@ -906,7 +906,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={adicionarVariante}
-                      style={{ padding: '9px 20px', background: '#8b5cf6', color: '#fff', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                      style={{ padding: '9px 20px', background: '#A965ED', color: '#fff', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                       Confirmar
                     </button>
                     <button onClick={() => setNovaVariante(null)}
@@ -917,7 +917,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                 </div>
               ) : (
                 <button onClick={() => setNovaVariante({ atributos: [{ nome: '', valor: '' }], preco_adicional: '', estoque: '', sku: '' })}
-                  style={{ marginTop: 8, padding: '10px 20px', background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                  style={{ marginTop: 8, padding: '10px 20px', background: 'rgba(169, 101, 237,0.1)', color: '#A965ED', border: '1px solid rgba(169, 101, 237,0.3)', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                   + Adicionar variação
                 </button>
               )}
@@ -929,11 +929,11 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
         {tab === 'atributos' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
-              <p style={sec('#a855f7')}>ATRIBUTOS CUSTOMIZADOS</p>
+              <p style={sec('#A660EC')}>ATRIBUTOS CUSTOMIZADOS</p>
 
               {atributosVisiveis.length === 0 ? (
                 <p style={{ fontSize: 13, color: 'var(--a-text3)' }}>
-                  Nenhum atributo configurado para esta categoria. Crie em <a href="/admin/custom-fields" target="_blank" style={{ color: '#a855f7' }}>/admin/custom-fields</a>.
+                  Nenhum atributo configurado para esta categoria. Crie em <a href="/admin/custom-fields" target="_blank" style={{ color: '#A660EC' }}>/admin/custom-fields</a>.
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -945,7 +945,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                         <div key={def.id}>
                           <button type="button" onClick={() => setCustomField(def.field_key, !checked)}
                             style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                            <div style={{ position: 'relative', width: 38, height: 22, borderRadius: 11, background: checked ? '#a855f7' : 'var(--a-border)', transition: 'background 0.2s' }}>
+                            <div style={{ position: 'relative', width: 38, height: 22, borderRadius: 11, background: checked ? '#A660EC' : 'var(--a-border)', transition: 'background 0.2s' }}>
                               <span style={{ position: 'absolute', top: 3, left: checked ? 19 : 3, width: 16, height: 16, borderRadius: 8, background: '#fff', transition: 'left 0.2s', display: 'block' }} />
                             </div>
                             <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)' }}>
@@ -1136,7 +1136,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
         {tab === 'seo' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
-              <p style={sec('#00e5ff')}>URL AMIGÁVEL</p>
+              <p style={sec('#A965ED')}>URL AMIGÁVEL</p>
               <label style={lbl}>SLUG <span style={{ color: 'var(--a-text3)', fontWeight: 400 }}>(gerado automaticamente do título)</span></label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 0, background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 8, overflow: 'hidden' }}>
                 <span style={{ padding: '10px 12px', fontSize: 12, color: 'var(--a-text3)', background: 'var(--a-surface)', borderRight: '1px solid var(--a-border)', whiteSpace: 'nowrap' }}>
@@ -1147,14 +1147,14 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                   style={{ ...IS, border: 'none', borderRadius: 0, flex: 1, fontFamily: 'monospace' }} />
               </div>
               {form.slug && (
-                <p style={{ fontSize: 11, color: '#00e5ff', marginTop: 6 }}>
+                <p style={{ fontSize: 11, color: '#A965ED', marginTop: 6 }}>
                   atacadonafronteira.com/produto/{form.slug}
                 </p>
               )}
             </div>
 
             <div style={card}>
-              <p style={sec('#00e5ff')}>META DADOS (GOOGLE)</p>
+              <p style={sec('#A965ED')}>META DADOS (GOOGLE)</p>
               <div style={{ marginBottom: 14 }}>
                 <label style={lbl}>META TÍTULO <span style={{ color: 'var(--a-text3)', fontWeight: 400 }}>({form.meta_titulo.length}/60 caracteres)</span></label>
                 <input value={form.meta_titulo} onChange={set('meta_titulo')} maxLength={60}
@@ -1201,7 +1201,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
             ) : logs.map(log => (
               <div key={log.id} style={{ padding: '14px 20px', borderBottom: '1px solid var(--a-border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{log.admin_email}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED' }}>{log.admin_email}</span>
                   <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>
                     {new Date(log.created_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
@@ -1223,14 +1223,14 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
         {tab !== 'historico' && (
           <div style={{ display: 'flex', gap: 12, paddingTop: 20, alignItems: 'center' }}>
             <button onClick={save} disabled={saving}
-              style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#8b5cf6', color: saving ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 9, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
+              style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#A965ED', color: saving ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 9, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
               {saving ? 'Salvando...' : 'Salvar produto'}
             </button>
             <button onClick={() => router.push('/admin/produtos')}
               style={{ padding: '12px 20px', background: 'transparent', color: 'var(--a-text2)', border: '1px solid var(--a-border)', borderRadius: 9, fontSize: 13, cursor: 'pointer' }}>
               Cancelar
             </button>
-            {saved && <span style={{ fontSize: 13, color: '#8b5cf6', fontWeight: 700 }}>✓ Salvo</span>}
+            {saved && <span style={{ fontSize: 13, color: '#A965ED', fontWeight: 700 }}>✓ Salvo</span>}
             {error && <span style={{ fontSize: 12, color: '#ef4444' }}>{error}</span>}
             <div style={{ flex: 1 }} />
             <button onClick={excluir}

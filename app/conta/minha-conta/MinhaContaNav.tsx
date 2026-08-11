@@ -32,7 +32,7 @@ export default function MinhaContaNav() {
       label: 'Meu Perfil',
       exact: true,
       icon: (active: boolean) => (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={active ? '#8b5cf6' : '#444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={active ? '#A965ED' : '#444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
@@ -43,7 +43,7 @@ export default function MinhaContaNav() {
       label: 'Meus Pedidos',
       exact: false,
       icon: (active: boolean) => (
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={active ? '#8b5cf6' : '#444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={active ? '#A965ED' : '#444'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -78,8 +78,8 @@ export default function MinhaContaNav() {
         </div>
 
         <div className="conta-user-info" style={{ padding: '20px 20px 16px' }}>
-          <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
-            <span style={{ fontSize: 16, fontWeight: 900, color: '#8b5cf6' }}>{nome ? nome[0].toUpperCase() : '?'}</span>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(169, 101, 237,0.08)', border: '1px solid rgba(169, 101, 237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#A965ED' }}>{nome ? nome[0].toUpperCase() : '?'}</span>
           </div>
           {nome && <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 2px', color: '#fff' }}>{nome}</p>}
           <p style={{ fontSize: 11, color: '#444', margin: 0, wordBreak: 'break-all' }}>{email}</p>
@@ -92,9 +92,9 @@ export default function MinhaContaNav() {
               <a key={item.href} href={item.href} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '10px 12px', borderRadius: 8, marginBottom: 4,
-                background: active ? 'rgba(139,92,246,0.06)' : 'transparent',
-                borderLeft: active ? '2px solid #8b5cf6' : '2px solid transparent',
-                color: active ? '#8b5cf6' : '#555',
+                background: active ? 'rgba(169, 101, 237,0.06)' : 'transparent',
+                borderLeft: active ? '2px solid #A965ED' : '2px solid transparent',
+                color: active ? '#A965ED' : '#555',
                 textDecoration: 'none', fontSize: 13, fontWeight: active ? 700 : 500,
                 transition: 'all 0.15s',
               }}>

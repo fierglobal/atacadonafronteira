@@ -72,12 +72,12 @@ export function CarrinhoSidebar() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
             <span style={{ fontWeight: 700, fontSize: 16, color: '#0a0a0a' }}>Carrinho</span>
             {quantidade > 0 && (
-              <span style={{ background: '#8b5cf6', color: '#000', borderRadius: 99, fontSize: 11, fontWeight: 800, padding: '2px 8px' }}>
+              <span style={{ background: '#A965ED', color: '#000', borderRadius: 99, fontSize: 11, fontWeight: 800, padding: '2px 8px' }}>
                 {quantidade}
               </span>
             )}
@@ -91,16 +91,16 @@ export function CarrinhoSidebar() {
 
         {/* AOV bar */}
         {itens.length > 0 && pedidoMinimo && (
-          <div style={{ padding: '12px 16px', background: minOk ? 'rgba(109,40,217,0.06)' : 'rgba(245,158,11,0.08)', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
+          <div style={{ padding: '12px 16px', background: minOk ? 'rgba(66, 14, 118,0.06)' : 'rgba(245,158,11,0.08)', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: minOk ? '#6d28d9' : '#b45309', letterSpacing: '0.04em' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: minOk ? '#420E76' : '#b45309', letterSpacing: '0.04em' }}>
                 {minOk
                   ? '✓ Pedido mínimo atingido'
                   : `Faltam R$ ${faltaBRL.toFixed(2).replace('.', ',')} pra atingir o pedido mínimo`}
               </span>
             </div>
             <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
-              <div style={{ width: `${progressPct}%`, height: '100%', background: minOk ? '#8b5cf6' : '#f59e0b', transition: 'width 0.3s' }} />
+              <div style={{ width: `${progressPct}%`, height: '100%', background: minOk ? '#A965ED' : '#f59e0b', transition: 'width 0.3s' }} />
             </div>
           </div>
         )}
@@ -124,12 +124,12 @@ export function CarrinhoSidebar() {
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {item.brand && (
-                    <p style={{ fontSize: 10, color: '#6d28d9', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.brand}</p>
+                    <p style={{ fontSize: 10, color: '#420E76', fontWeight: 600, marginBottom: 2, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.brand}</p>
                   )}
                   <p style={{ fontWeight: 600, fontSize: 12, color: '#0a0a0a', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.name}
                   </p>
-                  <p style={{ fontSize: 12, color: '#6d28d9', fontWeight: 700, marginBottom: 10 }}>
+                  <p style={{ fontSize: 12, color: '#420E76', fontWeight: 700, marginBottom: 10 }}>
                     {fmtCurrency(item.usd, currency.rate, currency.code)}/un.
                   </p>
 
@@ -173,12 +173,12 @@ export function CarrinhoSidebar() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 11, color: '#0a0a0a', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-                      <p style={{ fontSize: 11, color: '#6d28d9', fontWeight: 700, margin: '2px 0 0' }}>
+                      <p style={{ fontSize: 11, color: '#420E76', fontWeight: 700, margin: '2px 0 0' }}>
                         {fmtCurrency(p.usd_price, currency.rate, currency.code)}
                       </p>
                     </div>
                     <button onClick={() => adicionar({ id: p.id, name, usd: p.usd_price, img: p.img_url || '/produto-placeholder.svg', brand: brand || undefined })}
-                      style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(109,40,217,0.08)', border: '1px solid rgba(109,40,217,0.4)', color: '#6d28d9', fontSize: 18, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(66, 14, 118,0.08)', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 18, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       +
                     </button>
                   </div>
@@ -193,14 +193,14 @@ export function CarrinhoSidebar() {
           <div style={{ padding: '16px 18px', borderTop: '1px solid #ececec', display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0, background: '#fafafa' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <span style={{ fontSize: 14, color: '#404040' }}>Total</span>
-              <span style={{ fontWeight: 800, fontSize: 22, color: '#6d28d9' }}>
+              <span style={{ fontWeight: 800, fontSize: 22, color: '#420E76' }}>
                 {fmtCurrency(totalUsd, currency.rate, currency.code)}
               </span>
             </div>
 
             <button onClick={() => { if (minOk) { fecharSidebar(); router.push('/checkout') } }}
               disabled={!minOk}
-              style={{ width: '100%', height: 50, background: minOk ? '#8b5cf6' : '#f5f5f5', color: minOk ? '#000' : '#a3a3a3', borderRadius: 12, fontWeight: 700, fontSize: 15, border: minOk ? 'none' : '1px solid #ececec', cursor: minOk ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: minOk ? '0 4px 16px rgba(109,40,217,0.25)' : 'none' }}>
+              style={{ width: '100%', height: 50, background: minOk ? '#A965ED' : '#f5f5f5', color: minOk ? '#000' : '#a3a3a3', borderRadius: 12, fontWeight: 700, fontSize: 15, border: minOk ? 'none' : '1px solid #ececec', cursor: minOk ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: minOk ? '0 4px 16px rgba(66, 14, 118,0.25)' : 'none' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>

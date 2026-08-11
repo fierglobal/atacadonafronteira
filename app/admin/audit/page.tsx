@@ -44,10 +44,10 @@ export default function Audit() {
   const filtrar = () => load(0)
 
   const actionColor = (a: string): string => {
-    if (a === 'create') return '#8b5cf6'
+    if (a === 'create') return '#A965ED'
     if (a === 'delete') return '#ef4444'
     if (a === 'update') return '#f59e0b'
-    if (a === 'test') return '#8b5cf6'
+    if (a === 'test') return '#A965ED'
     return 'var(--a-text2)'
   }
 
@@ -79,7 +79,7 @@ export default function Audit() {
           placeholder="Filtrar por usuário"
           style={{ ...inp, width: 240 }} />
         <button onClick={filtrar}
-          style={{ padding: '8px 18px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '8px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           Filtrar
         </button>
         <button onClick={() => { setEntity(''); setUser(''); setTimeout(() => load(0), 0) }}
@@ -112,7 +112,7 @@ export default function Audit() {
                   <td style={{ padding: '12px 18px', fontSize: 11, fontWeight: 800, color: actionColor(l.action), textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
                     {l.action}
                   </td>
-                  <td style={{ padding: '12px 18px', fontSize: 11, color: '#8b5cf6', fontFamily: 'monospace' }}>{l.entity}</td>
+                  <td style={{ padding: '12px 18px', fontSize: 11, color: '#A965ED', fontFamily: 'monospace' }}>{l.entity}</td>
                   <td style={{ padding: '12px 18px', fontSize: 11, color: 'var(--a-text3)', fontFamily: 'monospace', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.entity_id || '—'}
                   </td>

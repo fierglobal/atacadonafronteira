@@ -7,20 +7,20 @@ type Customer = any
 
 const CUSTOMER_TAGS = ['atacadista', 'vip', 'novo', 'inativo', 'bloqueado']
 const CTAG_COLORS: Record<string, string> = {
-  atacadista: '#3b82f6', vip: '#f59e0b', novo: '#8b5cf6', inativo: '#555', bloqueado: '#ef4444',
+  atacadista: '#3b82f6', vip: '#f59e0b', novo: '#A965ED', inativo: '#555', bloqueado: '#ef4444',
 }
 
-const AVATAR_COLORS = ['#8b5cf6', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#00e5ff', '#ec4899', '#10b981']
+const AVATAR_COLORS = ['#A965ED', '#3b82f6', '#f59e0b', '#A965ED', '#ef4444', '#A965ED', '#ec4899', '#10b981']
 
 const STATUS_COLOR: Record<string, string> = {
-  pendente_pagamento: '#f59e0b', pago: '#3b82f6', pronto_retirada: '#8b5cf6', retirado: '#555', cancelado: '#ef4444',
+  pendente_pagamento: '#f59e0b', pago: '#3b82f6', pronto_retirada: '#A965ED', retirado: '#555', cancelado: '#ef4444',
 }
 const STATUS_LABEL: Record<string, string> = {
   pendente_pagamento: 'Aguardando PIX', pago: 'Pago', pronto_retirada: 'Pronto p/ Retirada', retirado: 'Retirado', cancelado: 'Cancelado',
 }
 
 const SEG_COLOR: Record<string, string> = {
-  champion: '#8b5cf6', leal: '#3b82f6', potencial: '#00e5ff', novo: '#f59e0b', em_risco: '#ec4899', perdido: '#888', sem_compra: '#666',
+  champion: '#A965ED', leal: '#3b82f6', potencial: '#A965ED', novo: '#f59e0b', em_risco: '#ec4899', perdido: '#888', sem_compra: '#666',
 }
 const SEG_LABEL: Record<string, string> = {
   champion: 'Campeão', leal: 'Leal', potencial: 'Potencial', novo: 'Novo', em_risco: 'Em risco', perdido: 'Perdido', sem_compra: 'Sem compra',
@@ -340,7 +340,7 @@ export default function Clientes() {
             ↓ Exportar CSV
           </a>
           <button onClick={() => { setImportOpen(true); setImportPreview(null); setImportResult(null); setImportFile(null) }}
-            style={{ padding: '9px 14px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+            style={{ padding: '9px 14px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
             ↑ Importar CSV
           </button>
         </div>
@@ -415,7 +415,7 @@ export default function Clientes() {
                     <SegBadge rfm={c.rfm} />
                   </td>
                   <td style={{ padding: '12px 18px' }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: (c.orders || []).length > 0 ? '#8b5cf6' : 'var(--a-text3)' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: (c.orders || []).length > 0 ? '#A965ED' : 'var(--a-text3)' }}>
                       {(c.orders || []).length}
                     </span>
                   </td>
@@ -470,7 +470,7 @@ export default function Clientes() {
                   {editing ? (
                     <>
                       <button onClick={saveEdit} disabled={saving}
-                        style={{ padding: '7px 16px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: saving ? 'wait' : 'pointer' }}>
+                        style={{ padding: '7px 16px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: saving ? 'wait' : 'pointer' }}>
                         {saving ? 'Salvando...' : '✓ Salvar'}
                       </button>
                       <button onClick={() => setEditing(null)}
@@ -499,7 +499,7 @@ export default function Clientes() {
                     <button key={t.key} onClick={() => setTab(t.key)}
                       style={{
                         padding: '10px 16px', background: 'transparent', border: 'none', cursor: 'pointer',
-                        borderBottom: `2px solid ${active ? '#8b5cf6' : 'transparent'}`,
+                        borderBottom: `2px solid ${active ? '#A965ED' : 'transparent'}`,
                         color: active ? 'var(--a-text)' : 'var(--a-text3)',
                         fontWeight: active ? 800 : 600, fontSize: 12, whiteSpace: 'nowrap',
                       }}>
@@ -514,8 +514,8 @@ export default function Clientes() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
                     {[
                       { label: 'Total Pedidos', value: totalPedidos, color: 'var(--a-text)', sub: '' },
-                      { label: 'Pedidos Pagos', value: pedidosPagos, color: '#8b5cf6', sub: '' },
-                      { label: 'Total Gasto', value: totalGasto > 0 ? fmt(totalGasto) : '—', color: totalGasto > 0 ? '#8b5cf6' : 'var(--a-text3)', sub: '' },
+                      { label: 'Pedidos Pagos', value: pedidosPagos, color: '#A965ED', sub: '' },
+                      { label: 'Total Gasto', value: totalGasto > 0 ? fmt(totalGasto) : '—', color: totalGasto > 0 ? '#A965ED' : 'var(--a-text3)', sub: '' },
                       { label: 'Score RFM', value: rfm?.score ?? '—', color: SEG_COLOR[rfm?.segmento || 'sem_compra'] || 'var(--a-text)', sub: segLabel },
                     ].map(s => (
                       <div key={s.label} style={{ background: 'var(--a-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid var(--a-border)' }}>
@@ -650,7 +650,7 @@ export default function Clientes() {
                       {selected.orders.map((o: Order) => (
                         <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--a-border)' }}>
                           <div>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', marginRight: 12 }}>{o.order_num}</span>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED', marginRight: 12 }}>{o.order_num}</span>
                             <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{new Date(o.created_at).toLocaleDateString('pt-BR')}</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -678,7 +678,7 @@ export default function Clientes() {
                         Fixar no topo
                       </label>
                       <button onClick={addNote} disabled={savingNote || !newNote.trim()}
-                        style={{ padding: '7px 16px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: savingNote ? 'wait' : 'pointer', opacity: !newNote.trim() ? 0.5 : 1 }}>
+                        style={{ padding: '7px 16px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: savingNote ? 'wait' : 'pointer', opacity: !newNote.trim() ? 0.5 : 1 }}>
                         {savingNote ? 'Salvando...' : 'Adicionar'}
                       </button>
                     </div>
@@ -723,7 +723,7 @@ export default function Clientes() {
                       <input value={uploadName} onChange={e => setUploadName(e.target.value)} placeholder="Nome do documento" style={inp} />
                     </div>
                     <button onClick={uploadDoc} disabled={uploading}
-                      style={{ padding: '7px 16px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: uploading ? 'wait' : 'pointer' }}>
+                      style={{ padding: '7px 16px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 7, fontWeight: 700, fontSize: 12, cursor: uploading ? 'wait' : 'pointer' }}>
                       {uploading ? 'Enviando...' : 'Enviar'}
                     </button>
                   </div>
@@ -742,7 +742,7 @@ export default function Clientes() {
                           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0 }}>{fmtBytes(d.tamanho)} · {fmtRelative(d.created_at)}</p>
                           {d.uploaded_by && <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0 }}>por {d.uploaded_by}</p>}
                           <a href={d.url} target="_blank" rel="noreferrer"
-                            style={{ display: 'inline-block', marginTop: 8, fontSize: 12, fontWeight: 700, color: '#8b5cf6', textDecoration: 'none' }}>
+                            style={{ display: 'inline-block', marginTop: 8, fontSize: 12, fontWeight: 700, color: '#A965ED', textDecoration: 'none' }}>
                             Abrir →
                           </a>
                         </div>
@@ -869,7 +869,7 @@ export default function Clientes() {
                 Pré-visualizar
               </button>
               <button onClick={commitImport} disabled={!importPreview || !!importPreview?.error || importing || (importPreview?.errors?.length > 0 && importPreview?.valid === 0)}
-                style={{ padding: '8px 16px', background: '#8b5cf6', border: 'none', color: '#000', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: importing ? 'wait' : 'pointer', opacity: !importPreview ? 0.5 : 1 }}>
+                style={{ padding: '8px 16px', background: '#A965ED', border: 'none', color: '#000', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: importing ? 'wait' : 'pointer', opacity: !importPreview ? 0.5 : 1 }}>
                 {importing ? 'Importando...' : 'Importar'}
               </button>
             </div>
@@ -883,7 +883,7 @@ export default function Clientes() {
                   <>
                     <p style={{ fontSize: 12, color: 'var(--a-text2)', margin: 0 }}>
                       Total: <b style={{ color: 'var(--a-text)' }}>{importPreview.total}</b> ·
-                      Válidos: <b style={{ color: '#8b5cf6' }}>{importPreview.valid}</b> ·
+                      Válidos: <b style={{ color: '#A965ED' }}>{importPreview.valid}</b> ·
                       Erros: <b style={{ color: importPreview.errors?.length ? '#ef4444' : 'var(--a-text3)' }}>{importPreview.errors?.length || 0}</b>
                     </p>
                     {importPreview.errors?.length > 0 && (
@@ -901,10 +901,10 @@ export default function Clientes() {
             )}
 
             {importResult && (
-              <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 14, border: `1px solid ${importResult.ok ? '#8b5cf655' : '#ef444455'}` }}>
+              <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 14, border: `1px solid ${importResult.ok ? '#A965ED55' : '#ef444455'}` }}>
                 <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>RESULTADO</p>
                 {importResult.ok ? (
-                  <p style={{ fontSize: 13, color: '#8b5cf6', margin: 0 }}>
+                  <p style={{ fontSize: 13, color: '#A965ED', margin: 0 }}>
                     {importResult.inserted} cliente(s) importado(s) com sucesso.
                   </p>
                 ) : (

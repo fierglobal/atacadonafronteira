@@ -69,7 +69,7 @@ export default function Marcas() {
 
       {/* Formulário nova marca */}
       <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: 22, marginBottom: 24, maxWidth: 560 }}>
-        <p style={{ fontSize: 10, fontWeight: 800, color: '#8b5cf6', letterSpacing: '0.1em', margin: '0 0 14px' }}>NOVA MARCA</p>
+        <p style={{ fontSize: 10, fontWeight: 800, color: '#A965ED', letterSpacing: '0.1em', margin: '0 0 14px' }}>NOVA MARCA</p>
         <div style={{ display: 'flex', gap: 10 }}>
           <input
             value={novoNome}
@@ -79,7 +79,7 @@ export default function Marcas() {
             style={{ ...inp, flex: 1 }}
           />
           <button onClick={criar} disabled={criando || !novoNome.trim()}
-            style={{ padding: '10px 22px', background: criando || !novoNome.trim() ? 'var(--a-border)' : '#8b5cf6', color: criando || !novoNome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 13, cursor: criando || !novoNome.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
+            style={{ padding: '10px 22px', background: criando || !novoNome.trim() ? 'var(--a-border)' : '#A965ED', color: criando || !novoNome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 13, cursor: criando || !novoNome.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
             {criando ? 'Criando...' : '+ Cadastrar'}
           </button>
         </div>
@@ -112,10 +112,10 @@ export default function Marcas() {
                         onChange={e => setEditando({ id: m.id, nome: e.target.value })}
                         onKeyDown={e => { if (e.key === 'Enter') salvarEdicao(m.id); if (e.key === 'Escape') setEditando(null) }}
                         autoFocus
-                        style={{ ...inp, flex: 1, borderColor: 'rgba(139,92,246,0.4)' }}
+                        style={{ ...inp, flex: 1, borderColor: 'rgba(169, 101, 237,0.4)' }}
                       />
                       <button onClick={() => salvarEdicao(m.id)} disabled={salvando === m.id}
-                        style={{ padding: '6px 12px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                        style={{ padding: '6px 12px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                         {salvando === m.id ? '...' : '✓'}
                       </button>
                       <button onClick={() => setEditando(null)}

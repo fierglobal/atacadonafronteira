@@ -34,9 +34,9 @@ export default async function Financeiro() {
   const sumUSD = (list: typeof orders) => list.reduce((s, o) => s + o.total_usd, 0)
 
   const cards = [
-    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), usd: sumUSD(confirmados(mesAtual)), color: '#8b5cf6' },
+    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), usd: sumUSD(confirmados(mesAtual)), color: '#A965ED' },
     { label: 'Pendente PIX — Mês Atual', brl: sumBRL(pendentes(mesAtual)), usd: sumUSD(pendentes(mesAtual)), color: '#f59e0b' },
-    { label: 'Confirmado — Mês Anterior', brl: sumBRL(confirmados(mesAnterior)), usd: sumUSD(confirmados(mesAnterior)), color: '#00e5ff' },
+    { label: 'Confirmado — Mês Anterior', brl: sumBRL(confirmados(mesAnterior)), usd: sumUSD(confirmados(mesAnterior)), color: '#A965ED' },
     { label: 'Cancelado — Mês Atual', brl: sumBRL(cancelados(mesAtual)), usd: sumUSD(cancelados(mesAtual)), color: '#ef4444' },
   ]
 
@@ -90,7 +90,7 @@ export default async function Financeiro() {
             {Object.entries(days).reverse().map(([day, vals]) => (
               <tr key={day} style={{ borderBottom: '1px solid var(--a-surface)' }}>
                 <td style={{ padding: '11px 20px', fontSize: 12, color: 'var(--a-text2)' }}>{day}</td>
-                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.confirmado > 0 ? 700 : 400, color: vals.confirmado > 0 ? '#8b5cf6' : 'var(--a-text3)' }}>
+                <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.confirmado > 0 ? 700 : 400, color: vals.confirmado > 0 ? '#A965ED' : 'var(--a-text3)' }}>
                   {vals.confirmado > 0 ? fmt(vals.confirmado) : '—'}
                 </td>
                 <td style={{ padding: '11px 20px', fontSize: 13, fontWeight: vals.pendente > 0 ? 700 : 400, color: vals.pendente > 0 ? '#f59e0b' : 'var(--a-text3)' }}>

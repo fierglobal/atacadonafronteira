@@ -38,7 +38,7 @@ export default function AdminLogin() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <style>{`input:focus { border-color: rgba(139,92,246,0.5) !important; outline: none; }`}</style>
+      <style>{`input:focus { border-color: rgba(169, 101, 237,0.5) !important; outline: none; }`}</style>
       <div style={{ width: '100%', maxWidth: 360 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <Logo size={34} dark />
@@ -64,7 +64,7 @@ export default function AdminLogin() {
           )}
           {err && <p style={{ color: '#ef4444', fontSize: 12, textAlign: 'center' }}>{err}</p>}
           <button type="submit" disabled={loading || (needs2fa && totp.length !== 6)}
-            style={{ padding: '14px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading || (needs2fa && totp.length !== 6) ? 0.5 : 1 }}>
+            style={{ padding: '14px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading || (needs2fa && totp.length !== 6) ? 0.5 : 1 }}>
             {loading ? 'Entrando...' : needs2fa ? 'Verificar Código' : 'Entrar'}
           </button>
           {needs2fa && (

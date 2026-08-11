@@ -80,7 +80,7 @@ export default function Categorias() {
 
       {/* Formulário nova categoria */}
       <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: 22, marginBottom: 24, maxWidth: 620 }}>
-        <p style={{ fontSize: 10, fontWeight: 800, color: '#8b5cf6', letterSpacing: '0.1em', margin: '0 0 16px' }}>NOVA CATEGORIA</p>
+        <p style={{ fontSize: 10, fontWeight: 800, color: '#A965ED', letterSpacing: '0.1em', margin: '0 0 16px' }}>NOVA CATEGORIA</p>
         <div style={{ display: 'flex', gap: 10, marginBottom: novoParent === '' ? 0 : 0 }}>
           <input
             value={novoNome}
@@ -100,7 +100,7 @@ export default function Categorias() {
           <button
             onClick={criar}
             disabled={criando || !novoNome.trim()}
-            style={{ padding: '10px 22px', background: criando || !novoNome.trim() ? 'var(--a-border)' : '#8b5cf6', color: criando || !novoNome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 13, cursor: criando || !novoNome.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+            style={{ padding: '10px 22px', background: criando || !novoNome.trim() ? 'var(--a-border)' : '#A965ED', color: criando || !novoNome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 13, cursor: criando || !novoNome.trim() ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
           >
             {criando ? 'Criando...' : '+ Cadastrar'}
           </button>
@@ -122,7 +122,7 @@ export default function Categorias() {
           <div key={cat.id} style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, marginBottom: 10, overflow: 'hidden' }}>
             {/* Categoria principal */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 18px', borderBottom: filhos(cat.id).length > 0 ? '1px solid var(--a-border)' : 'none' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#8b5cf6', flexShrink: 0 }} />
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#A965ED', flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 {editando?.id === cat.id ? (
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -131,7 +131,7 @@ export default function Categorias() {
                       onChange={e => setEditando({ ...editando, nome: e.target.value })}
                       onKeyDown={e => { if (e.key === 'Enter') salvarEdicao(); if (e.key === 'Escape') setEditando(null) }}
                       autoFocus
-                      style={{ ...inp, flex: 1, borderColor: 'rgba(139,92,246,0.4)' }}
+                      style={{ ...inp, flex: 1, borderColor: 'rgba(169, 101, 237,0.4)' }}
                     />
                     <select
                       value={editando.parent_id || ''}
@@ -142,7 +142,7 @@ export default function Categorias() {
                       {pais.filter(p => p.id !== cat.id).map(p => <option key={p.id} value={p.id}>↳ Sub de: {p.nome}</option>)}
                     </select>
                     <button onClick={salvarEdicao} disabled={salvando === cat.id}
-                      style={{ padding: '7px 12px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                      style={{ padding: '7px 12px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                       {salvando === cat.id ? '...' : '✓'}
                     </button>
                     <button onClick={() => setEditando(null)}
@@ -181,7 +181,7 @@ export default function Categorias() {
                         onChange={e => setEditando({ ...editando, nome: e.target.value })}
                         onKeyDown={e => { if (e.key === 'Enter') salvarEdicao(); if (e.key === 'Escape') setEditando(null) }}
                         autoFocus
-                        style={{ ...inp, flex: 1, borderColor: 'rgba(139,92,246,0.4)' }}
+                        style={{ ...inp, flex: 1, borderColor: 'rgba(169, 101, 237,0.4)' }}
                       />
                       <select
                         value={editando.parent_id || ''}
@@ -192,7 +192,7 @@ export default function Categorias() {
                         {pais.map(p => <option key={p.id} value={p.id}>↳ Sub de: {p.nome}</option>)}
                       </select>
                       <button onClick={salvarEdicao} disabled={salvando === sub.id}
-                        style={{ padding: '7px 12px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                        style={{ padding: '7px 12px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
                         {salvando === sub.id ? '...' : '✓'}
                       </button>
                       <button onClick={() => setEditando(null)}

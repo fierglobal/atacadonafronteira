@@ -66,7 +66,7 @@ export default function ImportarProdutos() {
           </button>
           {preview && preview.valid > 0 && (
             <button onClick={doCommit} disabled={busy}
-              style={{ padding: '10px 16px', background: '#8b5cf6', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 800, opacity: busy ? 0.5 : 1 }}>
+              style={{ padding: '10px 16px', background: '#A965ED', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 800, opacity: busy ? 0.5 : 1 }}>
               {busy ? 'Importando...' : `Importar ${preview.valid} linhas`}
             </button>
           )}
@@ -78,7 +78,7 @@ export default function ImportarProdutos() {
         <div style={{ padding: 20, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, marginBottom: 16 }}>
           <p style={{ fontSize: 13, marginBottom: 12 }}>
             <strong>Pré-visualização:</strong>{' '}
-            <span style={{ color: '#8b5cf6' }}>{preview.valid} válidas</span> · {preview.total} totais · <span style={{ color: '#ef4444' }}>{preview.errors.length} erros</span>
+            <span style={{ color: '#A965ED' }}>{preview.valid} válidas</span> · {preview.total} totais · <span style={{ color: '#ef4444' }}>{preview.errors.length} erros</span>
           </p>
           {preview.errors.length > 0 && (
             <details style={{ marginBottom: 12 }}>
@@ -97,8 +97,8 @@ export default function ImportarProdutos() {
       )}
 
       {committed && (
-        <div style={{ padding: 20, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 12 }}>
-          <p style={{ fontSize: 14, color: '#8b5cf6', fontWeight: 700 }}>✓ Importação concluída</p>
+        <div style={{ padding: 20, background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.3)', borderRadius: 12 }}>
+          <p style={{ fontSize: 14, color: '#A965ED', fontWeight: 700 }}>✓ Importação concluída</p>
           <p style={{ fontSize: 13, marginTop: 8 }}>
             Inseridos/atualizados: <strong>{committed.inserted}</strong> de {committed.total}
           </p>

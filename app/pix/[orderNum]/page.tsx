@@ -119,7 +119,7 @@ export default function PedidoPix() {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '2px solid #ececec', borderTopColor: '#6d28d9', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 32, height: 32, border: '2px solid #ececec', borderTopColor: '#420E76', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
@@ -130,12 +130,12 @@ export default function PedidoPix() {
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <Header />
         <div style={{ maxWidth: 520, margin: '64px auto', padding: '0 24px', textAlign: 'center' }}>
-          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(109,40,217,0.06)', border: '2px solid #6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(66, 14, 118,0.06)', border: '2px solid #420E76', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h1 style={{ fontSize: 22, fontWeight: 900, marginBottom: 8, color: '#0a0a0a' }}>Este pedido já foi processado</h1>
           <p style={{ color: '#404040', fontSize: 14, marginBottom: 28 }}>O pedido #{orderNum} não está mais pendente de pagamento.</p>
-          <button onClick={() => router.push('/')} style={{ padding: '12px 28px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(109,40,217,0.25)' }}>
+          <button onClick={() => router.push('/')} style={{ padding: '12px 28px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
             Voltar ao Catálogo
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function PedidoPix() {
         <Header />
         <div style={{ maxWidth: 520, margin: '64px auto', padding: '0 24px', textAlign: 'center' }}>
           <h1 style={{ fontSize: 22, fontWeight: 900, marginBottom: 8, color: '#0a0a0a' }}>Pedido não encontrado</h1>
-          <button onClick={() => router.push('/')} style={{ marginTop: 24, padding: '12px 28px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(109,40,217,0.25)' }}>
+          <button onClick={() => router.push('/')} style={{ marginTop: 24, padding: '12px 28px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
             Voltar ao Catálogo
           </button>
         </div>
@@ -177,7 +177,7 @@ export default function PedidoPix() {
           </div>
           <h1 style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, color: '#0a0a0a' }}>Pagamento pendente</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>
-            Pedido <span style={{ color: '#6d28d9', fontWeight: 700 }}>#{data.orderNum}</span> — aguardando pagamento PIX
+            Pedido <span style={{ color: '#420E76', fontWeight: 700 }}>#{data.orderNum}</span> — aguardando pagamento PIX
           </p>
         </div>
 
@@ -188,11 +188,11 @@ export default function PedidoPix() {
               <img src={qrDataUrl} alt="QR Code PIX" width={180} height={180} />
             </div>
             <p style={{ fontSize: 12, color: '#525252', margin: 0 }}>Escaneie com o app do banco</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: expired ? 'rgba(239,68,68,0.06)' : 'rgba(109,40,217,0.06)', border: `1px solid ${expired ? 'rgba(239,68,68,0.3)' : 'rgba(109,40,217,0.3)'}`, borderRadius: 20 }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={expired ? '#ef4444' : '#6d28d9'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: expired ? 'rgba(239,68,68,0.06)' : 'rgba(66, 14, 118,0.06)', border: `1px solid ${expired ? 'rgba(239,68,68,0.3)' : 'rgba(66, 14, 118,0.3)'}`, borderRadius: 20 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={expired ? '#ef4444' : '#420E76'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
-              <span style={{ fontSize: 12, fontWeight: 700, color: expired ? '#ef4444' : '#6d28d9', fontFamily: 'monospace' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: expired ? '#ef4444' : '#420E76', fontFamily: 'monospace' }}>
                 {expired ? 'PIX expirado' : `Expira em ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`}
               </span>
             </div>
@@ -200,10 +200,10 @@ export default function PedidoPix() {
         )}
 
         {/* PIX Copia e Cola */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(109,40,217,0.04), rgba(109,40,217,0.01))', border: '1px solid rgba(109,40,217,0.25)', borderRadius: 16, padding: '24px', marginBottom: 16 }}>
+        <div style={{ background: 'linear-gradient(135deg, rgba(66, 14, 118,0.04), rgba(66, 14, 118,0.01))', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 16, padding: '24px', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6d28d9', animation: 'pulse 2s ease infinite' }} />
-            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', color: '#6d28d9' }}>PIX COPIA E COLA</span>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#420E76', animation: 'pulse 2s ease infinite' }} />
+            <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', color: '#420E76' }}>PIX COPIA E COLA</span>
           </div>
           <p style={{ fontSize: 12, color: '#404040', marginBottom: 14, lineHeight: 1.6 }}>
             No app do banco: <strong style={{ color: '#0a0a0a' }}>Pix → Pagar → Copia e Cola</strong>. Cole o código abaixo.
@@ -212,7 +212,7 @@ export default function PedidoPix() {
             {pixPayloadStr}
           </div>
           <button onClick={() => copy(pixPayloadStr, 'pix')}
-            style={{ width: '100%', padding: '14px', background: copied === 'pix' ? 'rgba(109,40,217,0.08)' : '#8b5cf6', border: `1px solid ${copied === 'pix' ? 'rgba(109,40,217,0.4)' : '#8b5cf6'}`, borderRadius: 10, color: copied === 'pix' ? '#6d28d9' : '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 4px 16px rgba(109,40,217,0.25)' }}>
+            style={{ width: '100%', padding: '14px', background: copied === 'pix' ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: `1px solid ${copied === 'pix' ? 'rgba(66, 14, 118,0.4)' : '#A965ED'}`, borderRadius: 10, color: copied === 'pix' ? '#420E76' : '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 4px 16px rgba(66, 14, 118,0.25)' }}>
             {copied === 'pix' ? '✓ Código Copiado!' : 'Copiar Código PIX'}
           </button>
         </div>
@@ -231,7 +231,7 @@ export default function PedidoPix() {
                 {PIX_KEY}
               </div>
               <button onClick={() => copy(PIX_KEY, 'key')}
-                style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(109,40,217,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(109,40,217,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#6d28d9', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {copied === 'key' ? '✓ Copiado' : 'Copiar'}
               </button>
             </div>
@@ -239,11 +239,11 @@ export default function PedidoPix() {
           <div style={{ marginBottom: 16 }}>
             <p style={{ ...lbl, marginBottom: 8 }}>VALOR A PAGAR</p>
             <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ flex: 1, padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 20, fontWeight: 900, color: '#6d28d9', fontFamily: 'monospace' }}>
+              <div style={{ flex: 1, padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 20, fontWeight: 900, color: '#420E76', fontFamily: 'monospace' }}>
                 R$ {totalBRLStr}
               </div>
               <button onClick={() => copy(totalBRL.toFixed(2), 'val')}
-                style={{ flexShrink: 0, padding: '0 16px', background: copied === 'val' ? 'rgba(109,40,217,0.08)' : '#ffffff', border: `1px solid ${copied === 'val' ? 'rgba(109,40,217,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#6d28d9', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ flexShrink: 0, padding: '0 16px', background: copied === 'val' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'val' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {copied === 'val' ? '✓ Copiado' : 'Copiar'}
               </button>
             </div>
@@ -269,7 +269,7 @@ export default function PedidoPix() {
           ))}
           <div style={{ borderTop: '1px solid #ececec', paddingTop: 12, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>
             <span style={{ color: '#0a0a0a' }}>Total</span>
-            <span style={{ color: '#6d28d9' }}>R$ {totalBRLStr}</span>
+            <span style={{ color: '#420E76' }}>R$ {totalBRLStr}</span>
           </div>
         </div>
 

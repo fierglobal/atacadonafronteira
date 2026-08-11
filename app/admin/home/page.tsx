@@ -8,15 +8,15 @@ type Banner = {
 }
 
 const DEFAULT_BANNERS: Banner[] = [
-  { tag: 'MAIS VENDIDO', title1: 'BIOGENESIS', title2: 'EMAGRECIMENTO', sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.', cta: 'VER OFERTA', color: '#c084fc', productImg: '', productLabel: '' },
-  { tag: 'IMPORTADO ORIGINAL', title1: 'PERFUMES', title2: 'ÁRABES', sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.', cta: 'VER PERFUMES', color: '#facc15', productImg: '', productLabel: '' },
-  { tag: 'LINHA PREMIUM', title1: 'ZPHC', title2: 'PEPTÍDEOS', sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.', cta: 'EXPLORAR ZPHC', color: '#a78bfa', productImg: '', productLabel: '' },
+  { tag: 'MAIS VENDIDO', title1: 'BIOGENESIS', title2: 'EMAGRECIMENTO', sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.', cta: 'VER OFERTA', color: '#C08EF2', productImg: '', productLabel: '' },
+  { tag: 'IMPORTADO ORIGINAL', title1: 'PERFUMES', title2: 'ÁRABES', sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.', cta: 'VER PERFUMES', color: '#F6C019', productImg: '', productLabel: '' },
+  { tag: 'LINHA PREMIUM', title1: 'ZPHC', title2: 'PEPTÍDEOS', sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.', cta: 'EXPLORAR ZPHC', color: '#C293F2', productImg: '', productLabel: '' },
 ]
 
 const COLORS = [
-  { value: '#c084fc', label: 'Roxo claro' },
-  { value: '#a78bfa', label: 'Roxo' },
-  { value: '#facc15', label: 'Amarelo' },
+  { value: '#C08EF2', label: 'Roxo claro' },
+  { value: '#C293F2', label: 'Roxo' },
+  { value: '#F6C019', label: 'Amarelo' },
 ]
 
 const inp = { width: '100%', padding: '9px 12px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', boxSizing: 'border-box' as const }
@@ -167,10 +167,10 @@ export default function AdminHome() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button onClick={save} disabled={saving}
-          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#8b5cf6', color: saving ? 'var(--a-text2)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
+          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#A965ED', color: saving ? 'var(--a-text2)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
           {saving ? 'Salvando...' : 'Salvar alterações'}
         </button>
-        {saved && <span style={{ fontSize: 13, color: '#8b5cf6', fontWeight: 700 }}>✓ Salvo com sucesso</span>}
+        {saved && <span style={{ fontSize: 13, color: '#A965ED', fontWeight: 700 }}>✓ Salvo com sucesso</span>}
         <a href="/" target="_blank" rel="noopener"
           style={{ fontSize: 12, color: 'var(--a-text3)', textDecoration: 'none', marginLeft: 'auto', border: '1px solid var(--a-border)', padding: '9px 16px', borderRadius: 8 }}>
           Ver home →

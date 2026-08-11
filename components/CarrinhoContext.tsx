@@ -151,7 +151,7 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider value={{ itens, currency, setCurrency, sidebarAberto, abrirSidebar: () => setSidebarAberto(true), fecharSidebar: () => setSidebarAberto(false), adicionar, remover, atualizar, limpar, totalUsd, quantidade }}>
       {children}
       {toast && (
-        <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#8b5cf6', color: '#000', borderRadius: 99, padding: '10px 22px', fontSize: 13, fontWeight: 700, zIndex: 99999, pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(139,92,246,0.3)' }}>
+        <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#A965ED', color: '#000', borderRadius: 99, padding: '10px 22px', fontSize: 13, fontWeight: 700, zIndex: 99999, pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(169, 101, 237,0.3)' }}>
           {toast}
         </div>
       )}
