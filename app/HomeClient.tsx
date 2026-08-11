@@ -38,8 +38,8 @@ const SORT_LABELS: Record<SortBy, string> = {
 const BADGE_COLORS_CARD: Record<string, { bg: string; color: string; border: string }> = {
   'novo': { bg: 'rgba(0,180,210,0.10)', color: '#0891b2', border: 'rgba(0,180,210,0.4)' },
   'mais vendido': { bg: 'rgba(245,158,11,0.12)', color: '#b45309', border: 'rgba(245,158,11,0.45)' },
-  'promoção': { bg: 'rgba(109,40,217,0.10)', color: '#6d28d9', border: 'rgba(109,40,217,0.4)' },
-  'promocao': { bg: 'rgba(109,40,217,0.10)', color: '#6d28d9', border: 'rgba(109,40,217,0.4)' },
+  'promoção': { bg: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: 'rgba(66, 14, 118,0.4)' },
+  'promocao': { bg: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: 'rgba(66, 14, 118,0.4)' },
   'lançamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
   'lancamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
 }
@@ -47,7 +47,7 @@ const cardBadge = (txt: string) => BADGE_COLORS_CARD[txt.trim().toLowerCase()] ?
 
 const PLACEHOLDER = '/produto-placeholder.svg'
 
-const CAT_COLORS = ['#6d28d9', '#0891b2', '#a21caf', '#b45309', '#7c3aed', '#0e7490', '#be185d', '#047857']
+const CAT_COLORS = ['#420E76', '#0891b2', '#a21caf', '#b45309', '#7c3aed', '#0e7490', '#be185d', '#047857']
 const catColor = (id: string) => CAT_COLORS[Math.abs(id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) % CAT_COLORS.length]
 
 function CardImg({ src, alt }: { src: string | null; alt: string }) {
@@ -67,8 +67,8 @@ const DEFAULT_BANNERS = [
     sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.',
     cta: 'VER OFERTA',
     href: '/produtos/3ff19b39-7178-497e-abfe-47d4c8d47eef',
-    color: '#c084fc',
-    bg: 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(168,85,247,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(250,204,21,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
+    color: '#C08EF2',
+    bg: 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(166, 96, 236,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(246, 192, 25,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
     productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/3ff19b39-7178-497e-abfe-47d4c8d47eef/img_6355.webp',
     brandFilter: 'BIOGENESIS',
   },
@@ -78,8 +78,8 @@ const DEFAULT_BANNERS = [
     sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.',
     cta: 'VER PERFUMES',
     href: '/produtos/39123d03-5f42-481e-a49b-44ea317aa57b',
-    color: '#facc15',
-    bg: 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(250,204,21,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(168,85,247,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
+    color: '#F6C019',
+    bg: 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(246, 192, 25,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(166, 96, 236,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
     productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/39123d03-5f42-481e-a49b-44ea317aa57b/atacado-al-haramain-amber-oud-gold-edition-extreme-refil-paraguai-scaled-1.webp',
     brandFilter: 'AL HARAMAIN',
   },
@@ -89,17 +89,17 @@ const DEFAULT_BANNERS = [
     sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.',
     cta: 'EXPLORAR ZPHC',
     href: '/produtos/e02c1c13-0809-4f0d-a297-60e4f0a25526',
-    color: '#a78bfa',
-    bg: 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(168,85,247,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(250,204,21,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
+    color: '#C293F2',
+    bg: 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(166, 96, 236,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(246, 192, 25,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
     productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/e02c1c13-0809-4f0d-a297-60e4f0a25526/atacado-zphc-zptrop-320-iu-10-vial.webp',
     brandFilter: 'ZPHC',
   },
 ]
 
 const BG_BY_COLOR: Record<string, string> = {
-  '#c084fc': 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(168,85,247,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(250,204,21,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
-  '#facc15': 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(250,204,21,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(168,85,247,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
-  '#a78bfa': 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(168,85,247,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(250,204,21,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
+  '#C08EF2': 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(166, 96, 236,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(246, 192, 25,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
+  '#F6C019': 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(246, 192, 25,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(166, 96, 236,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
+  '#C293F2': 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(166, 96, 236,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(246, 192, 25,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
 }
 
 const dec = (s: string | null) => {
@@ -420,27 +420,27 @@ export default function Home() {
           content: '';
           position: absolute;
           bottom: -4px; left: 50%; right: 50%;
-          height: 1px; background: #8b5cf6;
-          box-shadow: 0 0 6px rgba(109,40,217,0.4);
+          height: 1px; background: #A965ED;
+          box-shadow: 0 0 6px rgba(66, 14, 118,0.4);
           transition: left 0.25s, right 0.25s;
         }
         .nav-link:hover::after { left: 0; right: 0; }
         .product-card:hover { border-color: #d4d4d4 !important; box-shadow: 0 12px 28px rgba(0,0,0,0.08) !important; transform: translateY(-3px); }
         .product-card:hover .card-img { transform: scale(1.04); filter: brightness(1.02); }
         .product-card:hover .card-overlay { opacity: 1 !important; }
-        .card-add-btn:hover:not(:disabled) { background: #8b5cf6 !important; color: #000 !important; border-color: #8b5cf6 !important; box-shadow: 0 4px 12px rgba(109,40,217,0.18) !important; }
+        .card-add-btn:hover:not(:disabled) { background: #420E76 !important; color: #ffffff !important; border-color: #420E76 !important; box-shadow: 0 4px 12px rgba(66, 14, 118,0.18) !important; }
         .skeleton { background: linear-gradient(90deg, #f5f5f5 25%, #ececec 50%, #f5f5f5 75%); background-size: 400px 100%; animation: shimmer 1.4s ease-in-out infinite; }
         .nav-mobile-btn { display: none; }
         .nav-mobile-drawer { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid #ececec; padding: 12px 16px; flex-direction: column; gap: 4px; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
         .nav-desktop { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; min-width: 0; }
         .nav-cat-btn { padding: 0 12px; height: 60px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #737373; background: none; border: none; cursor: pointer; transition: color 0.15s; white-space: nowrap; }
         .nav-cat-btn:hover { color: #0a0a0a; }
-        .nav-cat-btn.active { color: #6d28d9; }
-        .nav-cat-btn.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px; background: #8b5cf6; box-shadow: 0 0 6px rgba(109,40,217,0.4); }
+        .nav-cat-btn.active { color: #420E76; }
+        .nav-cat-btn.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px; background: #A965ED; box-shadow: 0 0 6px rgba(66, 14, 118,0.4); }
         .nav-cat-btn { position: relative; }
         .nav-cat-skel { width: 78px; height: 12px; border-radius: 4px; flex-shrink: 0; }
         .header-account:hover { color: #0a0a0a !important; border-color: #d4d4d4 !important; }
-        .header-cart:hover { box-shadow: 0 4px 12px rgba(109,40,217,0.18) !important; border-color: rgba(109,40,217,0.5) !important; }
+        .header-cart:hover { box-shadow: 0 4px 12px rgba(66, 14, 118,0.18) !important; border-color: rgba(66, 14, 118,0.5) !important; }
         .trust-ticker { overflow: hidden; white-space: nowrap; }
         .trust-track { display: inline-flex; gap: 0; animation: ticker 28s linear infinite; }
         .cat-chips-wrapper { position: relative; }
@@ -452,7 +452,7 @@ export default function Home() {
         .cat-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
         .cat-chips::-webkit-scrollbar { display: none; }
         .cat-chip { flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; cursor: pointer; border: 1px solid; transition: all 0.15s; white-space: nowrap; background: none; }
-        .cat-chip-active { background: rgba(109,40,217,0.08) !important; border-color: rgba(109,40,217,0.4) !important; color: #6d28d9 !important; }
+        .cat-chip-active { background: rgba(66, 14, 118,0.08) !important; border-color: rgba(66, 14, 118,0.4) !important; color: #420E76 !important; }
         .cat-chip-inactive { border-color: #ececec; color: #737373; background: #ffffff; }
         .cat-chip-inactive:hover { border-color: #d4d4d4; color: #0a0a0a; }
         .destaques-scroll { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
@@ -469,9 +469,9 @@ export default function Home() {
         .como-step:nth-child(2) { animation-delay: 0.15s; }
         .como-step:nth-child(3) { animation-delay: 0.25s; }
         .brand-card { transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s; cursor: pointer; }
-        .brand-card:hover { border-color: rgba(109,40,217,0.4) !important; box-shadow: 0 8px 24px rgba(109,40,217,0.08) !important; transform: translateY(-2px); }
+        .brand-card:hover { border-color: rgba(66, 14, 118,0.4) !important; box-shadow: 0 8px 24px rgba(66, 14, 118,0.08) !important; transform: translateY(-2px); }
         .footer-brand-link { transition: color 0.15s; }
-        .footer-brand-link:hover { color: #6d28d9 !important; }
+        .footer-brand-link:hover { color: #420E76 !important; }
         @media (max-width: 640px) {
           /* nav */
           .promo-banners-row { grid-template-columns: 1fr !important; }
@@ -516,7 +516,7 @@ export default function Home() {
 
 
       {aviso && (
-        <div style={{ background: 'rgba(109,40,217,0.06)', borderBottom: '1px solid rgba(109,40,217,0.2)', padding: '8px 24px', textAlign: 'center', fontSize: 12, color: '#6d28d9', fontWeight: 600, letterSpacing: '0.04em' }}>
+        <div style={{ background: 'rgba(66, 14, 118,0.06)', borderBottom: '1px solid rgba(66, 14, 118,0.2)', padding: '8px 24px', textAlign: 'center', fontSize: 12, color: '#420E76', fontWeight: 600, letterSpacing: '0.04em' }}>
           {aviso}
         </div>
       )}
@@ -655,11 +655,11 @@ export default function Home() {
                   const i2 = prods[2]?.img_url ?? null
 
                   const imgBox = (src: string, sz: number, rotate: string) => (
-                    <div style={{ width: sz, height: sz, position: 'relative', background: '#090c09', borderRadius: 18, overflow: 'hidden', border: `1.5px solid ${bn.color}40`, boxShadow: `0 16px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04), 0 0 28px ${bn.color}18`, flexShrink: 0 }}>
+                    <div style={{ width: sz, height: sz, position: 'relative', background: '#0B0810', borderRadius: 18, overflow: 'hidden', border: `1.5px solid ${bn.color}40`, boxShadow: `0 16px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04), 0 0 28px ${bn.color}18`, flexShrink: 0 }}>
                       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 58% 58% at 50% 50%, ${bn.color}14 0%, transparent 68%)`, zIndex: 0 }} />
                       <Image src={src} alt="" width={sz} height={sz}
                         style={{ objectFit: 'contain', maxWidth: '76%', maxHeight: '76%', position: 'absolute', top: '50%', left: '50%', transform: `translate(-50%,-50%)`, zIndex: 1, filter: `drop-shadow(0 0 12px ${bn.color}40) drop-shadow(0 3px 8px rgba(0,0,0,0.5))` }} />
-                      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 50% 50% at 50% 50%, transparent 26%, rgba(9,12,9,0.48) 56%, rgba(9,12,9,0.88) 78%, #090c09 100%)`, zIndex: 2 }} />
+                      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 50% 50% at 50% 50%, transparent 26%, rgba(9,12,9,0.48) 56%, rgba(9,12,9,0.88) 78%, #0B0810 100%)`, zIndex: 2 }} />
                     </div>
                   )
 
@@ -695,8 +695,8 @@ export default function Home() {
                       )}
 
                       {/* EM ESTOQUE badge */}
-                      <div style={{ position: 'absolute', top: -4, left: 14, zIndex: 5, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 99, background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.35)', backdropFilter: 'blur(10px)', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}>
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#eab308', animation: 'pulseDot 3s ease-in-out infinite', boxShadow: '0 0 6px #eab308' }} />
+                      <div style={{ position: 'absolute', top: -4, left: 14, zIndex: 5, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 99, background: 'rgba(233, 179, 9,0.12)', border: '1px solid rgba(233, 179, 9,0.35)', backdropFilter: 'blur(10px)', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#E9B309', animation: 'pulseDot 3s ease-in-out infinite', boxShadow: '0 0 6px #E9B309' }} />
                         <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.18em', color: '#ca8a04' }}>EM ESTOQUE</span>
                       </div>
 
@@ -727,11 +727,11 @@ export default function Home() {
       </section>
 
       {/* TRUST TICKER */}
-      <div style={{ borderTop: '1px solid rgba(139,92,246,0.15)', borderBottom: '1px solid rgba(139,92,246,0.15)', background: '#050a05', padding: '10px 0', overflow: 'hidden' }}>
+      <div style={{ borderTop: '1px solid rgba(169, 101, 237,0.15)', borderBottom: '1px solid rgba(169, 101, 237,0.15)', background: '#0A0710', padding: '10px 0', overflow: 'hidden' }}>
         <div className="trust-ticker">
           <div className="trust-track">
             {[...trustItems(products.length), ...trustItems(products.length)].map((item, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#8b5cf6', borderRight: '1px solid rgba(139,92,246,0.15)', textShadow: '0 0 8px rgba(139,92,246,0.5)' }}>
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#A965ED', borderRight: '1px solid rgba(169, 101, 237,0.15)', textShadow: '0 0 8px rgba(169, 101, 237,0.5)' }}>
                 <span style={{ fontSize: 13 }}>{item.icon}</span>
                 {item.text}
               </span>
@@ -744,9 +744,9 @@ export default function Home() {
       <section className="como-section" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '56px 24px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 99, background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.2)', marginBottom: 14 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8b5cf6', display: 'inline-block' }} />
-              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', color: '#6d28d9' }}>COMO FUNCIONA</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 14px', borderRadius: 99, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.2)', marginBottom: 14 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#A965ED', display: 'inline-block' }} />
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', color: '#420E76' }}>COMO FUNCIONA</span>
             </div>
             <h2 style={{ margin: 0, fontSize: 'clamp(20px,3vw,30px)', fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0a' }}>Simples, rápido e seguro</h2>
             <p style={{ margin: '8px auto 0', maxWidth: 480, color: '#737373', fontSize: 14, lineHeight: 1.6 }}>Do pedido à retirada em menos de 30 minutos após a confirmação do PIX.</p>
@@ -756,25 +756,25 @@ export default function Home() {
               {
                 num: '01', title: 'Escolha os produtos',
                 desc: 'Navegue pelo catálogo, adicione ao carrinho e finalize o pedido com seus dados.',
-                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
               },
               {
                 num: '02', title: 'Pague via PIX',
                 desc: 'QR code gerado na hora. Confirmação automática em menos de 5 minutos.',
-                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="0.5"/><rect x="18" y="18" width="3" height="3" rx="0.5"/><rect x="14" y="18" width="3" height="3" rx="0.5"/><rect x="18" y="14" width="3" height="3" rx="0.5"/></svg>,
+                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx="0.5"/><rect x="18" y="18" width="3" height="3" rx="0.5"/><rect x="14" y="18" width="3" height="3" rx="0.5"/><rect x="18" y="14" width="3" height="3" rx="0.5"/></svg>,
               },
               {
                 num: '03', title: 'Retire na loja',
                 desc: 'Seu pedido fica separado e você retira pessoalmente na loja. Não fazemos envio.',
-                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+                icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
               },
             ].map((s, i) => (
               <div key={i} className="como-step" style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '28px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {s.icon}
                   </div>
-                  <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(109,40,217,0.12)', letterSpacing: '-0.04em', lineHeight: 1 }}>{s.num}</span>
+                  <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(66, 14, 118,0.12)', letterSpacing: '-0.04em', lineHeight: 1 }}>{s.num}</span>
                 </div>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: '#0a0a0a', marginBottom: 6 }}>{s.title}</div>
@@ -786,8 +786,8 @@ export default function Home() {
           {WHATSAPP_ENABLED && (
             <div style={{ textAlign: 'center', marginTop: 32 }}>
               <a href={CONTATO_HREF} target="_blank" rel="noopener"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 24px', borderRadius: 8, background: '#ffffff', border: '1px solid rgba(109,40,217,0.35)', color: '#6d28d9', fontSize: 12, fontWeight: 800, letterSpacing: '0.06em', textDecoration: 'none', transition: 'all 0.18s', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-                onMouseEnter={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.background = 'rgba(109,40,217,0.06)'; a.style.boxShadow = '0 4px 12px rgba(109,40,217,0.18)' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 24px', borderRadius: 8, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.35)', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.06em', textDecoration: 'none', transition: 'all 0.18s', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+                onMouseEnter={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.background = 'rgba(66, 14, 118,0.06)'; a.style.boxShadow = '0 4px 12px rgba(66, 14, 118,0.18)' }}
                 onMouseLeave={e => { const a = e.currentTarget as HTMLAnchorElement; a.style.background = '#ffffff'; a.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
                 DÚVIDAS? FALE COM A GENTE
@@ -807,7 +807,7 @@ export default function Home() {
                 <p style={{ margin: '4px 0 0', color: '#737373', fontSize: 13 }}>{topBrands.length} marcas · clique para filtrar</p>
               </div>
               {activeBrand !== 'Todos' && (
-                <button onClick={() => setActiveBrand('Todos')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.3)', color: '#6d28d9', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em' }}>
+                <button onClick={() => setActiveBrand('Todos')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em' }}>
                   × LIMPAR FILTRO
                 </button>
               )}
@@ -816,10 +816,10 @@ export default function Home() {
               {topBrands.map(([name, count]) => (
                 <button key={name} className="brand-card"
                   onClick={() => { setActiveCategoria(''); setActiveBrand(name); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
-                  style={{ background: activeBrand === name ? 'rgba(109,40,217,0.06)' : '#fafafa', border: `1px solid ${activeBrand === name ? 'rgba(109,40,217,0.4)' : '#ececec'}`, borderRadius: 12, padding: '18px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: activeBrand === name ? '#6d28d9' : '#0a0a0a', letterSpacing: '0.04em' }}>{name}</span>
+                  style={{ background: activeBrand === name ? 'rgba(66, 14, 118,0.06)' : '#fafafa', border: `1px solid ${activeBrand === name ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 12, padding: '18px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: activeBrand === name ? '#420E76' : '#0a0a0a', letterSpacing: '0.04em' }}>{name}</span>
                   <span style={{ fontSize: 11, color: '#a3a3a3', fontWeight: 600 }}>{count} produto{count !== 1 ? 's' : ''}</span>
-                  {activeBrand === name && <span style={{ width: 24, height: 2, borderRadius: 99, background: '#8b5cf6', marginTop: 2 }} />}
+                  {activeBrand === name && <span style={{ width: 24, height: 2, borderRadius: 99, background: '#A965ED', marginTop: 2 }} />}
                 </button>
               ))}
             </div>
@@ -878,10 +878,10 @@ export default function Home() {
               </svg>
               <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar produto ou marca..."
                 style={{ width: '100%', padding: '10px 38px 10px 36px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 8, color: '#0a0a0a', fontSize: 13, outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.15s' }}
-                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(109,40,217,0.4)')}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(66, 14, 118,0.4)')}
                 onBlur={e => (e.currentTarget.style.borderColor = '#ececec')} />
               {refetching && (
-                <div style={{ position: 'absolute', right: search ? 32 : 10, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, border: '2px solid #ececec', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                <div style={{ position: 'absolute', right: search ? 32 : 10, top: '50%', transform: 'translateY(-50%)', width: 14, height: 14, border: '2px solid #ececec', borderTopColor: '#A965ED', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
               )}
               {search && (
                 <button onClick={() => setSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#a3a3a3', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 2 }}>×</button>
@@ -889,7 +889,7 @@ export default function Home() {
             </div>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <button onClick={() => setFilterOpen(p => !p)}
-                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', height: 40, background: activeBrand !== 'Todos' ? 'rgba(109,40,217,0.06)' : '#ffffff', border: `1px solid ${activeBrand !== 'Todos' ? 'rgba(109,40,217,0.4)' : '#ececec'}`, borderRadius: 8, color: activeBrand !== 'Todos' ? '#6d28d9' : '#404040', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', height: 40, background: activeBrand !== 'Todos' ? 'rgba(66, 14, 118,0.06)' : '#ffffff', border: `1px solid ${activeBrand !== 'Todos' ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 8, color: activeBrand !== 'Todos' ? '#420E76' : '#404040', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
                 </svg>
@@ -907,7 +907,7 @@ export default function Home() {
                   <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 20, background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: 180, maxHeight: 280, overflowY: 'auto', padding: '6px' }}>
                     {brands.map(br => (
                       <button key={br} onClick={() => { if (br !== 'Todos') setActiveCategoria(''); setActiveBrand(br); setFilterOpen(false) }}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 6, border: 'none', background: activeBrand === br ? 'rgba(109,40,217,0.06)' : 'transparent', color: activeBrand === br ? '#6d28d9' : '#404040', fontSize: 13, fontWeight: activeBrand === br ? 700 : 500, cursor: 'pointer', transition: 'background 0.1s' }}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 6, border: 'none', background: activeBrand === br ? 'rgba(66, 14, 118,0.06)' : 'transparent', color: activeBrand === br ? '#420E76' : '#404040', fontSize: 13, fontWeight: activeBrand === br ? 700 : 500, cursor: 'pointer', transition: 'background 0.1s' }}
                         onMouseEnter={e => { if (activeBrand !== br) e.currentTarget.style.background = '#fafafa' }}
                         onMouseLeave={e => { if (activeBrand !== br) e.currentTarget.style.background = 'transparent' }}>
                         {br === 'Todos' ? 'Todas as marcas' : br}
@@ -919,7 +919,7 @@ export default function Home() {
             </div>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <button onClick={() => setSortOpen(p => !p)}
-                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', height: 40, background: sortBy !== 'destaque' ? 'rgba(109,40,217,0.06)' : '#ffffff', border: `1px solid ${sortBy !== 'destaque' ? 'rgba(109,40,217,0.4)' : '#ececec'}`, borderRadius: 8, color: sortBy !== 'destaque' ? '#6d28d9' : '#404040', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '10px 14px', height: 40, background: sortBy !== 'destaque' ? 'rgba(66, 14, 118,0.06)' : '#ffffff', border: `1px solid ${sortBy !== 'destaque' ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 8, color: sortBy !== 'destaque' ? '#420E76' : '#404040', fontSize: 12, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.04em', transition: 'all 0.15s', whiteSpace: 'nowrap' }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 6h18M6 12h12M10 18h4"/>
                 </svg>
@@ -934,7 +934,7 @@ export default function Home() {
                   <div style={{ position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 20, background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', minWidth: 200, padding: '6px' }}>
                     {(Object.keys(SORT_LABELS) as SortBy[]).map(opt => (
                       <button key={opt} onClick={() => { setSortBy(opt); setSortOpen(false) }}
-                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 6, border: 'none', background: sortBy === opt ? 'rgba(109,40,217,0.06)' : 'transparent', color: sortBy === opt ? '#6d28d9' : '#404040', fontSize: 13, fontWeight: sortBy === opt ? 700 : 500, cursor: 'pointer', transition: 'background 0.1s' }}
+                        style={{ display: 'block', width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 6, border: 'none', background: sortBy === opt ? 'rgba(66, 14, 118,0.06)' : 'transparent', color: sortBy === opt ? '#420E76' : '#404040', fontSize: 13, fontWeight: sortBy === opt ? 700 : 500, cursor: 'pointer', transition: 'background 0.1s' }}
                         onMouseEnter={e => { if (sortBy !== opt) e.currentTarget.style.background = '#fafafa' }}
                         onMouseLeave={e => { if (sortBy !== opt) e.currentTarget.style.background = 'transparent' }}>
                         {SORT_LABELS[opt]}
@@ -948,10 +948,10 @@ export default function Home() {
           {(search || activeBrand !== 'Todos' || activeCategoria) && (
             <div style={{ fontSize: 12, color: '#737373' }}>
               {filtered.length} produto{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-              {search && <span style={{ color: '#6d28d9' }}> para &ldquo;{search}&rdquo;</span>}
+              {search && <span style={{ color: '#420E76' }}> para &ldquo;{search}&rdquo;</span>}
               {' '}
               <button onClick={() => { setSearch(''); setActiveBrand('Todos'); setActiveCategoria('') }}
-                style={{ background: 'none', border: 'none', color: '#6d28d9', cursor: 'pointer', fontSize: 11, textDecoration: 'underline', padding: 0 }}>
+                style={{ background: 'none', border: 'none', color: '#420E76', cursor: 'pointer', fontSize: 11, textDecoration: 'underline', padding: 0 }}>
                 limpar filtros
               </button>
             </div>
@@ -962,9 +962,9 @@ export default function Home() {
         {!loadingProducts && destaquesProdutos.length > 0 && !search && !activeCategoria && activeBrand === 'Todos' && sortBy === 'destaque' && (
           <section style={{ marginBottom: 48 }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 18, fontWeight: 900, letterSpacing: '-0.01em', margin: '0 0 16px', color: '#0a0a0a' }}>
-              <span style={{ width: 3, height: 22, background: '#8b5cf6', borderRadius: 99, boxShadow: '0 0 6px rgba(109,40,217,0.4)' }} />
+              <span style={{ width: 3, height: 22, background: '#A965ED', borderRadius: 99, boxShadow: '0 0 6px rgba(66, 14, 118,0.4)' }} />
               MAIS VENDIDOS
-              <span style={{ background: 'rgba(109,40,217,0.08)', border: '1px solid rgba(109,40,217,0.3)', color: '#6d28d9', fontSize: 10, fontWeight: 800, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>
+              <span style={{ background: 'rgba(66, 14, 118,0.08)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 10, fontWeight: 800, padding: '3px 10px', borderRadius: 4, letterSpacing: '0.1em' }}>
                 {destaquesProdutos.length}
               </span>
             </h3>
@@ -979,15 +979,15 @@ export default function Home() {
                     <div className="card-img-wrap-mini" style={{ position: 'relative', aspectRatio: '1 / 1', width: '100%', flexShrink: 0, background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden', padding: 10, boxSizing: 'border-box' as const }}>
                       <CardImg src={p.img_url} alt={p.name} />
                       {promo && (
-                        <span style={{ position: 'absolute', top: 8, left: 8, background: '#8b5cf6', color: '#000', fontSize: 8, fontWeight: 900, padding: '3px 7px', borderRadius: 4, letterSpacing: '0.08em' }}>PROMO</span>
+                        <span style={{ position: 'absolute', top: 8, left: 8, background: '#420E76', color: '#ffffff', fontSize: 8, fontWeight: 900, padding: '3px 7px', borderRadius: 4, letterSpacing: '0.08em' }}>PROMO</span>
                       )}
                     </div>
                     <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {p.brand && (
-                        <span style={{ fontSize: 8, fontWeight: 800, color: '#6d28d9', letterSpacing: '0.1em' }}>{p.brand.toUpperCase()}</span>
+                        <span style={{ fontSize: 8, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em' }}>{p.brand.toUpperCase()}</span>
                       )}
                       <h4 style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#6d28d9', lineHeight: 1 }}>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1 }}>
                         {currency.code} {fmt(priceShown, currency.rate, currency.code)}
                       </div>
                     </div>
@@ -1001,7 +1001,7 @@ export default function Home() {
         <div style={{ position: 'relative' }}>
           {refetching && !loadingProducts && (
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(2px)', zIndex: 5, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 40, pointerEvents: 'none' }}>
-              <div style={{ width: 32, height: 32, border: '3px solid #ececec', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+              <div style={{ width: 32, height: 32, border: '3px solid #ececec', borderTopColor: '#A965ED', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
             </div>
           )}
           <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', gap: 16 }}>
@@ -1026,61 +1026,61 @@ export default function Home() {
                       <div aria-hidden="true" style={{ position: 'absolute', left: 0, bottom: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(72,144,255,0.05), transparent)', pointerEvents: 'none' }} />
                       <div style={{ position: 'relative', zIndex: 1 }}>
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(72,144,255,0.1)', border: '1px solid rgba(72,144,255,0.28)', marginBottom: 12 }}>
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#4890ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#4890ff' }}>DISTRIBUIDOR OFICIAL</span>
+                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#F6BD0C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#F6BD0C' }}>DISTRIBUIDOR OFICIAL</span>
                         </div>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.08, marginBottom: 8 }}>
-                          LINHA<br/><span style={{ color: '#4890ff', textShadow: '0 0 20px rgba(72,144,255,0.55)' }}>ZPHC</span>
+                          LINHA<br/><span style={{ color: '#F6BD0C', textShadow: '0 0 20px rgba(72,144,255,0.55)' }}>ZPHC</span>
                         </div>
                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 18 }}>Farmacêuticos certificados.<br/>Alta pureza. Estoque imediato.</div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: '#4890ff', color: '#fff', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(72,144,255,0.4)' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: '#F6BD0C', color: '#fff', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(72,144,255,0.4)' }}>
                           VER LINHA ZPHC
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </div>
                       </div>
                       <div aria-hidden="true" style={{ position: 'relative', flexShrink: 0, width: 88, height: 88, opacity: 0.9 }}>
                         {[{t:'10%',l:'15%',s:3,d:'0s'},{t:'65%',l:'75%',s:2,d:'0.8s'},{t:'75%',l:'5%',s:2,d:'1.4s'},{t:'20%',l:'82%',s:3,d:'0.4s'}].map((d,i)=>(
-                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#4890ff', boxShadow:'0 0 5px #4890ff', animation:`floatDot ${3+i*0.6}s ease-in-out infinite`, animationDelay:d.d }}/>
+                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#F6BD0C', boxShadow:'0 0 5px #F6BD0C', animation:`floatDot ${3+i*0.6}s ease-in-out infinite`, animationDelay:d.d }}/>
                         ))}
                         <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-                          <path d="M44 8 L74 20 L74 46 C74 60 62 72 44 80 C26 72 14 60 14 46 L14 20 Z" stroke="#4890ff" strokeWidth="1.8" fill="rgba(72,144,255,0.06)" opacity="0.75"/>
-                          <polyline points="30 44 41 55 58 34" stroke="#4890ff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.95"/>
+                          <path d="M44 8 L74 20 L74 46 C74 60 62 72 44 80 C26 72 14 60 14 46 L14 20 Z" stroke="#F6BD0C" strokeWidth="1.8" fill="rgba(72,144,255,0.06)" opacity="0.75"/>
+                          <polyline points="30 44 41 55 58 34" stroke="#F6BD0C" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.95"/>
                         </svg>
                       </div>
                     </div>
 
                     {/* Biogenises Banner */}
                     <div onClick={() => { setActiveBrand('BIOGENESIS'); setActiveCategoria('') }}
-                      onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(139,92,246,0.38)'; el.style.boxShadow = '0 12px 40px rgba(0,30,0,0.8), 0 0 40px rgba(139,92,246,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' }}
-                      onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(139,92,246,0.14)'; el.style.boxShadow = '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' }}
-                      style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '28px 32px', background: 'linear-gradient(135deg, #030a03 0%, #051405 40%, #071d07 70%, #0a2408 100%)', border: '1px solid rgba(139,92,246,0.14)', boxShadow: '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, transition: 'box-shadow 0.2s, border-color 0.2s', minHeight: 160 }}>
-                      <div aria-hidden="true" style={{ position: 'absolute', right: -20, top: -20, width: 200, height: 200, background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                      <div aria-hidden="true" style={{ position: 'absolute', left: 0, bottom: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(139,92,246,0.04), transparent)', pointerEvents: 'none' }} />
+                      onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(169, 101, 237,0.38)'; el.style.boxShadow = '0 12px 40px rgba(0,30,0,0.8), 0 0 40px rgba(169, 101, 237,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' }}
+                      onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(169, 101, 237,0.14)'; el.style.boxShadow = '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' }}
+                      style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '28px 32px', background: 'linear-gradient(135deg, #030a03 0%, #051405 40%, #071d07 70%, #0a2408 100%)', border: '1px solid rgba(169, 101, 237,0.14)', boxShadow: '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, transition: 'box-shadow 0.2s, border-color 0.2s', minHeight: 160 }}>
+                      <div aria-hidden="true" style={{ position: 'absolute', right: -20, top: -20, width: 200, height: 200, background: 'radial-gradient(circle, rgba(169, 101, 237,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                      <div aria-hidden="true" style={{ position: 'absolute', left: 0, bottom: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(169, 101, 237,0.04), transparent)', pointerEvents: 'none' }} />
                       <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.22)', marginBottom: 12 }}>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8b5cf6', boxShadow: '0 0 5px #8b5cf6', animation: 'pulseDot 3s ease-in-out infinite' }} />
-                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#8b5cf6' }}>BIOTECNOLOGIA</span>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(169, 101, 237,0.07)', border: '1px solid rgba(169, 101, 237,0.22)', marginBottom: 12 }}>
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#A965ED', boxShadow: '0 0 5px #A965ED', animation: 'pulseDot 3s ease-in-out infinite' }} />
+                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#A965ED' }}>BIOTECNOLOGIA</span>
                         </div>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.08, marginBottom: 8 }}>
-                          LINHA<br/><span style={{ color: '#8b5cf6', textShadow: '0 0 20px rgba(139,92,246,0.55)' }}>BIOGENISES</span>
+                          LINHA<br/><span style={{ color: '#A965ED', textShadow: '0 0 20px rgba(169, 101, 237,0.55)' }}>BIOGENISES</span>
                         </div>
                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, marginBottom: 18 }}>Peptídeos de alta pureza.<br/>Qualidade laboratório certificado.</div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.35)', color: '#8b5cf6', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(139,92,246,0.18)' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.35)', color: '#A965ED', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(169, 101, 237,0.18)' }}>
                           VER LINHA BIOGENISES
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                         </div>
                       </div>
                       <div aria-hidden="true" style={{ position: 'relative', flexShrink: 0, width: 88, height: 88, opacity: 0.9 }}>
                         {[{t:'12%',l:'48%',s:3,d:'0s'},{t:'58%',l:'8%',s:2,d:'0.7s'},{t:'78%',l:'68%',s:3,d:'1.3s'},{t:'30%',l:'82%',s:2,d:'0.3s'}].map((d,i)=>(
-                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#8b5cf6', boxShadow:'0 0 5px #8b5cf6', animation:`floatDot ${3+i*0.5}s ease-in-out infinite`, animationDelay:d.d }}/>
+                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#A965ED', boxShadow:'0 0 5px #A965ED', animation:`floatDot ${3+i*0.5}s ease-in-out infinite`, animationDelay:d.d }}/>
                         ))}
                         <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-                          <circle cx="44" cy="18" r="10" stroke="#8b5cf6" strokeWidth="1.8" fill="rgba(139,92,246,0.07)" opacity="0.85"/>
-                          <circle cx="18" cy="64" r="8" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.05)" opacity="0.7"/>
-                          <circle cx="70" cy="64" r="8" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.05)" opacity="0.7"/>
-                          <line x1="44" y1="28" x2="18" y2="56" stroke="#8b5cf6" strokeWidth="1.4" opacity="0.5"/>
-                          <line x1="44" y1="28" x2="70" y2="56" stroke="#8b5cf6" strokeWidth="1.4" opacity="0.5"/>
-                          <line x1="26" y1="64" x2="62" y2="64" stroke="#8b5cf6" strokeWidth="1.4" opacity="0.5"/>
+                          <circle cx="44" cy="18" r="10" stroke="#A965ED" strokeWidth="1.8" fill="rgba(169, 101, 237,0.07)" opacity="0.85"/>
+                          <circle cx="18" cy="64" r="8" stroke="#A965ED" strokeWidth="1.5" fill="rgba(169, 101, 237,0.05)" opacity="0.7"/>
+                          <circle cx="70" cy="64" r="8" stroke="#A965ED" strokeWidth="1.5" fill="rgba(169, 101, 237,0.05)" opacity="0.7"/>
+                          <line x1="44" y1="28" x2="18" y2="56" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
+                          <line x1="44" y1="28" x2="70" y2="56" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
+                          <line x1="26" y1="64" x2="62" y2="64" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
                         </svg>
                       </div>
                     </div>
@@ -1092,7 +1092,7 @@ export default function Home() {
                     style={{ position: 'relative', aspectRatio: '1 / 1', width: '100%', flexShrink: 0, background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden', padding: 14, boxSizing: 'border-box' as const }}>
                     <CardImg src={p.img_url} alt={p.name} />
                     <div className="card-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}>
-                      <span style={{ background: '#8b5cf6', color: '#000', fontSize: 10, fontWeight: 900, letterSpacing: '0.12em', padding: '8px 20px', borderRadius: 6, boxShadow: '0 4px 12px rgba(109,40,217,0.25)' }}>VER PRODUTO →</span>
+                      <span style={{ background: '#A965ED', color: '#000', fontSize: 10, fontWeight: 900, letterSpacing: '0.12em', padding: '8px 20px', borderRadius: 6, boxShadow: '0 4px 12px rgba(66, 14, 118,0.25)' }}>VER PRODUTO →</span>
                     </div>
                     {badges.length > 0 && (
                       <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', flexDirection: 'column', gap: 4, zIndex: 2 }}>
@@ -1118,7 +1118,7 @@ export default function Home() {
                   </div>
                   <div style={{ padding: '13px 13px 14px', display: 'flex', flexDirection: 'column', flex: 1, gap: 10 }}>
                     {p.brand && (
-                      <span style={{ fontSize: 9, fontWeight: 700, color: '#6d28d9', letterSpacing: '0.14em', width: 'fit-content' }}>{p.brand.toUpperCase()}</span>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: '#420E76', letterSpacing: '0.14em', width: 'fit-content' }}>{p.brand.toUpperCase()}</span>
                     )}
                     <h3 onClick={() => router.push(`/produtos/${p.id}`)}
                       style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#0a0a0a', lineHeight: 1.4, cursor: 'pointer', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
@@ -1126,7 +1126,7 @@ export default function Home() {
                     </h3>
                     {p.rating != null && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: -4 }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="#F7C528" stroke="#F7C528" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                         <span style={{ fontSize: 10, color: '#b45309', fontWeight: 700 }}>{p.rating}</span>
@@ -1140,13 +1140,13 @@ export default function Home() {
                       {promo ? (
                         <>
                           <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {fmt(p.usd_price, currency.rate, currency.code)}</div>
-                          <div style={{ fontSize: 22, fontWeight: 800, color: '#6d28d9', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                          <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
                             {currency.code} {fmt(p.usd_price_promo!, currency.rate, currency.code)}
                           </div>
                           <div style={{ fontSize: 9, color: '#b45309', fontWeight: 800, marginTop: 2 }}>-{discount}% OFF</div>
                         </>
                       ) : (
-                        <div style={{ fontSize: 22, fontWeight: 800, color: '#6d28d9', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                        <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
                           {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
                         </div>
                       )}
@@ -1156,7 +1156,7 @@ export default function Home() {
                     </div>
                     <button disabled={p.estoque === 0} className="card-add-btn"
                       onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: promo ? p.usd_price_promo! : p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-                      style={{ width: '100%', padding: '11px 0', borderRadius: 8, background: p.estoque === 0 ? '#fafafa' : '#ffffff', border: `1px solid ${p.estoque === 0 ? '#ececec' : 'rgba(109,40,217,0.4)'}`, color: p.estoque === 0 ? '#a3a3a3' : '#6d28d9', fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', cursor: p.estoque === 0 ? 'not-allowed' : 'pointer', transition: 'background 0.15s, border-color 0.15s, color 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      style={{ width: '100%', padding: '11px 0', borderRadius: 8, background: p.estoque === 0 ? '#fafafa' : '#ffffff', border: `1px solid ${p.estoque === 0 ? '#ececec' : 'rgba(66, 14, 118,0.4)'}`, color: p.estoque === 0 ? '#a3a3a3' : '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', cursor: p.estoque === 0 ? 'not-allowed' : 'pointer', transition: 'background 0.15s, border-color 0.15s, color 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                       {p.estoque === 0 ? 'INDISPONÍVEL' : (
                         <>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1178,9 +1178,9 @@ export default function Home() {
           <div style={{ textAlign: 'center', marginTop: 48 }}>
             <button className="ver-mais-btn"
               onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 40px', borderRadius: 10, background: '#ffffff', border: '1px solid rgba(109,40,217,0.4)', color: '#6d28d9', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
-              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'rgba(109,40,217,0.06)'; b.style.borderColor = 'rgba(109,40,217,0.5)'; b.style.boxShadow = '0 4px 12px rgba(109,40,217,0.18)' }}
-              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = '#ffffff'; b.style.borderColor = 'rgba(109,40,217,0.4)'; b.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 40px', borderRadius: 10, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'rgba(66, 14, 118,0.06)'; b.style.borderColor = 'rgba(66, 14, 118,0.5)'; b.style.boxShadow = '0 4px 12px rgba(66, 14, 118,0.18)' }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = '#ffffff'; b.style.borderColor = 'rgba(66, 14, 118,0.4)'; b.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
               VER MAIS
               <span style={{ opacity: 0.6, fontSize: 10, fontWeight: 600 }}>{visible.length} / {filtered.length}</span>
@@ -1208,7 +1208,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer style={{ background: '#050a05', color: '#a3a3a3', padding: '56px 24px 24px' }}>
+      <footer style={{ background: '#0A0710', color: '#a3a3a3', padding: '56px 24px 24px' }}>
         <div className="footer-grid" style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr', gap: 48 }}>
           <div>
             <span style={{ display: 'inline-block', marginBottom: 16 }}><Logo size={30} dark /></span>
@@ -1253,11 +1253,11 @@ export default function Home() {
             <h4 style={{ color: '#ffffff', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', marginBottom: 18 }}>RETIRADA</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 <span style={{ fontSize: 13, lineHeight: 1.6 }}>Retirada exclusivamente em loja.<br />Não fazemos envio.</span>
               </li>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <span style={{ fontSize: 13, lineHeight: 1.7 }}>Pedido pronto em até 24h úteis<br />após a confirmação do PIX.</span>
               </li>
               {WHATSAPP_ENABLED && (
@@ -1278,7 +1278,7 @@ export default function Home() {
           <span style={{ fontSize: 11, letterSpacing: '0.05em', color: '#404040' }}>© 2026 ATACADO NA FRONTEIRA — TODOS OS DIREITOS RESERVADOS</span>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ fontSize: 10, color: '#404040', letterSpacing: '0.08em' }}>PAGAMENTO</span>
-            <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.2)', color: '#8b5cf6', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
+            <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(169, 101, 237,0.12)', border: '1px solid rgba(169, 101, 237,0.2)', color: '#A965ED', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>USD</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>BRL</span>
           </div>

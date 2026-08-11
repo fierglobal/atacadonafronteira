@@ -30,7 +30,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
         <span className="nav-rate">USD/BRL = 5,20</span>
         <div style={{ position: 'relative' }}>
           <button onClick={() => setCurrencyOpen(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.3)', color: '#6d28d9', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>
             <div style={{ position: 'relative', width: 20, height: 14, overflow: 'hidden', borderRadius: 2 }}>
               <Image src={currency.flag} alt={currency.label} fill style={{ objectFit: 'cover' }} unoptimized />
             </div>
@@ -45,7 +45,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
               <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 6, background: '#fff', border: '1px solid #ececec', borderRadius: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', zIndex: 20, minWidth: 130, overflow: 'hidden' }}>
                 {currencies.map(c => (
                   <button key={c.code} onClick={() => { setCurrency(c); setCurrencyOpen(false) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '9px 14px', background: currency.code === c.code ? 'rgba(109,40,217,0.06)' : 'transparent', border: 'none', color: currency.code === c.code ? '#6d28d9' : '#404040', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '9px 14px', background: currency.code === c.code ? 'rgba(66, 14, 118,0.06)' : 'transparent', border: 'none', color: currency.code === c.code ? '#420E76' : '#404040', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
                     <div style={{ position: 'relative', width: 20, height: 14, overflow: 'hidden', borderRadius: 2, flexShrink: 0 }}>
                       <Image src={c.flag} alt={c.label} fill style={{ objectFit: 'cover' }} unoptimized />
                     </div>
@@ -67,13 +67,13 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
           {mobileMenu ? '×' : '☰'}
         </button>
         <button onClick={abrirSidebar} className="header-cart"
-          style={{ position: 'relative', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#6d28d9', fontSize: 12, fontWeight: 700 }}>
+          style={{ position: 'relative', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#420E76', fontSize: 12, fontWeight: 700 }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
           <span className="nav-cart-txt">CARRINHO</span>
           {quantidade > 0 && (
-            <span style={{ background: '#8b5cf6', color: '#000', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '0 6px', minWidth: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
+            <span style={{ background: '#A965ED', color: '#000', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '0 6px', minWidth: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
           )}
         </button>
       </div>
@@ -81,7 +81,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
       {mobileMenu && (
         <div className="nav-mobile-drawer open">
           <Link href="/" onClick={() => setMobileMenu(false)}
-            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#6d28d9' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
+            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#420E76' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             TODOS
           </Link>
           {topCats.map(c => (

@@ -61,7 +61,7 @@ export default function Avaliacoes() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         {(['pending', 'approved', 'all'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === f ? '#8b5cf6' : 'var(--a-border)'}`, background: filter === f ? 'rgba(139,92,246,0.08)' : 'transparent', color: filter === f ? '#8b5cf6' : 'var(--a-text3)', cursor: 'pointer' }}>
+            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === f ? '#A965ED' : 'var(--a-border)'}`, background: filter === f ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: filter === f ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
             {f === 'pending' ? 'Pendentes' : f === 'approved' ? 'Aprovadas' : 'Todas'}
           </button>
         ))}
@@ -77,7 +77,7 @@ export default function Avaliacoes() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {reviews.map(r => (
             <div key={r.id} style={{ background: 'var(--a-surface)', border: `1px solid ${!r.aprovado ? 'rgba(245,158,11,0.3)' : 'var(--a-border)'}`, borderRadius: 12, padding: '16px 20px', display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#8b5cf6', flexShrink: 0 }}>
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>
                 {r.nome[0].toUpperCase()}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -95,7 +95,7 @@ export default function Avaliacoes() {
               <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                 {!r.aprovado && (
                   <button onClick={() => aprovar(r)}
-                    style={{ padding: '7px 14px', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 8, color: '#8b5cf6', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    style={{ padding: '7px 14px', background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.3)', borderRadius: 8, color: '#A965ED', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                     Aprovar
                   </button>
                 )}

@@ -116,7 +116,7 @@ export default function CustomFields() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Master data dinâmico</p>
         </div>
         <button onClick={() => { setModal(true); setErr('') }}
-          style={{ padding: '9px 18px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Campo
         </button>
       </div>
@@ -126,9 +126,9 @@ export default function CustomFields() {
           <button key={e.v} onClick={() => setEntity(e.v)}
             style={{
               padding: '7px 16px', fontSize: 12, fontWeight: 700, borderRadius: 8,
-              border: `1px solid ${entity === e.v ? 'rgba(139,92,246,0.3)' : 'var(--a-border)'}`,
-              background: entity === e.v ? 'rgba(139,92,246,0.08)' : 'transparent',
-              color: entity === e.v ? '#8b5cf6' : 'var(--a-text2)',
+              border: `1px solid ${entity === e.v ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`,
+              background: entity === e.v ? 'rgba(169, 101, 237,0.08)' : 'transparent',
+              color: entity === e.v ? '#A965ED' : 'var(--a-text2)',
               cursor: 'pointer',
             }}>
             {e.label}
@@ -153,7 +153,7 @@ export default function CustomFields() {
             ) : defs.map(d => (
               <tr key={d.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, color: 'var(--a-text2)', width: 60 }}>{d.ordem}</td>
-                <td style={{ padding: '12px 18px', fontSize: 12, color: '#8b5cf6', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</td>
+                <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</td>
                 <td style={{ padding: '12px 18px', fontSize: 13, color: 'var(--a-text)' }}>{d.label}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{TYPES.find(t => t.v === d.field_type)?.label || d.field_type}</td>
                 <td style={{ padding: '12px 18px' }}>
@@ -222,7 +222,7 @@ export default function CustomFields() {
               </label>
               {err && <p style={{ color: '#ef4444', fontSize: 12, margin: 0 }}>{err}</p>}
               <button onClick={criar} disabled={saving || !form.field_key || !form.label}
-                style={{ marginTop: 8, padding: '13px', background: (!form.field_key || !form.label) ? 'var(--a-border)' : '#8b5cf6', color: (!form.field_key || !form.label) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.field_key || !form.label) ? 'var(--a-border)' : '#A965ED', color: (!form.field_key || !form.label) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : 'Criar Campo'}
               </button>
             </div>

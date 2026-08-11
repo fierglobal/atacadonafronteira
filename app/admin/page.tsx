@@ -10,7 +10,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 const STATUS_COLOR: Record<string, string> = {
   pendente_pagamento: '#f59e0b', pago: '#3b82f6',
-  pronto_retirada: '#8b5cf6', retirado: '#555', cancelado: '#ef4444',
+  pronto_retirada: '#A965ED', retirado: '#555', cancelado: '#ef4444',
 }
 
 function Sparkline({ data, color }: { data: number[]; color: string }) {
@@ -54,15 +54,15 @@ function AreaChart({ data, labels }: { data: number[]; labels: string[] }) {
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 160 }} preserveAspectRatio="none">
       <defs>
         <linearGradient id="areag" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+          <stop offset="0%" stopColor="#A965ED" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#A965ED" stopOpacity="0" />
         </linearGradient>
       </defs>
       {gridYs.map(g => (
         <line key={g.y} x1="0" y1={g.y} x2={W} y2={g.y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
       ))}
       <path d={areaPath} fill="url(#areag)" />
-      <path d={linePath} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={linePath} fill="none" stroke="#A965ED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {xLabels.map((l, i) => (
         <text key={i} x={l.x} y={H - 6} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.28)" fontFamily="system-ui">
           {l.label}
@@ -206,30 +206,30 @@ export default async function AdminDashboard() {
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '18px 20px' }}>
           <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 12px' }}>RECEITA HOJE</p>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
-            <p style={{ fontSize: 22, fontWeight: 900, color: '#8b5cf6', margin: 0 }}>{fmtK(d.todayRevenue)}</p>
+            <p style={{ fontSize: 22, fontWeight: 900, color: '#A965ED', margin: 0 }}>{fmtK(d.todayRevenue)}</p>
             {revDelta && (
-              <span style={{ fontSize: 11, fontWeight: 800, color: revDelta.up ? '#8b5cf6' : '#ef4444', background: revDelta.up ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)', padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 3 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: revDelta.up ? '#A965ED' : '#ef4444', background: revDelta.up ? 'rgba(169, 101, 237,0.1)' : 'rgba(239,68,68,0.1)', padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 3 }}>
                 {revDelta.up ? '↑' : '↓'} {revDelta.pct.toFixed(0)}%
               </span>
             )}
           </div>
           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '0 0 10px' }}>ontem {fmtK(d.yesterdayRevenue)}</p>
-          <Sparkline data={d.revenueSparkline} color="#8b5cf6" />
+          <Sparkline data={d.revenueSparkline} color="#A965ED" />
         </div>
 
         {/* Pedidos Hoje */}
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '18px 20px' }}>
           <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 12px' }}>PEDIDOS HOJE</p>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 8 }}>
-            <p style={{ fontSize: 32, fontWeight: 900, color: '#00e5ff', margin: 0 }}>{d.todayOrderCount}</p>
+            <p style={{ fontSize: 32, fontWeight: 900, color: '#A965ED', margin: 0 }}>{d.todayOrderCount}</p>
             {ordDelta && (
-              <span style={{ fontSize: 11, fontWeight: 800, color: ordDelta.up ? '#8b5cf6' : '#ef4444', background: ordDelta.up ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)', padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 3 }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: ordDelta.up ? '#A965ED' : '#ef4444', background: ordDelta.up ? 'rgba(169, 101, 237,0.1)' : 'rgba(239,68,68,0.1)', padding: '3px 8px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 3 }}>
                 {ordDelta.up ? '↑' : '↓'} {ordDelta.pct.toFixed(0)}%
               </span>
             )}
           </div>
           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '0 0 10px' }}>ontem {d.yesterdayOrderCount} pedidos</p>
-          <Sparkline data={d.orderSparkline} color="#00e5ff" />
+          <Sparkline data={d.orderSparkline} color="#A965ED" />
         </div>
 
         {/* PIX Pendente */}
@@ -252,10 +252,10 @@ export default async function AdminDashboard() {
         {/* Clientes */}
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '18px 20px' }}>
           <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 12px' }}>CLIENTES</p>
-          <p style={{ fontSize: 32, fontWeight: 900, color: '#8b5cf6', margin: '0 0 8px' }}>{d.totalCustomers}</p>
+          <p style={{ fontSize: 32, fontWeight: 900, color: '#A965ED', margin: '0 0 8px' }}>{d.totalCustomers}</p>
           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0 }}>
             {d.todayNewCusts > 0
-              ? <span style={{ color: '#8b5cf6', fontWeight: 700 }}>+{d.todayNewCusts} hoje</span>
+              ? <span style={{ color: '#A965ED', fontWeight: 700 }}>+{d.todayNewCusts} hoje</span>
               : 'cadastrados'}
           </p>
           <p style={{ fontSize: 11, color: 'var(--a-text3)', marginTop: 10 }}>
@@ -274,7 +274,7 @@ export default async function AdminDashboard() {
               <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Receita</p>
               <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '2px 0 0' }}>Últimos 30 dias</p>
             </div>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#8b5cf6' }}>{fmtK(d.sparkline30.reduce((a, b) => a + b, 0))}</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#A965ED' }}>{fmtK(d.sparkline30.reduce((a, b) => a + b, 0))}</span>
           </div>
           <div style={{ padding: '0 0 0 0' }}>
             <AreaChart data={d.revenueByDay.map(r => r.value)} labels={d.revenueByDay.map(r => r.day)} />
@@ -314,7 +314,7 @@ export default async function AdminDashboard() {
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '16px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Top Produtos</p>
-            <a href="/admin/produtos" style={{ fontSize: 11, color: '#8b5cf6', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
+            <a href="/admin/produtos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
           </div>
           {d.topProducts.length === 0 ? (
             <p style={{ fontSize: 13, color: 'var(--a-text3)', textAlign: 'center', margin: '20px 0' }}>Sem vendas ainda</p>
@@ -323,13 +323,13 @@ export default async function AdminDashboard() {
               {d.topProducts.map((p, i) => (
                 <div key={p.name}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
-                    <span style={{ fontSize: 10, fontWeight: 900, color: i === 0 ? '#8b5cf6' : 'var(--a-text3)', minWidth: 16 }}>#{i + 1}</span>
+                    <span style={{ fontSize: 10, fontWeight: 900, color: i === 0 ? '#A965ED' : 'var(--a-text3)', minWidth: 16 }}>#{i + 1}</span>
                     <span style={{ fontSize: 12, color: 'var(--a-text)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', whiteSpace: 'nowrap' }}>{fmtK(p.brl)}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED', whiteSpace: 'nowrap' }}>{fmtK(p.brl)}</span>
                     <span style={{ fontSize: 10, color: 'var(--a-text3)', minWidth: 28, textAlign: 'right' }}>×{p.qty}</span>
                   </div>
                   <div style={{ height: 3, background: 'var(--a-border)', borderRadius: 99, marginLeft: 26 }}>
-                    <div style={{ height: '100%', width: `${(p.brl / topProdMax) * 100}%`, background: i === 0 ? '#8b5cf6' : 'var(--a-text3)', borderRadius: 99, opacity: i === 0 ? 1 : 0.5 }} />
+                    <div style={{ height: '100%', width: `${(p.brl / topProdMax) * 100}%`, background: i === 0 ? '#A965ED' : 'var(--a-text3)', borderRadius: 99, opacity: i === 0 ? 1 : 0.5 }} />
                   </div>
                 </div>
               ))}
@@ -341,7 +341,7 @@ export default async function AdminDashboard() {
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--a-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Pedidos Recentes</p>
-            <a href="/admin/pedidos" style={{ fontSize: 11, color: '#8b5cf6', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
+            <a href="/admin/pedidos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
           </div>
           {d.recentOrders.length === 0 ? (
             <p style={{ fontSize: 13, color: 'var(--a-text3)', textAlign: 'center', padding: '32px 20px' }}>Nenhum pedido ainda</p>
@@ -351,7 +351,7 @@ export default async function AdminDashboard() {
                 <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: i < d.recentOrders.length - 1 ? '1px solid var(--a-border)' : 'none' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{(o as any).order_num}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED' }}>{(o as any).order_num}</span>
                       <span style={{ fontSize: 11, color: 'var(--a-text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(o as any).customers?.nome || '—'}</span>
                     </div>
                     <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>

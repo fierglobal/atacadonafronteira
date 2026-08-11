@@ -10,7 +10,7 @@ const STATUSES = [
   { value: '', label: 'Todos' },
   { value: 'pendente_pagamento', label: 'Pendente PIX', color: '#f59e0b' },
   { value: 'pago', label: 'Pago', color: '#3b82f6' },
-  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#8b5cf6' },
+  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#A965ED' },
   { value: 'retirado', label: 'Retirado', color: '#555' },
   { value: 'cancelado', label: 'Cancelado', color: '#ef4444' },
 ]
@@ -24,7 +24,7 @@ type Order = {
 
 const ORDER_TAGS = ['urgente', 'atacadista', 'vip', 'novo cliente', 'problemático']
 const TAG_COLORS: Record<string, string> = {
-  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#8b5cf6', 'problemático': '#8b5cf6',
+  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#A965ED', 'problemático': '#A965ED',
 }
 
 export default function Pedidos() {
@@ -177,7 +177,7 @@ export default function Pedidos() {
             ↓ CSV
           </button>
           <button onClick={openModalManual}
-            style={{ padding: '9px 16px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            style={{ padding: '9px 16px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             + Novo Pedido
           </button>
         </div>
@@ -187,7 +187,7 @@ export default function Pedidos() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         {STATUSES.map(s => (
           <button key={s.value} onClick={() => setFilter(s.value)}
-            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === s.value ? (s.color || '#8b5cf6') : 'var(--a-border)'}`, background: filter === s.value ? `${s.color || '#8b5cf6'}15` : 'transparent', color: filter === s.value ? (s.color || '#8b5cf6') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
+            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === s.value ? (s.color || '#A965ED') : 'var(--a-border)'}`, background: filter === s.value ? `${s.color || '#A965ED'}15` : 'transparent', color: filter === s.value ? (s.color || '#A965ED') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
             {s.label}
           </button>
         ))}
@@ -213,7 +213,7 @@ export default function Pedidos() {
                 onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 onClick={() => selectOrder(o)}>
-                <td style={{ padding: '12px 18px', fontSize: 12, color: '#8b5cf6', fontWeight: 700 }}>{o.order_num}</td>
+                <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontWeight: 700 }}>{o.order_num}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text)' }}>{o.customers?.nome || '—'}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text2)' }}>{o.customers?.telefone || '—'}</td>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700 }}>{fmt(o.total_brl)}</td>
@@ -251,7 +251,7 @@ export default function Pedidos() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
               <div>
                 <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.1em', marginBottom: 4 }}>PEDIDO</p>
-                <h2 style={{ fontSize: 20, fontWeight: 900, color: '#8b5cf6', margin: 0 }}>{selected.order_num}</h2>
+                <h2 style={{ fontSize: 20, fontWeight: 900, color: '#A965ED', margin: 0 }}>{selected.order_num}</h2>
                 <p style={{ fontSize: 12, color: 'var(--a-text3)', marginTop: 4 }}>{new Date(selected.created_at).toLocaleString('pt-BR')}</p>
               </div>
               <button onClick={() => setSelected(null)} style={{ background: 'var(--a-border)', border: 'none', color: 'var(--a-text2)', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
@@ -314,28 +314,28 @@ export default function Pedidos() {
               <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>PRODUTOS</p>
               {(selected.order_items || []).map((item, i) => {
                 const estoque = stockMap[item.product_name]
-                const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#8b5cf6' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#8b5cf6'
+                const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
                 const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
                 return (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 8 }}>
                     <span style={{ color: 'var(--a-text2)', flex: 1, marginRight: 12 }}>{item.product_name} × {item.quantity}</span>
                     {estoqueLabel && <span style={{ fontSize: 10, fontWeight: 700, color: estoqueColor, marginRight: 10, whiteSpace: 'nowrap' }}>{estoqueLabel}</span>}
-                    <span style={{ color: '#8b5cf6', fontWeight: 700 }}>USD {item.subtotal_usd.toFixed(2)}</span>
+                    <span style={{ color: '#A965ED', fontWeight: 700 }}>USD {item.subtotal_usd.toFixed(2)}</span>
                   </div>
                 )
               })}
               <div style={{ borderTop: '1px solid var(--a-border)', paddingTop: 10, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontWeight: 900 }}>
                 <span style={{ fontSize: 13 }}>Total</span>
-                <span style={{ color: '#8b5cf6' }}>{fmt(selected.total_brl)}</span>
+                <span style={{ color: '#A965ED' }}>{fmt(selected.total_brl)}</span>
               </div>
             </div>
 
             {/* Comprovante */}
             {selected.comprovante_url && (
               <div>
-                <p style={{ fontSize: 10, color: '#8b5cf6', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>COMPROVANTE DE PAGAMENTO</p>
+                <p style={{ fontSize: 10, color: '#A965ED', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>COMPROVANTE DE PAGAMENTO</p>
                 <a href={selected.comprovante_url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 8, color: '#8b5cf6', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 8, color: '#A965ED', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Ver comprovante
                 </a>
@@ -385,15 +385,15 @@ export default function Pedidos() {
             {manualSuccess ? (
               <div style={{ textAlign: 'center', padding: '40px 0' }}>
                 <p style={{ fontSize: 32, margin: '0 0 12px' }}>✓</p>
-                <p style={{ fontSize: 18, fontWeight: 900, color: '#8b5cf6', margin: '0 0 8px' }}>Pedido criado!</p>
+                <p style={{ fontSize: 18, fontWeight: 900, color: '#A965ED', margin: '0 0 8px' }}>Pedido criado!</p>
                 <p style={{ fontSize: 14, color: 'var(--a-text2)', margin: '0 0 24px' }}>{manualSuccess}</p>
-                <button onClick={() => { setModalManual(false); setManualSuccess('') }} style={{ padding: '10px 24px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Fechar</button>
+                <button onClick={() => { setModalManual(false); setManualSuccess('') }} style={{ padding: '10px 24px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Fechar</button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                 {/* Cliente */}
                 <div>
-                  <p style={{ fontSize: 10, color: '#8b5cf6', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
+                  <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
                   {(['nome', 'cpf', 'telefone', 'email', 'cidade', 'endereco'] as const).map(k => (
                     <div key={k} style={{ marginBottom: 10 }}>
                       <label style={{ fontSize: 10, color: 'var(--a-text2)', fontWeight: 700, letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>{k.toUpperCase()}</label>
@@ -405,7 +405,7 @@ export default function Pedidos() {
 
                 {/* Produtos */}
                 <div>
-                  <p style={{ fontSize: 10, color: '#8b5cf6', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>PRODUTOS</p>
+                  <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>PRODUTOS</p>
                   <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 14, border: '1px solid var(--a-border)', borderRadius: 8 }}>
                     {allProducts.map(p => (
                       <div key={p.id} onClick={() => addManualItem(p)}
@@ -413,7 +413,7 @@ export default function Pedidos() {
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         <span style={{ color: 'var(--a-text2)', flex: 1 }}>{p.name}</span>
-                        <span style={{ color: '#8b5cf6', fontWeight: 700, whiteSpace: 'nowrap' }}>+  USD {p.usd_price.toFixed(2)}</span>
+                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap' }}>+  USD {p.usd_price.toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -433,7 +433,7 @@ export default function Pedidos() {
                       ))}
                       <div style={{ borderTop: '1px solid var(--a-border)', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
                         <span style={{ color: 'var(--a-text2)' }}>Total USD</span>
-                        <span style={{ color: '#8b5cf6' }}>{manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2)}</span>
+                        <span style={{ color: '#A965ED' }}>{manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2)}</span>
                       </div>
                     </div>
                   )}
@@ -443,7 +443,7 @@ export default function Pedidos() {
 
             {!manualSuccess && (
               <button onClick={submitManual} disabled={manualSaving || !manualCustomer.nome || manualItems.length === 0}
-                style={{ marginTop: 24, width: '100%', padding: '13px', background: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-border)' : '#8b5cf6', color: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: manualSaving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 24, width: '100%', padding: '13px', background: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-border)' : '#A965ED', color: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: manualSaving ? 'wait' : 'pointer' }}>
                 {manualSaving ? 'Criando...' : 'Criar Pedido'}
               </button>
             )}

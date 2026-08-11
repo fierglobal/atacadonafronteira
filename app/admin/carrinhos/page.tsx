@@ -76,7 +76,7 @@ export default function Carrinhos() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
         {([['hoje', 'Hoje'], ['7d', 'Últimos 7 dias'], ['todos', 'Todos']] as const).map(([v, l]) => (
           <button key={v} onClick={() => setFilter(v)}
-            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === v ? '#8b5cf6' : 'var(--a-border)'}`, background: filter === v ? 'rgba(139,92,246,0.08)' : 'transparent', color: filter === v ? '#8b5cf6' : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
+            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === v ? '#A965ED' : 'var(--a-border)'}`, background: filter === v ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: filter === v ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
             {l}
           </button>
         ))}
@@ -117,7 +117,7 @@ export default function Carrinhos() {
                     {(s.itens || []).length > 3 && <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>+{(s.itens || []).length - 3} mais</span>}
                   </div>
                 </td>
-                <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, color: '#8b5cf6' }}>
+                <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, color: '#A965ED' }}>
                   {s.total_usd ? fmt(s.total_usd) : '—'}
                 </td>
                 <td style={{ padding: '12px 18px', fontSize: 11, color: 'var(--a-text3)', whiteSpace: 'nowrap' }}>
@@ -125,7 +125,7 @@ export default function Carrinhos() {
                 </td>
                 <td style={{ padding: '12px 18px' }}>
                   {s.contatado
-                    ? <span style={{ fontSize: 10, fontWeight: 700, color: '#8b5cf6', background: 'rgba(139,92,246,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(139,92,246,0.2)' }}>Contatado</span>
+                    ? <span style={{ fontSize: 10, fontWeight: 700, color: '#A965ED', background: 'rgba(169, 101, 237,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(169, 101, 237,0.2)' }}>Contatado</span>
                     : <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(245,158,11,0.2)' }}>Pendente</span>
                   }
                 </td>

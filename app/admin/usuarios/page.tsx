@@ -69,7 +69,7 @@ export default function Usuarios() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Gerencie o acesso ao painel</p>
         </div>
         <button onClick={() => { setModal(true); setErr('') }}
-          style={{ padding: '9px 18px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Usuário
         </button>
       </div>
@@ -96,7 +96,7 @@ export default function Usuarios() {
               <tr key={u.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
                 <td style={{ padding: '12px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: u.role === 'dono' ? 'rgba(245,158,11,0.15)' : 'rgba(139,92,246,0.15)', border: `1px solid ${u.role === 'dono' ? 'rgba(245,158,11,0.3)' : 'rgba(139,92,246,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#8b5cf6' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: u.role === 'dono' ? 'rgba(245,158,11,0.15)' : 'rgba(169, 101, 237,0.15)', border: `1px solid ${u.role === 'dono' ? 'rgba(245,158,11,0.3)' : 'rgba(169, 101, 237,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#A965ED' }}>
                       {u.nome[0].toUpperCase()}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)' }}>{u.nome}</span>
@@ -104,13 +104,13 @@ export default function Usuarios() {
                 </td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{u.email}</td>
                 <td style={{ padding: '12px 18px' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#8b5cf6', background: u.role === 'dono' ? 'rgba(245,158,11,0.1)' : 'rgba(139,92,246,0.1)', padding: '3px 10px', borderRadius: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#A965ED', background: u.role === 'dono' ? 'rgba(245,158,11,0.1)' : 'rgba(169, 101, 237,0.1)', padding: '3px 10px', borderRadius: 4 }}>
                     {u.role === 'dono' ? 'Dono' : 'Operador'}
                   </span>
                 </td>
                 <td style={{ padding: '12px 18px' }}>
                   <button onClick={() => toggleAtivo(u)}
-                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${u.ativo ? 'rgba(139,92,246,0.3)' : 'var(--a-border)'}`, background: u.ativo ? 'rgba(139,92,246,0.08)' : 'transparent', color: u.ativo ? '#8b5cf6' : 'var(--a-text3)', cursor: 'pointer' }}>
+                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${u.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: u.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: u.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
                     {u.ativo ? '● Ativo' : '○ Inativo'}
                   </button>
                 </td>
@@ -152,7 +152,7 @@ export default function Usuarios() {
               </div>
               {err && <p style={{ color: '#ef4444', fontSize: 12 }}>{err}</p>}
               <button onClick={criar} disabled={saving || !form.nome || !form.email || !form.senha}
-                style={{ marginTop: 8, padding: '13px', background: (!form.nome || !form.email || !form.senha) ? 'var(--a-border)' : '#8b5cf6', color: (!form.nome || !form.email || !form.senha) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.nome || !form.email || !form.senha) ? 'var(--a-border)' : '#A965ED', color: (!form.nome || !form.email || !form.senha) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Criando...' : 'Criar Usuário'}
               </button>
             </div>

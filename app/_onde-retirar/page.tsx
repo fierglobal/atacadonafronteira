@@ -21,9 +21,9 @@ export default function OndeRetirarPage() {
   return (
     <div style={{ background: '#ffffff', minHeight: '100vh', color: '#0a0a0a' }}>
       <style>{`
-        .contact-card:hover { border-color: rgba(109,40,217,0.4) !important; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08) !important; }
+        .contact-card:hover { border-color: rgba(66, 14, 118,0.4) !important; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08) !important; }
         .contact-card { transition: all 0.22s; }
-        .maps-btn:hover { background: #8b5cf6 !important; color: #000 !important; box-shadow: 0 8px 24px rgba(109,40,217,0.35) !important; }
+        .maps-btn:hover { background: #A965ED !important; color: #000 !important; box-shadow: 0 8px 24px rgba(66, 14, 118,0.35) !important; }
         .maps-btn { transition: all 0.2s; }
         .wa-btn:hover { background: #1ebd5d !important; box-shadow: 0 8px 24px rgba(37,211,102,0.4) !important; transform: translateY(-2px); }
         .wa-btn { transition: all 0.2s; }
@@ -39,12 +39,12 @@ export default function OndeRetirarPage() {
       <section style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 24px 32px' }}>
         <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 40, alignItems: 'center' }}>
           <div>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px', background: 'rgba(109,40,217,0.08)', border: '1px solid rgba(109,40,217,0.3)', borderRadius: 99, color: '#6d28d9', fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', marginBottom: 18 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8b5cf6', boxShadow: '0 0 6px rgba(109,40,217,0.6)' }} />
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px', background: 'rgba(66, 14, 118,0.08)', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 99, color: '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', marginBottom: 18 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A965ED', boxShadow: '0 0 6px rgba(66, 14, 118,0.6)' }} />
               LOJA FÍSICA
             </span>
             <h1 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.08, margin: '0 0 18px' }}>
-              Onde <span style={{ color: '#6d28d9' }}>retirar</span> seu pedido
+              Onde <span style={{ color: '#420E76' }}>retirar</span> seu pedido
             </h1>
             <p style={{ fontSize: 15, color: '#525252', lineHeight: 1.6, margin: '0 0 28px', maxWidth: 480 }}>
               Trabalhamos exclusivamente com retirada na loja em Ciudad del Este, Paraguai. Após confirmação do PIX, seu pedido fica pronto em até 24h úteis.
@@ -69,8 +69,8 @@ export default function OndeRetirarPage() {
           <div className="contact-card" style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: 28, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             <p style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', margin: '0 0 16px' }}>ENDEREÇO</p>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 22 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(109,40,217,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(66, 14, 118,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                 </svg>
               </div>
@@ -123,7 +123,7 @@ export default function OndeRetirarPage() {
               <p style={{ fontSize: 12, color: '#737373', margin: 0 }}>{ADDRESS_LINE2}</p>
             </div>
             <a href={MAPS_LINK} target="_blank" rel="noopener"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#ffffff', color: '#6d28d9', border: '1px solid rgba(109,40,217,0.4)', borderRadius: 8, textDecoration: 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em' }}>
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: '#ffffff', color: '#420E76', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 8, textDecoration: 'none', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em' }}>
               Ver no Google Maps
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
             </a>
@@ -141,7 +141,7 @@ export default function OndeRetirarPage() {
             { n: '4', t: 'Retire na loja', d: 'Apresente o número do pedido e seu documento. Pronto!' },
           ].map(s => (
             <div key={s.n} className="contact-card" style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, padding: 20 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6d28d9', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, marginBottom: 12 }}>{s.n}</div>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#420E76', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, marginBottom: 12 }}>{s.n}</div>
               <p style={{ fontSize: 14, fontWeight: 700, color: '#0a0a0a', margin: '0 0 6px' }}>{s.t}</p>
               <p style={{ fontSize: 12, color: '#525252', lineHeight: 1.55, margin: 0 }}>{s.d}</p>
             </div>

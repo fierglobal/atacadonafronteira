@@ -7,7 +7,7 @@ const AMARELO = '#F6BD0C'
 // ela renderizaria a ~57px de largura e o texto sumiria, então aqui a ponte vem
 // da imagem e o wordmark é texto — nítido em qualquer tamanho e recolorível.
 // Em fundo escuro o roxo #420E76 da ponte some contra o preto, por isso a
-// variante dark tem o roxo clareado para #8B5CF6.
+// variante dark tem o roxo clareado para #A965ED.
 export default function Logo({ size = 30, dark = false }: { size?: number; dark?: boolean }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: Math.round(size * 0.26) }}>

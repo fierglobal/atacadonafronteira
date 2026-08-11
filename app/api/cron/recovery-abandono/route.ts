@@ -55,8 +55,8 @@ export async function GET(req: Request) {
         <h2 style="margin:0 0 8px;font-size:20px;color:#fff">Você esqueceu seu carrinho 🛒</h2>
         <p style="color:#888;font-size:15px;line-height:1.6;margin:0 0 24px">${cart.nome || 'Olá'}, seus itens ainda estão te esperando:</p>
         <table width="100%" cellpadding="0" cellspacing="0" style="background:#111;border-radius:10px;padding:16px;margin-bottom:20px">${linhas}</table>
-        <p style="font-size:16px;color:#8b5cf6;font-weight:900;margin:0 0 24px">Total: R$ ${totalBrl.toFixed(2).replace('.', ',')}</p>
-        <a href="https://atacadonafronteira.com/" style="display:inline-block;background:#8b5cf6;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">Finalizar Compra →</a>
+        <p style="font-size:16px;color:#A965ED;font-weight:900;margin:0 0 24px">Total: R$ ${totalBrl.toFixed(2).replace('.', ',')}</p>
+        <a href="https://atacadonafronteira.com/" style="display:inline-block;background:#A965ED;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">Finalizar Compra →</a>
         <p style="font-size:11px;color:#444;margin-top:24px">Atacado na Fronteira${config.whatsapp ? ` · WhatsApp ${config.whatsapp}` : ''}</p>
         </td></tr></table></td></tr></table></body></html>`
       const ok = await sendEmail(cart.email, `${cart.nome || 'Olá'}, você esqueceu seu carrinho 🛒`, html)

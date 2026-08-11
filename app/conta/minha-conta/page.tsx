@@ -48,7 +48,7 @@ export default function MeuPerfil() {
   return (
     <div>
       <style>{`
-        input:focus { border-color: rgba(109,40,217,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(109,40,217,0.08); }
+        input:focus { border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); }
         @media (max-width: 640px) {
           .mc-grid { grid-template-columns: 1fr !important; }
         }
@@ -109,7 +109,7 @@ export default function MeuPerfil() {
             </div>
           </div>
           <button onClick={save} disabled={saving}
-            style={{ marginTop: 20, padding: '11px 28px', background: saved ? 'rgba(109,40,217,0.08)' : '#8b5cf6', color: saved ? '#6d28d9' : '#000', border: saved ? '1px solid rgba(109,40,217,0.4)' : 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 4px 16px rgba(109,40,217,0.25)' }}>
+            style={{ marginTop: 20, padding: '11px 28px', background: saved ? 'rgba(66, 14, 118,0.08)' : '#A965ED', color: saved ? '#420E76' : '#000', border: saved ? '1px solid rgba(66, 14, 118,0.4)' : 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 4px 16px rgba(66, 14, 118,0.25)' }}>
             {saving ? 'Salvando...' : saved ? '✓ Salvo' : 'Salvar Dados'}
           </button>
         </div>

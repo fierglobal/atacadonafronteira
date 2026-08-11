@@ -62,7 +62,7 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
         <div style={{ display: 'flex', gap: 8 }}>
           {periods.map(p => (
             <a key={p.val} href={`/admin/relatorios?period=${p.val}`}
-              style={{ padding: '7px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${period === +p.val ? '#8b5cf6' : 'var(--a-border)'}`, background: period === +p.val ? 'rgba(139,92,246,0.08)' : 'transparent', color: period === +p.val ? '#8b5cf6' : 'var(--a-text3)', textDecoration: 'none', transition: 'all 0.15s' }}>
+              style={{ padding: '7px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${period === +p.val ? '#A965ED' : 'var(--a-border)'}`, background: period === +p.val ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: period === +p.val ? '#A965ED' : 'var(--a-text3)', textDecoration: 'none', transition: 'all 0.15s' }}>
               {p.label}
             </a>
           ))}
@@ -88,17 +88,17 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
                 const pct = totalBrl > 0 ? (p.brl / totalBrl * 100) : 0
                 return (
                   <tr key={p.name} style={{ borderBottom: '1px solid var(--a-border)' }}>
-                    <td style={{ padding: '13px 18px', textAlign: 'center', fontSize: 11, fontWeight: 900, color: i === 0 ? '#8b5cf6' : 'var(--a-text3)' }}>#{i + 1}</td>
+                    <td style={{ padding: '13px 18px', textAlign: 'center', fontSize: 11, fontWeight: 900, color: i === 0 ? '#A965ED' : 'var(--a-text3)' }}>#{i + 1}</td>
                     <td style={{ padding: '13px 18px' }}>
                       <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)', margin: 0, maxWidth: 260 }}>{p.name}</p>
                       <div style={{ marginTop: 5, height: 3, background: 'var(--a-border)', borderRadius: 99 }}>
-                        <div style={{ height: '100%', width: `${(p.brl / maxBrl) * 100}%`, background: i === 0 ? '#8b5cf6' : '#3b82f6', borderRadius: 99, opacity: i === 0 ? 1 : 0.6 }} />
+                        <div style={{ height: '100%', width: `${(p.brl / maxBrl) * 100}%`, background: i === 0 ? '#A965ED' : '#3b82f6', borderRadius: 99, opacity: i === 0 ? 1 : 0.6 }} />
                       </div>
                     </td>
                     <td style={{ padding: '13px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{p.brand || '—'}</td>
                     <td style={{ padding: '13px 18px', fontSize: 13, fontWeight: 700, color: 'var(--a-text)' }}>{p.qty}</td>
                     <td style={{ padding: '13px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{p.orders}</td>
-                    <td style={{ padding: '13px 18px', fontSize: 13, fontWeight: 700, color: '#8b5cf6' }}>{fmtK(p.brl)}</td>
+                    <td style={{ padding: '13px 18px', fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{fmtK(p.brl)}</td>
                     <td style={{ padding: '13px 18px', fontSize: 12, color: 'var(--a-text3)', whiteSpace: 'nowrap' }}>{pct.toFixed(1)}%</td>
                   </tr>
                 )

@@ -57,7 +57,7 @@ export default function Seguranca() {
 
       {status && status.enabled && !setup && (
         <div style={{ padding: 20, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12 }}>
-          <p style={{ color: '#8b5cf6', fontWeight: 700, marginBottom: 12 }}>✓ 2FA ativo</p>
+          <p style={{ color: '#A965ED', fontWeight: 700, marginBottom: 12 }}>✓ 2FA ativo</p>
           <p style={{ fontSize: 13, color: 'var(--a-text2)', marginBottom: 16 }}>Sua conta exige código do app autenticador no login.</p>
           <button onClick={disable} disabled={busy}
             style={{ padding: '10px 16px', background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>
@@ -70,7 +70,7 @@ export default function Seguranca() {
         <div style={{ padding: 20, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12 }}>
           <p style={{ fontSize: 13, color: 'var(--a-text2)', marginBottom: 16 }}>2FA não ativado. Ative para reforçar a segurança da sua conta de administrador.</p>
           <button onClick={startSetup} disabled={busy}
-            style={{ padding: '10px 16px', background: '#8b5cf6', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}>
+            style={{ padding: '10px 16px', background: '#A965ED', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 13 }}>
             {busy ? 'Gerando...' : 'Configurar 2FA'}
           </button>
         </div>
@@ -87,13 +87,13 @@ export default function Seguranca() {
           <input value={token} onChange={e => setToken(e.target.value)} placeholder="000000" maxLength={6}
             style={{ width: '100%', padding: '11px 14px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 8, color: 'var(--a-text)', fontSize: 18, textAlign: 'center', letterSpacing: '0.3em', marginBottom: 12 }} />
           <button onClick={confirmTotp} disabled={busy || token.length !== 6}
-            style={{ width: '100%', padding: '12px', background: '#8b5cf6', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 14, opacity: token.length !== 6 ? 0.5 : 1 }}>
+            style={{ width: '100%', padding: '12px', background: '#A965ED', border: 'none', color: '#000', borderRadius: 8, cursor: 'pointer', fontWeight: 800, fontSize: 14, opacity: token.length !== 6 ? 0.5 : 1 }}>
             {busy ? 'Validando...' : 'Confirmar e Ativar'}
           </button>
         </div>
       )}
 
-      {msg && <p style={{ marginTop: 16, fontSize: 13, color: msg.startsWith('✓') ? '#8b5cf6' : '#ef4444' }}>{msg}</p>}
+      {msg && <p style={{ marginTop: 16, fontSize: 13, color: msg.startsWith('✓') ? '#A965ED' : '#ef4444' }}>{msg}</p>}
     </div>
   )
 }

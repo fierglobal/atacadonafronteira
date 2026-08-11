@@ -161,7 +161,7 @@ export default function Promocoes() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{promos.length} promoções cadastradas</p>
         </div>
         <button onClick={abrirNovo}
-          style={{ padding: '9px 18px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Nova Promoção
         </button>
       </div>
@@ -190,7 +190,7 @@ export default function Promocoes() {
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text2)' }}>{p.prioridade}</td>
                 <td style={{ padding: '12px 18px' }}>
                   <button onClick={() => toggleAtivo(p)}
-                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${p.ativo ? 'rgba(139,92,246,0.3)' : 'var(--a-border)'}`, background: p.ativo ? 'rgba(139,92,246,0.08)' : 'transparent', color: p.ativo ? '#8b5cf6' : 'var(--a-text3)', cursor: 'pointer' }}>
+                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${p.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: p.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: p.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
                     {p.ativo ? '● Ativo' : '○ Inativo'}
                   </button>
                 </td>
@@ -300,7 +300,7 @@ export default function Promocoes() {
               {err && <p style={{ color: '#ef4444', fontSize: 12, margin: 0 }}>{err}</p>}
 
               <button onClick={salvar} disabled={saving || !form.nome.trim()}
-                style={{ marginTop: 8, padding: '13px', background: !form.nome.trim() ? 'var(--a-border)' : '#8b5cf6', color: !form.nome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: !form.nome.trim() ? 'var(--a-border)' : '#A965ED', color: !form.nome.trim() ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : form.id ? 'Salvar Alterações' : 'Criar Promoção'}
               </button>
             </div>

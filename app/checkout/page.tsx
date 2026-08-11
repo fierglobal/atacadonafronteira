@@ -120,11 +120,11 @@ function PixQrBlock({ qrDataUrl, totalSecs }: { qrDataUrl: string; totalSecs: nu
         <img src={qrDataUrl} alt="QR Code PIX" width={180} height={180} />
       </div>
       <p style={{ fontSize: 12, color: '#525252', margin: 0 }}>Escaneie com o app do banco</p>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: expired ? 'rgba(239,68,68,0.06)' : 'rgba(109,40,217,0.06)', border: `1px solid ${expired ? 'rgba(239,68,68,0.3)' : 'rgba(109,40,217,0.3)'}`, borderRadius: 20 }}>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={expired ? '#ef4444' : '#6d28d9'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: expired ? 'rgba(239,68,68,0.06)' : 'rgba(66, 14, 118,0.06)', border: `1px solid ${expired ? 'rgba(239,68,68,0.3)' : 'rgba(66, 14, 118,0.3)'}`, borderRadius: 20 }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={expired ? '#ef4444' : '#420E76'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
         </svg>
-        <span style={{ fontSize: 12, fontWeight: 700, color: expired ? '#ef4444' : '#6d28d9', fontFamily: 'monospace' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: expired ? '#ef4444' : '#420E76', fontFamily: 'monospace' }}>
           {expired ? 'PIX expirado' : `Expira em ${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`}
         </span>
       </div>
@@ -149,9 +149,9 @@ function CuponsList({
   return (
     <div style={{ marginBottom: 12 }}>
       {cupons.map(c => (
-        <div key={c.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 10px', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.4)', borderRadius: 7, marginBottom: 6 }}>
+        <div key={c.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 10px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 7, marginBottom: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-            <span style={{ fontSize: 11, color: '#6d28d9', fontWeight: 800, fontFamily: 'monospace' }}>{c.codigo}</span>
+            <span style={{ fontSize: 11, color: '#420E76', fontWeight: 800, fontFamily: 'monospace' }}>{c.codigo}</span>
             <span style={{ fontSize: 10, color: '#404040' }}>-{c.desconto_pct}%</span>
           </div>
           <button onClick={() => removerCupom(c.id)} style={{ background: 'none', border: 'none', color: '#737373', fontSize: 14, cursor: 'pointer', padding: '0 4px' }} title="Remover cupom">×</button>
@@ -163,13 +163,13 @@ function CuponsList({
             placeholder="CUPOM DE DESCONTO" maxLength={20}
             style={{ flex: 1, padding: '8px 10px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 7, color: '#0a0a0a', fontSize: 12, fontFamily: 'monospace', letterSpacing: '0.06em', outline: 'none' }} />
           <button onClick={aplicarCupom} disabled={cupomLoading}
-            style={{ padding: '8px 12px', background: '#ffffff', border: '1px solid rgba(109,40,217,0.4)', borderRadius: 7, color: '#6d28d9', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            style={{ padding: '8px 12px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 7, color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             {cupomLoading ? '...' : 'Aplicar'}
           </button>
         </div>
       )}
       {!showInput && podeAdicionar && (
-        <button onClick={() => setShowInput(true)} style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 0 }}>
+        <button onClick={() => setShowInput(true)} style={{ background: 'none', border: 'none', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', padding: 0 }}>
           + adicionar outro cupom
         </button>
       )}
@@ -183,10 +183,10 @@ function AovBar({ totalBRL, pedidoMinimo }: { totalBRL: number; pedidoMinimo: nu
   const atingiu = totalBRL >= pedidoMinimo
   const faltam = Math.max(0, pedidoMinimo - totalBRL)
   const pct = Math.min(100, Math.round((totalBRL / pedidoMinimo) * 100))
-  const cor = atingiu ? '#6d28d9' : '#b45309'
-  const barCor = atingiu ? '#8b5cf6' : '#f59e0b'
-  const bg = atingiu ? 'rgba(109,40,217,0.06)' : 'rgba(245,158,11,0.06)'
-  const border = atingiu ? 'rgba(109,40,217,0.3)' : 'rgba(245,158,11,0.3)'
+  const cor = atingiu ? '#420E76' : '#b45309'
+  const barCor = atingiu ? '#A965ED' : '#f59e0b'
+  const bg = atingiu ? 'rgba(66, 14, 118,0.06)' : 'rgba(245,158,11,0.06)'
+  const border = atingiu ? 'rgba(66, 14, 118,0.3)' : 'rgba(245,158,11,0.3)'
   return (
     <div style={{ marginBottom: 20, padding: '12px 16px', background: bg, border: `1px solid ${border}`, borderRadius: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, fontSize: 12 }}>
@@ -215,8 +215,8 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
               {p.img_url && <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'cover' }} />}
             </div>
             <p style={{ fontSize: 11, color: '#0a0a0a', margin: 0, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{p.name}</p>
-            <p style={{ fontSize: 12, color: '#6d28d9', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price)}</p>
-            <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(109,40,217,0.4)', borderRadius: 6, color: '#6d28d9', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price)}</p>
+            <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, color: '#420E76', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
               + adicionar
             </button>
           </div>
@@ -604,7 +604,7 @@ export default function Checkout() {
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
         <p style={{ color: '#737373', fontSize: 15 }}>Seu carrinho está vazio</p>
-        <button onClick={() => router.push('/')} style={{ padding: '12px 28px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(109,40,217,0.25)' }}>
+        <button onClick={() => router.push('/')} style={{ padding: '12px 28px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
           Ver Catálogo
         </button>
       </div>
@@ -615,14 +615,14 @@ export default function Checkout() {
   const StepIndicator = ({ step }: { step: 1 | 2 }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > 1 ? 'rgba(109,40,217,0.08)' : '#8b5cf6', border: step > 1 ? '1px solid rgba(109,40,217,0.4)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step > 1 ? '#6d28d9' : '#000' }}>
+        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > 1 ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: step > 1 ? '1px solid rgba(66, 14, 118,0.4)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step > 1 ? '#420E76' : '#000' }}>
           {step > 1 ? '✓' : '1'}
         </div>
         <span style={{ fontSize: 11, color: step === 1 ? '#0a0a0a' : '#737373', fontWeight: step === 1 ? 700 : 400 }}>Dados</span>
       </div>
       <span style={{ color: '#a3a3a3' }}>→</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step === 2 ? '#8b5cf6' : '#ffffff', border: step === 2 ? 'none' : '1px solid #d4d4d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step === 2 ? '#000' : '#a3a3a3' }}>2</div>
+        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step === 2 ? '#A965ED' : '#ffffff', border: step === 2 ? 'none' : '1px solid #d4d4d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step === 2 ? '#000' : '#a3a3a3' }}>2</div>
         <span style={{ fontSize: 11, color: step === 2 ? '#0a0a0a' : '#a3a3a3', fontWeight: step === 2 ? 700 : 400 }}>Pagamento</span>
       </div>
     </div>
@@ -643,7 +643,7 @@ export default function Checkout() {
   if (pageState === 'checking') {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 32, height: 32, border: '2px solid #ececec', borderTopColor: '#6d28d9', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 32, height: 32, border: '2px solid #ececec', borderTopColor: '#420E76', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
@@ -660,20 +660,20 @@ export default function Checkout() {
 
         <div style={{ maxWidth: 520, margin: '48px auto', padding: '0 24px 80px' }}>
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
-            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(109,40,217,0.06)', border: '2px solid #6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 4px 12px rgba(109,40,217,0.18)' }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(66, 14, 118,0.06)', border: '2px solid #420E76', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 4px 12px rgba(66, 14, 118,0.18)' }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <h1 style={{ fontSize: 22, fontWeight: 900, marginBottom: 6, color: '#0a0a0a' }}>Pedido Confirmado!</h1>
             <p style={{ color: '#404040', fontSize: 13 }}>
-              Pedido <span style={{ color: '#6d28d9', fontWeight: 700 }}>#{orderNum}</span> — aguardando pagamento PIX
+              Pedido <span style={{ color: '#420E76', fontWeight: 700 }}>#{orderNum}</span> — aguardando pagamento PIX
             </p>
           </div>
 
           {/* Tempo de preparação */}
-          <div style={{ marginBottom: 20, padding: '16px 20px', background: '#fafafa', border: '1px solid rgba(109,40,217,0.3)', borderRadius: 12, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <div style={{ marginBottom: 20, padding: '16px 20px', background: '#fafafa', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 12, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <span style={{ fontSize: 22, lineHeight: 1 }}>📦</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 11, fontWeight: 800, color: '#6d28d9', letterSpacing: '0.1em', margin: '0 0 4px' }}>TEMPO DE PREPARAÇÃO</p>
+              <p style={{ fontSize: 11, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 4px' }}>TEMPO DE PREPARAÇÃO</p>
               <p style={{ fontSize: 13, color: '#404040', margin: 0, lineHeight: 1.5 }}>
                 {estimatedReadyTime || readyTimeFallback}
               </p>
@@ -684,10 +684,10 @@ export default function Checkout() {
           {qrDataUrl && pixStartSecs > 0 && <PixQrBlock qrDataUrl={qrDataUrl} totalSecs={pixStartSecs} />}
 
           {/* PIX Copia e Cola */}
-          <div style={{ background: 'linear-gradient(135deg, rgba(109,40,217,0.04), rgba(109,40,217,0.01))', border: '1px solid rgba(109,40,217,0.25)', borderRadius: 16, padding: '24px', marginBottom: 16 }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(66, 14, 118,0.04), rgba(66, 14, 118,0.01))', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 16, padding: '24px', marginBottom: 16 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6d28d9', animation: 'pulse 2s ease infinite' }} />
-              <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', color: '#6d28d9' }}>PIX COPIA E COLA</span>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#420E76', animation: 'pulse 2s ease infinite' }} />
+              <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', color: '#420E76' }}>PIX COPIA E COLA</span>
             </div>
             <p style={{ fontSize: 12, color: '#404040', marginBottom: 14, lineHeight: 1.6 }}>
               No app do banco: <strong style={{ color: '#0a0a0a' }}>Pix → Pagar → Copia e Cola</strong>. Cole o código abaixo.
@@ -696,7 +696,7 @@ export default function Checkout() {
               {pixPayloadStr}
             </div>
             <button onClick={() => copy(pixPayloadStr, 'pix')}
-              style={{ width: '100%', padding: '14px', background: copied === 'pix' ? 'rgba(109,40,217,0.08)' : '#8b5cf6', border: `1px solid ${copied === 'pix' ? 'rgba(109,40,217,0.4)' : '#8b5cf6'}`, borderRadius: 10, color: copied === 'pix' ? '#6d28d9' : '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 4px 16px rgba(109,40,217,0.25)' }}>
+              style={{ width: '100%', padding: '14px', background: copied === 'pix' ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: `1px solid ${copied === 'pix' ? 'rgba(66, 14, 118,0.4)' : '#A965ED'}`, borderRadius: 10, color: copied === 'pix' ? '#420E76' : '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 4px 16px rgba(66, 14, 118,0.25)' }}>
               {copied === 'pix' ? '✓ Código Copiado!' : 'Copiar Código PIX'}
             </button>
           </div>
@@ -716,7 +716,7 @@ export default function Checkout() {
                   {PIX_KEY}
                 </div>
                 <button onClick={() => copy(PIX_KEY, 'key')}
-                  style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(109,40,217,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(109,40,217,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#6d28d9', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                  style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
                   {copied === 'key' ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
@@ -724,11 +724,11 @@ export default function Checkout() {
             <div style={{ marginBottom: 16 }}>
               <p style={{ ...lbl, marginBottom: 8 }}>VALOR A PAGAR</p>
               <div style={{ display: 'flex', gap: 8 }}>
-                <div style={{ flex: 1, padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 20, fontWeight: 900, color: '#6d28d9', fontFamily: 'monospace' }}>
+                <div style={{ flex: 1, padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 20, fontWeight: 900, color: '#420E76', fontFamily: 'monospace' }}>
                   R$ {pixTotalBRLStr}
                 </div>
                 <button onClick={() => copy(pixTotalBRL.toFixed(2), 'val')}
-                  style={{ flexShrink: 0, padding: '0 16px', background: copied === 'val' ? 'rgba(109,40,217,0.08)' : '#ffffff', border: `1px solid ${copied === 'val' ? 'rgba(109,40,217,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#6d28d9', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
+                  style={{ flexShrink: 0, padding: '0 16px', background: copied === 'val' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'val' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
                   {copied === 'val' ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
@@ -754,15 +754,15 @@ export default function Checkout() {
             ))}
             <div style={{ borderTop: '1px solid #ececec', paddingTop: 12, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>
               <span style={{ color: '#0a0a0a' }}>Total</span>
-              <span style={{ color: '#6d28d9' }}>R$ {pixTotalBRLStr}</span>
+              <span style={{ color: '#420E76' }}>R$ {pixTotalBRLStr}</span>
             </div>
           </div>
 
           {/* comprovante */}
-          <div style={{ background: '#ffffff', border: `1px solid ${comprovante === 'done' ? 'rgba(109,40,217,0.4)' : '#ececec'}`, borderRadius: 12, padding: '20px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            <p style={{ fontSize: 10, fontWeight: 800, color: comprovante === 'done' ? '#6d28d9' : '#525252', letterSpacing: '0.1em', margin: '0 0 10px' }}>ENVIAR COMPROVANTE</p>
+          <div style={{ background: '#ffffff', border: `1px solid ${comprovante === 'done' ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 12, padding: '20px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            <p style={{ fontSize: 10, fontWeight: 800, color: comprovante === 'done' ? '#420E76' : '#525252', letterSpacing: '0.1em', margin: '0 0 10px' }}>ENVIAR COMPROVANTE</p>
             {comprovante === 'done' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#6d28d9', fontSize: 13, fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#420E76', fontSize: 13, fontWeight: 700 }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 Comprovante recebido! Aguarde a confirmação.
               </div>
@@ -804,7 +804,7 @@ export default function Checkout() {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`
-          input:focus { border-color: rgba(109,40,217,0.5) !important; box-shadow: 0 0 0 3px rgba(109,40,217,0.08); outline: none; }
+          input:focus { border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
           input::placeholder { color: #a3a3a3; }
           @media (max-width: 768px) {
             .ck-confirm-grid { grid-template-columns: 1fr !important; }
@@ -830,7 +830,7 @@ export default function Checkout() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, color: '#525252', letterSpacing: '0.1em' }}>SEUS DADOS</span>
                 <button onClick={() => router.push('/conta/minha-conta')}
-                  style={{ fontSize: 11, color: '#6d28d9', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
+                  style={{ fontSize: 11, color: '#420E76', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700 }}>
                   Alterar →
                 </button>
               </div>
@@ -884,9 +884,9 @@ export default function Checkout() {
             <button
               onClick={() => placeOrder(profile, userId, nomeRetirador)}
               disabled={!podeFinalizar}
-              style={{ width: '100%', padding: '18px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 14, fontWeight: 900, fontSize: 17, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(109,40,217,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
-              onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(109,40,217,0.35)'; b.style.transform = 'translateY(-1px)' } }}
-              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(109,40,217,0.25)'; b.style.transform = 'none' }}>
+              style={{ width: '100%', padding: '18px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 14, fontWeight: 900, fontSize: 17, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
+              onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(66, 14, 118,0.35)'; b.style.transform = 'translateY(-1px)' } }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(66, 14, 118,0.25)'; b.style.transform = 'none' }}>
               {submitting ? 'Processando...' : 'Confirmar Pedido →'}
             </button>
 
@@ -911,7 +911,7 @@ export default function Checkout() {
                       <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', lineHeight: 1.4 }}>{item.name}</p>
                       <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#6d28d9', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -928,17 +928,17 @@ export default function Checkout() {
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
                   <span>Retirada em loja</span>
-                  <span style={{ color: '#6d28d9', fontWeight: 700 }}>Sem custo</span>
+                  <span style={{ color: '#420E76', fontWeight: 700 }}>Sem custo</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                   <span style={{ color: '#0a0a0a' }}>Total</span>
-                  <span style={{ color: '#6d28d9' }}>R$ {totalFinalStr}</span>
+                  <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
                 </div>
-                <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
                   </svg>
-                  <span style={{ fontSize: 11, color: '#6d28d9', fontWeight: 700 }}>Pagamento via PIX</span>
+                  <span style={{ fontSize: 11, color: '#420E76', fontWeight: 700 }}>Pagamento via PIX</span>
                 </div>
               </div>
             </div>
@@ -952,7 +952,7 @@ export default function Checkout() {
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
       <style>{`
-        input:focus { border-color: rgba(109,40,217,0.5) !important; box-shadow: 0 0 0 3px rgba(109,40,217,0.08); outline: none; }
+        input:focus { border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
         input::placeholder { color: #a3a3a3; }
         @media (max-width: 768px) {
           .ck-guest-grid { grid-template-columns: 1fr !important; }
@@ -969,15 +969,15 @@ export default function Checkout() {
 
           {/* banner: logado ou visitante */}
           {userId ? (
-            <div style={{ padding: '10px 16px', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.25)', borderRadius: 10, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div style={{ padding: '10px 16px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 10, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               <span style={{ fontSize: 12, color: '#404040' }}>Logado como <strong style={{ color: '#0a0a0a' }}>{userEmail}</strong>. Complete os dados para continuar.</span>
             </div>
           ) : (
             <div style={{ padding: '10px 16px', background: '#fafafa', border: '1px solid #ececec', borderRadius: 10, marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
               <span style={{ fontSize: 12, color: '#404040' }}>Já tem cadastro?</span>
               <button onClick={() => router.push(`/conta/login?redirect=/checkout`)}
-                style={{ fontSize: 12, color: '#6d28d9', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ fontSize: 12, color: '#420E76', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Entrar na minha conta →
               </button>
             </div>
@@ -1002,9 +1002,9 @@ export default function Checkout() {
                 <button key={tp} type="button" onClick={() => setTipoPessoa(tp)}
                   style={{
                     flex: 1, padding: '10px 14px',
-                    background: active ? 'rgba(109,40,217,0.08)' : '#ffffff',
-                    border: `1px solid ${active ? 'rgba(109,40,217,0.4)' : '#d4d4d4'}`,
-                    borderRadius: 10, color: active ? '#6d28d9' : '#404040',
+                    background: active ? 'rgba(66, 14, 118,0.08)' : '#ffffff',
+                    border: `1px solid ${active ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`,
+                    borderRadius: 10, color: active ? '#420E76' : '#404040',
                     fontSize: 12, fontWeight: 800, letterSpacing: '0.06em',
                     cursor: 'pointer', transition: 'all 0.15s',
                   }}>
@@ -1026,7 +1026,7 @@ export default function Checkout() {
                 <input value={form.cpf} onChange={set('cpf')} placeholder="000.000.000-00" style={inp(errs.cpf)} />
                 {errs.cpf && <p style={errStyle}>{errs.cpf}</p>}
                 {lookupHit && !errs.cpf && (
-                  <p style={{ fontSize: 10, color: '#6d28d9', marginTop: 4, fontWeight: 700 }}>✓ Cliente recorrente</p>
+                  <p style={{ fontSize: 10, color: '#420E76', marginTop: 4, fontWeight: 700 }}>✓ Cliente recorrente</p>
                 )}
                 {lookupBlocked && (
                   <p style={{ fontSize: 10, color: '#ef4444', marginTop: 4, fontWeight: 700 }}>
@@ -1117,9 +1117,9 @@ export default function Checkout() {
               if (validateGuest()) placeOrder(form, userId, nomeRetirador)
             }}
             disabled={!podeFinalizar}
-            style={{ marginTop: 20, width: '100%', padding: '16px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 16, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.05em', boxShadow: '0 4px 16px rgba(109,40,217,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
-            onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(109,40,217,0.35)'; b.style.transform = 'translateY(-1px)' } }}
-            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(109,40,217,0.25)'; b.style.transform = 'none' }}>
+            style={{ marginTop: 20, width: '100%', padding: '16px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 16, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.05em', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
+            onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(66, 14, 118,0.35)'; b.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(66, 14, 118,0.25)'; b.style.transform = 'none' }}>
             {submitting ? 'Processando...' : 'Finalizar Pedido →'}
           </button>
           <p style={{ marginTop: 10, textAlign: 'center', fontSize: 11, color: '#a3a3a3' }}>🔒 Seus dados são criptografados e protegidos</p>
@@ -1141,7 +1141,7 @@ export default function Checkout() {
                     <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
                     <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#6d28d9', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -1158,17 +1158,17 @@ export default function Checkout() {
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
                 <span>Retirada em loja</span>
-                <span style={{ color: '#6d28d9', fontWeight: 700 }}>Sem custo</span>
+                <span style={{ color: '#420E76', fontWeight: 700 }}>Sem custo</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                 <span style={{ color: '#0a0a0a' }}>Total</span>
-                <span style={{ color: '#6d28d9' }}>R$ {totalFinalStr}</span>
+                <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
               </div>
-              <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
                 </svg>
-                <span style={{ fontSize: 11, color: '#6d28d9', fontWeight: 700 }}>Pagamento via PIX</span>
+                <span style={{ fontSize: 11, color: '#420E76', fontWeight: 700 }}>Pagamento via PIX</span>
               </div>
             </div>
           </div>

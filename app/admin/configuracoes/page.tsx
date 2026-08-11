@@ -73,7 +73,7 @@ export default function Configuracoes() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 900 }}>
 
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 14, padding: 24, gridColumn: '1 / -1' }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: '#8b5cf6', letterSpacing: '0.1em', margin: '0 0 20px' }}>PAGAMENTO PIX</p>
+          <p style={{ fontSize: 11, fontWeight: 800, color: '#A965ED', letterSpacing: '0.1em', margin: '0 0 20px' }}>PAGAMENTO PIX</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 16 }}>
             <div>
               <label style={lbl}>CHAVE PIX</label>
@@ -121,7 +121,7 @@ export default function Configuracoes() {
         </div>
 
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 14, padding: 24, gridColumn: '1 / -1' }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: '#a855f7', letterSpacing: '0.1em', margin: '0 0 20px' }}>CHECKOUT E PREPARAÇÃO</p>
+          <p style={{ fontSize: 11, fontWeight: 800, color: '#A660EC', letterSpacing: '0.1em', margin: '0 0 20px' }}>CHECKOUT E PREPARAÇÃO</p>
           <label style={lbl}>TEMPO ESTIMADO DE PREPARAÇÃO (exibido na tela PIX)</label>
           <textarea value={cfg.estimated_ready_time} onChange={set('estimated_ready_time')} rows={2}
             placeholder="Após a confirmação do PIX, seu pedido fica pronto para retirada em até 24 horas úteis."
@@ -142,10 +142,10 @@ export default function Configuracoes() {
 
       <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', gap: 16 }}>
         <button onClick={save} disabled={saving}
-          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#8b5cf6', color: saving ? 'var(--a-text2)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#A965ED', color: saving ? 'var(--a-text2)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
           {saving ? 'Salvando...' : 'Salvar configurações'}
         </button>
-        {saved && <span style={{ fontSize: 13, color: '#8b5cf6', fontWeight: 700 }}>✓ Salvo</span>}
+        {saved && <span style={{ fontSize: 13, color: '#A965ED', fontWeight: 700 }}>✓ Salvo</span>}
       </div>
     </div>
   )

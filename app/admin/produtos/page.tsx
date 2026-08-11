@@ -103,7 +103,7 @@ export default function Produtos() {
         <div style={{ display: 'flex', gap: 4, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 8, padding: 3 }}>
           {(['todos', 'ativos', 'inativos'] as const).map(s => (
             <button key={s} onClick={() => setFilterStatus(s)}
-              style={{ padding: '5px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: 'none', background: filterStatus === s ? (s === 'ativos' ? 'rgba(139,92,246,0.15)' : s === 'inativos' ? 'rgba(239,68,68,0.12)' : 'var(--a-bg)') : 'transparent', color: filterStatus === s ? (s === 'ativos' ? '#8b5cf6' : s === 'inativos' ? '#ef4444' : 'var(--a-text)') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
+              style={{ padding: '5px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: 'none', background: filterStatus === s ? (s === 'ativos' ? 'rgba(169, 101, 237,0.15)' : s === 'inativos' ? 'rgba(239,68,68,0.12)' : 'var(--a-bg)') : 'transparent', color: filterStatus === s ? (s === 'ativos' ? '#A965ED' : s === 'inativos' ? '#ef4444' : 'var(--a-text)') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
@@ -119,7 +119,7 @@ export default function Produtos() {
           {brandDropOpen && (
             <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 50, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 220, maxHeight: 320, overflowY: 'auto', padding: '4px 0' }}>
               <button onClick={() => { setFilterBrand(''); setBrandDropOpen(false) }}
-                style={{ width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 12, fontWeight: filterBrand === '' ? 700 : 400, background: filterBrand === '' ? 'rgba(139,92,246,0.07)' : 'transparent', color: filterBrand === '' ? '#8b5cf6' : 'var(--a-text)', border: 'none', cursor: 'pointer' }}>
+                style={{ width: '100%', textAlign: 'left', padding: '8px 14px', fontSize: 12, fontWeight: filterBrand === '' ? 700 : 400, background: filterBrand === '' ? 'rgba(169, 101, 237,0.07)' : 'transparent', color: filterBrand === '' ? '#A965ED' : 'var(--a-text)', border: 'none', cursor: 'pointer' }}>
                 Todas as marcas
               </button>
               <div style={{ height: 1, background: 'var(--a-border)', margin: '4px 0' }} />
@@ -202,15 +202,15 @@ export default function Produtos() {
                         onChange={e => setEditingPrice({ id: p.id, price: e.target.value })}
                         onKeyDown={e => { if (e.key === 'Enter') savePrice(p.id); if (e.key === 'Escape') setEditingPrice(null) }}
                         autoFocus
-                        style={{ width: 90, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 6, color: '#8b5cf6', fontSize: 13, fontWeight: 700, outline: 'none' }}
+                        style={{ width: 90, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(169, 101, 237,0.4)', borderRadius: 6, color: '#A965ED', fontSize: 13, fontWeight: 700, outline: 'none' }}
                       />
-                      <button onClick={() => savePrice(p.id)} style={{ padding: '4px 8px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
+                      <button onClick={() => savePrice(p.id)} style={{ padding: '4px 8px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
                       <button onClick={() => setEditingPrice(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
                     </div>
                   ) : (
                     <button onClick={() => setEditingPrice({ id: p.id, price: p.usd_price.toString() })}
                       style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: '#8b5cf6' }}>USD {p.usd_price.toFixed(2)}</span>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: '#A965ED' }}>USD {p.usd_price.toFixed(2)}</span>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                   )}
@@ -226,9 +226,9 @@ export default function Produtos() {
                         onChange={e => setEditingEstoque({ id: p.id, val: e.target.value })}
                         onKeyDown={e => { if (e.key === 'Enter') saveEstoque(p.id); if (e.key === 'Escape') setEditingEstoque(null) }}
                         autoFocus placeholder="∞"
-                        style={{ width: 80, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: 6, color: '#8b5cf6', fontSize: 13, outline: 'none' }}
+                        style={{ width: 80, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(169, 101, 237,0.4)', borderRadius: 6, color: '#A965ED', fontSize: 13, outline: 'none' }}
                       />
-                      <button onClick={() => saveEstoque(p.id)} style={{ padding: '4px 8px', background: '#8b5cf6', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
+                      <button onClick={() => saveEstoque(p.id)} style={{ padding: '4px 8px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
                       <button onClick={() => setEditingEstoque(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
                     </div>
                   ) : (
@@ -245,7 +245,7 @@ export default function Produtos() {
                 {/* Toggle */}
                 <td style={{ padding: '10px 16px' }}>
                   <button onClick={() => toggleAtivo(p)} disabled={saving === p.id}
-                    style={{ padding: '5px 12px', fontSize: 10, fontWeight: 700, borderRadius: 5, border: `1px solid ${p.ativo ? 'rgba(139,92,246,0.4)' : 'rgba(239,68,68,0.4)'}`, background: p.ativo ? 'rgba(139,92,246,0.1)' : 'rgba(239,68,68,0.1)', color: p.ativo ? '#8b5cf6' : '#ef4444', cursor: saving === p.id ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>
+                    style={{ padding: '5px 12px', fontSize: 10, fontWeight: 700, borderRadius: 5, border: `1px solid ${p.ativo ? 'rgba(169, 101, 237,0.4)' : 'rgba(239,68,68,0.4)'}`, background: p.ativo ? 'rgba(169, 101, 237,0.1)' : 'rgba(239,68,68,0.1)', color: p.ativo ? '#A965ED' : '#ef4444', cursor: saving === p.id ? 'wait' : 'pointer', whiteSpace: 'nowrap' }}>
                     {saving === p.id ? '...' : p.ativo ? 'ATIVO' : 'INATIVO'}
                   </button>
                 </td>

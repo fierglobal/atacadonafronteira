@@ -114,7 +114,7 @@ export default function Webhooks() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{hooks.length} webhooks cadastrados</p>
         </div>
         <button onClick={() => { setModal(true); setErr(''); setForm({ nome: '', url: '', events: [], ativo: true }) }}
-          style={{ padding: '9px 18px', background: '#8b5cf6', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Webhook
         </button>
       </div>
@@ -161,7 +161,7 @@ export default function Webhooks() {
                 <td style={{ padding: '12px 18px' }}>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {(h.events || []).map(ev => (
-                      <span key={ev} style={{ padding: '2px 8px', fontSize: 10, background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 4 }}>
+                      <span key={ev} style={{ padding: '2px 8px', fontSize: 10, background: 'rgba(169, 101, 237,0.1)', color: '#A965ED', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 4 }}>
                         {ev}
                       </span>
                     ))}
@@ -169,7 +169,7 @@ export default function Webhooks() {
                 </td>
                 <td style={{ padding: '12px 18px' }}>
                   <button onClick={() => toggleAtivo(h)}
-                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${h.ativo ? 'rgba(139,92,246,0.3)' : 'var(--a-border)'}`, background: h.ativo ? 'rgba(139,92,246,0.08)' : 'transparent', color: h.ativo ? '#8b5cf6' : 'var(--a-text3)', cursor: 'pointer' }}>
+                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${h.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: h.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: h.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
                     {h.ativo ? '● Ativo' : '○ Inativo'}
                   </button>
                 </td>
@@ -187,7 +187,7 @@ export default function Webhooks() {
                     Excluir
                   </button>
                   {testMsg && testMsg.id === h.id && (
-                    <div style={{ marginTop: 6, fontSize: 11, color: testMsg.ok ? '#8b5cf6' : '#ef4444' }}>{testMsg.msg}</div>
+                    <div style={{ marginTop: 6, fontSize: 11, color: testMsg.ok ? '#A965ED' : '#ef4444' }}>{testMsg.msg}</div>
                   )}
                 </td>
               </tr>
@@ -233,7 +233,7 @@ export default function Webhooks() {
               </label>
               {err && <p style={{ color: '#ef4444', fontSize: 12, margin: 0 }}>{err}</p>}
               <button onClick={criar} disabled={saving || !form.nome || !form.url || form.events.length === 0}
-                style={{ marginTop: 8, padding: '13px', background: (!form.nome || !form.url || form.events.length === 0) ? 'var(--a-border)' : '#8b5cf6', color: (!form.nome || !form.url || form.events.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.nome || !form.url || form.events.length === 0) ? 'var(--a-border)' : '#A965ED', color: (!form.nome || !form.url || form.events.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : 'Criar Webhook'}
               </button>
             </div>
