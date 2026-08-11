@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Termos de Uso — Atacado na Fronteira',
   description: 'Condições de uso do site e regras de compra.',
+  alternates: { canonical: '/termos' },
 }
 
 const UPDATE_DATE = '15 de junho de 2026'
