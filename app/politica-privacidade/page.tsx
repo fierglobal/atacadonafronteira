@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Política de Privacidade — Atacado na Fronteira',
   description: 'Como coletamos, usamos e protegemos seus dados pessoais.',
+  alternates: { canonical: '/politica-privacidade' },
 }
 
 const UPDATE_DATE = '15 de junho de 2026'

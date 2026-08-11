@@ -26,12 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const titulo = toTitle(name)
   const desc = (data.descricao_curta as string)
     || (data.descricao ? stripMd(data.descricao as string).slice(0, 160) : `${titulo} disponível no Atacado na Fronteira`)
-  const img = data.img_url ? [data.img_url as string] : ['/og-default.png']
+  const img = data.img_url ? [data.img_url as string] : ['/og-image.png']
   const title = `${titulo} — Atacado na Fronteira`
 
   return {
     title,
     description: desc,
+    alternates: { canonical: `/produtos/${id}` },
     openGraph: { title: titulo, description: desc, images: img, type: 'website', siteName: 'Atacado na Fronteira' },
     twitter: { card: 'summary_large_image', title: titulo, description: desc, images: img },
     other: brand ? { 'product:brand': brand } : undefined,
