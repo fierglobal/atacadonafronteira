@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import Logo from '@/components/Logo'
 
 export default function MinhaContaNav() {
   const pathname = usePathname()
@@ -74,7 +74,7 @@ export default function MinhaContaNav() {
         flexDirection: 'column', flexShrink: 0,
       }}>
         <div className="conta-logo" style={{ padding: '24px 20px 20px', borderBottom: '1px solid #111' }}>
-          <a href="/"><Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={100} height={38} style={{ objectFit: 'contain', display: 'block' }} /></a>
+          <a href="/"><Logo size={28} /></a>
         </div>
 
         <div className="conta-user-info" style={{ padding: '20px 20px 16px' }}>

@@ -1,9 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import Image from 'next/image'
 import QRCode from 'qrcode'
 import { WHATSAPP_ENABLED } from '@/lib/site'
+import Logo from '@/components/Logo'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,7 +111,7 @@ export default function PedidoPix() {
 
   const Header = () => (
     <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
-      <a href="/"><Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={90} height={35} style={{ objectFit: 'contain' }} /></a>
+      <a href="/"><Logo size={26} /></a>
       <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
     </header>
   )

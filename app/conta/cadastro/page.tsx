@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import Logo from '@/components/Logo'
 
 const maskCPF = (v: string) => {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -136,7 +136,7 @@ export default function Cadastro() {
       `}</style>
       <div style={{ maxWidth: 480, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <a href="/"><Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={110} height={43} style={{ objectFit: 'contain' }} /></a>
+          <a href="/"><Logo size={30} /></a>
           <h1 style={{ fontSize: 20, fontWeight: 900, marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Criar conta</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>Cadastre-se para finalizar seu pedido</p>
         </div>

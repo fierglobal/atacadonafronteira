@@ -45,7 +45,7 @@ export default function ManutencaoPage() {
     }}>
       <div style={{ maxWidth: 480, width: '100%', textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
-          <Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={220} height={86} priority style={{ objectFit: 'contain' }} />
+          <Image src="/logo-fronteira.png" alt="Atacado na Fronteira" width={260} height={158} priority style={{ objectFit: 'contain' }} />
         </div>
 
         <div style={{ padding: '40px 36px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 20, boxShadow: '0 12px 40px rgba(0,0,0,0.06)', marginBottom: 28 }}>
@@ -66,7 +66,7 @@ export default function ManutencaoPage() {
             margin: '0 0 12px',
             color: '#0a0a0a',
           }}>
-            ATACADO <span style={{ color: '#6d28d9' }}>PARAGUAI</span>
+            ATACADO <span style={{ color: '#6d28d9' }}>NA FRONTEIRA</span>
           </h1>
           <p style={{ fontSize: 15, color: '#737373', lineHeight: 1.6, margin: '0 0 32px' }}>
             Nosso site está passando por melhorias. Voltaremos em breve.
@@ -126,7 +126,7 @@ export default function ManutencaoPage() {
         </div>
 
         <p style={{ fontSize: 11, color: '#a3a3a3', letterSpacing: '0.05em', margin: 0 }}>
-          © 2026 ATACADO NA FRONTEIRA · Cd. del Este, Paraguai
+          © 2026 ATACADO NA FRONTEIRA
         </p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client'
 import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import Logo from '@/components/Logo'
 
 type NavItem = { href: string; label: string; icon: string }
 type NavGroup = { key: string; label: string; icon: string; items: NavItem[] }
@@ -115,7 +115,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside style={{ width: 220, background: 'var(--a-sidebar)', borderRight: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 50 }}>
         <div style={{ padding: '20px 20px 12px', borderBottom: '1px solid var(--a-border)' }}>
-          <Image src="/logo-fronteira-dark-mockup.png" alt="Atacado na Fronteira" width={100} height={39} style={{ objectFit: 'contain' }} />
+          <Logo size={26} dark />
           <p style={{ fontSize: 9, color: 'var(--a-text3)', letterSpacing: '0.12em', marginTop: 6, marginBottom: 10 }}>ADMIN</p>
           {/* Busca global */}
           <form onSubmit={handleSearch}>
