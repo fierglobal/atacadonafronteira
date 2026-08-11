@@ -9,7 +9,6 @@ type Banner = {
 
 const DEFAULT_BANNERS: Banner[] = [
   { tag: 'MAIS VENDIDO', title1: 'BIOGENESIS', title2: 'EMAGRECIMENTO', sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.', cta: 'VER OFERTA', color: '#C08EF2', productImg: '', productLabel: '' },
-  { tag: 'IMPORTADO ORIGINAL', title1: 'PERFUMES', title2: 'ÁRABES', sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.', cta: 'VER PERFUMES', color: '#F6C019', productImg: '', productLabel: '' },
   { tag: 'LINHA PREMIUM', title1: 'ZPHC', title2: 'PEPTÍDEOS', sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.', cta: 'EXPLORAR ZPHC', color: '#C293F2', productImg: '', productLabel: '' },
 ]
 

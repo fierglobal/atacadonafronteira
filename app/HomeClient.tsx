@@ -73,17 +73,6 @@ const DEFAULT_BANNERS = [
     brandFilter: 'BIOGENESIS',
   },
   {
-    tag: 'IMPORTADO ORIGINAL',
-    title: ['PERFUMES', 'ÁRABES'],
-    sub: 'Fragrâncias importadas de alta fixação. Edições limitadas com procedência garantida.',
-    cta: 'VER PERFUMES',
-    href: '/produtos/39123d03-5f42-481e-a49b-44ea317aa57b',
-    color: '#F6C019',
-    bg: 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(246, 192, 25,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(166, 96, 236,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/39123d03-5f42-481e-a49b-44ea317aa57b/atacado-al-haramain-amber-oud-gold-edition-extreme-refil-paraguai-scaled-1.webp',
-    brandFilter: 'AL HARAMAIN',
-  },
-  {
     tag: 'LINHA PREMIUM',
     title: ['ZPHC', 'PEPTÍDEOS'],
     sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.',
