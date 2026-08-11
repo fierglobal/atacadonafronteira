@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 
@@ -48,10 +49,15 @@ export default async function ProdutoLayout({ children, params }: { children: Re
     .eq('ativo', true)
     .single()
 
-  const name = p ? ((p.titulo as string) || (p.name as string) || '') : ''
-  const brand = p ? (p.brand as string | null) : null
+  // Sem isto a rota devolve 200 com "Produto não encontrado" no corpo — um soft
+  // 404. Com 47 produtos desativados (perfumes, PODs, acessórios), seriam 47
+  // páginas vazias indexáveis.
+  if (!p) notFound()
 
-  const jsonLd = p ? {
+  const name = (p.titulo as string) || (p.name as string) || ''
+  const brand = p.brand as string | null
+
+  const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: toTitle(name),
@@ -66,13 +72,11 @@ export default async function ProdutoLayout({ children, params }: { children: Re
       availability: p.estoque === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       url: `https://atacadonafronteira.com/produtos/${id}`,
     },
-  } : null
+  }
 
   return (
     <>
-      {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      )}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
       {children}
     </>
