@@ -54,7 +54,7 @@ export default async function SiteHeader() {
 
         <nav className="nav-desktop" aria-label="Categorias">
           <Link href="/" className="nav-cat-btn">TODOS</Link>
-          {topCats.slice(0, 4).map(c => (
+          {topCats.slice(0, 5).map(c => (
             <a key={c.id} href={`/?cat=${c.id}#catalogo`} className="nav-cat-btn">
               {c.nome.toUpperCase()}
             </a>
