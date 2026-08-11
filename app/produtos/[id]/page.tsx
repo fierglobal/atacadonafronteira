@@ -370,7 +370,7 @@ export default function ProdutoPage() {
               <span style={{ cursor: 'pointer', transition: 'color 0.15s' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#420E76' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#737373' }}
-                onClick={() => router.push('/#saude')}>CATÁLOGO</span>
+                onClick={() => router.push('/#catalogo')}>CATÁLOGO</span>
               {product.brand && (
                 <>
                   <span>›</span>

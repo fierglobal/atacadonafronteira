@@ -24,9 +24,14 @@ async function getTopCats(): Promise<{ id: string; nome: string }[]> {
     for (const p of (productCounts.data || [])) {
       if (p.categoria_id) counts[p.categoria_id] = (counts[p.categoria_id] || 0) + 1
     }
-    const topCats = cats
+    const raizes = cats
       .filter(c => !c.parent_id)
       .filter(c => (counts[c.id] || 0) > 0 || cats.some(ch => ch.parent_id === c.id && (counts[ch.id] || 0) > 0))
+    // uma raiz só (Farmácia) => navega pelas filhas, senão o menu vira um item
+    const base = raizes.length === 1
+      ? cats.filter(c => c.parent_id === raizes[0].id && (counts[c.id] || 0) > 0)
+      : raizes
+    const topCats = base
       .map(c => {
         const totalChildren = cats.filter(ch => ch.parent_id === c.id).reduce((s, ch) => s + (counts[ch.id] || 0), 0)
         return { id: c.id, nome: c.nome, total: (counts[c.id] || 0) + totalChildren }
@@ -49,7 +54,7 @@ export default async function SiteHeader() {
 
         <nav className="nav-desktop" aria-label="Categorias">
           <Link href="/" className="nav-cat-btn">TODOS</Link>
-          {topCats.slice(0, 5).map(c => (
+          {topCats.slice(0, 4).map(c => (
             <a key={c.id} href={`/?cat=${c.id}#catalogo`} className="nav-cat-btn">
               {c.nome.toUpperCase()}
             </a>
