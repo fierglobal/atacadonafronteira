@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import Logo from '@/components/Logo'
 
 export default function Login() {
   const router = useRouter()
@@ -57,7 +57,7 @@ export default function Login() {
       `}</style>
       <div style={{ width: '100%', maxWidth: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <a href="/"><Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={120} height={47} style={{ objectFit: 'contain' }} /></a>
+          <a href="/"><Logo size={32} /></a>
           <h1 style={{ fontSize: 18, fontWeight: 900, marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Entrar na sua conta</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>Para finalizar sua compra, faça login</p>
         </div>

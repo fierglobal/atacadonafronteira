@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import Logo from '@/components/Logo'
 
 export default function AdminLogin() {
   const router = useRouter()
@@ -41,7 +41,7 @@ export default function AdminLogin() {
       <style>{`input:focus { border-color: rgba(139,92,246,0.5) !important; outline: none; }`}</style>
       <div style={{ width: '100%', maxWidth: 360 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <Image src="/logo-fronteira-dark-mockup.png" alt="Atacado na Fronteira" width={120} height={47} style={{ objectFit: 'contain' }} />
+          <Logo size={34} dark />
           <p style={{ color: '#444', fontSize: 12, marginTop: 12, letterSpacing: '0.1em' }}>PAINEL ADMINISTRATIVO</p>
         </div>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import HeaderActions from '@/components/HeaderActions'
+import Logo from '@/components/Logo'
 
 const CONTATO_HREF = 'https://wa.me/595994222774'
 
@@ -43,7 +43,7 @@ export default async function SiteHeader() {
     <header className="site-header">
       <div className="site-header-inner">
         <Link href="/" className="site-logo" aria-label="Atacado na Fronteira">
-          <Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={110} height={43} priority style={{ objectFit: 'contain' }} />
+          <Logo size={30} />
         </Link>
 
         <nav className="nav-desktop" aria-label="Categorias">

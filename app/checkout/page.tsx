@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useCarrinho, currencies, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
+import Logo from '@/components/Logo'
 
 const BRL_RATE = currencies.find(c => c.code === 'BRL')!.rate
 const PIX_KEY = '52347525000100'
@@ -629,7 +630,7 @@ export default function Checkout() {
 
   const Header = ({ step }: { step?: 1 | 2 }) => (
     <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
-      <Image src="/logo-fronteira-mockup.png" alt="Atacado na Fronteira" width={90} height={35} style={{ objectFit: 'contain' }} />
+      <Logo size={26} />
       {step ? <StepIndicator step={step} /> : (
         <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>
           ← Voltar

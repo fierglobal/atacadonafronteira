@@ -653,7 +653,7 @@ export default function ProdutoPage() {
                 <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {[
                     { label: 'PAGAMENTO', value: 'PIX à vista' },
-                    { label: 'RETIRADA', value: 'Ciudad del Este — PY' },
+                    { label: 'RETIRADA', value: 'Em loja' },
                     { label: 'PROCEDÊNCIA', value: 'Atacado B2B' },
                     { label: 'DISPONIBILIDADE', value: product.estoque === null ? 'Imediata' : product.estoque > 0 ? 'Imediata' : 'Indisponível' },
                   ].map(item => (

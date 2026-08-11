@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED } from '@/lib/site'
+import Logo from '@/components/Logo'
 
 const CONTATO_HREF = 'https://wa.me/595994222774'
 
@@ -764,7 +765,7 @@ export default function Home() {
               },
               {
                 num: '03', title: 'Retire na loja',
-                desc: 'Seu pedido fica separado. Retire pessoalmente na loja em Ciudad del Este, Paraguai.',
+                desc: 'Seu pedido fica separado e você retira pessoalmente na loja. Não fazemos envio.',
                 icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
               },
             ].map((s, i) => (
@@ -1210,7 +1211,7 @@ export default function Home() {
       <footer style={{ background: '#050a05', color: '#a3a3a3', padding: '56px 24px 24px' }}>
         <div className="footer-grid" style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr', gap: 48 }}>
           <div>
-            <Image src="/logo-fronteira-dark-mockup.png" alt="Atacado na Fronteira" width={130} height={51} style={{ objectFit: 'contain', marginBottom: 16, opacity: 0.9 }} />
+            <span style={{ display: 'inline-block', marginBottom: 16 }}><Logo size={30} dark /></span>
             <p style={{ color: '#737373', fontSize: 13, lineHeight: 1.7, margin: '0 0 20px', maxWidth: 280 }}>
               Distribuidor B2B de peptídeos e suplementos premium importados do Paraguai. Estoque imediato, pagamento via PIX.
             </p>
@@ -1249,15 +1250,15 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 style={{ color: '#ffffff', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', marginBottom: 18 }}>LOCALIZAÇÃO</h4>
+            <h4 style={{ color: '#ffffff', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', marginBottom: 18 }}>RETIRADA</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span style={{ fontSize: 13, lineHeight: 1.6 }}>Av. Carlos Antonio López 7000<br />Ciudad del Este, Paraguai</span>
+                <span style={{ fontSize: 13, lineHeight: 1.6 }}>Retirada exclusivamente em loja.<br />Não fazemos envio.</span>
               </li>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d28d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                <span style={{ fontSize: 13, lineHeight: 1.7 }}>Seg–Sex: 9h às 18h<br />Sáb: 9h às 13h<br /><span style={{ color: '#525252' }}>Dom: fechado</span></span>
+                <span style={{ fontSize: 13, lineHeight: 1.7 }}>Pedido pronto em até 24h úteis<br />após a confirmação do PIX.</span>
               </li>
               {WHATSAPP_ENABLED && (
                 <li style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
