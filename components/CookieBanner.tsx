@@ -22,7 +22,8 @@ export default function CookieBanner() {
 
   return (
     <div style={{
-      position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 9999,
+      // sobe quando a barra de pedido mínimo está no rodapé (ver MinimoBar)
+      position: 'fixed', bottom: 'calc(16px + var(--minimo-bar-h, 0px))', left: 16, right: 16, zIndex: 9999,
       maxWidth: 720, margin: '0 auto', padding: 16,
       background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(20px)',
       border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 12,
