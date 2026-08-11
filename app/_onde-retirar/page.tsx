@@ -1,9 +1,9 @@
 import SiteHeader from '@/components/SiteHeader'
-import { WHATSAPP_ENABLED } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 
 export const revalidate = 3600
 
-const WA_NUMBER = '595994222774'
+const WA_NUMBER = WHATSAPP_NUMBER
 const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Olá! Quero informações sobre retirada.')}`
 const PHONE_DISPLAY = '+595 994 222774'
 const ADDRESS_LINE1 = 'Av. Carlos Antonio López 7000'

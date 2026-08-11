@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { WHATSAPP_HREF } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Termos de Uso — Atacado na Fronteira',
@@ -84,7 +85,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>13. Contato</h2>
-          <p style={p}>Canais de atendimento em atualização. Consulte a página inicial para os canais disponíveis no momento.</p>
+          <p style={p}>WhatsApp: <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#420E76', fontWeight: 700 }}>+595 995 371537</a>. Atendimento em português.</p>
         </div>
       </div>
     </div>

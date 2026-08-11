@@ -2,8 +2,9 @@ import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import HeaderActions from '@/components/HeaderActions'
 import Logo from '@/components/Logo'
+import { WHATSAPP_HREF } from '@/lib/site'
 
-const CONTATO_HREF = 'https://wa.me/595994222774'
+const CONTATO_HREF = WHATSAPP_HREF
 
 export const revalidate = 300
 

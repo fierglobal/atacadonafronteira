@@ -1,9 +1,9 @@
 'use client'
 import Image from 'next/image'
 import { useState } from 'react'
-import { WHATSAPP_ENABLED } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_HREF } from '@/lib/site'
 
-const WA_LINK = 'https://wa.me/595994222774?text=' + encodeURIComponent('Olá! Vi que o site está em manutenção. Pode me atender?')
+const WA_LINK = `${WHATSAPP_HREF}?text=` + encodeURIComponent('Olá! Vi que o site está em manutenção. Pode me atender?')
 
 export default function ManutencaoPage() {
   const [senha, setSenha] = useState('')

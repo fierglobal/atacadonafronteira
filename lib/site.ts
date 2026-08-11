@@ -4,7 +4,10 @@ export const SITE_URL =
 
 export const SITE_NAME = 'Atacado na Fronteira'
 
-// O número de WhatsApp em código ainda é o do cliente antigo (Atacado Paraguai).
-// Enquanto não vier o número novo, os CTAs de WhatsApp ficam ocultos — mensagem
-// de cliente não pode cair na empresa errada. Flip pra true assim que trocar o número.
-export const WHATSAPP_ENABLED = false
+// Fonte única do WhatsApp. Já foi trocado duas vezes neste projeto e cada vez
+// sobrou o número velho em algum arquivo — mensagem de cliente caindo na empresa
+// errada. Trocar AQUI, e também em configuracoes.whatsapp no banco, que tem
+// precedência em runtime (lib/config.ts).
+export const WHATSAPP_NUMBER = '595995371537'
+export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}`
+export const WHATSAPP_ENABLED = true
