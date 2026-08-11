@@ -235,9 +235,15 @@ export default function Home() {
     ? new Set([activeCategoria, ...childrenOf(activeCategoria)])
     : null
 
-  const topCats = categorias.filter(c => !c.parent_id && (
+  // Com uma única raiz (Farmácia), listar só ela esconderia a subcategorização
+  // inteira do cliente. Nesse caso navegamos pelas filhas, como o Expresso
+  // Paraguai faz: o grupo não vira item de menu, as categorias sim.
+  const raizes = categorias.filter(c => !c.parent_id && (
     c.produtos > 0 || categorias.some(ch => ch.parent_id === c.id && ch.produtos > 0)
   ))
+  const topCats = raizes.length === 1
+    ? categorias.filter(c => c.parent_id === raizes[0].id && c.produtos > 0)
+    : raizes
   const catTotals = (c: Categoria) => c.produtos + categorias.filter(ch => ch.parent_id === c.id).reduce((s, ch) => s + ch.produtos, 0)
   topCats.sort((a, b) => catTotals(b) - catTotals(a))
 
