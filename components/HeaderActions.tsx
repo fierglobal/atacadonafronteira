@@ -7,7 +7,7 @@ import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
 
-type Cat = { id: string; nome: string }
+type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[] }
 
 export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]; contatoHref: string }) {
   const pathname = usePathname()
@@ -85,10 +85,20 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
             TODOS
           </Link>
           {topCats.map(c => (
-            <a key={c.id} href={`/?cat=${c.id}#catalogo`} onClick={() => setMobileMenu(false)}
-              style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
-              {c.nome.toUpperCase()}
-            </a>
+            <div key={c.id}>
+              <a href={`/?cat=${c.id}#catalogo`} onClick={() => setMobileMenu(false)}
+                style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
+                {c.nome.toUpperCase()}
+              </a>
+              {/* sem isto o drawer mostraria só o departamento e as categorias
+                  ficariam inalcançáveis no celular */}
+              {(c.subs ?? []).map(s => (
+                <a key={s.id} href={`/?cat=${s.id}#catalogo`} onClick={() => setMobileMenu(false)}
+                  style={{ display: 'block', padding: '8px 14px 8px 28px', fontSize: 12, fontWeight: 600, color: '#737373', borderRadius: 8, letterSpacing: '0.05em', textDecoration: 'none' }}>
+                  {s.nome}
+                </a>
+              ))}
+            </div>
           ))}
           {WHATSAPP_ENABLED && (
             <a href={contatoHref} target="_blank" rel="noopener" onClick={() => setMobileMenu(false)}
