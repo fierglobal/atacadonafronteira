@@ -63,10 +63,12 @@ async function getVitrines(): Promise<NavItem[]> {
 
 export default async function SiteHeader() {
   const [cats, vitrines] = await Promise.all([getTopCats(), getVitrines()])
-  // Vitrine antes das categorias: o menu é cortado por slice e por media query
-  // a partir do fim, e marca converte mais que categoria (no Expresso Paraguai
-  // 83% do tráfego é busca de marca). No fim da lista ela seria a primeira a sumir.
-  const topCats = [...vitrines, ...cats]
+  // Departamentos primeiro, vitrines depois. O menu é cortado a partir do fim
+  // (slice + media query), então o que vem por último é o que some em tela
+  // menor — e é melhor perder um atalho de marca do que a porta de entrada de
+  // um departamento inteiro. Com as vitrines na frente, a 1050px sobravam só
+  // APPLE/XIAOMI/JBL e sumiam Farmácia e Eletrônicos.
+  const topCats = [...cats, ...vitrines]
 
   return (
     <header className="site-header">
