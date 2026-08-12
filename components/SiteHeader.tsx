@@ -9,8 +9,9 @@ const CONTATO_HREF = WHATSAPP_HREF
 export const revalidate = 300
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
+export type NavItem = { id: string; nome: string; subs: { id: string; nome: string }[] }
 
-async function getTopCats(): Promise<{ id: string; nome: string }[]> {
+async function getTopCats(): Promise<NavItem[]> {
   try {
     const { data } = await supabaseAdmin
       .from('categorias')
@@ -24,21 +25,23 @@ async function getTopCats(): Promise<{ id: string; nome: string }[]> {
     for (const p of (productCounts.data || [])) {
       if (p.categoria_id) counts[p.categoria_id] = (counts[p.categoria_id] || 0) + 1
     }
-    const raizes = cats
-      .filter(c => !c.parent_id)
-      .filter(c => (counts[c.id] || 0) > 0 || cats.some(ch => ch.parent_id === c.id && (counts[ch.id] || 0) > 0))
-    // uma raiz só (Farmácia) => navega pelas filhas, senão o menu vira um item
-    const base = raizes.length === 1
-      ? cats.filter(c => c.parent_id === raizes[0].id && (counts[c.id] || 0) > 0)
-      : raizes
-    const topCats = base
-      .map(c => {
-        const totalChildren = cats.filter(ch => ch.parent_id === c.id).reduce((s, ch) => s + (counts[ch.id] || 0), 0)
-        return { id: c.id, nome: c.nome, total: (counts[c.id] || 0) + totalChildren }
-      })
-      .sort((a, b) => b.total - a.total)
-      .map(({ id, nome }) => ({ id, nome }))
-    return topCats
+    const comProduto = (c: Categoria) =>
+      (counts[c.id] || 0) > 0 || cats.some(ch => ch.parent_id === c.id && (counts[ch.id] || 0) > 0)
+    const filhas = (id: string) =>
+      cats.filter(ch => ch.parent_id === id && (counts[ch.id] || 0) > 0).map(ch => ({ id: ch.id, nome: ch.nome }))
+
+    const raizes = cats.filter(c => !c.parent_id).filter(comProduto)
+
+    // Departamento único (só Farmácia): as filhas sobem para o primeiro nível, senão
+    // o menu teria um item só. Com dois ou mais departamentos, cada um vira um item
+    // com dropdown das suas categorias — é como o Expresso Paraguai navega.
+    const base: NavItem[] = raizes.length === 1
+      ? filhas(raizes[0].id).map(f => ({ ...f, subs: [] }))
+      : raizes.map(r => ({ id: r.id, nome: r.nome, subs: filhas(r.id) }))
+
+    const total = (it: NavItem) =>
+      (counts[it.id] || 0) + it.subs.reduce((s, f) => s + (counts[f.id] || 0), 0)
+    return base.sort((a, b) => total(b) - total(a))
   } catch { return [] }
 }
 
@@ -55,9 +58,19 @@ export default async function SiteHeader() {
         <nav className="nav-desktop" aria-label="Categorias">
           <Link href="/" className="nav-cat-btn">TODOS</Link>
           {topCats.slice(0, 5).map(c => (
-            <a key={c.id} href={`/?cat=${c.id}#catalogo`} className="nav-cat-btn">
-              {c.nome.toUpperCase()}
-            </a>
+            <div key={c.id} className="nav-item">
+              <a href={`/?cat=${c.id}#catalogo`} className="nav-cat-btn">
+                {c.nome.toUpperCase()}
+                {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
+              </a>
+              {c.subs.length > 0 && (
+                <div className="nav-dropdown">
+                  {c.subs.map(s => (
+                    <a key={s.id} href={`/?cat=${s.id}#catalogo`} className="nav-drop-item">{s.nome}</a>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
 

@@ -84,6 +84,27 @@ body {
   background: #A965ED;
   box-shadow: 0 0 8px rgba(66, 14, 118,0.5);
 }
+/* Dropdown de departamento. CSS puro (hover + focus-within) para o SiteHeader
+   seguir server component — no mobile a navegação é o drawer, não isto. */
+.nav-item { position: relative; display: inline-flex; }
+.nav-caret { margin-left: 5px; font-size: 8px; opacity: 0.6; }
+.nav-dropdown {
+  display: none; position: absolute; top: 100%; left: 0;
+  min-width: 210px; padding: 8px;
+  background: #ffffff; border: 1px solid #ececec; border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.10);
+  flex-direction: column; gap: 2px; z-index: 300;
+}
+.nav-item:hover .nav-dropdown,
+.nav-item:focus-within .nav-dropdown { display: flex; }
+.nav-drop-item {
+  padding: 9px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  color: #404040; text-decoration: none; white-space: nowrap;
+  transition: background 0.14s, color 0.14s;
+}
+.nav-drop-item:hover { background: rgba(66, 14, 118, 0.06); color: #420E76; }
+
 .nav-rate {
   font-size: 10px; color: #a3a3a3;
   letter-spacing: 0.05em; font-weight: 600;
