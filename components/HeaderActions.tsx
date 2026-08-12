@@ -7,7 +7,7 @@ import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
 
-type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[] }
+type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[]; marca?: string }
 
 export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]; contatoHref: string }) {
   const pathname = usePathname()
@@ -86,7 +86,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
           </Link>
           {topCats.map(c => (
             <div key={c.id}>
-              <a href={`/?cat=${c.id}#catalogo`} onClick={() => setMobileMenu(false)}
+              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : `/?cat=${c.id}#catalogo`} onClick={() => setMobileMenu(false)}
                 style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
                 {c.nome.toUpperCase()}
               </a>

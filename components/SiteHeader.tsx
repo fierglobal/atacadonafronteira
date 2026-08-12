@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import HeaderActions from '@/components/HeaderActions'
 import Logo from '@/components/Logo'
-import { WHATSAPP_HREF } from '@/lib/site'
+import { MARCAS_VITRINE, WHATSAPP_HREF } from '@/lib/site'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
 export const revalidate = 300
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
-export type NavItem = { id: string; nome: string; subs: { id: string; nome: string }[] }
+export type NavItem = { id: string; nome: string; subs: { id: string; nome: string }[]; marca?: string }
 
 async function getTopCats(): Promise<NavItem[]> {
   try {
@@ -45,8 +45,28 @@ async function getTopCats(): Promise<NavItem[]> {
   } catch { return [] }
 }
 
+// Vitrines de marca só entram no menu se tiverem produto ativo — senão o
+// cliente clica e cai num catálogo vazio.
+async function getVitrines(): Promise<NavItem[]> {
+  if (MARCAS_VITRINE.length === 0) return []
+  try {
+    const { data } = await supabaseAdmin
+      .from('products')
+      .select('brand')
+      .eq('ativo', true)
+      .in('brand', MARCAS_VITRINE)
+    const comProduto = new Set((data || []).map(p => p.brand as string))
+    return MARCAS_VITRINE.filter(m => comProduto.has(m))
+      .map(m => ({ id: `marca-${m}`, nome: m, subs: [], marca: m }))
+  } catch { return [] }
+}
+
 export default async function SiteHeader() {
-  const topCats = await getTopCats()
+  const [cats, vitrines] = await Promise.all([getTopCats(), getVitrines()])
+  // Vitrine antes das categorias: o menu é cortado por slice e por media query
+  // a partir do fim, e marca converte mais que categoria (no Expresso Paraguai
+  // 83% do tráfego é busca de marca). No fim da lista ela seria a primeira a sumir.
+  const topCats = [...vitrines, ...cats]
 
   return (
     <header className="site-header">
@@ -59,7 +79,7 @@ export default async function SiteHeader() {
           <Link href="/" className="nav-cat-btn">TODOS</Link>
           {topCats.slice(0, 5).map(c => (
             <div key={c.id} className="nav-item">
-              <a href={`/?cat=${c.id}#catalogo`} className="nav-cat-btn">
+              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : `/?cat=${c.id}#catalogo`} className="nav-cat-btn">
                 {c.nome.toUpperCase()}
                 {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
               </a>
