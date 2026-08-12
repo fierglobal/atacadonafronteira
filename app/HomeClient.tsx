@@ -252,6 +252,20 @@ export default function Home() {
   const catTotals = (c: Categoria) => c.produtos + categorias.filter(ch => ch.parent_id === c.id).reduce((s, ch) => s + ch.produtos, 0)
   topCats.sort((a, b) => catTotals(b) - catTotals(a))
 
+  // Departamento em foco: a seleção pode ser o próprio departamento ou uma
+  // filha dele. Com mais de um departamento os chips de topo passam a ser os
+  // departamentos, e as subcategorias iriam sumir daqui — por isso a segunda
+  // fila, que só aparece quando há um departamento selecionado.
+  const deptoAtivo = (() => {
+    if (!activeCategoria || raizes.length < 2) return null
+    const sel = categorias.find(c => c.id === activeCategoria)
+    if (!sel) return null
+    return sel.parent_id ? categorias.find(c => c.id === sel.parent_id) ?? null : sel
+  })()
+  const subChips = deptoAtivo
+    ? categorias.filter(c => c.parent_id === deptoAtivo.id && c.produtos > 0).sort((a, b) => b.produtos - a.produtos)
+    : []
+
   const brands = ['Todos', ...Array.from(new Set(products.map(p => p.brand).filter((x): x is string => Boolean(x))))]
 
   const sortedProducts = useMemo(() => {
@@ -455,6 +469,7 @@ export default function Home() {
         .cat-chip-active { background: rgba(66, 14, 118,0.08) !important; border-color: rgba(66, 14, 118,0.4) !important; color: #420E76 !important; }
         .cat-chip-inactive { border-color: #ececec; color: #737373; background: #ffffff; }
         .cat-chip-inactive:hover { border-color: #d4d4d4; color: #0a0a0a; }
+        .cat-chip-sub { padding: 5px 11px; font-size: 10px; letter-spacing: 0.05em; font-weight: 600; text-transform: none; }
         .destaques-scroll { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
         .destaques-scroll::-webkit-scrollbar { display: none; }
         @media (max-width: 900px) {
@@ -787,7 +802,9 @@ export default function Home() {
               </button>
               {topCats.map(c => {
                 const total = catTotals(c)
-                const isActive = activeCategoria === c.id
+                // também destacado quando quem está selecionado é uma filha,
+                // senão escolher Tirzepatida apagaria FARMÁCIA do caminho
+                const isActive = activeCategoria === c.id || deptoAtivo?.id === c.id
                 const color = catColor(c.id)
                 return (
                   <button key={c.id}
@@ -801,6 +818,21 @@ export default function Home() {
                 )
               })}
             </div>
+            {subChips.length > 0 && (
+              <div className="cat-chips" style={{ marginTop: 8 }}>
+                {subChips.map(s => {
+                  const isActive = activeCategoria === s.id
+                  return (
+                    <button key={s.id}
+                      className={`cat-chip cat-chip-sub ${isActive ? 'cat-chip-active' : 'cat-chip-inactive'}`}
+                      onClick={() => { router.replace(`/?cat=${s.id}`, { scroll: false }); setActiveBrand('Todos') }}>
+                      {s.nome}
+                      <span style={{ opacity: 0.7, fontSize: 10 }}>{s.produtos}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 
