@@ -1272,7 +1272,7 @@ export default function Home() {
                   <a href={CONTATO_HREF} target="_blank" rel="noopener" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}
                     onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.color = '#25d366'}
                     onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.color = '#737373'}>
-                    +595 994 222 774
+                    +595 995 371537
                   </a>
                 </li>
               )}
