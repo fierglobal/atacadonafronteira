@@ -43,19 +43,34 @@ export async function GET(req: Request) {
       qb = qb.order('sort_order', { ascending: true })
   }
 
-  const { data, error } = await qb.limit(500)
-  if (error) return NextResponse.json([], { status: 500 })
+  // Antes era .limit(500) fixo. Com 148 produtos nunca importou; ao entrar o
+  // catálogo de eletrônicos (639) passou a cortar 139 em silêncio — sumiam do
+  // site sem nenhum erro. O PostgREST ainda tem max-rows no servidor, então
+  // não adianta só aumentar o número: tem que paginar em loop.
+  const PAGINA = 1000
+  const primeira = await qb.range(0, PAGINA - 1)
+  if (primeira.error) return NextResponse.json([], { status: 500 })
+  const list = primeira.data || []
+  for (let inicio = PAGINA; list.length === inicio; inicio += PAGINA) {
+    const { data: extra, error } = await qb.range(inicio, inicio + PAGINA - 1)
+    if (error) return NextResponse.json([], { status: 500 })
+    list.push(...(extra || []))
+  }
 
-  const list = data || []
   const ids = list.map(p => p.id)
 
   const ratingsMap: Record<string, { rating: number; total: number }> = {}
   if (ids.length) {
-    const { data: reviews } = await supabaseAdmin
+    // Sem .in(ids): com 639 produtos essa cláusula virava uma URL de ~24 KB e
+    // levava a rota de 1,9s para 7,9s — para receber lista vazia, já que
+    // avaliação aprovada é sempre uma fração ínfima do catálogo. Puxa as
+    // aprovadas e cruza em memória.
+    const idSet = new Set(ids)
+    const { data: todas } = await supabaseAdmin
       .from('reviews')
       .select('product_id, rating')
-      .in('product_id', ids)
       .eq('aprovado', true)
+    const reviews = (todas || []).filter(r => idSet.has(String(r.product_id)))
     if (reviews) {
       const acc: Record<string, { sum: number; total: number }> = {}
       for (const r of reviews) {
