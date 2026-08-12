@@ -17,4 +17,4 @@ export const WHATSAPP_ENABLED = true
 // categoria_id (que é um só por produto) não resolve. Cada nome precisa bater
 // exatamente com products.brand, que é gravado em UPPERCASE.
 // A vitrine só aparece no menu se houver produto ativo daquela marca.
-export const MARCAS_VITRINE = ['APPLE']
+export const MARCAS_VITRINE = ['APPLE', 'XIAOMI', 'JBL']
