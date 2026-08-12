@@ -143,11 +143,16 @@ export default function Home() {
   const firstLoad = useRef(true)
   const revealedCards = useRef(new Set<string>())
 
-  // Sync category filter with URL ?cat= param
+  // Sync dos filtros com a URL: ?cat= (categoria) e ?marca= (vitrine de marca).
+  // Marca precisa vir da URL, e não só do state, para o menu poder linkar uma
+  // vitrine — um iPhone fica em Eletrônicos > Celular e aparece na Apple ao
+  // mesmo tempo, o que categoria sozinha não resolve.
   useEffect(() => {
     const cat = searchParams.get('cat') ?? ''
+    const marca = searchParams.get('marca') ?? ''
     setActiveCategoria(cat)
-    if (cat) {
+    setActiveBrand(marca || 'Todos')
+    if (cat || marca) {
       setTimeout(() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
   }, [searchParams])
