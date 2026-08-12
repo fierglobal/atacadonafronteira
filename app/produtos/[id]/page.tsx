@@ -198,16 +198,14 @@ export default function ProdutoPage() {
     setRelated([])
     setQty(1)
 
-    const [res, cfgRes, allRes] = await Promise.all([
+    const [res, cfgRes] = await Promise.all([
       fetch(`/api/produtos/${params.id}`),
       fetch('/api/config'),
-      fetch('/api/produtos'),
     ])
     if (!res.ok) { router.replace('/'); return }
 
     const raw: Product = await res.json()
     const cfg = await cfgRes.json()
-    const all: Product[] = await allRes.json()
 
     setWhatsapp(cfg.whatsapp || null)
     const decRelacionados: Record<string, RelacionadoMin[]> = {}
@@ -229,17 +227,21 @@ export default function ProdutoPage() {
       track('product_viewed', { product_id: data.id, product_name: data.name, brand: data.brand || '', usd: Number(data.usd_price) || 0 })
     }).catch(() => {})
 
-    const decoded = all.map((p: Product) => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))
-    const candidates = decoded.filter((p: Product) => p.id !== data.id)
-
-    const byCategory = data.categoria_id
-      ? candidates.filter((p: Product) => p.categoria_id === data.categoria_id)
-      : []
-    const byBrand = data.brand
-      ? candidates.filter((p: Product) => p.brand === data.brand)
-      : []
-
-    const rel = byCategory.length >= 2 ? byCategory : byBrand
+    // Antes isto baixava o catálogo inteiro (386 KB com 639 produtos) para
+    // escolher 4 relacionados. Agora pede só o recorte, à categoria e à marca.
+    const buscar = async (qs: string) => {
+      try {
+        const r = await fetch(`/api/produtos?${qs}&limit=6`)
+        const j = await r.json()
+        return ((j.items ?? []) as Product[])
+          .map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))
+          .filter(p => p.id !== data.id)
+      } catch { return [] as Product[] }
+    }
+    const byCategory = data.categoria_id ? await buscar(`cat=${data.categoria_id}`) : []
+    const rel = byCategory.length >= 2
+      ? byCategory
+      : (data.brand ? await buscar(`marca=${encodeURIComponent(data.brand)}`) : [])
     setRelated(rel.slice(0, 4))
   }, [params.id, router])
 

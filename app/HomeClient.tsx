@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef, Fragment } from 'react'
+import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
@@ -130,6 +130,11 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<SortBy>('destaque')
   const [sortOpen, setSortOpen] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  // total e marcas do catálogo inteiro. A listagem é paginada, então não dá
+  // mais para derivar isso do que está carregado.
+  const [totalCatalogo, setTotalCatalogo] = useState(0)
+  const [totalFiltrado, setTotalFiltrado] = useState(0)
+  const [marcasFacet, setMarcasFacet] = useState<{ nome: string; total: number }[]>([])
   const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loadingProducts, setLoadingProducts] = useState(true)
   const [refetching, setRefetching] = useState(false)
@@ -138,7 +143,6 @@ export default function Home() {
   const [aviso, setAviso] = useState('')
   const { currency, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(INITIAL_PAGE)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
   const revealedCards = useRef(new Set<string>())
@@ -159,20 +163,13 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/produtos').then(r => r.json()),
+      fetch('/api/facetas').then(r => r.json()).catch(() => ({ total: 0, brands: [] })),
       fetch('/api/home-config').then(r => r.json()).catch(() => null),
       fetch('/api/categorias').then(r => r.json()).catch(() => []),
-    ]).then(([data, cfg, cats]) => {
-      const prods: Product[] = data.map((p: Product) => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))
-      setProducts(prods)
+    ]).then(([facetas, cfg, cats]) => {
+      setTotalCatalogo(facetas.total ?? 0)
+      setMarcasFacet((facetas.brands ?? []).map((b: { nome: string; total: number }) => ({ nome: dec(b.nome) ?? b.nome, total: b.total })))
       setCategorias(cats || [])
-      setLoadingProducts(false)
-      setBanners(prev => prev.map(bn => {
-        const m = bn.href.match(/\/produtos\/([a-z0-9-]+)/)
-        if (!m) return bn
-        const prod = prods.find(p => p.id === m[1])
-        return prod?.img_url && !prod.img_url.includes('atacadoparaguai.com') ? { ...bn, productImg: prod.img_url } : bn
-      }))
       if (cfg) {
         if (cfg.banners) {
           setBanners(cfg.banners.map((b: any, i: number) => {
@@ -203,9 +200,51 @@ export default function Home() {
     return () => clearInterval(t)
   }, [banners.length, hovering])
 
+  // Busca no servidor a cada mudança de filtro. Antes o catálogo inteiro vinha
+  // numa tacada e tudo era filtrado em memória; com 639 produtos isso já eram
+  // 386 KB no primeiro load, e cresceria junto com o estoque.
+  const filtrosKey = `${debouncedSearch}|${activeBrand}|${activeCategoria}|${sortBy}`
   useEffect(() => {
-    setVisibleCount(INITIAL_PAGE)
-  }, [debouncedSearch, activeBrand, activeCategoria, sortBy])
+    const params = new URLSearchParams({ limit: String(INITIAL_PAGE), offset: '0' })
+    if (debouncedSearch) params.set('q', debouncedSearch)
+    if (activeBrand !== 'Todos') params.set('marca', activeBrand)
+    if (activeCategoria) params.set('cat', activeCategoria)
+    if (sortBy !== 'destaque') params.set('sort', sortBy)
+
+    let cancelado = false
+    if (firstLoad.current) setLoadingProducts(true); else setRefetching(true)
+    fetch(`/api/produtos?${params}`)
+      .then(r => r.json())
+      .then((res: { items: Product[]; total: number }) => {
+        if (cancelado) return
+        setProducts((res.items || []).map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })))
+        setTotalFiltrado(res.total ?? 0)
+      })
+      .catch(() => { if (!cancelado) { setProducts([]); setTotalFiltrado(0) } })
+      .finally(() => {
+        if (cancelado) return
+        setLoadingProducts(false); setRefetching(false); firstLoad.current = false
+      })
+    // corrida: filtro trocado antes da resposta chegar não pode sobrescrever o novo
+    return () => { cancelado = true }
+  }, [filtrosKey, debouncedSearch, activeBrand, activeCategoria, sortBy])
+
+  const [carregandoMais, setCarregandoMais] = useState(false)
+  const carregarMais = useCallback(() => {
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(products.length) })
+    if (debouncedSearch) params.set('q', debouncedSearch)
+    if (activeBrand !== 'Todos') params.set('marca', activeBrand)
+    if (activeCategoria) params.set('cat', activeCategoria)
+    if (sortBy !== 'destaque') params.set('sort', sortBy)
+    setCarregandoMais(true)
+    fetch(`/api/produtos?${params}`)
+      .then(r => r.json())
+      .then((res: { items: Product[] }) => {
+        setProducts(prev => [...prev, ...(res.items || []).map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))])
+      })
+      .catch(() => {})
+      .finally(() => setCarregandoMais(false))
+  }, [products.length, debouncedSearch, activeBrand, activeCategoria, sortBy])
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 350)
@@ -236,9 +275,6 @@ export default function Home() {
 
 
   const childrenOf = (id: string) => categorias.filter(c => c.parent_id === id).map(c => c.id)
-  const catFilterIds = activeCategoria
-    ? new Set([activeCategoria, ...childrenOf(activeCategoria)])
-    : null
 
   // Com uma única raiz (Farmácia), listar só ela esconderia a subcategorização
   // inteira do cliente. Nesse caso navegamos pelas filhas, como o Expresso
@@ -266,25 +302,12 @@ export default function Home() {
     ? categorias.filter(c => c.parent_id === deptoAtivo.id && c.produtos > 0).sort((a, b) => b.produtos - a.produtos)
     : []
 
-  const brands = ['Todos', ...Array.from(new Set(products.map(p => p.brand).filter((x): x is string => Boolean(x))))]
+  const brands = ['Todos', ...marcasFacet.map(m => m.nome)]
 
-  const sortedProducts = useMemo(() => {
-    if (sortBy !== 'destaque') return products
-    return destaques.length
-      ? [...products.filter(p => destaques.includes(p.id)), ...products.filter(p => !destaques.includes(p.id))]
-      : products
-  }, [products, destaques, sortBy])
-
-  const searchTerm = debouncedSearch.toLowerCase()
-  const clientSearchActive = debouncedSearch.length > 0 && debouncedSearch.length < 2
-
-  const filtered = sortedProducts.filter(p =>
-    (!catFilterIds || (p.categoria_id ? catFilterIds.has(p.categoria_id) : false)) &&
-    (activeBrand === 'Todos' || p.brand === activeBrand) &&
-    (!clientSearchActive || p.name.toLowerCase().includes(searchTerm) || (p.brand ?? '').toLowerCase().includes(searchTerm))
-  )
-  const visible = filtered.slice(0, visibleCount)
-  const hasMore = visibleCount < filtered.length
+  // O recorte já vem pronto do servidor (categoria com filhas, marca, busca e
+  // ordenação): products É a lista visível, não um subconjunto a filtrar.
+  const visible = products
+  const hasMore = products.length < totalFiltrado
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -309,28 +332,45 @@ export default function Home() {
     return () => obs.disconnect()
   }, [visible, loadingProducts])
 
-  const destaquesProdutos = useMemo(
-    () => destaques.length ? products.filter(p => destaques.includes(p.id)) : [],
-    [products, destaques]
-  )
+  // Idem: o produto em destaque pode não estar na página carregada.
+  const [destaquesProdutos, setDestaquesProdutos] = useState<Product[]>([])
+  const destaquesKey = destaques.join(',')
+  useEffect(() => {
+    if (!destaquesKey) { setDestaquesProdutos([]); return }
+    let cancelado = false
+    Promise.all(destaquesKey.split(',').map(id =>
+      fetch(`/api/produtos/${id}`).then(r => r.ok ? r.json() : null).catch(() => null)
+    )).then(rs => {
+      if (cancelado) return
+      setDestaquesProdutos(rs.filter(Boolean).map((p: Product) => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })))
+    })
+    return () => { cancelado = true }
+  }, [destaquesKey])
 
-  const bannerBrandProds = useMemo(
-    () => banners.map(bn => {
-      const filter = (bn as any).brandFilter ?? ''
-      if (!filter || loadingProducts) return [] as Product[]
-      return products
-        .filter(p => p.brand?.toUpperCase() === filter.toUpperCase() && p.img_url && p.img_url !== PLACEHOLDER && !p.img_url.includes('placeholder') && !p.img_url.includes('atacadoparaguai.com'))
-        .slice(0, 3)
-    }),
-    [banners, products, loadingProducts]
-  )
+  // A colagem do hero mostra 3 produtos da marca do slide. Antes saía do
+  // catálogo em memória; agora que a lista é paginada, a marca do banner pode
+  // simplesmente não estar na página atual — então busca direto por marca.
+  const [bannerBrandProds, setBannerBrandProds] = useState<Product[][]>([])
+  const brandFilters = banners.map(b => (b as any).brandFilter ?? '').join('|')
+  useEffect(() => {
+    const filtros = brandFilters.split('|')
+    let cancelado = false
+    Promise.all(filtros.map(f => f
+      ? fetch(`/api/produtos?marca=${encodeURIComponent(f)}&limit=6`)
+          .then(r => r.json())
+          .then((res: { items: Product[] }) => (res.items || [])
+            .map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))
+            .filter(p => p.img_url && p.img_url !== PLACEHOLDER && !p.img_url.includes('placeholder'))
+            .slice(0, 3))
+          .catch(() => [] as Product[])
+      : Promise.resolve([] as Product[])
+    )).then(r => { if (!cancelado) setBannerBrandProds(r) })
+    return () => { cancelado = true }
+  }, [brandFilters])
 
   const brandCounts = useMemo(
-    () => products.reduce((acc, p) => {
-      if (p.brand) acc[p.brand] = (acc[p.brand] ?? 0) + 1
-      return acc
-    }, {} as Record<string, number>),
-    [products]
+    () => marcasFacet.reduce((acc, m) => { acc[m.nome] = m.total; return acc }, {} as Record<string, number>),
+    [marcasFacet]
   )
 
   const topBrands = useMemo(
@@ -636,7 +676,7 @@ export default function Home() {
                 <div className="hero-stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   <span className="hero-stat-chip">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    {products.length || 166} produtos
+                    {totalCatalogo || 166} produtos
                   </span>
                   <span className="hero-stat-chip">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
@@ -736,7 +776,7 @@ export default function Home() {
       <div style={{ borderTop: '1px solid rgba(169, 101, 237,0.15)', borderBottom: '1px solid rgba(169, 101, 237,0.15)', background: '#0A0710', padding: '10px 0', overflow: 'hidden' }}>
         <div className="trust-ticker">
           <div className="trust-track">
-            {[...trustItems(products.length), ...trustItems(products.length)].map((item, i) => (
+            {[...trustItems(totalCatalogo), ...trustItems(totalCatalogo)].map((item, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#A965ED', borderRight: '1px solid rgba(169, 101, 237,0.15)', textShadow: '0 0 8px rgba(169, 101, 237,0.5)' }}>
                 <span style={{ fontSize: 13 }}>{item.icon}</span>
                 {item.text}
@@ -798,7 +838,7 @@ export default function Home() {
                 className={`cat-chip ${!activeCategoria ? 'cat-chip-active' : 'cat-chip-inactive'}`}
                 onClick={() => { setActiveCategoria(''); setActiveBrand('Todos'); router.replace('/', { scroll: false }) }}>
                 TODAS
-                <span style={{ opacity: 0.7, fontSize: 10 }}>{products.length}</span>
+                <span style={{ opacity: 0.7, fontSize: 10 }}>{totalCatalogo}</span>
               </button>
               {topCats.map(c => {
                 const total = catTotals(c)
@@ -913,7 +953,7 @@ export default function Home() {
           </div>
           {(search || activeBrand !== 'Todos' || activeCategoria) && (
             <div style={{ fontSize: 12, color: '#737373' }}>
-              {filtered.length} produto{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
+              {totalFiltrado} produto{totalFiltrado !== 1 ? 's' : ''} encontrado{totalFiltrado !== 1 ? 's' : ''}
               {search && <span style={{ color: '#420E76' }}> para &ldquo;{search}&rdquo;</span>}
               {' '}
               <button onClick={() => { setSearch(''); setActiveBrand('Todos'); setActiveCategoria('') }}
@@ -1143,20 +1183,20 @@ export default function Home() {
         {!loadingProducts && hasMore && (
           <div style={{ textAlign: 'center', marginTop: 48 }}>
             <button className="ver-mais-btn"
-              onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+              onClick={carregarMais} disabled={carregandoMais}
               style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 40px', borderRadius: 10, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
               onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = 'rgba(66, 14, 118,0.06)'; b.style.borderColor = 'rgba(66, 14, 118,0.5)'; b.style.boxShadow = '0 4px 12px rgba(66, 14, 118,0.18)' }}
               onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = '#ffffff'; b.style.borderColor = 'rgba(66, 14, 118,0.4)'; b.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
               VER MAIS
-              <span style={{ opacity: 0.6, fontSize: 10, fontWeight: 600 }}>{visible.length} / {filtered.length}</span>
+              <span style={{ opacity: 0.6, fontSize: 10, fontWeight: 600 }}>{visible.length} / {totalFiltrado}</span>
             </button>
           </div>
         )}
 
-        {!loadingProducts && !hasMore && filtered.length > INITIAL_PAGE && (
+        {!loadingProducts && !hasMore && totalFiltrado > INITIAL_PAGE && (
           <div style={{ textAlign: 'center', marginTop: 40, fontSize: 11, color: '#a3a3a3', letterSpacing: '0.1em' }}>
-            TODOS OS {filtered.length} PRODUTOS EXIBIDOS
+            TODOS OS {totalFiltrado} PRODUTOS EXIBIDOS
           </div>
         )}
       </section>
