@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
@@ -14,6 +14,15 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
   const { currency, setCurrency, abrirSidebar, quantidade } = useCarrinho()
   const [currencyOpen, setCurrencyOpen] = useState(false)
   const [mobileMenu, setMobileMenu] = useState(false)
+  const router = useRouter()
+  const [busca, setBusca] = useState('')
+  const buscar = (e: React.FormEvent) => {
+    e.preventDefault()
+    const q = busca.trim()
+    if (!q) return
+    setMobileMenu(false)
+    router.push(`/?q=${encodeURIComponent(q)}#catalogo`)
+  }
   const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
@@ -27,6 +36,10 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <form onSubmit={buscar} className="nav-search" role="search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar produto…" aria-label="Buscar produto" />
+        </form>
         <span className="nav-rate">USD/BRL = 5,20</span>
         <div style={{ position: 'relative' }}>
           <button onClick={() => setCurrencyOpen(p => !p)}
@@ -80,6 +93,11 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
 
       {mobileMenu && (
         <div className="nav-mobile-drawer open">
+          <form onSubmit={buscar} role="search" style={{ display: 'flex', gap: 8, padding: '4px 6px 10px' }}>
+            <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar produto ou marca…" aria-label="Buscar produto"
+              style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 14, outline: 'none' }} />
+            <button type="submit" style={{ padding: '10px 16px', borderRadius: 8, background: '#420E76', color: '#ffffff', border: 'none', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>IR</button>
+          </form>
           <Link href="/" onClick={() => setMobileMenu(false)}
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#420E76' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             TODOS

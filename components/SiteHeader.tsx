@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getConfig } from '@/lib/config'
 import HeaderActions from '@/components/HeaderActions'
 import Logo from '@/components/Logo'
 import { MARCAS_VITRINE, WHATSAPP_HREF } from '@/lib/site'
@@ -62,7 +63,10 @@ async function getVitrines(): Promise<NavItem[]> {
 }
 
 export default async function SiteHeader() {
-  const [cats, vitrines] = await Promise.all([getTopCats(), getVitrines()])
+  const [cats, vitrines, config] = await Promise.all([getTopCats(), getVitrines(), getConfig().catch(() => null)])
+  const minimo = config?.pedido_minimo_brl
+    ? `R$ ${Number(config.pedido_minimo_brl).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
+    : null
   // Departamentos primeiro, vitrines depois. O menu é cortado a partir do fim
   // (slice + media query), então o que vem por último é o que some em tela
   // menor — e é melhor perder um atalho de marca do que a porta de entrada de
@@ -97,6 +101,15 @@ export default async function SiteHeader() {
         </nav>
 
         <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} />
+      </div>
+      {/* Condições do atacado sempre à vista: são critério de qualificação —
+          quem não fecha R$ 1.000 precisa saber antes de montar carrinho. */}
+      <div className="header-strip" aria-label="Condições de compra">
+        {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
+        <span>PIX à vista</span>
+        <span>Retirada em loja</span>
+        <span>Preços em USD</span>
+        <span>Separação em até 24h úteis</span>
       </div>
     </header>
   )

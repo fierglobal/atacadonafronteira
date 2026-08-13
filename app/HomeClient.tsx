@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react'
 import Image from 'next/image'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useCarrinho, currencies } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
@@ -60,37 +60,6 @@ function CardImg({ src, alt }: { src: string | null; alt: string }) {
   )
 }
 
-const DEFAULT_BANNERS = [
-  {
-    tag: 'MAIS VENDIDO',
-    title: ['BIOGENESIS', 'EMAGRECIMENTO'],
-    sub: 'A marca mais procurada do catálogo. Tirzepatida com procedência garantida e estoque permanente.',
-    cta: 'VER OFERTA',
-    href: '/produtos/3ff19b39-7178-497e-abfe-47d4c8d47eef',
-    color: '#C08EF2',
-    bg: 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(166, 96, 236,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(246, 192, 25,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/3ff19b39-7178-497e-abfe-47d4c8d47eef/img_6355.webp',
-    brandFilter: 'BIOGENESIS',
-  },
-  {
-    tag: 'LINHA PREMIUM',
-    title: ['ZPHC', 'PEPTÍDEOS'],
-    sub: 'A marca de performance mais respeitada da Europa. Estoque permanente e rastreabilidade completa.',
-    cta: 'EXPLORAR ZPHC',
-    href: '/produtos/e02c1c13-0809-4f0d-a297-60e4f0a25526',
-    color: '#C293F2',
-    bg: 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(166, 96, 236,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(246, 192, 25,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
-    productImg: 'https://xjmapfpfgwoivlsalltb.supabase.co/storage/v1/object/public/produtos/catalogo/e02c1c13-0809-4f0d-a297-60e4f0a25526/atacado-zphc-zptrop-320-iu-10-vial.webp',
-    brandFilter: 'ZPHC',
-  },
-]
-
-const BG_BY_COLOR: Record<string, string> = {
-  '#C08EF2': 'radial-gradient(ellipse 75% 75% at 25% 40%, rgba(166, 96, 236,0.38) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 85% 85%, rgba(246, 192, 25,0.28) 0%, transparent 60%), linear-gradient(135deg, #1a0a2e 0%, #0a0a0a 50%, #1a1005 100%)',
-  '#F6C019': 'radial-gradient(ellipse 75% 75% at 75% 35%, rgba(246, 192, 25,0.40) 0%, transparent 58%), radial-gradient(ellipse 55% 55% at 15% 85%, rgba(166, 96, 236,0.30) 0%, transparent 60%), linear-gradient(135deg, #1a1005 0%, #0a0a0a 50%, #1a0a2e 100%)',
-  '#C293F2': 'radial-gradient(ellipse 70% 70% at 50% 28%, rgba(166, 96, 236,0.36) 0%, transparent 55%), radial-gradient(ellipse 70% 70% at 50% 92%, rgba(246, 192, 25,0.30) 0%, transparent 55%), linear-gradient(135deg, #150a28 0%, #0a0a0a 45%, #1a1206 100%)',
-}
-
 const dec = (s: string | null) => {
   if (!s) return null
   try {
@@ -108,126 +77,162 @@ const fmt = (n: number, rate: number, code: string) => {
 const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
 const PROMO_BANNER_AFTER = 10
+const VITRINE_POR_SECAO = 12
 
 const trustItems = (nProdutos: number) => [
   ...(nProdutos > 0 ? [{ icon: '📦', text: `${nProdutos} PRODUTOS EM ESTOQUE` }] : []),
   { icon: '⚡', text: 'PIX CONFIRMADO EM < 30 MIN' },
   { icon: '🇧🇷', text: 'ATENDIMENTO 100% EM PORTUGUÊS' },
   ...(WHATSAPP_ENABLED ? [{ icon: '💬', text: 'RESPOSTA WHATSAPP EM 12 MIN' }] : []),
-  { icon: '🔒', text: 'COMPRA 100% SEGURA' },
+  { icon: '📦', text: 'SEPARAÇÃO EM ATÉ 24H ÚTEIS' },
   { icon: '✈️', text: 'IMPORTADO DIRETO DO PARAGUAI' },
 ]
 
-export default function Home() {
+export type HomeInitial = {
+  categorias: Categoria[]
+  total: number
+  brands: { nome: string; total: number }[]        // nomes em base64, como a API
+  secoes: { id: string; nome: string; total: number; items: Product[] }[]  // idem
+}
+
+const decodeProd = (p: Product): Product => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })
+
+export default function Home({ initial }: { initial?: HomeInitial }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const [slide, setSlide] = useState(0)
-  const [hovering, setHovering] = useState(false)
   const [activeBrand, setActiveBrand] = useState('Todos')
-  const [activeCategoria, setActiveCategoria] = useState(() => searchParams.get('cat') ?? '')
+  // Filtro é estado local; a URL é só cosmética/compartilhável. Navegar de
+  // verdade (router.replace) exigiria useSearchParams para reagir — e esse
+  // hook tira a página inteira do HTML estático (bailout do Suspense).
+  const aplicarFiltro = (cat: string, marca: string) => {
+    setActiveCategoria(cat)
+    setActiveBrand(marca)
+    const qs = cat ? `?cat=${cat}` : marca !== 'Todos' ? `?marca=${encodeURIComponent(marca)}` : ''
+    window.history.replaceState(null, '', `/${qs}`)
+  }
+  const [activeCategoria, setActiveCategoria] = useState('')
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [sortBy, setSortBy] = useState<SortBy>('destaque')
   const [sortOpen, setSortOpen] = useState(false)
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>(
+    () => initial ? initial.secoes.flatMap(s => s.items.map(decodeProd)) : []
+  )
   // total e marcas do catálogo inteiro. A listagem é paginada, então não dá
   // mais para derivar isso do que está carregado.
-  const [totalCatalogo, setTotalCatalogo] = useState(0)
-  const [totalFiltrado, setTotalFiltrado] = useState(0)
-  const [marcasFacet, setMarcasFacet] = useState<{ nome: string; total: number }[]>([])
-  const [categorias, setCategorias] = useState<Categoria[]>([])
-  const [loadingProducts, setLoadingProducts] = useState(true)
+  const [totalCatalogo, setTotalCatalogo] = useState(initial?.total ?? 0)
+  const [totalFiltrado, setTotalFiltrado] = useState(initial?.total ?? 0)
+  const [marcasFacet, setMarcasFacet] = useState<{ nome: string; total: number }[]>(
+    () => initial ? initial.brands.map(b => ({ nome: dec(b.nome) ?? b.nome, total: b.total })) : []
+  )
+  const [categorias, setCategorias] = useState<Categoria[]>(initial?.categorias ?? [])
+  const [loadingProducts, setLoadingProducts] = useState(!initial)
+  // seções da vitrine por departamento (home sem filtro)
+  const [secoes, setSecoes] = useState<{ id: string; nome: string; total: number; count: number }[]>(
+    () => initial ? initial.secoes.map(s => ({ id: s.id, nome: s.nome, total: s.total, count: s.items.length })) : []
+  )
   const [refetching, setRefetching] = useState(false)
-  const [banners, setBanners] = useState(DEFAULT_BANNERS)
   const [destaques, setDestaques] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
   const { currency, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
-  const revealedCards = useRef(new Set<string>())
+  const revealedCards = useRef(new Set<string>(initial ? initial.secoes.flatMap(s => s.items.map(i => i.id)) : []))
 
   // Sync dos filtros com a URL: ?cat= (categoria) e ?marca= (vitrine de marca).
   // Marca precisa vir da URL, e não só do state, para o menu poder linkar uma
   // vitrine — um iPhone fica em Eletrônicos > Celular e aparece na Apple ao
   // mesmo tempo, o que categoria sozinha não resolve.
   useEffect(() => {
-    const cat = searchParams.get('cat') ?? ''
-    const marca = searchParams.get('marca') ?? ''
-    setActiveCategoria(cat)
-    setActiveBrand(marca || 'Todos')
-    if (cat || marca) {
+    const sp = new URLSearchParams(window.location.search)
+    const cat = sp.get('cat') ?? ''
+    const marca = sp.get('marca') ?? ''
+    const q = sp.get('q') ?? ''
+    if (cat) setActiveCategoria(cat)
+    if (marca) setActiveBrand(marca)
+    if (q) setSearch(q)
+    if (cat || marca || q) {
       setTimeout(() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
-  }, [searchParams])
-
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/facetas').then(r => r.json()).catch(() => ({ total: 0, brands: [] })),
-      fetch('/api/home-config').then(r => r.json()).catch(() => null),
-      fetch('/api/categorias').then(r => r.json()).catch(() => []),
-    ]).then(([facetas, cfg, cats]) => {
-      setTotalCatalogo(facetas.total ?? 0)
-      setMarcasFacet((facetas.brands ?? []).map((b: { nome: string; total: number }) => ({ nome: dec(b.nome) ?? b.nome, total: b.total })))
-      setCategorias(cats || [])
-      if (cfg) {
-        if (cfg.banners) {
-          setBanners(cfg.banners.map((b: any, i: number) => {
-            const base = DEFAULT_BANNERS[i] ?? DEFAULT_BANNERS[0]
-            return {
-              ...base,
-              tag: b.tag || base.tag,
-              title: [b.title1 || base.title[0], b.title2 || base.title[1]],
-              sub: b.sub || base.sub,
-              cta: b.cta || base.cta,
-              href: b.href || base.href,
-              color: b.color || base.color,
-              bg: BG_BY_COLOR[b.color] || base.bg,
-              productImg: b.productImg || base.productImg,
-              brandFilter: b.brandFilter || base.brandFilter,
-            }
-          }))
-        }
-        if (cfg.destaques?.length) setDestaques(cfg.destaques)
-        if (cfg.aviso) setAviso(cfg.aviso)
-      }
-    })
   }, [])
 
   useEffect(() => {
-    if (hovering) return
-    const t = setInterval(() => setSlide(p => (p + 1) % banners.length), 5500)
-    return () => clearInterval(t)
-  }, [banners.length, hovering])
+    fetch('/api/home-config').then(r => r.json()).then(cfg => {
+      if (cfg?.destaques?.length) setDestaques(cfg.destaques)
+      if (cfg?.aviso) setAviso(cfg.aviso)
+    }).catch(() => {})
+    if (initial) return // facetas e categorias já vieram do servidor
+    Promise.all([
+      fetch('/api/facetas').then(r => r.json()).catch(() => ({ total: 0, brands: [] })),
+      fetch('/api/categorias').then(r => r.json()).catch(() => []),
+    ]).then(([facetas, cats]) => {
+      setTotalCatalogo(facetas.total ?? 0)
+      setMarcasFacet((facetas.brands ?? []).map((b: { nome: string; total: number }) => ({ nome: dec(b.nome) ?? b.nome, total: b.total })))
+      setCategorias(cats || [])
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Busca no servidor a cada mudança de filtro. Antes o catálogo inteiro vinha
   // numa tacada e tudo era filtrado em memória; com 639 produtos isso já eram
   // 386 KB no primeiro load, e cresceria junto com o estoque.
+  // Vitrine por departamento: a home sem filtro não mistura mais peptídeo com
+  // iPhone num grid só — cada departamento vira uma seção com "ver tudo".
+  const raizesVitrine = useMemo(() => categorias
+    .filter(c => !c.parent_id && (c.produtos > 0 || categorias.some(ch => ch.parent_id === c.id && ch.produtos > 0)))
+    .map(c => ({ id: c.id, nome: c.nome })), [categorias])
+  const raizesKey = raizesVitrine.map(r => r.id).join(',')
+  const modoVitrine = raizesVitrine.length >= 2 && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && sortBy === 'destaque'
+
   const filtrosKey = `${debouncedSearch}|${activeBrand}|${activeCategoria}|${sortBy}`
   useEffect(() => {
+    // a primeira renderização já veio pronta do servidor (SSR/ISR)
+    if (firstLoad.current) {
+      const sp = new URLSearchParams(window.location.search)
+      const urlComFiltro = !!(sp.get('cat') || sp.get('marca') || sp.get('q'))
+      if (initial && !urlComFiltro) { firstLoad.current = false; return }
+      // com filtro na URL, espera o efeito de sync popular o estado — senão
+      // buscaria a vitrine à toa e refaria em seguida
+      if (urlComFiltro && !activeCategoria && activeBrand === 'Todos' && !debouncedSearch) { firstLoad.current = false; return }
+    }
+    let cancelado = false
+    if (firstLoad.current) setLoadingProducts(true); else setRefetching(true)
+    const fim = () => { if (!cancelado) { setLoadingProducts(false); setRefetching(false); firstLoad.current = false } }
+
+    if (modoVitrine) {
+      Promise.all(raizesVitrine.map(r =>
+        fetch(`/api/produtos?cat=${r.id}&limit=${VITRINE_POR_SECAO}`)
+          .then(x => x.json())
+          .then((j: { items: Product[]; total: number }) => ({ ...r, total: j.total ?? 0, items: (j.items || []).map(decodeProd) }))
+          .catch(() => ({ ...r, total: 0, items: [] as Product[] }))
+      )).then(rs => {
+        if (cancelado) return
+        setSecoes(rs.map(({ id, nome, total, items }) => ({ id, nome, total, count: items.length })))
+        setProducts(rs.flatMap(r => r.items))
+        setTotalFiltrado(rs.reduce((s, r) => s + r.total, 0))
+      }).finally(fim)
+      return () => { cancelado = true }
+    }
+
     const params = new URLSearchParams({ limit: String(INITIAL_PAGE), offset: '0' })
     if (debouncedSearch) params.set('q', debouncedSearch)
     if (activeBrand !== 'Todos') params.set('marca', activeBrand)
     if (activeCategoria) params.set('cat', activeCategoria)
     if (sortBy !== 'destaque') params.set('sort', sortBy)
 
-    let cancelado = false
-    if (firstLoad.current) setLoadingProducts(true); else setRefetching(true)
     fetch(`/api/produtos?${params}`)
       .then(r => r.json())
       .then((res: { items: Product[]; total: number }) => {
         if (cancelado) return
-        setProducts((res.items || []).map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })))
+        setProducts((res.items || []).map(decodeProd))
         setTotalFiltrado(res.total ?? 0)
       })
       .catch(() => { if (!cancelado) { setProducts([]); setTotalFiltrado(0) } })
-      .finally(() => {
-        if (cancelado) return
-        setLoadingProducts(false); setRefetching(false); firstLoad.current = false
-      })
+      .finally(fim)
     // corrida: filtro trocado antes da resposta chegar não pode sobrescrever o novo
     return () => { cancelado = true }
-  }, [filtrosKey, debouncedSearch, activeBrand, activeCategoria, sortBy])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtrosKey, modoVitrine, raizesKey])
 
   const [carregandoMais, setCarregandoMais] = useState(false)
   const carregarMais = useCallback(() => {
@@ -307,7 +312,16 @@ export default function Home() {
   // O recorte já vem pronto do servidor (categoria com filhas, marca, busca e
   // ordenação): products É a lista visível, não um subconjunto a filtrar.
   const visible = products
-  const hasMore = products.length < totalFiltrado
+  const hasMore = !modoVitrine && products.length < totalFiltrado
+
+  // índice do card onde cada seção da vitrine começa → cabeçalho antes dele
+  const secaoHeaders = useMemo(() => {
+    const m = new Map<number, { id: string; nome: string; total: number }>()
+    if (!modoVitrine) return m
+    let acc = 0
+    for (const s of secoes) { if (s.count > 0) m.set(acc, s); acc += s.count }
+    return m
+  }, [modoVitrine, secoes])
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -346,27 +360,6 @@ export default function Home() {
     })
     return () => { cancelado = true }
   }, [destaquesKey])
-
-  // A colagem do hero mostra 3 produtos da marca do slide. Antes saía do
-  // catálogo em memória; agora que a lista é paginada, a marca do banner pode
-  // simplesmente não estar na página atual — então busca direto por marca.
-  const [bannerBrandProds, setBannerBrandProds] = useState<Product[][]>([])
-  const brandFilters = banners.map(b => (b as any).brandFilter ?? '').join('|')
-  useEffect(() => {
-    const filtros = brandFilters.split('|')
-    let cancelado = false
-    Promise.all(filtros.map(f => f
-      ? fetch(`/api/produtos?marca=${encodeURIComponent(f)}&limit=6`)
-          .then(r => r.json())
-          .then((res: { items: Product[] }) => (res.items || [])
-            .map(p => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) }))
-            .filter(p => p.img_url && p.img_url !== PLACEHOLDER && !p.img_url.includes('placeholder'))
-            .slice(0, 3))
-          .catch(() => [] as Product[])
-      : Promise.resolve([] as Product[])
-    )).then(r => { if (!cancelado) setBannerBrandProds(r) })
-    return () => { cancelado = true }
-  }, [brandFilters])
 
   const brandCounts = useMemo(
     () => marcasFacet.reduce((acc, m) => { acc[m.nome] = m.total; return acc }, {} as Record<string, number>),
@@ -568,208 +561,19 @@ export default function Home() {
       )}
 
       {/* HERO */}
-      <section className="hero-section" role="region" aria-label="Banners principais"
-        onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}
-        style={{ position: 'relative', height: 600, overflow: 'hidden', background: banners[slide].bg, transition: 'background 0.8s ease' }}>
-
-        <svg aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.08, pointerEvents: 'none' }}>
-          <defs>
-            <pattern id="hexPattern" x="0" y="0" width="56" height="48.5" patternUnits="userSpaceOnUse">
-              <path d="M28 0 L56 16 L56 48.5 L28 64.5 L0 48.5 L0 16 Z" fill="none" stroke={banners[slide].color} strokeWidth="1" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#hexPattern)" />
-        </svg>
-
-        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px', pointerEvents: 'none' }} />
-
-        <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.4) 100%)', pointerEvents: 'none' }} />
-
-        {/* Scanline */}
-        <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 2, background: `linear-gradient(90deg, transparent 0%, ${banners[slide].color}40 30%, ${banners[slide].color}80 50%, ${banners[slide].color}40 70%, transparent 100%)`, animation: 'heroScanline 9s linear infinite', pointerEvents: 'none', zIndex: 3, filter: 'blur(1px)' }} />
-
-        {/* Laser beams SVG — 5 rays */}
-        <svg aria-hidden="true" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
-          <defs>
-            <filter id="laserGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          {[
-            { x2: 1200, y2: 0,   delay: '0s',   dur: '5s' },
-            { x2: 1200, y2: 600, delay: '1.2s', dur: '6s' },
-            { x2: 0,    y2: 100, delay: '0.6s', dur: '5.5s' },
-            { x2: 0,    y2: 500, delay: '2s',   dur: '7s' },
-            { x2: 600,  y2: 0,   delay: '1.8s', dur: '6.5s' },
-          ].map((l, i) => (
-            <line key={i} x1="900" y1="300" x2={l.x2} y2={l.y2}
-              stroke={banners[slide].color} strokeWidth="1"
-              filter="url(#laserGlow)"
-              style={{ animation: `laserRay ${l.dur} ease-in-out infinite`, animationDelay: l.delay }} />
-          ))}
-        </svg>
-
-        <div aria-hidden="true" className="hero-dna" style={{ position: 'absolute', right: 40, top: '50%', transform: 'translateY(-50%)', width: 120, height: 360, opacity: 0.20, pointerEvents: 'none', animation: 'dnaRotate 40s linear infinite', transformStyle: 'preserve-3d' }}>
-          <svg viewBox="0 0 120 360" width="120" height="360" fill="none">
-            <path d="M30 0 Q90 45 30 90 Q-30 135 30 180 Q90 225 30 270 Q-30 315 30 360" stroke={banners[slide].color} strokeWidth="2" />
-            <path d="M90 0 Q30 45 90 90 Q150 135 90 180 Q30 225 90 270 Q150 315 90 360" stroke={banners[slide].color} strokeWidth="2" />
-            {Array.from({ length: 13 }).map((_, i) => {
-              const y = i * 30
-              const x1 = 30 + Math.sin((i / 12) * Math.PI * 2) * 30
-              const x2 = 90 - Math.sin((i / 12) * Math.PI * 2) * 30
-              return <line key={i} x1={x1} y1={y} x2={x2} y2={y} stroke={banners[slide].color} strokeWidth="1.5" opacity={0.6} />
-            })}
-          </svg>
-        </div>
-
-        {[
-          { top: '14%', left: '8%', size: 5, delay: '0s', dur: '7s', op: 0.8 },
-          { top: '72%', left: '12%', size: 4, delay: '1.2s', dur: '8s', op: 0.6 },
-          { top: '22%', left: '46%', size: 6, delay: '2s', dur: '9s', op: 0.7 },
-          { top: '64%', left: '40%', size: 4, delay: '0.6s', dur: '6s', op: 0.5 },
-          { top: '18%', left: '92%', size: 5, delay: '1.8s', dur: '10s', op: 0.7 },
-          { top: '82%', left: '88%', size: 4, delay: '0.4s', dur: '7.5s', op: 0.6 },
-          { top: '48%', left: '4%', size: 4, delay: '2.4s', dur: '8.5s', op: 0.6 },
-          { top: '36%', left: '58%', size: 5, delay: '1.4s', dur: '9.5s', op: 0.5 },
-          { top: '86%', left: '54%', size: 4, delay: '0.8s', dur: '6.5s', op: 0.7 },
-          { top: '8%', left: '74%', size: 4, delay: '2.8s', dur: '8s', op: 0.6 },
-          { top: '30%', left: '24%', size: 3, delay: '1.6s', dur: '7.2s', op: 0.5 },
-          { top: '58%', left: '70%', size: 5, delay: '0.2s', dur: '8.8s', op: 0.7 },
-        ].map((d, i) => (
-          <span key={i} aria-hidden="true" className="hero-particle" style={{ top: d.top, left: d.left, width: d.size, height: d.size, background: banners[slide].color, opacity: d.op, animation: `floatDot ${d.dur} ease-in-out infinite`, animationDelay: d.delay, boxShadow: `0 0 8px ${banners[slide].color}` }} />
-        ))}
-
-        {banners.map((bn, idx) => (
-          <div key={idx} style={{ position: 'absolute', inset: 0, opacity: idx === slide ? 1 : 0, pointerEvents: idx === slide ? 'auto' : 'none', transition: 'opacity 0.8s ease' }}>
-            <div className="hero-inner" style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', padding: '0 64px', gap: 48, maxWidth: 1280, margin: '0 auto' }}>
-
-              <div className="hero-text" style={{ flex: '0 0 54%', display: 'flex', flexDirection: 'column', justifyContent: 'center', animation: idx === slide ? 'slideIn 0.6s ease' : 'none', position: 'relative', zIndex: 2 }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 22, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: `1px solid ${bn.color}40`, borderRadius: 99, padding: '6px 14px', width: 'fit-content', color: bn.color }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: bn.color, animation: 'pulseDot 3s ease-in-out infinite', boxShadow: `0 0 8px ${bn.color}` }} />
-                  <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', color: bn.color }}>{bn.tag}</span>
-                </div>
-
-                <h1 style={{ margin: 0, marginBottom: 18, lineHeight: 1.04 }}>
-                  <div style={{ fontSize: 'clamp(28px, 4vw, 56px)', fontWeight: 600, letterSpacing: '-0.03em', color: '#ffffff', textShadow: '0 0 18px rgba(255,255,255,0.15)' }}>{bn.title[0]}</div>
-                  <div style={{ fontSize: 'clamp(28px, 4vw, 56px)', fontWeight: 900, letterSpacing: '-0.03em', color: bn.color, textShadow: `0 0 24px ${bn.color}80, 0 0 48px ${bn.color}40` }}>{bn.title[1]}</div>
-                </h1>
-
-                <p className="hero-sub" style={{ color: '#a3a3a3', fontSize: 15, fontWeight: 400, marginBottom: 28, lineHeight: 1.6, maxWidth: 480 }}>{bn.sub}</p>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 24 }}>
-                  <a href={bn.href} className="hero-cta-primary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: bn.color, color: '#000', fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', padding: '14px 30px', borderRadius: 8, textDecoration: 'none', boxShadow: `0 0 0 1px rgba(255,255,255,0.08), 0 8px 24px ${bn.color}40, 0 0 40px ${bn.color}30`, transition: 'transform 0.18s, box-shadow 0.18s' }}>
-                    {bn.cta}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                  </a>
-                  {WHATSAPP_ENABLED && (
-                    <a href={CONTATO_HREF} target="_blank" rel="noopener" className="hero-cta-secondary"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', color: '#ffffff', fontWeight: 700, fontSize: 13, letterSpacing: '0.04em', padding: '14px 24px', borderRadius: 8, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.12)', transition: 'background 0.18s, border-color 0.18s' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
-                      Falar com vendas
-                    </a>
-                  )}
-                </div>
-
-                <div className="hero-stats-row" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  <span className="hero-stat-chip">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    {totalCatalogo || 166} produtos
-                  </span>
-                  <span className="hero-stat-chip">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                    {brands.length - 1 || 34} marcas
-                  </span>
-                  <span className="hero-stat-chip">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    PIX seguro
-                  </span>
-                  <span className="hero-stat-chip">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                    Estoque imediato
-                  </span>
-                </div>
-              </div>
-
-              <div className="hero-product" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', animation: idx === slide ? 'glassFadeIn 0.8s ease' : 'none' }}>
-                {(() => {
-                  const prods = bannerBrandProds[idx] ?? []
-                  const i0 = prods[0]?.img_url ?? (bn as any).productImg ?? null
-                  const i1 = prods[1]?.img_url ?? null
-                  const i2 = prods[2]?.img_url ?? null
-
-                  const imgBox = (src: string, sz: number, rotate: string) => (
-                    <div style={{ width: sz, height: sz, position: 'relative', background: '#0B0810', borderRadius: 18, overflow: 'hidden', border: `1.5px solid ${bn.color}40`, boxShadow: `0 16px 40px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04), 0 0 28px ${bn.color}18`, flexShrink: 0 }}>
-                      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 58% 58% at 50% 50%, ${bn.color}14 0%, transparent 68%)`, zIndex: 0 }} />
-                      <Image src={src} alt="" width={sz} height={sz}
-                        style={{ objectFit: 'contain', maxWidth: '76%', maxHeight: '76%', position: 'absolute', top: '50%', left: '50%', transform: `translate(-50%,-50%)`, zIndex: 1, filter: `drop-shadow(0 0 12px ${bn.color}40) drop-shadow(0 3px 8px rgba(0,0,0,0.5))` }} />
-                      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 50% 50% at 50% 50%, transparent 26%, rgba(9,12,9,0.48) 56%, rgba(9,12,9,0.88) 78%, #0B0810 100%)`, zIndex: 2 }} />
-                    </div>
-                  )
-
-                  return (
-                    <div style={{ position: 'relative', width: 390, height: 350 }}>
-                      {/* Ambient glow */}
-                      <div aria-hidden="true" style={{ position: 'absolute', inset: -50, background: `radial-gradient(ellipse 52% 52% at 50% 50%, ${bn.color}26 0%, transparent 70%)`, filter: 'blur(44px)', zIndex: 0, pointerEvents: 'none', animation: 'glowPulse 4s ease infinite' }} />
-
-                      {/* Brand watermark */}
-                      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 76, fontWeight: 900, color: bn.color, opacity: 0.055, letterSpacing: '-0.04em', userSelect: 'none', zIndex: 0, lineHeight: 1, pointerEvents: 'none' }}>
-                        {bn.title[0]}
-                      </div>
-
-                      {/* Main product — center */}
-                      {i0 && (
-                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-2deg)', zIndex: 3 }}>
-                          {imgBox(i0, 200, '-2deg')}
-                        </div>
-                      )}
-
-                      {/* Second product — top right */}
-                      {i1 && (
-                        <div style={{ position: 'absolute', top: 4, right: 2, transform: 'rotate(6deg)', zIndex: 2 }}>
-                          {imgBox(i1, 148, '6deg')}
-                        </div>
-                      )}
-
-                      {/* Third product — bottom left */}
-                      {i2 && (
-                        <div style={{ position: 'absolute', bottom: 2, left: 2, transform: 'rotate(-5deg)', zIndex: 2 }}>
-                          {imgBox(i2, 130, '-5deg')}
-                        </div>
-                      )}
-
-                      {/* EM ESTOQUE badge */}
-                      <div style={{ position: 'absolute', top: -4, left: 14, zIndex: 5, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 99, background: 'rgba(233, 179, 9,0.12)', border: '1px solid rgba(233, 179, 9,0.35)', backdropFilter: 'blur(10px)', boxShadow: '0 4px 14px rgba(0,0,0,0.3)' }}>
-                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#E9B309', animation: 'pulseDot 3s ease-in-out infinite', boxShadow: '0 0 6px #E9B309' }} />
-                        <span style={{ fontSize: 8, fontWeight: 900, letterSpacing: '0.18em', color: '#ca8a04' }}>EM ESTOQUE</span>
-                      </div>
-
-                      {/* Verified badge */}
-                      <div style={{ position: 'absolute', bottom: -6, right: 14, zIndex: 5, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 99, background: `linear-gradient(135deg, ${bn.color}22, ${bn.color}0a)`, backdropFilter: 'blur(10px)', border: `1px solid ${bn.color}50`, boxShadow: `0 4px 18px rgba(0,0,0,0.4), 0 0 14px ${bn.color}18`, animation: idx === slide ? 'verifiedPop 0.5s 0.65s cubic-bezier(0.16,1,0.3,1) both' : 'none' }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={bn.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.14em', color: bn.color }}>MARCA VERIFICADA</span>
-                      </div>
-                    </div>
-                  )
-                })()}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 6, zIndex: 10 }}>
-          {banners.map((_, i) => (
-            <button key={i} onClick={() => setSlide(i)} aria-label={`Ir para slide ${i + 1}`}
-              style={{ height: 4, borderRadius: 99, border: 'none', cursor: 'pointer', transition: 'all 0.3s', background: i === slide ? banners[slide].color : '#404040', width: i === slide ? 36 : 8, boxShadow: i === slide ? `0 0 10px ${banners[slide].color}` : 'none' }} />
-          ))}
-        </div>
-
-        <button onClick={() => setSlide(p => (p - 1 + banners.length) % banners.length)} aria-label="Slide anterior" className="hero-arrow-btn"
-          style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', color: '#ffffff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, transition: 'background 0.18s, border-color 0.18s' }}>‹</button>
-        <button onClick={() => setSlide(p => (p + 1) % banners.length)} aria-label="Próximo slide" className="hero-arrow-btn"
-          style={{ position: 'absolute', right: 20, top: '50%', transform: 'translateY(-50%)', width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', color: '#ffffff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, transition: 'background 0.18s, border-color 0.18s' }}>›</button>
+      {/* HERO: banner estático de atacado. O carrossel neon saiu — falava a
+          língua do varejo hype e empurrava o catálogo pra baixo da dobra.
+          Asset pré-otimizado em /public (sem custo de /_next/image). */}
+      <section aria-label="Ofertas de atacado na fronteira" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec' }}>
+        <a href="#catalogo" onClick={e => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
+          style={{ display: 'block', maxWidth: 1973, margin: '0 auto' }}>
+          <picture>
+            <source media="(max-width: 767px)" srcSet="/banner-hero-mobile.webp" width={980} height={797} />
+            <img src="/banner-hero.webp" alt="Atacado na Fronteira — preços competitivos, variedade e oportunidade para o seu negócio. Compre atacado."
+              width={1920} height={776} fetchPriority="high"
+              style={{ display: 'block', width: '100%', height: 'auto' }} />
+          </picture>
+        </a>
       </section>
 
       {/* TRUST TICKER */}
@@ -824,7 +628,7 @@ export default function Home() {
               {activeCategoria ? (categorias.find(c => c.id === activeCategoria)?.nome ?? 'Catálogo') : 'Catálogo'}
             </h2>
             <span style={{ fontSize: 11, color: '#737373', fontWeight: 600, letterSpacing: '0.04em' }}>
-              {loadingProducts ? 'carregando…' : `${products.length} produtos disponíveis`}
+              {loadingProducts ? 'carregando…' : `${totalFiltrado} produtos disponíveis`}
             </span>
           </div>
           <p style={{ color: '#737373', fontSize: 13, margin: 0, lineHeight: 1.5 }}>Importação oficial · Estoque imediato · Pagamento em PIX, USD ou BRL</p>
@@ -836,7 +640,7 @@ export default function Home() {
             <div className="cat-chips">
               <button
                 className={`cat-chip ${!activeCategoria ? 'cat-chip-active' : 'cat-chip-inactive'}`}
-                onClick={() => { setActiveCategoria(''); setActiveBrand('Todos'); router.replace('/', { scroll: false }) }}>
+                onClick={() => aplicarFiltro('', 'Todos')}>
                 TODAS
                 <span style={{ opacity: 0.7, fontSize: 10 }}>{totalCatalogo}</span>
               </button>
@@ -849,7 +653,7 @@ export default function Home() {
                 return (
                   <button key={c.id}
                     className={`cat-chip ${isActive ? 'cat-chip-active' : 'cat-chip-inactive'}`}
-                    onClick={() => { router.replace(`/?cat=${c.id}`, { scroll: false }); setActiveBrand('Todos') }}
+                    onClick={() => aplicarFiltro(c.id, 'Todos')}
                     style={isActive ? { background: `${color}15`, borderColor: `${color}66`, color } : undefined}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, boxShadow: isActive ? `0 0 4px ${color}80` : 'none', display: 'inline-block' }} />
                     {c.nome.toUpperCase()}
@@ -865,7 +669,7 @@ export default function Home() {
                   return (
                     <button key={s.id}
                       className={`cat-chip cat-chip-sub ${isActive ? 'cat-chip-active' : 'cat-chip-inactive'}`}
-                      onClick={() => { router.replace(`/?cat=${s.id}`, { scroll: false }); setActiveBrand('Todos') }}>
+                      onClick={() => aplicarFiltro(s.id, 'Todos')}>
                       {s.nome}
                       <span style={{ opacity: 0.7, fontSize: 10 }}>{s.produtos}</span>
                     </button>
@@ -1021,7 +825,19 @@ export default function Home() {
               const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
               return (
                 <Fragment key={p.id}>
-                {pIdx === PROMO_BANNER_AFTER && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
+                {secaoHeaders.has(pIdx) && (() => { const s = secaoHeaders.get(pIdx)!; return (
+                  <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, margin: pIdx === 0 ? '2px 0 0' : '30px 0 0', paddingBottom: 6, borderBottom: '1px solid #ececec' }}>
+                    <h3 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: '-0.01em', color: '#0a0a0a' }}>
+                      {s.nome}
+                      <span style={{ marginLeft: 10, fontSize: 11, fontWeight: 600, color: '#737373' }}>{s.total} produtos</span>
+                    </h3>
+                    <button onClick={() => aplicarFiltro(s.id, 'Todos')}
+                      style={{ flexShrink: 0, background: 'none', border: 'none', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.05em', cursor: 'pointer', padding: 0 }}>
+                      VER TUDO ({s.total}) →
+                    </button>
+                  </div>
+                ) })()}
+                {pIdx === PROMO_BANNER_AFTER && !modoVitrine && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
                   <div className="promo-banners-row" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '8px 0' }}>
                     {/* ZPHC Banner */}
                     <div onClick={() => { setActiveBrand('ZPHC'); setActiveCategoria('') }}
@@ -1092,7 +908,7 @@ export default function Home() {
                     </div>
                   </div>
                 )}
-                <div data-card-id={p.id} className="product-card card-pre-reveal"
+                <div data-card-id={p.id} className={`product-card${revealedCards.current.has(p.id) ? '' : ' card-pre-reveal'}`}
                   style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div onClick={() => router.push(`/produtos/${p.id}`)} className="card-img-wrap"
                     style={{ position: 'relative', aspectRatio: '1 / 1', width: '100%', flexShrink: 0, background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden', padding: 14, boxSizing: 'border-box' as const }}>
@@ -1194,7 +1010,7 @@ export default function Home() {
           </div>
         )}
 
-        {!loadingProducts && !hasMore && totalFiltrado > INITIAL_PAGE && (
+        {!loadingProducts && !modoVitrine && !hasMore && totalFiltrado > INITIAL_PAGE && (
           <div style={{ textAlign: 'center', marginTop: 40, fontSize: 11, color: '#a3a3a3', letterSpacing: '0.1em' }}>
             TODOS OS {totalFiltrado} PRODUTOS EXIBIDOS
           </div>
@@ -1219,7 +1035,7 @@ export default function Home() {
           <div>
             <span style={{ display: 'inline-block', marginBottom: 16 }}><Logo size={30} dark /></span>
             <p style={{ color: '#737373', fontSize: 13, lineHeight: 1.7, margin: '0 0 20px', maxWidth: 280 }}>
-              Distribuidor B2B de peptídeos e suplementos premium importados do Paraguai. Estoque imediato, pagamento via PIX.
+              Distribuidor atacadista na fronteira do Paraguai: farmácia, Apple, Xiaomi e JBL. Estoque imediato, pagamento via PIX, retirada em loja.
             </p>
             {WHATSAPP_ENABLED && (
               <a href={CONTATO_HREF} target="_blank" rel="noopener"
