@@ -95,7 +95,124 @@ export type HomeInitial = {
   secoes: { id: string; nome: string; total: number; items: Product[] }[]  // idem
 }
 
+type VitrineRow = { id: string; nome: string; total: number; items: Product[] }
+
 const decodeProd = (p: Product): Product => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })
+
+const isPromo = (p: Product) => p.usd_price_promo != null && p.usd_price_promo < p.usd_price
+const effectiveBadges = (p: Product) => {
+  const base = (p.badges ?? []).slice()
+  if (isPromo(p) && !base.some(b => b.toLowerCase().includes('promo'))) base.unshift('promoção')
+  return base
+}
+
+function ProductCardCompact({ p }: { p: Product }) {
+  const router = useRouter()
+  const { currency, adicionar } = useCarrinho()
+  const promo = isPromo(p)
+  const priceShown = promo ? p.usd_price_promo! : p.usd_price
+  const badges = effectiveBadges(p)
+  const badge = badges[0] ? cardBadge(badges[0]) : null
+  return (
+    <div className="product-card-compact" onClick={() => router.push(`/produtos/${p.id}`)}
+      style={{ flexShrink: 0, width: 178, background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1, scrollSnapAlign: 'start' }}>
+      <div style={{ position: 'relative', aspectRatio: '1 / 1', width: '100%', flexShrink: 0, background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden', padding: 12, boxSizing: 'border-box' as const }}>
+        <CardImg src={p.img_url} alt={p.name} />
+        {badges.length > 0 && badge && (
+          <span style={{ position: 'absolute', top: 7, left: 7, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, fontSize: 8, fontWeight: 900, padding: '3px 7px', borderRadius: 99, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{badges[0]}</span>
+        )}
+        {p.estoque === 0 && (
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: '#dc2626', border: '1px solid rgba(239,68,68,0.4)', padding: '4px 9px', borderRadius: 4, background: '#ffffff', letterSpacing: '0.05em' }}>SEM ESTOQUE</span>
+          </div>
+        )}
+      </div>
+      <div style={{ padding: '10px 11px 11px', display: 'flex', flexDirection: 'column', flex: 1, gap: 6 }}>
+        {p.brand && (
+          <span style={{ fontSize: 8, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', width: 'fit-content' }}>{p.brand.toUpperCase()}</span>
+        )}
+        <h4 style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.35, minHeight: 30, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
+        <div style={{ borderTop: '1px solid #f2f2f2', paddingTop: 7, marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em' }}>
+              {currency.code} {fmt(priceShown, currency.rate, currency.code)}
+            </div>
+            <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500 }}>
+              {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, 5.20, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
+            </div>
+          </div>
+          <button disabled={p.estoque === 0} aria-label="Adicionar ao carrinho"
+            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShown, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
+            style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: p.estoque === 0 ? '#fafafa' : '#420E76', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: p.estoque === 0 ? 'not-allowed' : 'pointer', transition: 'background 0.15s, transform 0.15s' }}
+            onMouseEnter={e => { if (p.estoque !== 0) (e.currentTarget as HTMLButtonElement).style.background = '#5a1798' }}
+            onMouseLeave={e => { if (p.estoque !== 0) (e.currentTarget as HTMLButtonElement).style.background = '#420E76' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CategoryCarouselRow({ id, nome, total, items, icon, onSeeAll }: { id: string; nome: string; total: number; items: Product[]; icon?: string; onSeeAll?: (id: string) => void }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  if (items.length === 0) return null
+  const color = catColor(id)
+  const scroll = (dir: number) => scrollRef.current?.scrollBy({ left: dir * 620, behavior: 'smooth' })
+  return (
+    <section className="carousel-row home-only">
+      <div className="carousel-row-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+          <span className="carousel-row-icon" style={{ background: `${color}18`, color }}>{icon ?? nome.charAt(0).toUpperCase()}</span>
+          <h3 className="carousel-row-title">{nome}</h3>
+          <span className="carousel-row-count">{total}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          {onSeeAll && (
+            <button onClick={() => onSeeAll(id)} className="carousel-see-all">VER TODOS →</button>
+          )}
+          <button type="button" className="carousel-arrow" onClick={() => scroll(-1)} aria-label="Anterior">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button type="button" className="carousel-arrow" onClick={() => scroll(1)} aria-label="Próximo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div ref={scrollRef} className="carousel-track">
+        {items.map(p => <ProductCardCompact key={p.id} p={p} />)}
+      </div>
+    </section>
+  )
+}
+
+function CategoryStrip({ rows, onSelect }: { rows: VitrineRow[]; onSelect: (id: string) => void }) {
+  if (rows.length === 0) return null
+  return (
+    <div className="category-strip-wrapper home-only">
+      <div className="category-strip">
+        {rows.map(r => {
+          const color = catColor(r.id)
+          const img = r.items[0]?.img_url
+          return (
+            <button key={r.id} type="button" className="category-strip-card" onClick={() => onSelect(r.id)}>
+              <span className="category-strip-label">{r.nome}</span>
+              <span className="category-strip-swatch" style={{ background: `${color}14` }}>
+                {img ? (
+                  <Image src={img} alt={r.nome} fill sizes="90px" style={{ objectFit: 'contain', padding: 10 }} />
+                ) : (
+                  <span style={{ fontSize: 26 }}>📦</span>
+                )}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function Home({ initial }: { initial?: HomeInitial }) {
   const router = useRouter()
@@ -127,9 +244,11 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   )
   const [categorias, setCategorias] = useState<Categoria[]>(initial?.categorias ?? [])
   const [loadingProducts, setLoadingProducts] = useState(!initial)
-  // seções da vitrine por departamento (home sem filtro)
-  const [secoes, setSecoes] = useState<{ id: string; nome: string; total: number; count: number }[]>(
-    () => initial ? initial.secoes.map(s => ({ id: s.id, nome: s.nome, total: s.total, count: s.items.length })) : []
+  // fileiras da vitrine, uma por categoria-folha (home sem filtro) — carrossel
+  // no estilo atacadoconnect: cada uma carrega seus próprios itens, não é só
+  // uma contagem para injetar cabeçalho no grid
+  const [vitrineRows, setVitrineRows] = useState<VitrineRow[]>(
+    () => initial ? initial.secoes.map(s => ({ id: s.id, nome: s.nome, total: s.total, items: s.items.map(decodeProd) })) : []
   )
   const [refetching, setRefetching] = useState(false)
   const [destaques, setDestaques] = useState<string[]>([])
@@ -188,10 +307,10 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   // Vitrine por departamento: a home sem filtro não mistura mais peptídeo com
   // iPhone num grid só — cada departamento vira uma seção com "ver tudo".
   const raizesVitrine = useMemo(() => categorias
-    .filter(c => !c.parent_id && (c.produtos > 0 || categorias.some(ch => ch.parent_id === c.id && ch.produtos > 0)))
+    .filter(c => c.produtos > 0)
     .map(c => ({ id: c.id, nome: c.nome })), [categorias])
   const raizesKey = raizesVitrine.map(r => r.id).join(',')
-  const modoVitrine = raizesVitrine.length >= 2 && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && sortBy === 'destaque'
+  const modoVitrine = raizesVitrine.length > 0 && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && sortBy === 'destaque'
   // Página inicial de verdade: sem nenhum filtro ativo, independente de haver
   // 1 ou vários departamentos. Banner, ticker e "Marcas" são só disso — o
   // Guilherme notou que o banner ficava fixo em toda categoria clicada.
@@ -220,8 +339,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           .catch(() => ({ ...r, total: 0, items: [] as Product[] }))
       )).then(rs => {
         if (cancelado) return
-        setSecoes(rs.map(({ id, nome, total, items }) => ({ id, nome, total, count: items.length })))
-        setProducts(rs.flatMap(r => r.items))
+        setVitrineRows(rs)
         setTotalFiltrado(rs.reduce((s, r) => s + r.total, 0))
       }).finally(fim)
       return () => { cancelado = true }
@@ -327,15 +445,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const visible = products
   const hasMore = !modoVitrine && products.length < totalFiltrado
 
-  // índice do card onde cada seção da vitrine começa → cabeçalho antes dele
-  const secaoHeaders = useMemo(() => {
-    const m = new Map<number, { id: string; nome: string; total: number }>()
-    if (!modoVitrine) return m
-    let acc = 0
-    for (const s of secoes) { if (s.count > 0) m.set(acc, s); acc += s.count }
-    return m
-  }, [modoVitrine, secoes])
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (loadingProducts) return
@@ -383,13 +492,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     () => Object.entries(brandCounts).sort((a, b) => b[1] - a[1]).slice(0, 8),
     [brandCounts]
   )
-
-  const isPromo = (p: Product) => p.usd_price_promo != null && p.usd_price_promo < p.usd_price
-  const effectiveBadges = (p: Product) => {
-    const base = (p.badges ?? []).slice()
-    if (isPromo(p) && !base.some(b => b.toLowerCase().includes('promo'))) base.unshift('promoção')
-    return base
-  }
 
   return (
     <div className="min-h-screen font-sans" style={{ background: '#ffffff', color: '#0a0a0a' }}>
@@ -518,6 +620,25 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         .cat-chip-sub { padding: 5px 11px; font-size: 10px; letter-spacing: 0.05em; font-weight: 600; text-transform: none; }
         .destaques-scroll { display: flex; gap: 16px; overflow-x: auto; scrollbar-width: none; padding-bottom: 8px; }
         .destaques-scroll::-webkit-scrollbar { display: none; }
+        .category-strip-wrapper { margin-bottom: 36px; }
+        .category-strip { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+        .category-strip::-webkit-scrollbar { display: none; }
+        .category-strip-card { flex-shrink: 0; width: 108px; border: none; background: none; padding: 0; cursor: pointer; display: flex; flex-direction: column; }
+        .category-strip-label { background: #0a0a0a; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 0.02em; text-align: center; padding: 8px 6px; border-radius: 10px 10px 0 0; line-height: 1.25; min-height: 32px; display: flex; align-items: center; justify-content: center; }
+        .category-strip-swatch { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 0 0 10px 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .category-strip-card:hover .category-strip-label { background: #420E76; }
+        .carousel-row { margin-bottom: 40px; }
+        .carousel-row-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+        .carousel-row-icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+        .carousel-row-title { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; color: #0a0a0a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .carousel-row-count { flex-shrink: 0; font-size: 11px; color: #a3a3a3; font-weight: 700; background: #f5f5f5; padding: 2px 8px; border-radius: 99px; }
+        .carousel-see-all { background: none; border: none; color: #420E76; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; cursor: pointer; padding: 0; white-space: nowrap; }
+        .carousel-arrow { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ececec; background: #ffffff; color: #404040; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s, color 0.15s; flex-shrink: 0; }
+        .carousel-arrow:hover { border-color: rgba(66, 14, 118,0.4); color: #420E76; }
+        .carousel-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding-bottom: 4px; }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .product-card-compact { transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s; }
+        .product-card-compact:hover { border-color: #d4d4d4; box-shadow: 0 10px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
         @media (max-width: 900px) {
           .nav-desktop { display: none !important; }
         }
@@ -534,20 +655,18 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           .nav-acct-txt { display: none !important; }
           .nav-mobile-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; background: #fafafa; border: 1px solid #ececec; border-radius: 8px; color: #404040; cursor: pointer; font-size: 18px; }
           .nav-mobile-drawer.open { display: flex !important; }
-          /* hero — compacto no mobile */
-          .hero-section { height: auto !important; min-height: 320px !important; }
-          .hero-inner { flex-direction: row !important; padding: 28px 20px 32px !important; gap: 16px !important; align-items: center !important; }
-          .hero-text { width: 100% !important; flex: 1 !important; }
-          .hero-product { display: none !important; }
-          .hero-sub { display: none !important; }
-          .hero-stats-row { display: none !important; }
-          .hero-cta-secondary { display: none !important; }
-          .hero-cta-primary { padding: 11px 20px !important; font-size: 12px !important; }
-          .hero-dna { display: none !important; }
+          /* hero — banner sozinho no mobile, sem o widget de vídeo */
+          .hero-row { padding: 8px !important; }
+          .hero-video-col { display: none !important; }
+          .hero-banner-col { flex: 1 1 100% !important; }
           /* catálogo */
           .products-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
           .card-img-wrap { padding: 10px !important; }
           .ver-mais-btn { padding: 12px 24px !important; font-size: 11px !important; }
+          /* carrosséis de categoria */
+          .category-strip-card { width: 92px !important; }
+          .carousel-row-title { font-size: 14px !important; max-width: 130px; }
+          .product-card-compact { width: 152px !important; }
           /* como funciona — scroll horizontal */
           .como-grid { display: flex !important; overflow-x: auto !important; gap: 12px !important; scrollbar-width: none !important; padding-bottom: 4px !important; }
           .como-grid::-webkit-scrollbar { display: none !important; }
@@ -578,16 +697,25 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           língua do varejo hype e empurrava o catálogo pra baixo da dobra.
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
       {isHome && (
-        <section aria-label="Ofertas de atacado na fronteira" className="home-only" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec' }}>
+        <section aria-label="Ofertas de atacado na fronteira" className="home-only hero-row" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec', maxWidth: 1973, margin: '0 auto', display: 'flex', gap: 12, padding: 12, boxSizing: 'border-box' as const }}>
           <a href="#catalogo" onClick={e => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
-            style={{ display: 'block', maxWidth: 1973, margin: '0 auto' }}>
+            className="hero-banner-col" style={{ display: 'block', flex: '1 1 78%', minWidth: 0, borderRadius: 10, overflow: 'hidden' }}>
             <picture>
               <source media="(max-width: 767px)" srcSet="/banner-hero-mobile.webp" width={980} height={797} />
               <img src="/banner-hero.webp" alt="Atacado na Fronteira — preços competitivos, variedade e oportunidade para o seu negócio. Compre atacado."
                 width={1920} height={776} fetchPriority="high"
-                style={{ display: 'block', width: '100%', height: 'auto' }} />
+                style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
             </picture>
           </a>
+          {/* Vídeo institucional estático — aguardando arquivo do cliente.
+              Placeholder até chegar o vídeo real (pedido ao Guilherme). */}
+          <div className="hero-video-col" style={{ flex: '0 0 22%', minWidth: 0, borderRadius: 10, overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg, #2b0a4e 0%, #420E76 55%, #5a1798 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#ffffff', textAlign: 'center' as const, padding: 16, boxSizing: 'border-box' as const }}>
+            <span style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.06em' }}>VÍDEO INSTITUCIONAL</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>Em breve</span>
+          </div>
         </section>
       )}
 
@@ -646,6 +774,18 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
             Início
           </button>
         )}
+        {modoVitrine ? (
+          <>
+            <CategoryStrip rows={vitrineRows} onSelect={id => aplicarFiltro(id, 'Todos')} />
+            {destaquesProdutos.length > 0 && (
+              <CategoryCarouselRow id="destaques" nome="Mais Vendidos" total={destaquesProdutos.length} items={destaquesProdutos} icon="🔥" />
+            )}
+            {vitrineRows.map(row => (
+              <CategoryCarouselRow key={row.id} id={row.id} nome={row.nome} total={row.total} items={row.items} onSeeAll={id => aplicarFiltro(id, 'Todos')} />
+            ))}
+          </>
+        ) : (
+        <>
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 10, flexWrap: 'wrap' as const }}>
             <h2 style={{ margin: 0, fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0a' }}>
@@ -852,19 +992,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
               return (
                 <Fragment key={p.id}>
-                {secaoHeaders.has(pIdx) && (() => { const s = secaoHeaders.get(pIdx)!; return (
-                  <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, margin: pIdx === 0 ? '2px 0 0' : '30px 0 0', paddingBottom: 6, borderBottom: '1px solid #ececec' }}>
-                    <h3 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: '-0.01em', color: '#0a0a0a' }}>
-                      {s.nome}
-                      <span style={{ marginLeft: 10, fontSize: 11, fontWeight: 600, color: '#737373' }}>{s.total} produtos</span>
-                    </h3>
-                    <button onClick={() => aplicarFiltro(s.id, 'Todos')}
-                      style={{ flexShrink: 0, background: 'none', border: 'none', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.05em', cursor: 'pointer', padding: 0 }}>
-                      VER TUDO ({s.total}) →
-                    </button>
-                  </div>
-                ) })()}
-                {pIdx === PROMO_BANNER_AFTER && !modoVitrine && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
+                {pIdx === PROMO_BANNER_AFTER && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
                   <div className="promo-banners-row" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '8px 0' }}>
                     {/* ZPHC Banner */}
                     <div onClick={() => { setActiveBrand('ZPHC'); setActiveCategoria('') }}
@@ -1037,10 +1165,12 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           </div>
         )}
 
-        {!loadingProducts && !modoVitrine && !hasMore && totalFiltrado > INITIAL_PAGE && (
+        {!loadingProducts && !hasMore && totalFiltrado > INITIAL_PAGE && (
           <div style={{ textAlign: 'center', marginTop: 40, fontSize: 11, color: '#a3a3a3', letterSpacing: '0.1em' }}>
             TODOS OS {totalFiltrado} PRODUTOS EXIBIDOS
           </div>
+        )}
+        </>
         )}
       </section>
 
