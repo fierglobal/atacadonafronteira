@@ -106,6 +106,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const aplicarFiltro = (cat: string, marca: string) => {
     setActiveCategoria(cat)
     setActiveBrand(marca)
+    if (!cat && marca === 'Todos') { setSearch(''); setDebouncedSearch('') }
     const qs = cat ? `?cat=${cat}` : marca !== 'Todos' ? `?marca=${encodeURIComponent(marca)}` : ''
     window.history.replaceState(null, '', `/${qs}`)
   }
@@ -191,6 +192,10 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     .map(c => ({ id: c.id, nome: c.nome })), [categorias])
   const raizesKey = raizesVitrine.map(r => r.id).join(',')
   const modoVitrine = raizesVitrine.length >= 2 && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && sortBy === 'destaque'
+  // Página inicial de verdade: sem nenhum filtro ativo, independente de haver
+  // 1 ou vários departamentos. Banner, ticker e "Marcas" são só disso — o
+  // Guilherme notou que o banner ficava fixo em toda categoria clicada.
+  const isHome = !debouncedSearch && activeBrand === 'Todos' && !activeCategoria
 
   const filtrosKey = `${debouncedSearch}|${activeBrand}|${activeCategoria}|${sortBy}`
   useEffect(() => {
@@ -572,35 +577,39 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       {/* HERO: banner estático de atacado. O carrossel neon saiu — falava a
           língua do varejo hype e empurrava o catálogo pra baixo da dobra.
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
-      <section aria-label="Ofertas de atacado na fronteira" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec' }}>
-        <a href="#catalogo" onClick={e => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
-          style={{ display: 'block', maxWidth: 1973, margin: '0 auto' }}>
-          <picture>
-            <source media="(max-width: 767px)" srcSet="/banner-hero-mobile.webp" width={980} height={797} />
-            <img src="/banner-hero.webp" alt="Atacado na Fronteira — preços competitivos, variedade e oportunidade para o seu negócio. Compre atacado."
-              width={1920} height={776} fetchPriority="high"
-              style={{ display: 'block', width: '100%', height: 'auto' }} />
-          </picture>
-        </a>
-      </section>
+      {isHome && (
+        <section aria-label="Ofertas de atacado na fronteira" className="home-only" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec' }}>
+          <a href="#catalogo" onClick={e => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
+            style={{ display: 'block', maxWidth: 1973, margin: '0 auto' }}>
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/banner-hero-mobile.webp" width={980} height={797} />
+              <img src="/banner-hero.webp" alt="Atacado na Fronteira — preços competitivos, variedade e oportunidade para o seu negócio. Compre atacado."
+                width={1920} height={776} fetchPriority="high"
+                style={{ display: 'block', width: '100%', height: 'auto' }} />
+            </picture>
+          </a>
+        </section>
+      )}
 
       {/* TRUST TICKER */}
-      <div style={{ borderTop: '1px solid rgba(169, 101, 237,0.15)', borderBottom: '1px solid rgba(169, 101, 237,0.15)', background: '#0A0710', padding: '10px 0', overflow: 'hidden' }}>
-        <div className="trust-ticker">
-          <div className="trust-track">
-            {[...trustItems(totalCatalogo), ...trustItems(totalCatalogo)].map((item, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#A965ED', borderRight: '1px solid rgba(169, 101, 237,0.15)', textShadow: '0 0 8px rgba(169, 101, 237,0.5)' }}>
-                <span style={{ fontSize: 13 }}>{item.icon}</span>
-                {item.text}
-              </span>
-            ))}
+      {isHome && (
+        <div className="home-only" style={{ borderTop: '1px solid rgba(169, 101, 237,0.15)', borderBottom: '1px solid rgba(169, 101, 237,0.15)', background: '#0A0710', padding: '10px 0', overflow: 'hidden' }}>
+          <div className="trust-ticker">
+            <div className="trust-track">
+              {[...trustItems(totalCatalogo), ...trustItems(totalCatalogo)].map((item, i) => (
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#A965ED', borderRight: '1px solid rgba(169, 101, 237,0.15)', textShadow: '0 0 8px rgba(169, 101, 237,0.5)' }}>
+                  <span style={{ fontSize: 13 }}>{item.icon}</span>
+                  {item.text}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* MARCAS */}
-      {!loadingProducts && topBrands.length > 0 && (
-        <section className="marcas-section" style={{ background: '#ffffff', borderBottom: '1px solid #ececec', padding: '48px 24px' }}>
+      {isHome && !loadingProducts && topBrands.length > 0 && (
+        <section className="marcas-section home-only" style={{ background: '#ffffff', borderBottom: '1px solid #ececec', padding: '48px 24px' }}>
           <div style={{ maxWidth: 1280, margin: '0 auto' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
               <div>
@@ -629,11 +638,21 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       )}
 
       {/* PRODUTOS */}
-      <section id="catalogo" className="catalogo-section" style={{ maxWidth: 1280, margin: '0 auto', padding: '64px 24px 96px' }}>
+      <section id="catalogo" className="catalogo-section" style={{ maxWidth: 1280, margin: '0 auto', padding: isHome ? '64px 24px 96px' : '28px 24px 96px' }}>
+        {!isHome && (
+          <button onClick={() => aplicarFiltro('', 'Todos')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', color: '#737373', fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', cursor: 'pointer', padding: 0, marginBottom: 18 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Início
+          </button>
+        )}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 10, flexWrap: 'wrap' as const }}>
             <h2 style={{ margin: 0, fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0a' }}>
-              {activeCategoria ? (categorias.find(c => c.id === activeCategoria)?.nome ?? 'Catálogo') : 'Catálogo'}
+              {activeCategoria ? (categorias.find(c => c.id === activeCategoria)?.nome ?? 'Catálogo')
+                : activeBrand !== 'Todos' ? activeBrand
+                : debouncedSearch ? `Busca: "${debouncedSearch}"`
+                : 'Catálogo'}
             </h2>
             <span style={{ fontSize: 11, color: '#737373', fontWeight: 600, letterSpacing: '0.04em' }}>
               {loadingProducts ? 'carregando…' : `${totalFiltrado} produtos disponíveis`}
