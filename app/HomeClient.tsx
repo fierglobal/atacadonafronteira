@@ -152,9 +152,17 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     if (marca) setActiveBrand(marca)
     if (q) setSearch(q)
     if (cat || marca || q) {
+      // o HTML estático trouxe a vitrine; o conteúdo certo ainda vai chegar
+      setLoadingProducts(true)
       setTimeout(() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }), 100)
     }
   }, [])
+
+  // libera o grid quando o recorte da URL já foi aplicado (par do script
+  // anti-flash do layout)
+  useEffect(() => {
+    if (!loadingProducts && !refetching) document.documentElement.removeAttribute('data-filtro-pendente')
+  }, [loadingProducts, refetching])
 
   useEffect(() => {
     fetch('/api/home-config').then(r => r.json()).then(cfg => {

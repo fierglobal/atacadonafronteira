@@ -179,3 +179,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* deep-link com filtro: esconde o grid da vitrine estática até o recorte certo
+   chegar (o atributo é removido pelo HomeClient quando o fetch termina) */
+html[data-filtro-pendente] .products-grid { visibility: hidden; }

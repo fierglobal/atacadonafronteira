@@ -40,6 +40,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        {/* Anti-flash: a home é estática (ISR) e serve a vitrine sem filtro para
+            qualquer URL; com ?cat/?marca/?q o grid fica oculto até o client
+            aplicar o recorte — senão o usuário vê Xiaomi/JBL por um instante
+            antes da categoria clicada. Inline e parser-blocking de propósito. */}
+        <script dangerouslySetInnerHTML={{ __html:
+          `try{var p=new URLSearchParams(location.search);if(p.get('cat')||p.get('marca')||p.get('q'))document.documentElement.setAttribute('data-filtro-pendente','1')}catch(e){}`
+        }} />
         <UtmCapture />
         <Providers>{children}</Providers>
         <CookieBanner />
