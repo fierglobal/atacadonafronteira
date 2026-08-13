@@ -39,19 +39,19 @@ async function getInitial(): Promise<HomeInitial | null> {
     }
 
     const categorias = cats.map(c => ({ ...c, produtos: counts[c.id] ?? 0 }))
-    const raizes = categorias.filter(c => !c.parent_id &&
-      (c.produtos > 0 || categorias.some(ch => ch.parent_id === c.id && ch.produtos > 0)))
+    // Uma fileira por categoria-FOLHA (produto ligado direto a ela), não por
+    // departamento agregando os filhos — é o padrão "Smartphones", "Informática"
+    // como carrosséis separados, não um "Eletrônicos" só que junta tudo.
+    const leafRows = categorias.filter(c => c.produtos > 0)
 
-    const secoes = await Promise.all(raizes.map(async r => {
-      const ids = [r.id, ...categorias.filter(ch => ch.parent_id === r.id).map(ch => ch.id)]
-      const total = ids.reduce((s, id) => s + (counts[id] ?? 0), 0)
+    const secoes = await Promise.all(leafRows.map(async c => {
       const { data } = await supabaseAdmin.from('products').select(CAMPOS)
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .in('categoria_id', ids)
+        .eq('categoria_id', c.id)
         .order('sort_order', { ascending: true }).order('id', { ascending: true })
         .range(0, VITRINE_POR_SECAO - 1)
       return {
-        id: r.id, nome: r.nome, total,
+        id: c.id, nome: c.nome, total: c.produtos,
         // nomes em base64, o mesmo contrato da API pública — o client decodifica tudo igual
         items: (data || []).map(p => ({ ...p, name: enc(p.name), brand: enc(p.brand), rating: null, rating_total: 0 })),
       }
