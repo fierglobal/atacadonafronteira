@@ -18,6 +18,8 @@ const STATUSES = [
 type Order = {
   id: string; order_num: string; status: string; total_usd: number; total_brl: number
   created_at: string; notas: string | null; comprovante_url: string | null; tags: string[] | null
+  entrega_tipo?: 'retirada' | 'entrega_foz' | null
+  entrega_endereco?: string | null
   customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
   order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number }[]
 }
@@ -285,6 +287,18 @@ export default function Pedidos() {
                   )
                 })}
               </div>
+            </div>
+
+            {/* Forma de recebimento — entrega em Foz precisa saltar aos olhos
+                de quem separa o pedido */}
+            <div style={{ background: selected.entrega_tipo === 'entrega_foz' ? 'rgba(246,189,12,0.12)' : 'var(--a-border)', border: selected.entrega_tipo === 'entrega_foz' ? '1px solid rgba(246,189,12,0.5)' : 'none', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+              <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 4 }}>RECEBIMENTO</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', margin: 0 }}>
+                {selected.entrega_tipo === 'entrega_foz' ? '🚚 ENTREGA EM FOZ DO IGUAÇU (equipe própria)' : 'Retirada na loja'}
+              </p>
+              {selected.entrega_tipo === 'entrega_foz' && selected.entrega_endereco && (
+                <p style={{ fontSize: 12, color: 'var(--a-text2)', margin: '4px 0 0' }}>{selected.entrega_endereco}</p>
+              )}
             </div>
 
             {/* Cliente */}

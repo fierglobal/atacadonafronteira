@@ -85,6 +85,7 @@ type GuestForm = {
   po_number: string
   honeypot: string
 }
+type EntregaTipo = 'retirada' | 'entrega_foz'
 type CupomAplicado = { id: string; codigo: string; desconto_pct: number }
 type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; img_url: string }
 type PageState = 'checking' | 'confirm' | 'form' | 'pix'
@@ -251,6 +252,8 @@ export default function Checkout() {
   const [copied, setCopied] = useState<'key' | 'val' | 'pix' | null>(null)
   const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
   const [submitting, setSubmitting] = useState(false)
+  const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada')
+  const [entregaEndereco, setEntregaEndereco] = useState('')
   const [globalErr, setGlobalErr] = useState('')
   const [mounted, setMounted] = useState(false)
   const [cupomCodigo, setCupomCodigo] = useState('')
@@ -446,9 +449,16 @@ export default function Checkout() {
       if (cs.id) cartSessionId = cs.id
     } catch {}
 
+    if (entregaTipo === 'entrega_foz' && !entregaEndereco.trim()) {
+      setGlobalErr('Informe o endereço de entrega em Foz do Iguaçu.')
+      setSubmitting(false)
+      return
+    }
     const fullForm: any = {
       nome: data.nome, cpf: data.cpf, email: data.email, telefone: data.telefone,
       cidade: data.cidade, uf: data.uf,
+      entrega_tipo: entregaTipo,
+      entrega_endereco: entregaTipo === 'entrega_foz' ? entregaEndereco.trim() : '',
       tipo_pessoa: form.tipo_pessoa,
       cnpj: form.tipo_pessoa === 'PJ' ? form.cnpj : '',
       razao_social: form.tipo_pessoa === 'PJ' ? form.razao_social : '',
@@ -652,7 +662,9 @@ export default function Checkout() {
 
   /* ─── PIX SCREEN ─── */
   if (pageState === 'pix') {
-    const readyTimeFallback = 'Após a confirmação do PIX, seu pedido fica pronto para retirada em até 24 horas úteis.'
+    const readyTimeFallback = entregaTipo === 'entrega_foz'
+      ? 'Após a confirmação do PIX, aguarde a aprovação do pedido — nossa equipe entrega em Foz do Iguaçu e combina o horário pelo WhatsApp.'
+      : 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (em até 24 horas úteis).'
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }`}</style>
@@ -926,9 +938,22 @@ export default function Checkout() {
                     <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
-                  <span>Retirada em loja</span>
-                  <span style={{ color: '#420E76', fontWeight: 700 }}>Sem custo</span>
+                <div style={{ marginBottom: 16 }}>
+                  <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#737373' }}>COMO QUER RECEBER?</p>
+                  {([['retirada', 'Retirar na loja', 'Aguarde a aprovação do pedido antes de vir retirar'], ['entrega_foz', 'Receber em Foz do Iguaçu', 'Nossa equipe entrega em Foz após a aprovação']] as const).map(([valor, titulo, sub]) => (
+                    <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${entregaTipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: entregaTipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
+                      <input type="radio" name="entrega" checked={entregaTipo === valor} onChange={() => setEntregaTipo(valor)} style={{ marginTop: 3, accentColor: '#420E76' }} />
+                      <span>
+                        <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{titulo} <span style={{ color: '#420E76', fontWeight: 700 }}>· Sem custo</span></span>
+                        <span style={{ display: 'block', fontSize: 11, color: '#737373', marginTop: 2 }}>{sub}</span>
+                      </span>
+                    </label>
+                  ))}
+                  {entregaTipo === 'entrega_foz' && (
+                    <input value={entregaEndereco} onChange={e => setEntregaEndereco(e.target.value)}
+                      placeholder="Endereço em Foz do Iguaçu (rua, número, bairro)"
+                      style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                  )}
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                   <span style={{ color: '#0a0a0a' }}>Total</span>
@@ -1156,9 +1181,22 @@ export default function Checkout() {
                   <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
                 </div>
               )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16, fontSize: 13, color: '#404040' }}>
-                <span>Retirada em loja</span>
-                <span style={{ color: '#420E76', fontWeight: 700 }}>Sem custo</span>
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#737373' }}>COMO QUER RECEBER?</p>
+                {([['retirada', 'Retirar na loja', 'Aguarde a aprovação do pedido antes de vir retirar'], ['entrega_foz', 'Receber em Foz do Iguaçu', 'Nossa equipe entrega em Foz após a aprovação']] as const).map(([valor, titulo, sub]) => (
+                  <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${entregaTipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: entregaTipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
+                    <input type="radio" name="entrega" checked={entregaTipo === valor} onChange={() => setEntregaTipo(valor)} style={{ marginTop: 3, accentColor: '#420E76' }} />
+                    <span>
+                      <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{titulo} <span style={{ color: '#420E76', fontWeight: 700 }}>· Sem custo</span></span>
+                      <span style={{ display: 'block', fontSize: 11, color: '#737373', marginTop: 2 }}>{sub}</span>
+                    </span>
+                  </label>
+                ))}
+                {entregaTipo === 'entrega_foz' && (
+                  <input value={entregaEndereco} onChange={e => setEntregaEndereco(e.target.value)}
+                    placeholder="Endereço em Foz do Iguaçu (rua, número, bairro)"
+                    style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+                )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                 <span style={{ color: '#0a0a0a' }}>Total</span>

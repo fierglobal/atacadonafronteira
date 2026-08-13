@@ -107,7 +107,7 @@ export default async function SiteHeader() {
       <div className="header-strip" aria-label="Condições de compra">
         {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
         <span>PIX à vista</span>
-        <span>Retirada em loja</span>
+        <span>Retirada em loja ou entrega em Foz do Iguaçu</span>
         <span>Preços em USD</span>
         <span>Separação em até 24h úteis</span>
       </div>

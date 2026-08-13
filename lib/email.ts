@@ -78,7 +78,7 @@ export async function emailConfirmacaoPedido(
     <h2 style="margin:0 0 8px;font-size:20px;color:#fff">Pedido recebido, ${nome.split(' ')[0]}!</h2>
     <p style="color:#888;font-size:15px;line-height:1.6;margin:0 0 24px">
       Seu pedido <strong style="color:#8b5cf6">${orderNum}</strong> foi registrado com sucesso.
-      Realize o PIX para confirmar.
+      Realize o PIX para confirmar. Após o pagamento, <strong>aguarde a aprovação</strong> — avisamos por e-mail e WhatsApp quando o pedido estiver liberado para retirada ou entrega.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;background:#111;border-radius:10px;padding:16px">
       ${linhas}
