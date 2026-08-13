@@ -129,8 +129,33 @@ body {
    Farmácia são longos (ANABOLIZANTES, RETATRUTIDA) e passavam por cima do
    câmbio e da logo. Some primeiro o câmbio, depois as últimas categorias —
    todas continuam nos chips da home e no drawer. */
+.header-strip {
+  display: flex; align-items: center; gap: 18px;
+  padding: 6px 20px; overflow-x: auto; white-space: nowrap;
+  scrollbar-width: none;
+  background: rgba(66, 14, 118, 0.05);
+  border-top: 1px solid rgba(66, 14, 118, 0.08);
+  font-size: 11px; letter-spacing: 0.04em; color: #420E76;
+  justify-content: center;
+}
+.header-strip::-webkit-scrollbar { display: none; }
+.header-strip span { flex-shrink: 0; }
+.header-strip span + span::before { content: '·'; margin-right: 18px; opacity: 0.45; }
+@media (max-width: 640px) {
+  .header-strip { justify-content: flex-start; padding: 6px 14px; gap: 14px; }
+  .header-strip span + span::before { margin-right: 14px; }
+}
+
+.nav-search {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border: 1px solid #ececec; border-radius: 8px;
+  background: #fafafa; transition: border-color 0.15s;
+}
+.nav-search:focus-within { border-color: rgba(66, 14, 118, 0.4); background: #ffffff; }
+.nav-search input { border: none; outline: none; background: none; font-size: 12px; width: 130px; color: #0a0a0a; }
 @media (max-width: 1200px) {
   .nav-rate { display: none !important; }
+  .nav-search { display: none !important; }
 }
 @media (max-width: 1100px) {
   .nav-desktop > *:nth-child(n + 5) { display: none !important; }
