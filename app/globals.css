@@ -183,3 +183,4 @@ body {
 /* deep-link com filtro: esconde o grid da vitrine estática até o recorte certo
    chegar (o atributo é removido pelo HomeClient quando o fetch termina) */
 html[data-filtro-pendente] .products-grid { visibility: hidden; }
+html[data-filtro-pendente] .home-only { display: none !important; }
