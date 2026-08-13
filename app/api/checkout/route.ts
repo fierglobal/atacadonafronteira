@@ -10,6 +10,8 @@ type Form = {
   nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string
   tipo_pessoa?: 'PF' | 'PJ'; cnpj?: string; razao_social?: string
   po_number?: string
+  entrega_tipo?: 'retirada' | 'entrega_foz'
+  entrega_endereco?: string
   utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
   honeypot?: string
 }
@@ -115,6 +117,11 @@ export async function POST(req: Request) {
   }
   if (form.utm?.source) customerPayload.origem = form.utm.source
 
+  const entregaTipo = form.entrega_tipo === 'entrega_foz' ? 'entrega_foz' : 'retirada'
+  if (entregaTipo === 'entrega_foz' && !(form.entrega_endereco || '').trim()) {
+    return NextResponse.json({ error: 'Informe o endereço de entrega em Foz do Iguaçu.' }, { status: 400 })
+  }
+
   const { data: customer, error: ce } = await supabaseAdmin
     .from('customers').insert(customerPayload).select('id').single()
   if (ce) return NextResponse.json({ error: ce.message }, { status: 500 })
@@ -124,6 +131,8 @@ export async function POST(req: Request) {
     total_usd: totalUsd, total_brl: totalBrl, copy_hash: copyHash,
     pix_expira_em: pixExpiraEm,
     po_number: form.po_number || null,
+    entrega_tipo: entregaTipo,
+    entrega_endereco: entregaTipo === 'entrega_foz' ? form.entrega_endereco!.trim() : null,
     tipo_pessoa: form.tipo_pessoa || 'PF',
     cnpj: form.tipo_pessoa === 'PJ' ? (form.cnpj || null) : null,
     razao_social: form.tipo_pessoa === 'PJ' ? (form.razao_social || null) : null,

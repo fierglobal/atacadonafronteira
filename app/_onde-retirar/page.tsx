@@ -5,7 +5,7 @@ export const revalidate = 3600
 
 const WA_NUMBER = WHATSAPP_NUMBER
 const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Olá! Quero informações sobre retirada.')}`
-const PHONE_DISPLAY = '+595 995 371537'
+const PHONE_DISPLAY = '+595 992 636 618'
 const ADDRESS_LINE1 = 'Av. Carlos Antonio López 7000'
 const ADDRESS_LINE2 = 'Cd. del Este 100136 — Paraguai'
 const MAPS_LINK = 'https://www.google.com/maps?ll=-25.510525,-54.610327&z=14&t=m&hl=pt-BR&gl=US&mapclient=embed&q=Av.+Carlos+Antonio+L%C3%B3pez+7000+Cd.+del+Este+100136+Paraguai'

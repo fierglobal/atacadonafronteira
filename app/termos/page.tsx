@@ -44,7 +44,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>5. Retirada</h2>
-          <p style={p}>Operamos por <strong>retirada exclusivamente em loja física</strong>. Não fazemos envio nem entrega. Após confirmação do PIX, prepararemos seu pedido em até 24 horas úteis e avisaremos quando estiver pronto.</p>
+          <p style={p}>Operamos por <strong>retirada em loja física</strong> ou, como cortesia, <strong>entrega em Foz do Iguaçu realizada por equipe própria</strong>, sem custo adicional. Não trabalhamos com transportadoras nem envio para outras cidades. Após a confirmação do PIX, o pedido passa por aprovação em até 24 horas úteis — aguarde nosso aviso por e-mail ou WhatsApp antes de vir retirar ou de receber a entrega.</p>
           <p style={p}>Pedidos não retirados em 30 dias serão cancelados sem direito a reembolso, salvo acordo prévio.</p>
         </div>
 
@@ -85,7 +85,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>13. Contato</h2>
-          <p style={p}>WhatsApp: <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#420E76', fontWeight: 700 }}>+595 995 371537</a>. Atendimento em português.</p>
+          <p style={p}>WhatsApp: <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#420E76', fontWeight: 700 }}>+595 992 636 618</a>. Atendimento em português.</p>
         </div>
       </div>
     </div>
