@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useCarrinho, currencies } from '@/components/CarrinhoContext'
+import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
 
@@ -108,7 +108,7 @@ const effectiveBadges = (p: Product) => {
 
 function ProductCardCompact({ p }: { p: Product }) {
   const router = useRouter()
-  const { currency, adicionar } = useCarrinho()
+  const { currency, brlRate, adicionar } = useCarrinho()
   const promo = isPromo(p)
   const priceShown = promo ? p.usd_price_promo! : p.usd_price
   const badges = effectiveBadges(p)
@@ -138,7 +138,7 @@ function ProductCardCompact({ p }: { p: Product }) {
               {currency.code} {fmt(priceShown, currency.rate, currency.code)}
             </div>
             <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500 }}>
-              {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, 5.20, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
+              {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, brlRate, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
           </div>
           <button disabled={p.estoque === 0} aria-label="Adicionar ao carrinho"
@@ -253,7 +253,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [refetching, setRefetching] = useState(false)
   const [destaques, setDestaques] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
-  const { currency, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
+  const { currency, brlRate, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
@@ -1128,7 +1128,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                         </div>
                       )}
                       <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
-                        {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, 5.20, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
+                        {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, brlRate, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
                       </div>
                     </div>
                     <button disabled={p.estoque === 0} className="card-add-btn"

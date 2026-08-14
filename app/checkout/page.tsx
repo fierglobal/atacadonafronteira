@@ -3,12 +3,11 @@ import { useState, useEffect, type ChangeEvent } from 'react'
 import QRCode from 'qrcode'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { useCarrinho, currencies, type CartItem } from '@/components/CarrinhoContext'
+import { useCarrinho, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
 
-const BRL_RATE = currencies.find(c => c.code === 'BRL')!.rate
 // Fallback se /api/checkout-config não responder: mesmos valores que a config
 // traz hoje, para nunca montar um payload PIX sem chave.
 const PIX_KEY_FALLBACK = '65078504000170'
@@ -60,7 +59,7 @@ function gerarPixPayload(amountBRL: number, orderNum: string, pixKey: string, pi
 }
 // ────────────────────────────────────────────────────────────
 
-const fmtBRL = (usd: number) => `R$ ${(usd * BRL_RATE).toFixed(2).replace('.', ',')}`
+const fmtBRL = (usd: number, rate: number) => `R$ ${(usd * rate).toFixed(2).replace('.', ',')}`
 
 const maskCPF = (v: string) => {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -222,6 +221,7 @@ function AovBar({ totalBRL, pedidoMinimo }: { totalBRL: number; pedidoMinimo: nu
 }
 
 function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: CrossSellItem) => void }) {
+  const { brlRate } = useCarrinho()
   if (!items.length) return null
   return (
     <div style={{ marginTop: 16, marginBottom: 16, padding: '14px 16px', background: '#fafafa', border: '1px solid #ececec', borderRadius: 12 }}>
@@ -233,7 +233,7 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
               {p.img_url && <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'cover' }} />}
             </div>
             <p style={{ fontSize: 11, color: '#0a0a0a', margin: 0, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{p.name}</p>
-            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price)}</p>
+            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price, brlRate)}</p>
             <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, color: '#420E76', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
               + adicionar
             </button>
@@ -246,7 +246,7 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
 
 export default function Checkout() {
   const router = useRouter()
-  const { itens, totalUsd, limpar, adicionar } = useCarrinho()
+  const { itens, totalUsd, limpar, adicionar, brlRate } = useCarrinho()
 
   const [pageState, setPageState] = useState<PageState>('checking')
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -525,7 +525,7 @@ export default function Checkout() {
       setPixItens(snapshotItens)
       setPixTotal(snapshotTotal)
       setPixForm(data)
-      setPixDescontoBRL(cupomDescontoPct > 0 ? (snapshotTotal * BRL_RATE) * cupomDescontoPct / 100 : 0)
+      setPixDescontoBRL(cupomDescontoPct > 0 ? (snapshotTotal * brlRate) * cupomDescontoPct / 100 : 0)
       setEstimatedReadyTime(ert || '')
       if (uid) {
         getSupabaseClient().from('profiles').upsert({
@@ -537,9 +537,9 @@ export default function Checkout() {
       setPageState('pix')
       window.scrollTo({ top: 0, behavior: 'smooth' })
       import('@vercel/analytics').then(({ track }) => {
-        track('pix_generated', { order_num: num, total_brl: +(snapshotTotal * BRL_RATE).toFixed(2), total_usd: +snapshotTotal.toFixed(2), items_count: snapshotItens.length })
+        track('pix_generated', { order_num: num, total_brl: +(snapshotTotal * brlRate).toFixed(2), total_usd: +snapshotTotal.toFixed(2), items_count: snapshotItens.length })
       }).catch(() => {})
-      const pixBRL = +(snapshotTotal * BRL_RATE * (1 - cupomDescontoPct / 100)).toFixed(2)
+      const pixBRL = +(snapshotTotal * brlRate * (1 - cupomDescontoPct / 100)).toFixed(2)
       const payload = gerarPixPayload(pixBRL, num, pixKey, pixHolder)
       QRCode.toDataURL(payload, { width: 240, margin: 2, color: { dark: '#000', light: '#fff' } })
         .then(url => setQrDataUrl(url)).catch(() => {})
@@ -564,13 +564,13 @@ export default function Checkout() {
 
   const sendWhatsApp = () => {
     if (!pixForm) return
-    const linhas = pixItens.map(i => `• ${i.name} x${i.quantity} — ${fmtBRL(i.usd * i.quantity)}`).join('\n')
+    const linhas = pixItens.map(i => `• ${i.name} x${i.quantity} — ${fmtBRL(i.usd * i.quantity, brlRate)}`).join('\n')
     const msg = encodeURIComponent(
       `*PEDIDO ${orderNum}*\n\n` +
       `Nome: ${pixForm.nome}\nCPF: ${pixForm.cpf}\nTel: ${pixForm.telefone}\nEmail: ${pixForm.email}\n` +
       `Cidade: ${pixForm.cidade}/${pixForm.uf}\n\n` +
       `*PRODUTOS:*\n${linhas}\n\n` +
-      `*TOTAL: R$ ${(pixTotal * BRL_RATE).toFixed(2).replace('.', ',')}*\n\n✅ PIX enviado`
+      `*TOTAL: R$ ${(pixTotal * brlRate).toFixed(2).replace('.', ',')}*\n\n✅ PIX enviado`
     )
     window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank')
   }
@@ -606,12 +606,12 @@ export default function Checkout() {
   const lbl = { display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
-  const totalBRL = totalUsd * BRL_RATE
+  const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
   const totalFinal = totalBRL - descontoBRL
   const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
   const totalFinalStr = totalFinal.toFixed(2).replace('.', ',')
-  const pixTotalBRL = pixTotal * BRL_RATE - pixDescontoBRL
+  const pixTotalBRL = pixTotal * brlRate - pixDescontoBRL
   const pixTotalBRLStr = pixTotalBRL.toFixed(2).replace('.', ',')
   const pixPayloadStr = orderNum ? gerarPixPayload(pixTotalBRL, orderNum, pixKey, pixHolder) : ''
 
@@ -780,7 +780,7 @@ export default function Checkout() {
             {pixItens.map((item, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#404040', marginBottom: 8 }}>
                 <span style={{ flex: 1, marginRight: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name} × {item.quantity}</span>
-                <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
+                <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
               </div>
             ))}
             <div style={{ borderTop: '1px solid #ececec', paddingTop: 12, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>
@@ -942,7 +942,7 @@ export default function Checkout() {
                       <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', lineHeight: 1.4 }}>{item.name}</p>
                       <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
                   </div>
                 ))}
               </div>
@@ -1185,7 +1185,7 @@ export default function Checkout() {
                     <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
                     <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity)}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
                 </div>
               ))}
             </div>

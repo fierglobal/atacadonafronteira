@@ -70,9 +70,14 @@ export async function emailConfirmacaoPedido(
   itens: { name: string; quantity: number; usd: number }[],
   totalBrl: number,
 ) {
+  // Taxa derivada do próprio pedido, não a de hoje nem 5.20 fixo: assim as linhas
+  // somam exatamente o total que o cliente vai pagar, inclusive em pedido antigo
+  // ou com câmbio já alterado no admin.
+  const totalUsd = itens.reduce((s, i) => s + i.usd * i.quantity, 0)
+  const taxaDoPedido = totalUsd > 0 ? totalBrl / totalUsd : 0
   const linhas = itens.map(i =>
     `<tr><td style="padding:8px 0;font-size:13px;color:#888;border-bottom:1px solid #1a1a1a">${i.name} ×${i.quantity}</td>
-     <td style="padding:8px 0;font-size:13px;color:#fff;text-align:right;border-bottom:1px solid #1a1a1a;font-weight:700">R$ ${(i.usd * i.quantity * 5.20).toFixed(2).replace('.', ',')}</td></tr>`
+     <td style="padding:8px 0;font-size:13px;color:#fff;text-align:right;border-bottom:1px solid #1a1a1a;font-weight:700">R$ ${(i.usd * i.quantity * taxaDoPedido).toFixed(2).replace('.', ',')}</td></tr>`
   ).join('')
   const html = layout(`
     <h2 style="margin:0 0 8px;font-size:20px;color:#fff">Pedido recebido, ${nome.split(' ')[0]}!</h2>

@@ -6,6 +6,7 @@ import UtmCapture from "@/components/UtmCapture";
 import CookieBanner from "@/components/CookieBanner";
 import { Analytics } from "@vercel/analytics/next";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { getConfig } from "@/lib/config";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -36,7 +37,11 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // Semente da taxa para a vitrine não piscar preço errado antes do provider
+  // conferir no client. Em página estática este valor congela na geração — por
+  // isso o CarrinhoProvider relê /api/config/loja no mount.
+  const { brl_rate } = await getConfig()
   return (
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
@@ -48,7 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           `try{var p=new URLSearchParams(location.search);if(p.get('cat')||p.get('marca')||p.get('q'))document.documentElement.setAttribute('data-filtro-pendente','1')}catch(e){}`
         }} />
         <UtmCapture />
-        <Providers>{children}</Providers>
+        <Providers brlRate={brl_rate}>{children}</Providers>
         <CookieBanner />
         <Analytics />
       </body>

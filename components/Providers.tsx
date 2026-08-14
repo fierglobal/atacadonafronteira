@@ -4,9 +4,9 @@ import { CarrinhoSidebar } from './CarrinhoSidebar'
 import { MinimoBar } from './MinimoBar'
 import { ReactNode } from 'react'
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ brlRate, children }: { brlRate?: number; children: ReactNode }) {
   return (
-    <CarrinhoProvider>
+    <CarrinhoProvider brlRate={brlRate}>
       {children}
       <CarrinhoSidebar />
       <MinimoBar />

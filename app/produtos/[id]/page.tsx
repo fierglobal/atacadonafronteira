@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
-import { useCarrinho, currencies } from '@/components/CarrinhoContext'
+import { useCarrinho } from '@/components/CarrinhoContext'
 
 type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
@@ -177,7 +177,7 @@ function ProductImage({ src, alt }: { src: string | null; alt: string }) {
 export default function ProdutoPage() {
   const router = useRouter()
   const params = useParams()
-  const { adicionar, abrirSidebar, quantidade, currency, setCurrency } = useCarrinho()
+  const { adicionar, abrirSidebar, quantidade, currency, brlRate, setCurrency } = useCarrinho()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
@@ -509,7 +509,7 @@ export default function ProdutoPage() {
                   )}
                   {currency.code === 'USD' && (
                     <div style={{ fontSize: 11, color: '#737373', marginTop: 6, fontWeight: 500 }}>
-                      ≈ R$ {fmt(unitPrice, 5.20, 'BRL')} · por unidade
+                      ≈ R$ {fmt(unitPrice, brlRate, 'BRL')} · por unidade
                     </div>
                   )}
                 </div>

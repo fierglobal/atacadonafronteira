@@ -4,8 +4,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCarrinho } from './CarrinhoContext'
 
-const BRL_RATE = 5.20
-
 const fmtCurrency = (usd: number, rate: number, code: string) => {
   const v = usd * rate
   if (code === 'PYG') return `${code} ${v.toLocaleString('es-PY', { maximumFractionDigits: 0 })}`
@@ -24,7 +22,7 @@ type CrossSellItem = {
 
 export function CarrinhoSidebar() {
   const router = useRouter()
-  const { itens, currency, sidebarAberto, fecharSidebar, remover, atualizar, totalUsd, quantidade, adicionar } = useCarrinho()
+  const { itens, currency, brlRate, sidebarAberto, fecharSidebar, remover, atualizar, totalUsd, quantidade, adicionar } = useCarrinho()
   const [pedidoMinimo, setPedidoMinimo] = useState<number | null>(null)
   const [crossSell, setCrossSell] = useState<CrossSellItem[]>([])
 
@@ -46,7 +44,7 @@ export function CarrinhoSidebar() {
     }).catch(() => {})
   }, [sidebarAberto, itens])
 
-  const totalBRL = totalUsd * BRL_RATE
+  const totalBRL = totalUsd * brlRate
   const faltaBRL = pedidoMinimo && totalBRL < pedidoMinimo ? pedidoMinimo - totalBRL : 0
   const minOk = !pedidoMinimo || totalBRL >= pedidoMinimo
   const progressPct = pedidoMinimo ? Math.min(100, (totalBRL / pedidoMinimo) * 100) : 100

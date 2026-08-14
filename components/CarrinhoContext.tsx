@@ -1,13 +1,20 @@
 'use client'
-import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import { BRL_RATE_FALLBACK } from '@/lib/site'
 
 export type Currency = { code: string; label: string; flag: string; rate: number }
-export const currencies: Currency[] = [
-  { code: 'USD', label: 'Dólar', flag: 'https://flagcdn.com/w40/us.png', rate: 1 },
-  { code: 'BRL', label: 'Real', flag: 'https://flagcdn.com/w40/br.png', rate: 5.20 },
-  { code: 'PYG', label: 'Guarani', flag: 'https://flagcdn.com/w40/py.png', rate: 7680 },
-]
+
+// A taxa do real vem de configuracoes.brl_rate. Antes era 5.20 fixo aqui, enquanto
+// o checkout já cobrava pela taxa do banco: a vitrine anunciava um preço e o cliente
+// pagava outro. O guarani segue fixo porque não existe campo no banco para ele.
+export function montarCurrencies(brlRate: number): Currency[] {
+  return [
+    { code: 'USD', label: 'Dólar', flag: 'https://flagcdn.com/w40/us.png', rate: 1 },
+    { code: 'BRL', label: 'Real', flag: 'https://flagcdn.com/w40/br.png', rate: brlRate },
+    { code: 'PYG', label: 'Guarani', flag: 'https://flagcdn.com/w40/py.png', rate: 7680 },
+  ]
+}
 
 export type CartItem = {
   id: string
@@ -21,6 +28,8 @@ export type CartItem = {
 type CarrinhoCtx = {
   itens: CartItem[]
   currency: Currency
+  currencies: Currency[]
+  brlRate: number
   setCurrency: (c: Currency) => void
   sidebarAberto: boolean
   abrirSidebar: () => void
@@ -49,15 +58,34 @@ function mergeCarts(local: CartItem[], remote: CartItem[], preferRemote: boolean
   return Array.from(map.values())
 }
 
-export function CarrinhoProvider({ children }: { children: ReactNode }) {
+export function CarrinhoProvider({ brlRate: brlRateInicial, children }: { brlRate?: number; children: ReactNode }) {
   const [itens, setItens] = useState<CartItem[]>([])
-  const [currency, setCurrency] = useState<Currency>(currencies[0])
+  const [brlRate, setBrlRate] = useState(brlRateInicial ?? BRL_RATE_FALLBACK)
+  const [currencyCode, setCurrencyCode] = useState('USD')
   const [sidebarAberto, setSidebarAberto] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const remoteLoadedRef = useRef(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const skipNextSaveRef = useRef(true)
+
+  const currencies = useMemo(() => montarCurrencies(brlRate), [brlRate])
+  const currency = currencies.find(c => c.code === currencyCode) ?? currencies[0]
+
+  // A home e o /checkout são páginas estáticas (○ no build): o brlRate que o layout
+  // injeta fica congelado na geração e não acompanha a troca no admin. Uma leitura
+  // no mount corrige. Começa com o valor do servidor pra não piscar preço no caso
+  // normal, em que a taxa não mudou desde o último build.
+  useEffect(() => {
+    let vivo = true
+    fetch('/api/config/loja')
+      .then(r => r.json())
+      .then((d: { brl_rate?: number }) => {
+        if (vivo && typeof d?.brl_rate === 'number' && d.brl_rate > 0) setBrlRate(d.brl_rate)
+      })
+      .catch(() => {})
+    return () => { vivo = false }
+  }, [])
 
   useEffect(() => {
     try {
@@ -148,7 +176,7 @@ export function CarrinhoProvider({ children }: { children: ReactNode }) {
   const quantidade = itens.reduce((acc, i) => acc + i.quantity, 0)
 
   return (
-    <Ctx.Provider value={{ itens, currency, setCurrency, sidebarAberto, abrirSidebar: () => setSidebarAberto(true), fecharSidebar: () => setSidebarAberto(false), adicionar, remover, atualizar, limpar, totalUsd, quantidade }}>
+    <Ctx.Provider value={{ itens, currency, currencies, brlRate, setCurrency: (c: Currency) => setCurrencyCode(c.code), sidebarAberto, abrirSidebar: () => setSidebarAberto(true), fecharSidebar: () => setSidebarAberto(false), adicionar, remover, atualizar, limpar, totalUsd, quantidade }}>
       {children}
       {toast && (
         <div style={{ position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)', background: '#A965ED', color: '#000', borderRadius: 99, padding: '10px 22px', fontSize: 13, fontWeight: 700, zIndex: 99999, pointerEvents: 'none', whiteSpace: 'nowrap', boxShadow: '0 4px 20px rgba(169, 101, 237,0.3)' }}>
