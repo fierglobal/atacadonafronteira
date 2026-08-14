@@ -7,8 +7,10 @@ import Logo from '@/components/Logo'
 
 export const dynamic = 'force-dynamic'
 
-const PIX_KEY = '52347525000100'
-const PIX_HOLDER = 'FIER GLOBAL'
+// Fallback se a API do pedido não trouxer a config: mesmos valores que a
+// config traz hoje, para nunca montar um payload PIX sem chave.
+const PIX_KEY_FALLBACK = '52347525000100'
+const PIX_HOLDER_FALLBACK = 'FIER GLOBAL'
 const PIX_CITY = 'MARINGA'
 const WHATSAPP = WHATSAPP_NUMBER
 
@@ -26,14 +28,14 @@ function crc16(str: string): string {
 function tlv(id: string, value: string): string {
   return `${id}${String(value.length).padStart(2, '0')}${value}`
 }
-function gerarPixPayload(amountBRL: number, orderNum: string): string {
-  const merchantAccount = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', PIX_KEY))
+function gerarPixPayload(amountBRL: number, orderNum: string, pixKey: string, pixHolder: string): string {
+  const merchantAccount = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', pixKey))
   const txid = (orderNum || '***').replace(/\W/g, '').slice(0, 25) || '***'
   const body = [
     tlv('00', '01'), tlv('01', '12'), merchantAccount,
     tlv('52', '0000'), tlv('53', '986'),
     amountBRL > 0 ? tlv('54', amountBRL.toFixed(2)) : '',
-    tlv('58', 'BR'), tlv('59', PIX_HOLDER.slice(0, 25)), tlv('60', PIX_CITY.slice(0, 15)),
+    tlv('58', 'BR'), tlv('59', pixHolder.slice(0, 25)), tlv('60', PIX_CITY.slice(0, 15)),
     tlv('62', tlv('05', txid)), '6304',
   ].join('')
   return body + crc16(body)
@@ -49,6 +51,8 @@ type PixData = {
   createdAt: string
   customer: { nome: string; telefone: string } | null
   items: PixItem[]
+  pixKey?: string
+  pixHolder?: string
 }
 
 const fmtBRL = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
@@ -71,7 +75,7 @@ export default function PedidoPix() {
       if (!r.ok) { setLoading(false); return }
       const d = await r.json() as PixData
       setData(d)
-      const payload = gerarPixPayload(Number(d.totalBRL), d.orderNum)
+      const payload = gerarPixPayload(Number(d.totalBRL), d.orderNum, d.pixKey || PIX_KEY_FALLBACK, d.pixHolder || PIX_HOLDER_FALLBACK)
       QRCode.toDataURL(payload, { width: 240, margin: 2, color: { dark: '#000', light: '#fff' } })
         .then(url => setQrDataUrl(url)).catch(() => {})
       const exp = d.pixExpiraEm ? new Date(d.pixExpiraEm).getTime() : Date.now() + 30 * 60 * 1000
@@ -158,7 +162,9 @@ export default function PedidoPix() {
   }
 
   const totalBRL = Number(data.totalBRL)
-  const pixPayloadStr = gerarPixPayload(totalBRL, data.orderNum)
+  const pixKey = data.pixKey || PIX_KEY_FALLBACK
+  const pixHolder = data.pixHolder || PIX_HOLDER_FALLBACK
+  const pixPayloadStr = gerarPixPayload(totalBRL, data.orderNum, pixKey, pixHolder)
   const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
   const mins = Math.floor(secsLeft / 60)
   const secs = secsLeft % 60
@@ -228,9 +234,9 @@ export default function PedidoPix() {
             <p style={{ ...lbl, marginBottom: 8 }}>CHAVE PIX (CNPJ)</p>
             <div style={{ display: 'flex', gap: 8 }}>
               <div style={{ flex: 1, padding: '11px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 13, color: '#0a0a0a', fontFamily: 'monospace' }}>
-                {PIX_KEY}
+                {pixKey}
               </div>
-              <button onClick={() => copy(PIX_KEY, 'key')}
+              <button onClick={() => copy(pixKey, 'key')}
                 style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 {copied === 'key' ? '✓ Copiado' : 'Copiar'}
               </button>
@@ -249,7 +255,7 @@ export default function PedidoPix() {
             </div>
           </div>
           <div style={{ padding: '12px 14px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {[['Beneficiário', PIX_HOLDER], ['Pedido', `#${data.orderNum}`], ['Banco', 'Transferência PIX']].map(([k, v]) => (
+            {[['Beneficiário', pixHolder], ['Pedido', `#${data.orderNum}`], ['Banco', 'Transferência PIX']].map(([k, v]) => (
               <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                 <span style={{ color: '#737373' }}>{k}</span>
                 <span style={{ color: '#0a0a0a', fontWeight: 600 }}>{v}</span>

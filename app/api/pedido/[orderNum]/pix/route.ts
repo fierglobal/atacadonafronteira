@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getConfig } from '@/lib/config'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
 export async function GET(req: Request, { params }: { params: Promise<{ orderNum: string }> }) {
@@ -16,9 +17,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ orderNum
     return NextResponse.json({ error: 'Este pedido já foi processado', status: order.status }, { status: 410 })
   }
 
-  const [{ data: customer }, { data: items }] = await Promise.all([
+  const [{ data: customer }, { data: items }, config] = await Promise.all([
     supabaseAdmin.from('customers').select('nome, telefone').eq('id', order.customer_id).single(),
     supabaseAdmin.from('order_items').select('product_name, quantity, unit_usd, subtotal_usd').eq('order_id', order.id),
+    getConfig(),
   ])
 
   return NextResponse.json({
@@ -29,5 +31,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ orderNum
     pixExpiraEm: order.pix_expira_em,
     createdAt: order.created_at,
     customer, items: items || [],
+    pixKey: config.pix_key,
+    pixHolder: config.pix_holder,
   })
 }

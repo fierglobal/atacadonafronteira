@@ -8,5 +8,7 @@ export async function GET() {
     estimated_ready_time: c.estimated_ready_time,
     pix_expiry_minutes: c.pix_expiry_minutes,
     brl_rate: c.brl_rate,
+    pix_key: c.pix_key,
+    pix_holder: c.pix_holder,
   })
 }

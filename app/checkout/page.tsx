@@ -9,8 +9,10 @@ import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
 
 const BRL_RATE = currencies.find(c => c.code === 'BRL')!.rate
-const PIX_KEY = '52347525000100'
-const PIX_HOLDER = 'FIER GLOBAL'
+// Fallback se /api/checkout-config não responder: mesmos valores que a config
+// traz hoje, para nunca montar um payload PIX sem chave.
+const PIX_KEY_FALLBACK = '52347525000100'
+const PIX_HOLDER_FALLBACK = 'FIER GLOBAL'
 const PIX_CITY = 'MARINGA'
 const WHATSAPP = WHATSAPP_NUMBER
 
@@ -29,14 +31,14 @@ function crc16(str: string): string {
 function tlv(id: string, value: string): string {
   return `${id}${String(value.length).padStart(2, '0')}${value}`
 }
-function gerarPixPayload(amountBRL: number, orderNum: string): string {
-  const merchantAccount = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', PIX_KEY))
+function gerarPixPayload(amountBRL: number, orderNum: string, pixKey: string, pixHolder: string): string {
+  const merchantAccount = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', pixKey))
   const txid = (orderNum || '***').replace(/\W/g, '').slice(0, 25) || '***'
   const body = [
     tlv('00', '01'), tlv('01', '12'), merchantAccount,
     tlv('52', '0000'), tlv('53', '986'),
     amountBRL > 0 ? tlv('54', amountBRL.toFixed(2)) : '',
-    tlv('58', 'BR'), tlv('59', PIX_HOLDER.slice(0, 25)), tlv('60', PIX_CITY.slice(0, 15)),
+    tlv('58', 'BR'), tlv('59', pixHolder.slice(0, 25)), tlv('60', PIX_CITY.slice(0, 15)),
     tlv('62', tlv('05', txid)), '6304',
   ].join('')
   return body + crc16(body)
@@ -267,7 +269,9 @@ export default function Checkout() {
 
   // novos
   const [utm, setUtm] = useState<Utm>({ source: '', medium: '', campaign: '', content: '', term: '' })
-  const [config, setConfig] = useState<{ pedido_minimo_brl: number | null; estimated_ready_time: string; pix_expiry_minutes: number } | null>(null)
+  const [config, setConfig] = useState<{ pedido_minimo_brl: number | null; estimated_ready_time: string; pix_expiry_minutes: number; pix_key?: string; pix_holder?: string } | null>(null)
+  const pixKey = config?.pix_key || PIX_KEY_FALLBACK
+  const pixHolder = config?.pix_holder || PIX_HOLDER_FALLBACK
   const [lookupHit, setLookupHit] = useState(false)
   const [lookupBlocked, setLookupBlocked] = useState(false)
   const [crossSell, setCrossSell] = useState<CrossSellItem[]>([])
@@ -521,7 +525,7 @@ export default function Checkout() {
         track('pix_generated', { order_num: num, total_brl: +(snapshotTotal * BRL_RATE).toFixed(2), total_usd: +snapshotTotal.toFixed(2), items_count: snapshotItens.length })
       }).catch(() => {})
       const pixBRL = +(snapshotTotal * BRL_RATE * (1 - cupomDescontoPct / 100)).toFixed(2)
-      const payload = gerarPixPayload(pixBRL, num)
+      const payload = gerarPixPayload(pixBRL, num, pixKey, pixHolder)
       QRCode.toDataURL(payload, { width: 240, margin: 2, color: { dark: '#000', light: '#fff' } })
         .then(url => setQrDataUrl(url)).catch(() => {})
       // timer: usa pixExpiraEm do servidor se disponível
@@ -594,7 +598,7 @@ export default function Checkout() {
   const totalFinalStr = totalFinal.toFixed(2).replace('.', ',')
   const pixTotalBRL = pixTotal * BRL_RATE - pixDescontoBRL
   const pixTotalBRLStr = pixTotalBRL.toFixed(2).replace('.', ',')
-  const pixPayloadStr = orderNum ? gerarPixPayload(pixTotalBRL, orderNum) : ''
+  const pixPayloadStr = orderNum ? gerarPixPayload(pixTotalBRL, orderNum, pixKey, pixHolder) : ''
 
   const pedidoMinimo = config?.pedido_minimo_brl ?? null
   const atingiuMinimo = !pedidoMinimo || totalFinal >= pedidoMinimo
@@ -725,9 +729,9 @@ export default function Checkout() {
               <p style={{ ...lbl, marginBottom: 8 }}>CHAVE PIX (CNPJ)</p>
               <div style={{ display: 'flex', gap: 8 }}>
                 <div style={{ flex: 1, padding: '11px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, fontSize: 13, color: '#0a0a0a', fontFamily: 'monospace' }}>
-                  {PIX_KEY}
+                  {pixKey}
                 </div>
-                <button onClick={() => copy(PIX_KEY, 'key')}
+                <button onClick={() => copy(pixKey, 'key')}
                   style={{ flexShrink: 0, padding: '0 16px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#ffffff', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 8, color: '#420E76', fontSize: 12, fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}>
                   {copied === 'key' ? '✓ Copiado' : 'Copiar'}
                 </button>
@@ -746,7 +750,7 @@ export default function Checkout() {
               </div>
             </div>
             <div style={{ padding: '12px 14px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {[['Beneficiário', PIX_HOLDER], ['Pedido', `#${orderNum}`], ['Banco', 'Transferência PIX']].map(([k, v]) => (
+              {[['Beneficiário', pixHolder], ['Pedido', `#${orderNum}`], ['Banco', 'Transferência PIX']].map(([k, v]) => (
                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
                   <span style={{ color: '#737373' }}>{k}</span>
                   <span style={{ color: '#0a0a0a', fontWeight: 600 }}>{v}</span>
