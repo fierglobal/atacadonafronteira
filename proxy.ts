@@ -4,9 +4,25 @@ import type { NextRequest } from 'next/server'
 
 const SITE_OFFLINE = false
 
+// Preview usa as mesmas credenciais de produção, então fala com o banco real.
+// Só leitura passa; senão um teste de branch grava no catálogo de verdade.
+// Login fica de fora da trava, senão não dá para entrar no admin do preview.
+const PREVIEW_WRITE_ALLOWED = ['/api/admin/login', '/api/admin/2fa', '/api/site-access']
+
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   let response = NextResponse.next({ request: req })
+
+  if (
+    process.env.VERCEL_ENV === 'preview' &&
+    !['GET', 'HEAD', 'OPTIONS'].includes(req.method) &&
+    !PREVIEW_WRITE_ALLOWED.includes(pathname)
+  ) {
+    return NextResponse.json(
+      { error: 'Preview é somente leitura: este deploy usa o banco de produção.' },
+      { status: 403 }
+    )
+  }
 
   if (SITE_OFFLINE) {
     const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/admin')
