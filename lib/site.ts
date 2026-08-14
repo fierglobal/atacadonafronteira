@@ -4,6 +4,12 @@ export const SITE_URL =
 
 export const SITE_NAME = 'Atacado na Fronteira'
 
+// Taxa usada só quando o banco não responde. Mora aqui, e não em lib/config.ts,
+// porque a vitrine é client e lib/config.ts importa a service role. Vitrine e
+// checkout caem no MESMO valor, então uma queda do banco deixa os dois errados
+// juntos em vez de divergentes — que é o defeito que estamos consertando.
+export const BRL_RATE_FALLBACK = 5.20
+
 // Fonte única do WhatsApp. Já foi trocado duas vezes neste projeto e cada vez
 // sobrou o número velho em algum arquivo — mensagem de cliente caindo na empresa
 // errada. Trocar AQUI, e também em configuracoes.whatsapp no banco, que tem

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useCarrinho, currencies } from '@/components/CarrinhoContext'
+import { useCarrinho } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
 
@@ -11,7 +11,7 @@ type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[]; ma
 
 export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]; contatoHref: string }) {
   const pathname = usePathname()
-  const { currency, setCurrency, abrirSidebar, quantidade } = useCarrinho()
+  const { currency, currencies, brlRate, setCurrency, abrirSidebar, quantidade } = useCarrinho()
   const [currencyOpen, setCurrencyOpen] = useState(false)
   const [mobileMenu, setMobileMenu] = useState(false)
   const router = useRouter()
@@ -40,7 +40,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar produto…" aria-label="Buscar produto" />
         </form>
-        <span className="nav-rate">USD/BRL = 5,20</span>
+        <span className="nav-rate">USD/BRL = {brlRate.toFixed(2).replace('.', ',')}</span>
         <div style={{ position: 'relative' }}>
           <button onClick={() => setCurrencyOpen(p => !p)}
             style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>

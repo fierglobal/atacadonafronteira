@@ -166,6 +166,10 @@ export default function PedidoPix() {
   const pixHolder = data.pixHolder || PIX_HOLDER_FALLBACK
   const pixPayloadStr = gerarPixPayload(totalBRL, data.orderNum, pixKey, pixHolder)
   const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
+  // Taxa travada quando o pedido foi fechado, não a de hoje: o total já está em
+  // total_brl e as linhas precisam somar exatamente ele. Era 5.20 fixo aqui, então
+  // as linhas não fechavam com o total que o cliente paga.
+  const taxaDoPedido = Number(data.totalUSD) > 0 ? totalBRL / Number(data.totalUSD) : 0
   const mins = Math.floor(secsLeft / 60)
   const secs = secsLeft % 60
   const expired = secsLeft === 0
@@ -270,7 +274,7 @@ export default function PedidoPix() {
           {data.items.map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#404040', marginBottom: 8 }}>
               <span style={{ flex: 1, marginRight: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product_name} × {item.quantity}</span>
-              <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(Number(item.subtotal_usd) * 5.20)}</span>
+              <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(Number(item.subtotal_usd) * taxaDoPedido)}</span>
             </div>
           ))}
           <div style={{ borderTop: '1px solid #ececec', paddingTop: 12, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>

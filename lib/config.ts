@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
-import { WHATSAPP_NUMBER } from '@/lib/site'
+import { WHATSAPP_NUMBER, BRL_RATE_FALLBACK } from '@/lib/site'
 
 export type Config = {
   pix_key: string
@@ -18,7 +18,7 @@ export type Config = {
 const DEFAULTS: Config = {
   pix_key: '52347525000100',
   pix_holder: 'FIER GLOBAL',
-  brl_rate: 5.20,
+  brl_rate: BRL_RATE_FALLBACK,
   admin_email: '',
   store_name: 'Atacado na Fronteira',
   whatsapp: WHATSAPP_NUMBER,
