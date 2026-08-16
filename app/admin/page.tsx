@@ -143,10 +143,14 @@ async function getData() {
   // Top products (from non-cancelled orders)
   const prodMap: Record<string, { name: string; brl: number; qty: number }> = {}
   active.forEach(o => {
+    // Taxa travada neste pedido, não uma constante: assim o ranking soma exatamente
+    // o totalRevenue (que já vem de total_brl) e um pedido antigo não é reavaliado
+    // pelo câmbio de hoje. Era 5.20 fixo, então o ranking ficava abaixo do total.
+    const taxa = o.total_usd > 0 ? o.total_brl / o.total_usd : 0
     ;(o.order_items || []).forEach((item: any) => {
       const k = item.product_name
       if (!prodMap[k]) prodMap[k] = { name: k, brl: 0, qty: 0 }
-      prodMap[k].brl += (item.subtotal_usd || 0) * 5.20
+      prodMap[k].brl += (item.subtotal_usd || 0) * taxa
       prodMap[k].qty += item.quantity || 0
     })
   })
