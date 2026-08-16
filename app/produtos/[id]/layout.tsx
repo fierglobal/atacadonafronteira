@@ -44,7 +44,7 @@ export default async function ProdutoLayout({ children, params }: { children: Re
   const { id } = await params
   const { data: p } = await supabaseAdmin
     .from('products')
-    .select('name, titulo, descricao_curta, descricao, img_url, brand, usd_price, estoque, sku')
+    .select('name, titulo, descricao_curta, descricao, img_url, brand, usd_price, usd_price_promo, estoque, sku')
     .eq('id', id)
     .eq('ativo', true)
     .single()
@@ -57,6 +57,10 @@ export default async function ProdutoLayout({ children, params }: { children: Re
   const name = (p.titulo as string) || (p.name as string) || ''
   const brand = p.brand as string | null
 
+  const base = p.usd_price as number | null
+  const promo = p.usd_price_promo as number | null
+  const precoVigente = promo != null && base != null && promo < base ? promo : base
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -67,7 +71,11 @@ export default async function ProdutoLayout({ children, params }: { children: Re
     sku: p.sku || undefined,
     offers: {
       '@type': 'Offer',
-      price: typeof p.usd_price === 'number' ? p.usd_price.toFixed(2) : undefined,
+      // Mesma regra da vitrine (promo < base vence). Antes anunciava sempre o
+      // usd_price: num produto em oferta o rich result do Google mostrava um preço
+      // e a página mostrava outro, que é o tipo de divergência que derruba o rich
+      // result inteiro — e ainda por cima anunciava caro.
+      price: typeof precoVigente === 'number' ? precoVigente.toFixed(2) : undefined,
       priceCurrency: 'USD',
       availability: p.estoque === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       url: `https://atacadonafronteira.com/produtos/${id}`,

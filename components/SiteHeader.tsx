@@ -4,6 +4,7 @@ import { getConfig } from '@/lib/config'
 import HeaderActions from '@/components/HeaderActions'
 import Logo from '@/components/Logo'
 import { MARCAS_VITRINE, WHATSAPP_HREF } from '@/lib/site'
+import { slugify } from '@/lib/slug'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -11,6 +12,11 @@ export const revalidate = 300
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
 export type NavItem = { id: string; nome: string; subs: { id: string; nome: string }[]; marca?: string }
+
+// Categoria aponta para /categoria/<slug>, não para /?cat=<uuid>. O link com query
+// param resolvia tudo no client, então o Google via UMA página para 17 categorias.
+// O href virou a porta de entrada indexável de cada uma.
+const catHref = (nome: string) => `/categoria/${slugify(nome)}`
 
 async function getTopCats(): Promise<NavItem[]> {
   try {
@@ -85,14 +91,14 @@ export default async function SiteHeader() {
           <Link href="/" className="nav-cat-btn">TODOS</Link>
           {topCats.slice(0, 5).map(c => (
             <div key={c.id} className="nav-item">
-              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : `/?cat=${c.id}#catalogo`} className="nav-cat-btn">
+              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : catHref(c.nome)} className="nav-cat-btn">
                 {c.nome.toUpperCase()}
                 {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
               </a>
               {c.subs.length > 0 && (
                 <div className="nav-dropdown">
                   {c.subs.map(s => (
-                    <a key={s.id} href={`/?cat=${s.id}#catalogo`} className="nav-drop-item">{s.nome}</a>
+                    <a key={s.id} href={catHref(s.nome)} className="nav-drop-item">{s.nome}</a>
                   ))}
                 </div>
               )}

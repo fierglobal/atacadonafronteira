@@ -2,7 +2,10 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/SiteHeader'
 import HomeClient, { type HomeInitial } from './HomeClient'
+import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
+import { listarCategoriasSeo } from '@/lib/categorias'
+import { SITE_URL, SITE_NAME, WHATSAPP_NUMBER } from '@/lib/site'
 
 // ISR: NUNCA ler searchParams aqui — isso tornaria a rota dinâmica e mataria o
 // cache (ver o caso da categoria no Expresso Paraguai). O servidor sempre monta
@@ -10,7 +13,56 @@ import { supabaseAdmin } from '@/lib/supabase'
 // recorte por cima.
 export const revalidate = 60
 
-export const metadata: Metadata = { alternates: { canonical: '/' } }
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  // O plural entra aqui porque é como parte das pessoas procura a loja
+  // ("atacados na fronteira"). Não é keyword stuffing: é o nome real que o
+  // público usa, escrito uma vez, numa frase que faz sentido lida em voz alta.
+  description:
+    'Atacado na Fronteira (também procurado como Atacados na Fronteira): catálogo direto do ' +
+    'Paraguai com peptídeos, tirzepatida, retatrutida, anabolizantes, celulares e eletrônicos. ' +
+    'Preços em dólar, pagamento via PIX e retirada na loja.',
+}
+
+// Organization + WebSite: é o mecanismo padrão para declarar ao Google que a marca
+// também é conhecida no plural, e para habilitar a caixa de busca do site nos
+// resultados. O site não tinha nenhum JSON-LD fora das páginas de produto.
+const jsonLdLoja = () => ([
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organizacao`,
+    name: SITE_NAME,
+    alternateName: ['Atacados na Fronteira', 'Atacado Na Fronteira Paraguai', 'atacadonafronteira'],
+    url: SITE_URL,
+    logo: `${SITE_URL}/icon.png`,
+    image: `${SITE_URL}/og-image.png`,
+    description:
+      'Loja de atacado com produtos importados direto do Paraguai: peptídeos, tirzepatida, ' +
+      'retatrutida, anabolizantes, celulares e eletrônicos.',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'sales',
+      telephone: `+${WHATSAPP_NUMBER}`,
+      availableLanguage: ['Portuguese', 'Spanish'],
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#site`,
+    url: SITE_URL,
+    name: SITE_NAME,
+    alternateName: 'Atacados na Fronteira',
+    inLanguage: 'pt-BR',
+    publisher: { '@id': `${SITE_URL}/#organizacao` },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
+  },
+])
 
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
@@ -69,10 +121,40 @@ async function getInitial(): Promise<HomeInitial | null> {
 }
 
 export default async function HomePage() {
-  const initial = await getInitial()
+  const [initial, cats] = await Promise.all([getInitial(), listarCategoriasSeo()])
+  const departamentos = cats.filter(c => !c.parentId)
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdLoja()) }} />
       <SiteHeader />
+      {/* A home não tinha h1 nenhum e os nomes de produto saem em base64 — para o
+          crawler o HTML era quase mudo. Este bloco é o único texto plano que diz
+          do que a loja trata, e é visível para todo mundo: nada de texto oculto,
+          que o Google trata como manipulação. */}
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '20px 20px 0' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 6px', color: '#0a0a0a', letterSpacing: '-0.02em' }}>
+          Atacado na Fronteira — compras no atacado direto do Paraguai
+        </h1>
+        <p style={{ fontSize: 13.5, color: '#525252', margin: '0 0 4px', maxWidth: 760, lineHeight: 1.6 }}>
+          Catálogo com preços de atacado em dólar, pagamento via PIX e retirada na loja.
+          Peptídeos, tirzepatida, retatrutida, anabolizantes, eletrônicos, celulares e notebooks
+          com estoque imediato.
+        </p>
+        {departamentos.length > 0 && (
+          <p style={{ fontSize: 12.5, color: '#737373', margin: '0 0 4px' }}>
+            Departamentos:{' '}
+            {departamentos.map((c, i) => (
+              <span key={c.id}>
+                {i > 0 && ' · '}
+                <Link href={`/categoria/${c.slug}`} style={{ color: '#420E76', fontWeight: 600, textDecoration: 'none' }}>
+                  {c.nome}
+                </Link>
+              </span>
+            ))}
+          </p>
+        )}
+      </div>
       <Suspense>
         <HomeClient initial={initial ?? undefined} />
       </Suspense>
