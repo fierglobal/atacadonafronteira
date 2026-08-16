@@ -10,7 +10,7 @@ async function getData(period: number) {
 
   const { data: orders } = await supabaseAdmin
     .from('orders')
-    .select('id, total_brl, created_at')
+    .select('id, total_brl, total_usd, created_at')
     .neq('status', 'cancelado')
     .gte('created_at', period < 9999 ? since.toISOString() : '2000-01-01')
 
@@ -22,12 +22,18 @@ async function getData(period: number) {
     .select('product_name, product_brand, quantity, subtotal_usd, order_id')
     .in('order_id', orderIds)
 
-  const BRL_RATE = 5.20
+  // Taxa travada em cada pedido, não uma constante: assim o ranking soma exatamente
+  // o totalBrl do cabeçalho (que já vem de total_brl) e um pedido antigo não é
+  // reavaliado pelo câmbio de hoje. Era 5.20 fixo, então as barras ficavam abaixo
+  // da receita anunciada logo acima delas.
+  const taxaPorPedido = new Map(
+    (orders || []).map(o => [o.id, o.total_usd > 0 ? o.total_brl / o.total_usd : 0])
+  )
   const prodMap: Record<string, { name: string; brand: string; qty: number; brl: number; orders: Set<string> }> = {}
   ;(rawItems || []).forEach(i => {
     if (!prodMap[i.product_name]) prodMap[i.product_name] = { name: i.product_name, brand: i.product_brand || '', qty: 0, brl: 0, orders: new Set() }
     prodMap[i.product_name].qty += i.quantity
-    prodMap[i.product_name].brl += (i.subtotal_usd || 0) * BRL_RATE
+    prodMap[i.product_name].brl += (i.subtotal_usd || 0) * (taxaPorPedido.get(i.order_id) ?? 0)
     prodMap[i.product_name].orders.add(i.order_id)
   })
 
