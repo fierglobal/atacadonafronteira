@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'rea
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
-import { WHATSAPP_ENABLED, WHATSAPP_HREF } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
+import HeroCarrossel from '@/components/HeroCarrossel'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -698,15 +699,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
       {isHome && (
         <section aria-label="Ofertas de atacado na fronteira" className="home-only hero-row" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec', maxWidth: 1973, margin: '0 auto', display: 'flex', gap: 12, padding: 12, boxSizing: 'border-box' as const }}>
-          <a href="#catalogo" onClick={e => { e.preventDefault(); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
-            className="hero-banner-col" style={{ display: 'block', flex: '1 1 78%', minWidth: 0, borderRadius: 10, overflow: 'hidden' }}>
-            <picture>
-              <source media="(max-width: 767px)" srcSet="/banner-hero-mobile.webp" width={980} height={797} />
-              <img src="/banner-hero.webp" alt="Atacado na Fronteira — preços competitivos, variedade e oportunidade para o seu negócio. Compre atacado."
-                width={1920} height={776} fetchPriority="high"
-                style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
-            </picture>
-          </a>
+          <HeroCarrossel />
           {/* Vídeo institucional estático — aguardando arquivo do cliente.
               Placeholder até chegar o vídeo real (pedido ao Guilherme). */}
           <div className="hero-video-col" style={{ flex: '0 0 22%', minWidth: 0, borderRadius: 10, overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg, #2b0a4e 0%, #420E76 55%, #5a1798 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#ffffff', textAlign: 'center' as const, padding: 16, boxSizing: 'border-box' as const }}>
@@ -1176,7 +1169,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
 
       {/* WhatsApp FAB */}
       {WHATSAPP_ENABLED && (
-        <a href={WHATSAPP_HREF} target="_blank" rel="noopener" aria-label="Falar no WhatsApp"
+        <a href={WHATSAPP_GRUPO_HREF} target="_blank" rel="noopener" aria-label="Entrar no grupo oficial do WhatsApp"
           style={{ position: 'fixed', bottom: 24, right: 24, width: 52, height: 52, borderRadius: '50%', background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(37,211,102,0.4)', zIndex: 50, transition: 'transform 0.2s, opacity 0.3s', opacity: fabVisible ? 1 : 0, pointerEvents: fabVisible ? 'auto' : 'none', transform: fabVisible ? 'scale(1)' : 'scale(0.6)' }}
           onMouseEnter={e => (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.1)'}
           onMouseLeave={e => (e.currentTarget as HTMLAnchorElement).style.transform = fabVisible ? 'scale(1)' : 'scale(0.6)'}>

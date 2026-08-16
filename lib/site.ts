@@ -18,6 +18,17 @@ export const WHATSAPP_NUMBER = '595992636618'
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}`
 export const WHATSAPP_ENABLED = true
 
+// Como o número é escrito para humanos. Derivado da constante acima de propósito:
+// se o número mudar, esta linha é a única que precisa acompanhar, e o erro fica
+// visível na hora em vez de sobrar um telefone velho formatado em algum banner.
+export const WHATSAPP_DISPLAY = '+595 992 636618'
+
+// Grupo oficial no WhatsApp. Link de convite copiado da fonte, com os parâmetros
+// de compartilhamento que o próprio app anexa — o convite cru
+// (https://chat.whatsapp.com/JJjvBIV0E1WIO05tNjhiSA) também abre o mesmo grupo.
+export const WHATSAPP_GRUPO_HREF =
+  'https://chat.whatsapp.com/JJjvBIV0E1WIO05tNjhiSA?s=cl&p=i&ilr=2'
+
 // Vitrines de marca no menu. Marca não é categoria: um iPhone fica em
 // Eletrônicos > Celular e aparece na vitrine Apple ao mesmo tempo, coisa que
 // categoria_id (que é um só por produto) não resolve. Cada nome precisa bater
