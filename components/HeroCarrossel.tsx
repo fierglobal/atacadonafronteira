@@ -77,7 +77,7 @@ export default function HeroCarrossel() {
           <IconeWhats size={28} />{WHATSAPP_DISPLAY}
         </span>
         <span className="hero-slide-sub" style={{ fontSize: 13, color: 'rgba(255,255,255,0.72)', maxWidth: 520, lineHeight: 1.5 }}>
-          Este é o nosso único número de atendimento. Desconfie de qualquer outro.
+          Nosso único número. Desconfie de outros.
         </span>
       </a>
 
