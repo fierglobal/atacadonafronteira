@@ -9,7 +9,7 @@ type CFD = { field_key: string; label: string; field_type: string; options: any;
 type RelacionadoMin = { id: string; name: string; img_url: string | null; usd_price: number }
 type Product = {
   id: string; name: string; brand: string | null; usd_price: number
-  img_url: string | null; estoque: number | null; categoria_id: string | null; descricao: string | null
+  img_url: string | null; imagens?: string[] | null; estoque: number | null; categoria_id: string | null; descricao: string | null
   descricao_curta?: string | null
   badges?: string[] | null
   multiplicador?: number | null
@@ -183,6 +183,7 @@ export default function ProdutoPage() {
   const [related, setRelated] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [qty, setQty] = useState(1)
+  const [imgAtiva, setImgAtiva] = useState(0)
   const [added, setAdded] = useState(false)
   const [currencyOpen, setCurrencyOpen] = useState(false)
   const [whatsapp, setWhatsapp] = useState<string | null>(null)
@@ -284,6 +285,10 @@ export default function ProdutoPage() {
     if (product.estoque !== null && product.estoque !== undefined && product.estoque > 0) v = Math.min(v, product.estoque)
     setQty(v)
   }
+
+  // img_url é a capa e costuma repetir a primeira do array; dedupe para não
+  // renderizar a mesma miniatura duas vezes.
+  const galeria = Array.from(new Set([product?.img_url, ...(product?.imagens ?? [])].filter(Boolean) as string[]))
 
   const handleAdd = () => {
     if (!product) return
@@ -401,10 +406,23 @@ export default function ProdutoPage() {
                       <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'filter 0.3s ease' }}
                         onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.filter = 'brightness(1.02)' }}
                         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.filter = 'brightness(1)' }}>
-                        <ProductImage src={product.img_url} alt={product.name} />
+                        <ProductImage src={galeria[imgAtiva] ?? product.img_url} alt={product.name} />
                       </div>
                     </div>
                   </div>
+
+                  {galeria.length > 1 && (
+                    <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                      {galeria.map((src, i) => (
+                        <button key={src} onClick={() => setImgAtiva(i)}
+                          aria-label={`Ver imagem ${i + 1} de ${galeria.length}`}
+                          aria-current={i === imgAtiva}
+                          style={{ width: 64, height: 64, borderRadius: 8, padding: 4, cursor: 'pointer', background: '#fff', border: `1.5px solid ${i === imgAtiva ? '#420E76' : '#ececec'}`, position: 'relative', overflow: 'hidden' }}>
+                          <Image src={src} alt="" fill sizes="64px" style={{ objectFit: 'contain', padding: 4 }} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {/* trust badges */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 16 }}>
