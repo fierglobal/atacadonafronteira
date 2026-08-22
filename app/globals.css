@@ -63,10 +63,18 @@ body {
   display: flex; align-items: center; gap: 16px; height: 60px;
 }
 .site-logo { display: flex; align-items: center; flex-shrink: 0; }
-.nav-desktop {
-  display: flex; align-items: center; gap: 2px;
-  flex: 1; justify-content: center; min-width: 0;
+.nav-row {
+  border-top: 1px solid #f0edf5;
+  background: rgba(255,255,255,0.72);
 }
+.nav-desktop {
+  max-width: 1280px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; gap: 2px;
+  min-width: 0; overflow-x: auto; white-space: nowrap;
+  scrollbar-width: none;
+}
+.nav-desktop::-webkit-scrollbar { display: none; }
+.nav-cat-ajuda { margin-left: auto; color: #420E76 !important; }
 .nav-cat-btn {
   position: relative;
   padding: 0 12px; height: 60px;
@@ -129,17 +137,18 @@ body {
    Farmácia são longos (ANABOLIZANTES, RETATRUTIDA) e passavam por cima do
    câmbio e da logo. Some primeiro o câmbio, depois as últimas categorias —
    todas continuam nos chips da home e no drawer. */
-.header-strip {
-  display: flex; align-items: center; gap: 18px;
-  padding: 6px 20px; overflow-x: auto; white-space: nowrap;
-  scrollbar-width: none;
-  background: rgba(66, 14, 118, 0.05);
-  border-top: 1px solid rgba(66, 14, 118, 0.08);
-  font-size: 11px; letter-spacing: 0.04em; color: #420E76;
-  justify-content: center;
+.top-bar {
+  background: #420E76; color: #fff;
+  font-size: 11.5px; letter-spacing: 0.01em;
 }
-.header-strip::-webkit-scrollbar { display: none; }
-.header-strip span { flex-shrink: 0; }
+.top-bar-inner {
+  max-width: 1280px; margin: 0 auto; padding: 7px 24px;
+  display: flex; align-items: center; gap: 20px;
+  overflow-x: auto; white-space: nowrap; scrollbar-width: none;
+}
+.top-bar-inner::-webkit-scrollbar { display: none; }
+.top-bar-inner span { opacity: 0.82; }
+.top-bar-inner span b { opacity: 1; color: #F6BD0C; font-weight: 800; }
 .header-strip span + span::before { content: '·'; margin-right: 18px; opacity: 0.45; }
 @media (max-width: 640px) {
   .header-strip { justify-content: flex-start; padding: 6px 14px; gap: 14px; }
@@ -158,13 +167,15 @@ body {
   .nav-search { display: none !important; }
 }
 @media (max-width: 1100px) {
-  .nav-desktop > *:nth-child(n + 5) { display: none !important; }
 }
 @media (max-width: 990px) {
-  .nav-desktop > *:nth-child(n + 4) { display: none !important; }
 }
 @media (max-width: 900px) {
-  .nav-desktop { display: none !important; }
+  .nav-row {
+  border-top: 1px solid #f0edf5;
+  background: rgba(255,255,255,0.72);
+}
+.nav-desktop { display: none !important; }
 }
 @media (max-width: 640px) {
   .nav-rate, .nav-cart-txt, .nav-acct-txt { display: none !important; }

@@ -4,7 +4,7 @@ import SiteHeader from '@/components/SiteHeader'
 import HomeClient, { type HomeInitial } from './HomeClient'
 import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
-import { listarCategoriasSeo } from '@/lib/categorias'
+import { slugify } from '@/lib/slug'
 import { SITE_URL, SITE_NAME, WHATSAPP_NUMBER } from '@/lib/site'
 
 // ISR: NUNCA ler searchParams aqui — isso tornaria a rota dinâmica e mataria o
@@ -91,17 +91,52 @@ async function getInitial(): Promise<HomeInitial | null> {
     }
 
     const categorias = cats.map(c => ({ ...c, produtos: counts[c.id] ?? 0 }))
+
+    // Números por departamento e as marcas de cada um: alimentam o hero e os
+    // cards que substituíram a seção "Marcas disponíveis". Contados aqui, do
+    // banco, para nenhum número da copy ser escrito à mão e envelhecer.
+    const raizes = cats.filter(c => !c.parent_id)
+    const totalDe = (raizId: string) =>
+      (counts[raizId] ?? 0) + cats.filter(c => c.parent_id === raizId).reduce((t, f) => t + (counts[f.id] ?? 0), 0)
+    const marcasDe: Record<string, Record<string, number>> = {}
+    for (const p of ativos) {
+      if (!p.brand || !p.categoria_id) continue
+      const cat = cats.find(c => c.id === p.categoria_id)
+      const raiz = cat?.parent_id ?? cat?.id
+      if (!raiz) continue
+      marcasDe[raiz] = marcasDe[raiz] || {}
+      marcasDe[raiz][p.brand] = (marcasDe[raiz][p.brand] ?? 0) + 1
+    }
+    const DESC_DEPT: Record<string, string> = {
+      'Eletrônicos': 'Celulares Xiaomi e Apple, notebooks, caixas JBL, robôs aspiradores e smartwatches.',
+      'Farmácia': 'Peptídeos, tirzepatida, retatrutida, anabolizantes e linha estética.',
+    }
+    const departamentos = raizes
+      .map(r => ({
+        nome: r.nome as string,
+        slug: slugify(r.nome as string),
+        total: totalDe(r.id as string),
+        descricao: DESC_DEPT[r.nome as string] || '',
+        marcas: Object.entries(marcasDe[r.id as string] || {})
+          .sort((a, b) => b[1] - a[1]).slice(0, 6)
+          .map(([nome, qtd]) => ({ nome, qtd })),
+      }))
+      .filter(d => d.total > 0)
+      .sort((a, b) => b.total - a.total)
+
     // Uma fileira por categoria-FOLHA (produto ligado direto a ela), não por
     // departamento agregando os filhos — é o padrão "Smartphones", "Informática"
     // como carrosséis separados, não um "Eletrônicos" só que junta tudo.
     const leafRows = categorias.filter(c => c.produtos > 0)
 
+    const secoesImg: Record<string, string | null> = {}
     const secoes = await Promise.all(leafRows.map(async c => {
       const { data } = await supabaseAdmin.from('products').select(CAMPOS)
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
         .eq('categoria_id', c.id)
         .order('sort_order', { ascending: true }).order('id', { ascending: true })
         .range(0, VITRINE_POR_SECAO - 1)
+      secoesImg[c.id] = (data || [])[0]?.img_url ?? null
       return {
         id: c.id, nome: c.nome, total: c.produtos,
         // nomes em base64, o mesmo contrato da API pública — o client decodifica tudo igual
@@ -110,51 +145,46 @@ async function getInitial(): Promise<HomeInitial | null> {
     }))
     secoes.sort((a, b) => b.total - a.total)
 
+    // Só categorias-folha: os departamentos já têm card próprio logo acima, e
+    // "Eletrônicos" aparecendo no grid ao lado de Celular e Notebook confunde
+    // quem está escolhendo por nicho.
+    const catLinks = categorias
+      .filter(c => c.produtos > 0 && c.parent_id)
+      .sort((a, b) => b.produtos - a.produtos)
+      .map(c => ({
+        nome: c.nome as string,
+        slug: slugify(c.nome as string),
+        total: c.produtos,
+        img: (secoesImg[c.id as string] ?? null) as string | null,
+      }))
+
     return {
       categorias,
       total: ativos.length,
+      deptEletronicos: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
+      deptFarmacia: departamentos.find(d => d.nome === 'Farmácia')?.total ?? 0,
+      departamentos,
+      catLinks,
       brands: Object.entries(marcas).sort((a, b) => b[1] - a[1]).map(([nome, total]) => ({ nome: enc(nome)!, total })),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       secoes: secoes as any,
     }
-  } catch { return null }
+  } catch (e) {
+    // Este catch já escondeu um erro meu: uma variável usada antes de ser
+    // declarada derrubava getInitial() e a home caía no fetch do client sem
+    // avisar ninguém. Silencioso para o visitante, visível no log.
+    console.error('[home] getInitial falhou, caindo para render client-side:', e)
+    return null
+  }
 }
 
 export default async function HomePage() {
-  const [initial, cats] = await Promise.all([getInitial(), listarCategoriasSeo()])
-  const departamentos = cats.filter(c => !c.parentId)
+  const initial = await getInitial()
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdLoja()) }} />
       <SiteHeader />
-      {/* A home não tinha h1 nenhum e os nomes de produto saem em base64 — para o
-          crawler o HTML era quase mudo. Este bloco é o único texto plano que diz
-          do que a loja trata, e é visível para todo mundo: nada de texto oculto,
-          que o Google trata como manipulação. */}
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '20px 20px 0' }}>
-        <h1 style={{ fontSize: 20, fontWeight: 900, margin: '0 0 6px', color: '#0a0a0a', letterSpacing: '-0.02em' }}>
-          Atacado na Fronteira — compras no atacado direto do Paraguai
-        </h1>
-        <p style={{ fontSize: 13.5, color: '#525252', margin: '0 0 4px', maxWidth: 760, lineHeight: 1.6 }}>
-          Catálogo com preços de atacado em dólar, pagamento via PIX e retirada na loja.
-          Peptídeos, tirzepatida, retatrutida, anabolizantes, eletrônicos, celulares e notebooks
-          com estoque imediato.
-        </p>
-        {departamentos.length > 0 && (
-          <p style={{ fontSize: 12.5, color: '#737373', margin: '0 0 4px' }}>
-            Departamentos:{' '}
-            {departamentos.map((c, i) => (
-              <span key={c.id}>
-                {i > 0 && ' · '}
-                <Link href={`/categoria/${c.slug}`} style={{ color: '#420E76', fontWeight: 600, textDecoration: 'none' }}>
-                  {c.nome}
-                </Link>
-              </span>
-            ))}
-          </p>
-        )}
-      </div>
       <Suspense>
         <HomeClient initial={initial ?? undefined} />
       </Suspense>
