@@ -4,14 +4,17 @@ import { getConfig } from '@/lib/config'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
+import { idsEletronicos } from '@/lib/categorias'
+import { calcularEntrega, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
 type Form = {
   nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string
   tipo_pessoa?: 'PF' | 'PJ'; cnpj?: string; razao_social?: string
   po_number?: string
-  entrega_tipo?: 'retirada' | 'entrega_foz'
+  entrega_tipo?: EntregaTipo
   entrega_endereco?: string
+  seguro_recusado?: boolean
   utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
   honeypot?: string
 }
@@ -103,6 +106,28 @@ export async function POST(req: Request) {
     }, { status: 422 })
   }
 
+  const entregaTipo: EntregaTipo = ehEntregaTipo(form.entrega_tipo) ? form.entrega_tipo : 'retirada_cde'
+  if (entregaTipo === 'envio_brasil' && !(form.entrega_endereco || '').trim()) {
+    return NextResponse.json({ error: 'Informe o endereço completo para o envio.' }, { status: 400 })
+  }
+
+  // Frete e seguro NUNCA vêm do navegador. A tela mostra um número; aqui ele é
+  // refeito a partir da categoria real de cada produto no banco. Se divergir, vale
+  // este — é o mesmo motivo de o total do pedido não poder nascer do client.
+  const [eletronicosIds, { data: prodsCat }] = await Promise.all([
+    idsEletronicos(),
+    supabaseAdmin.from('products').select('id, categoria_id').in('id', productIds.length ? productIds : ['00000000-0000-0000-0000-000000000000']),
+  ])
+  const catDe = new Map((prodsCat || []).map(p => [p.id as string, p.categoria_id as string | null]))
+  const cotacao = calcularEntrega(
+    itens.map(i => ({ quantity: i.quantity, eletronico: eletronicosIds.has(catDe.get(i.id || '') || '') })),
+    entregaTipo,
+    form.seguro_recusado === true,
+  )
+  const freteBrl = cotacao.frete
+  const seguroBrl = cotacao.seguro
+  totalBrl = +(totalBrl + freteBrl + seguroBrl).toFixed(2)
+
   const orderNum = `AF${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
   const copyHash = (crypto.randomUUID().replace(/-/g, '') + Date.now().toString(36)).slice(0, 16)
   const pixExpiraEm = new Date(Date.now() + config.pix_expiry_minutes * 60_000).toISOString()
@@ -117,10 +142,6 @@ export async function POST(req: Request) {
   }
   if (form.utm?.source) customerPayload.origem = form.utm.source
 
-  const entregaTipo = form.entrega_tipo === 'entrega_foz' ? 'entrega_foz' : 'retirada'
-  if (entregaTipo === 'entrega_foz' && !(form.entrega_endereco || '').trim()) {
-    return NextResponse.json({ error: 'Informe o endereço de entrega em Foz do Iguaçu.' }, { status: 400 })
-  }
 
   const { data: customer, error: ce } = await supabaseAdmin
     .from('customers').insert(customerPayload).select('id').single()
@@ -132,7 +153,10 @@ export async function POST(req: Request) {
     pix_expira_em: pixExpiraEm,
     po_number: form.po_number || null,
     entrega_tipo: entregaTipo,
-    entrega_endereco: entregaTipo === 'entrega_foz' ? form.entrega_endereco!.trim() : null,
+    entrega_endereco: entregaTipo === 'envio_brasil' ? form.entrega_endereco!.trim() : null,
+    frete_brl: freteBrl,
+    seguro_brl: seguroBrl,
+    seguro_recusado: cotacao.seguroDisponivel ? form.seguro_recusado === true : false,
     tipo_pessoa: form.tipo_pessoa || 'PF',
     cnpj: form.tipo_pessoa === 'PJ' ? (form.cnpj || null) : null,
     razao_social: form.tipo_pessoa === 'PJ' ? (form.razao_social || null) : null,
@@ -175,5 +199,9 @@ export async function POST(req: Request) {
   return NextResponse.json({
     ok: true, orderId: order.id, orderNum, copyHash,
     pixExpiraEm, estimatedReadyTime: config.estimated_ready_time,
+    // O valor do PIX sai daqui, não de uma reconta no navegador: a tela não
+    // conhece frete nem seguro finais, e um QR com valor menor que o pedido
+    // significa cliente pagando a menos sem ninguém notar.
+    totalBrl, freteBrl, seguroBrl,
   })
 }

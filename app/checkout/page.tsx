@@ -7,6 +7,8 @@ import { useCarrinho, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
+import EntregaSeguro from '@/components/EntregaSeguro'
+import { calcularEntrega, type Cotacao, type EntregaTipo } from '@/lib/entrega'
 
 // Fallback se /api/checkout-config não responder: mesmos valores que a config
 // traz hoje, para nunca montar um payload PIX sem chave.
@@ -101,7 +103,6 @@ type GuestForm = {
   po_number: string
   honeypot: string
 }
-type EntregaTipo = 'retirada' | 'entrega_foz'
 type CupomAplicado = { id: string; codigo: string; desconto_pct: number }
 type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; img_url: string }
 type PageState = 'checking' | 'confirm' | 'form' | 'pix'
@@ -269,8 +270,10 @@ export default function Checkout() {
   const [copied, setCopied] = useState<'key' | 'val' | 'pix' | null>(null)
   const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
   const [submitting, setSubmitting] = useState(false)
-  const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada')
+  const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada_cde')
   const [entregaEndereco, setEntregaEndereco] = useState('')
+  const [seguroRecusado, setSeguroRecusado] = useState(false)
+  const [cotacoes, setCotacoes] = useState<Record<EntregaTipo, Cotacao> | null>(null)
   const [globalErr, setGlobalErr] = useState('')
   const [mounted, setMounted] = useState(false)
   const [cupomCodigo, setCupomCodigo] = useState('')
@@ -278,6 +281,7 @@ export default function Checkout() {
   const [cupomLoading, setCupomLoading] = useState(false)
   const [cupomErr, setCupomErr] = useState('')
   const [pixDescontoBRL, setPixDescontoBRL] = useState(0)
+  const [pixTotalServidor, setPixTotalServidor] = useState<number | null>(null)
   const [nomeRetirador, setNomeRetirador] = useState('')
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [pixStartSecs, setPixStartSecs] = useState(0)
@@ -468,8 +472,8 @@ export default function Checkout() {
       if (cs.id) cartSessionId = cs.id
     } catch {}
 
-    if (entregaTipo === 'entrega_foz' && !entregaEndereco.trim()) {
-      setGlobalErr('Informe o endereço de entrega em Foz do Iguaçu.')
+    if (entregaTipo === 'envio_brasil' && !entregaEndereco.trim()) {
+      setGlobalErr('Informe o endereço completo para o envio.')
       setSubmitting(false)
       return
     }
@@ -477,7 +481,8 @@ export default function Checkout() {
       nome: data.nome, cpf: data.cpf, email: data.email, telefone: data.telefone,
       cidade: data.cidade, uf: data.uf,
       entrega_tipo: entregaTipo,
-      entrega_endereco: entregaTipo === 'entrega_foz' ? entregaEndereco.trim() : '',
+      entrega_endereco: entregaTipo === 'envio_brasil' ? entregaEndereco.trim() : '',
+      seguro_recusado: seguroRecusado,
       tipo_pessoa: form.tipo_pessoa,
       cnpj: form.tipo_pessoa === 'PJ' ? form.cnpj : '',
       razao_social: form.tipo_pessoa === 'PJ' ? form.razao_social : '',
@@ -513,7 +518,7 @@ export default function Checkout() {
         return
       }
       const respJson = await res.json()
-      const { orderNum: num, orderId: oid, pixExpiraEm, estimatedReadyTime: ert } = respJson
+      const { orderNum: num, orderId: oid, pixExpiraEm, estimatedReadyTime: ert, totalBrl: totalServidor } = respJson
       if (cartSessionId) {
         fetch('/api/cart-session', {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -526,6 +531,7 @@ export default function Checkout() {
       setPixTotal(snapshotTotal)
       setPixForm(data)
       setPixDescontoBRL(cupomDescontoPct > 0 ? (snapshotTotal * brlRate) * cupomDescontoPct / 100 : 0)
+      setPixTotalServidor(Number(totalServidor))
       setEstimatedReadyTime(ert || '')
       if (uid) {
         getSupabaseClient().from('profiles').upsert({
@@ -539,7 +545,7 @@ export default function Checkout() {
       import('@vercel/analytics').then(({ track }) => {
         track('pix_generated', { order_num: num, total_brl: +(snapshotTotal * brlRate).toFixed(2), total_usd: +snapshotTotal.toFixed(2), items_count: snapshotItens.length })
       }).catch(() => {})
-      const pixBRL = +(snapshotTotal * brlRate * (1 - cupomDescontoPct / 100)).toFixed(2)
+      const pixBRL = Number(totalServidor)
       const payload = gerarPixPayload(pixBRL, num, pixKey, pixHolder)
       QRCode.toDataURL(payload, { width: 240, margin: 2, color: { dark: '#000', light: '#fff' } })
         .then(url => setQrDataUrl(url)).catch(() => {})
@@ -606,17 +612,42 @@ export default function Checkout() {
   const lbl = { display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
+  // A tela não sabe a categoria dos produtos, e preço não se calcula no navegador:
+  // o servidor devolve as três opções já precificadas para este carrinho.
+  useEffect(() => {
+    const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
+    if (!linhas.length) { setCotacoes(null); return }
+    let vivo = true
+    fetch('/api/entrega/cotacao', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itens: linhas }),
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (vivo && d?.opcoes) setCotacoes(d.opcoes) })
+      .catch(() => {})
+    return () => { vivo = false }
+  }, [itens])
+
   const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
-  const totalFinal = totalBRL - descontoBRL
+  // Frete e seguro entram DEPOIS do desconto: cupom é sobre mercadoria, não sobre
+  // transporte. O servidor refaz esta mesma conta e o valor dele é o que vale.
+  const cotacaoAtual = cotacoes?.[entregaTipo] ?? null
+  const freteBRL = cotacaoAtual ? cotacaoAtual.frete : 0
+  const seguroBRL = cotacaoAtual && !seguroRecusado ? cotacaoAtual.seguro : 0
+  const totalFinal = totalBRL - descontoBRL + freteBRL + seguroBRL
   const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
   const totalFinalStr = totalFinal.toFixed(2).replace('.', ',')
-  const pixTotalBRL = pixTotal * brlRate - pixDescontoBRL
+  // Depois do pedido criado, quem manda é o total gravado no banco.
+  const pixTotalBRL = pixTotalServidor ?? (pixTotal * brlRate - pixDescontoBRL)
   const pixTotalBRLStr = pixTotalBRL.toFixed(2).replace('.', ',')
   const pixPayloadStr = orderNum ? gerarPixPayload(pixTotalBRL, orderNum, pixKey, pixHolder) : ''
 
   const pedidoMinimo = config?.pedido_minimo_brl ?? null
-  const atingiuMinimo = !pedidoMinimo || totalFinal >= pedidoMinimo
+  // Mercadoria, sem frete e sem seguro — é assim que o servidor confere. Somar o
+  // frete aqui deixaria a tela liberar um pedido que a API recusa no fim do fluxo.
+  const totalMercadoria = totalBRL - descontoBRL
+  const atingiuMinimo = !pedidoMinimo || totalMercadoria >= pedidoMinimo
   const podeFinalizar = !submitting && atingiuMinimo && !lookupBlocked
 
   const adicionarCrossSell = (p: CrossSellItem) => {
@@ -681,7 +712,7 @@ export default function Checkout() {
 
   /* ─── PIX SCREEN ─── */
   if (pageState === 'pix') {
-    const readyTimeFallback = entregaTipo === 'entrega_foz'
+    const readyTimeFallback = entregaTipo !== 'retirada_cde'
       ? 'Após a confirmação do PIX, aguarde a aprovação do pedido — nossa equipe entrega em Foz do Iguaçu e combina o horário pelo WhatsApp.'
       : 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (em até 24 horas úteis).'
     return (
@@ -957,23 +988,9 @@ export default function Checkout() {
                     <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
                   </div>
                 )}
-                <div style={{ marginBottom: 16 }}>
-                  <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#737373' }}>COMO QUER RECEBER?</p>
-                  {([['retirada', 'Retirar na loja', 'Aguarde a aprovação do pedido antes de vir retirar'], ['entrega_foz', 'Receber em Foz do Iguaçu', 'Nossa equipe entrega em Foz após a aprovação']] as const).map(([valor, titulo, sub]) => (
-                    <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${entregaTipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: entregaTipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
-                      <input type="radio" name="entrega" checked={entregaTipo === valor} onChange={() => setEntregaTipo(valor)} style={{ marginTop: 3, accentColor: '#420E76' }} />
-                      <span>
-                        <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{titulo} <span style={{ color: '#420E76', fontWeight: 700 }}>· Sem custo</span></span>
-                        <span style={{ display: 'block', fontSize: 11, color: '#737373', marginTop: 2 }}>{sub}</span>
-                      </span>
-                    </label>
-                  ))}
-                  {entregaTipo === 'entrega_foz' && (
-                    <input value={entregaEndereco} onChange={e => setEntregaEndereco(e.target.value)}
-                      placeholder="Endereço em Foz do Iguaçu (rua, número, bairro)"
-                      style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                  )}
-                </div>
+                <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
+                  endereco={entregaEndereco} onEndereco={setEntregaEndereco}
+                  seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                   <span style={{ color: '#0a0a0a' }}>Total</span>
                   <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
@@ -1200,23 +1217,9 @@ export default function Checkout() {
                   <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
                 </div>
               )}
-              <div style={{ marginBottom: 16 }}>
-                <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#737373' }}>COMO QUER RECEBER?</p>
-                {([['retirada', 'Retirar na loja', 'Aguarde a aprovação do pedido antes de vir retirar'], ['entrega_foz', 'Receber em Foz do Iguaçu', 'Nossa equipe entrega em Foz após a aprovação']] as const).map(([valor, titulo, sub]) => (
-                  <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${entregaTipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: entregaTipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
-                    <input type="radio" name="entrega" checked={entregaTipo === valor} onChange={() => setEntregaTipo(valor)} style={{ marginTop: 3, accentColor: '#420E76' }} />
-                    <span>
-                      <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{titulo} <span style={{ color: '#420E76', fontWeight: 700 }}>· Sem custo</span></span>
-                      <span style={{ display: 'block', fontSize: 11, color: '#737373', marginTop: 2 }}>{sub}</span>
-                    </span>
-                  </label>
-                ))}
-                {entregaTipo === 'entrega_foz' && (
-                  <input value={entregaEndereco} onChange={e => setEntregaEndereco(e.target.value)}
-                    placeholder="Endereço em Foz do Iguaçu (rua, número, bairro)"
-                    style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
-                )}
-              </div>
+              <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
+                  endereco={entregaEndereco} onEndereco={setEntregaEndereco}
+                  seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                 <span style={{ color: '#0a0a0a' }}>Total</span>
                 <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
