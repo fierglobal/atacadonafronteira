@@ -81,42 +81,53 @@ export default async function SiteHeader() {
   const topCats = [...cats, ...vitrines]
 
   return (
-    <header className="site-header">
-      <div className="site-header-inner">
-        <Link href="/" className="site-logo" aria-label="Atacado na Fronteira">
-          <Logo size={30} />
-        </Link>
-
-        <nav className="nav-desktop" aria-label="Categorias">
-          <Link href="/" className="nav-cat-btn">TODOS</Link>
-          {topCats.slice(0, 5).map(c => (
-            <div key={c.id} className="nav-item">
-              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : catHref(c.nome)} className="nav-cat-btn">
-                {c.nome.toUpperCase()}
-                {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
-              </a>
-              {c.subs.length > 0 && (
-                <div className="nav-dropdown">
-                  {c.subs.map(s => (
-                    <a key={s.id} href={catHref(s.nome)} className="nav-drop-item">{s.nome}</a>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-
-        <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} />
+    <>
+      {/* Top bar: condições comerciais acima de tudo. São critério de
+          qualificação — quem não fecha o mínimo precisa saber antes de montar
+          carrinho, não no checkout. */}
+      <div className="top-bar" aria-label="Condições de compra">
+        <div className="top-bar-inner">
+          {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
+          <span>Pagamento via PIX à vista</span>
+          <span>Separação em até 24h úteis</span>
+          <span>Retirada na fronteira ou envio para todo o Brasil</span>
+        </div>
       </div>
-      {/* Condições do atacado sempre à vista: são critério de qualificação —
-          quem não fecha R$ 1.000 precisa saber antes de montar carrinho. */}
-      <div className="header-strip" aria-label="Condições de compra">
-        {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
-        <span>PIX à vista</span>
-        <span>Retirada em loja ou entrega em Foz do Iguaçu</span>
-        <span>Preços em USD</span>
-        <span>Separação em até 24h úteis</span>
-      </div>
-    </header>
+
+      <header className="site-header">
+        {/* Linha 1: só utilidade. A busca é o elemento dominante — comprador de
+            atacado que volta entra pelo nome do produto, não pelo menu. */}
+        <div className="site-header-inner">
+          <Link href="/" className="site-logo" aria-label="Atacado na Fronteira">
+            <Logo size={30} />
+          </Link>
+          <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} />
+        </div>
+
+        {/* Linha 2: navegação. Separar das ações acabou com o corte por
+            nth-child que escondia departamento inteiro em tela média. */}
+        <div className="nav-row">
+          <nav className="nav-desktop" aria-label="Categorias">
+            <Link href="/" className="nav-cat-btn">TODOS OS PRODUTOS</Link>
+            {topCats.map(c => (
+              <div key={c.id} className="nav-item">
+                <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : catHref(c.nome)} className="nav-cat-btn">
+                  {c.nome.toUpperCase()}
+                  {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
+                </a>
+                {c.subs.length > 0 && (
+                  <div className="nav-dropdown">
+                    {c.subs.map(s => (
+                      <a key={s.id} href={catHref(s.nome)} className="nav-drop-item">{s.nome}</a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <a href="/#como-comprar" className="nav-cat-btn nav-cat-ajuda">COMO COMPRAR</a>
+          </nav>
+        </div>
+      </header>
+    </>
   )
 }

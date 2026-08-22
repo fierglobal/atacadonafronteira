@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
-import HeroCarrossel from '@/components/HeroCarrossel'
+import { Hero, ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -80,16 +80,12 @@ const INITIAL_PAGE = 20
 const PROMO_BANNER_AFTER = 10
 const VITRINE_POR_SECAO = 12
 
-const trustItems = (nProdutos: number) => [
-  ...(nProdutos > 0 ? [{ icon: '📦', text: `${nProdutos} PRODUTOS EM ESTOQUE` }] : []),
-  { icon: '⚡', text: 'PIX CONFIRMADO EM < 30 MIN' },
-  { icon: '🇧🇷', text: 'ATENDIMENTO 100% EM PORTUGUÊS' },
-  ...(WHATSAPP_ENABLED ? [{ icon: '💬', text: 'RESPOSTA WHATSAPP EM 12 MIN' }] : []),
-  { icon: '📦', text: 'SEPARAÇÃO EM ATÉ 24H ÚTEIS' },
-  { icon: '✈️', text: 'IMPORTADO DIRETO DO PARAGUAI' },
-]
 
 export type HomeInitial = {
+  deptEletronicos: number
+  deptFarmacia: number
+  departamentos: DeptCard[]
+  catLinks: CatLink[]
   categorias: Categoria[]
   total: number
   brands: { nome: string; total: number }[]        // nomes em base64, como a API
@@ -697,65 +693,18 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       {/* HERO: banner estático de atacado. O carrossel neon saiu — falava a
           língua do varejo hype e empurrava o catálogo pra baixo da dobra.
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
-      {isHome && (
-        <section aria-label="Ofertas de atacado na fronteira" className="home-only hero-row" style={{ background: '#f7f4fb', borderBottom: '1px solid #ececec', maxWidth: 1973, margin: '0 auto', display: 'flex', gap: 12, padding: 12, boxSizing: 'border-box' as const }}>
-          <HeroCarrossel />
-          {/* Vídeo institucional estático — aguardando arquivo do cliente.
-              Placeholder até chegar o vídeo real (pedido ao Guilherme). */}
-          <div className="hero-video-col" style={{ flex: '0 0 22%', minWidth: 0, borderRadius: 10, overflow: 'hidden', position: 'relative', background: 'linear-gradient(160deg, #2b0a4e 0%, #420E76 55%, #5a1798 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#ffffff', textAlign: 'center' as const, padding: 16, boxSizing: 'border-box' as const }}>
-            <span style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z"/></svg>
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.06em' }}>VÍDEO INSTITUCIONAL</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>Em breve</span>
-          </div>
-        </section>
+      {isHome && initial && (
+        <Hero eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total} />
       )}
 
-      {/* TRUST TICKER */}
-      {isHome && (
-        <div className="home-only" style={{ borderTop: '1px solid rgba(169, 101, 237,0.15)', borderBottom: '1px solid rgba(169, 101, 237,0.15)', background: '#0A0710', padding: '10px 0', overflow: 'hidden' }}>
-          <div className="trust-ticker">
-            <div className="trust-track">
-              {[...trustItems(totalCatalogo), ...trustItems(totalCatalogo)].map((item, i) => (
-                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '0 36px', fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', color: '#A965ED', borderRight: '1px solid rgba(169, 101, 237,0.15)', textShadow: '0 0 8px rgba(169, 101, 237,0.5)' }}>
-                  <span style={{ fontSize: 13 }}>{item.icon}</span>
-                  {item.text}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* MARCAS */}
-      {isHome && !loadingProducts && topBrands.length > 0 && (
-        <section className="marcas-section home-only" style={{ background: '#ffffff', borderBottom: '1px solid #ececec', padding: '48px 24px' }}>
-          <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
-              <div>
-                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0a' }}>Marcas disponíveis</h2>
-                <p style={{ margin: '4px 0 0', color: '#737373', fontSize: 13 }}>{topBrands.length} marcas · clique para filtrar</p>
-              </div>
-              {activeBrand !== 'Todos' && (
-                <button onClick={() => setActiveBrand('Todos')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.06em' }}>
-                  × LIMPAR FILTRO
-                </button>
-              )}
-            </div>
-            <div className="brand-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
-              {topBrands.map(([name, count]) => (
-                <button key={name} className="brand-card"
-                  onClick={() => { setActiveCategoria(''); setActiveBrand(name); document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }) }}
-                  style={{ background: activeBrand === name ? 'rgba(66, 14, 118,0.06)' : '#fafafa', border: `1px solid ${activeBrand === name ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 12, padding: '18px 14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: activeBrand === name ? '#420E76' : '#0a0a0a', letterSpacing: '0.04em' }}>{name}</span>
-                  <span style={{ fontSize: 11, color: '#a3a3a3', fontWeight: 600 }}>{count} produto{count !== 1 ? 's' : ''}</span>
-                  {activeBrand === name && <span style={{ width: 24, height: 2, borderRadius: 99, background: '#A965ED', marginTop: 2 }} />}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
+      {isHome && initial && (
+        <>
+          <ComoComprar />
+          <Departamentos cards={initial.departamentos} />
+          <Categorias cats={initial.catLinks} />
+          <Entrega />
+        </>
       )}
 
       {/* PRODUTOS */}
@@ -1180,6 +1129,8 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       )}
 
       {/* Footer */}
+      {isHome && <Contato />}
+
       <footer style={{ background: '#0A0710', color: '#a3a3a3', padding: '56px 24px 24px' }}>
         <div className="footer-grid" style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr', gap: 48 }}>
           <div>
