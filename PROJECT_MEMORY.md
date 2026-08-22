@@ -187,3 +187,78 @@
 
 <!-- session 2026-07-31 20:12 -->
 <!-- arquivos: .gitignore,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/financeiro/page.tsx,app/admin/layout.tsx,app/admin/login/page.tsx,app/admin/page.tsx,app/admin/pedidos/page.tsx,app/admin/produtos/page.tsx,app/api/admin/clientes-list/route.ts -->
+
+<!-- session 2026-08-13 21:47 -->
+<!-- arquivos: app/apple-icon.png,app/favicon.ico,app/icon.png -->
+
+<!-- session 2026-08-13 21:55 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-13 22:01 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-13 22:05 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-13 22:06 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-13 22:36 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 07:09 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 07:13 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 07:38 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 07:42 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 08:52 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 08:58 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 09:31 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 09:34 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 10:09 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 14:29 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-14 14:43 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-15 21:18 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-15 21:33 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-15 22:08 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-15 23:28 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-20 10:42 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-20 10:48 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-20 10:53 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
+
+<!-- session 2026-08-21 20:30 -->
+<!-- arquivos: PROJECT_MEMORY.md -->
