@@ -63,8 +63,14 @@ export function CarrinhoSidebar() {
         background: '#ffffff', borderLeft: '1px solid #ececec',
         zIndex: 1000, display: 'flex', flexDirection: 'column',
         transform: sidebarAberto ? 'translateX(0)' : 'translateX(100%)',
-        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1), visibility 0.3s',
         boxShadow: sidebarAberto ? '-8px 0 24px rgba(0,0,0,0.06)' : 'none',
+        // Fechada, a gaveta ficava deslocada 100% para fora e o navegador somava
+        // isso à largura rolável: 52px de scroll horizontal em toda página no
+        // celular. `position: fixed` não é cortado por overflow no body, então a
+        // correção tem que ser aqui — visibility tira da conta de overflow e
+        // ainda anima junto com o transform.
+        visibility: sidebarAberto ? 'visible' : 'hidden',
       }}>
 
         {/* Header */}
