@@ -712,11 +712,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       )}
 
 
+      {/* Ordem no desktop: logo após o hero, quem entra quer ver PRODUTO — não
+          instrução operacional. Categorias tem foto real por categoria;
+          Departamentos é card de texto+chips. Como comprar desce pra perto de
+          Entrega (mesmo assunto: o que acontece depois que o pedido é feito).
+          Mobile não muda: já tem seu próprio order via CSS (globals.css). */}
       {isHome && initial && (
         <>
-          <ComoComprar />
-          <Departamentos cards={initial.departamentos} />
           <Categorias cats={initial.catLinks} />
+          <Departamentos cards={initial.departamentos} />
+          <ComoComprar />
           <Entrega />
         </>
       )}
