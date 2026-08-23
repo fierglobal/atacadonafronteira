@@ -227,15 +227,8 @@ body { overflow-x: clip; }
   .sec-contato  { order: 7; }
   footer        { order: 8; }
 
-  /* Hero cabia em 4 linhas de 42px. Agora abre a página em vez de ocupá-la. */
-  .sec-hero    { padding: 22px 0 20px !important; }
-  .sec-hero h1 { font-size: 26px !important; letter-spacing: -0.02em !important; }
-  .sec-hero p  { font-size: 13.5px !important; line-height: 1.45 !important; margin-top: 10px !important; }
-  /* CTA de 90px de altura cada empurrava a categoria para fora da segunda tela */
-  .sec-hero a  { width: 100%; box-sizing: border-box; text-align: center;
-                 padding: 13px 18px !important; font-size: 14.5px !important; }
-  .sec-hero div { margin-top: 16px !important; gap: 9px !important; }
-  .sec-hero p:last-of-type { margin-top: 14px !important; font-size: 11.5px !important; }
+  /* O hero rotativo (HeroRotativo.tsx) monta o próprio layout mobile via
+     <style> interno — essas overrides eram do hero de texto puro anterior. */
 
   .sec-como, .sec-dept, .sec-cats, .sec-entrega, .sec-contato { padding: 32px 0 !important; }
 }

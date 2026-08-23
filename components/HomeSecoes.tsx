@@ -8,7 +8,6 @@ import { WHATSAPP_HREF, WHATSAPP_GRUPO_HREF, WHATSAPP_DISPLAY } from '@/lib/site
 // nome de produto sai ofuscado em base64.
 
 const ROXO = '#420E76'
-const AMARELO = '#F6BD0C'
 
 export type DeptCard = {
   nome: string
@@ -22,38 +21,6 @@ export type CatLink = { nome: string; slug: string; total: number; img: string |
 const secao: React.CSSProperties = { maxWidth: 1280, margin: '0 auto', padding: '0 24px' }
 const h2: React.CSSProperties = { margin: 0, fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#0a0a0a' }
 const sub: React.CSSProperties = { margin: '6px 0 0', color: '#737373', fontSize: 14 }
-
-export function Hero({ eletronicos, farmacia, total }: { eletronicos: number; farmacia: number; total: number }) {
-  return (
-    <section className="home-only sec-hero" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '56px 0 48px' }}>
-      <div style={{ ...secao, maxWidth: 900, textAlign: 'center' }}>
-        {/* O h1 É a manchete. Antes existia um parágrafo de palavras-chave
-            ocupando a dobra e falando com o Google enquanto o comprador olhava:
-            agora é um texto só, servindo aos dois. */}
-        <h1 style={{ margin: 0, fontSize: 42, lineHeight: 1.08, fontWeight: 900, letterSpacing: '-0.03em', color: ROXO }}>
-          Atacado de importados direto do Paraguai
-        </h1>
-        <p style={{ margin: '18px auto 0', maxWidth: 660, fontSize: 16.5, lineHeight: 1.6, color: '#404040' }}>
-          Eletrônicos e linha de farmácia com preço de fronteira, para lojistas, revendedores e
-          profissionais da saúde em todo o Brasil. {total} produtos em estoque, pedido mínimo de R$ 1.000.
-        </p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 28 }}>
-          <Link href="/categoria/eletronicos" style={{ padding: '15px 30px', borderRadius: 10, background: AMARELO, color: '#2b0a4e', fontWeight: 900, fontSize: 15, textDecoration: 'none', boxShadow: '0 4px 16px rgba(246,189,12,0.3)' }}>
-            Ver eletrônicos ({eletronicos})
-          </Link>
-          <Link href="/categoria/farmacia" style={{ padding: '15px 30px', borderRadius: 10, background: '#fff', color: ROXO, border: `1.5px solid ${ROXO}`, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
-            Ver farmácia ({farmacia})
-          </Link>
-        </div>
-        {/* As provas que rolavam no ticker viram texto parado: o mesmo conteúdo,
-            legível, sem competir com o CTA por atenção. */}
-        <p style={{ margin: '26px 0 0', fontSize: 12.5, color: '#737373', letterSpacing: '0.02em' }}>
-          PIX confirmado em menos de 30 min · Resposta no WhatsApp em até 12 min · Atendimento 100% em português
-        </p>
-      </div>
-    </section>
-  )
-}
 
 const PASSOS = [
   ['Monte seu pedido', 'Preços em dólar, com o total em real na cotação do dia. Pedido mínimo de R$ 1.000.'],
