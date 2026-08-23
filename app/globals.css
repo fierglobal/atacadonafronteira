@@ -267,8 +267,19 @@ body { overflow-x: clip; }
      celular, numa loja. Logo menor + seletor de moeda só com a bandeira devolve
      os 52px que faltavam. A moeda continua trocável — só perde o rótulo. */
   .site-header-inner { padding-left: 14px !important; padding-right: 14px !important; gap: 8px !important; }
-  .site-logo svg, .site-logo img { max-height: 24px; }
-  .site-logo { transform: scale(0.82); transform-origin: left center; }
+  /* `transform: scale` é SÓ visual — não reduz a largura de layout, então a
+     logo continuava ocupando 160px e o carrinho encostava na borda a 360px.
+     Reduzir de verdade exige mexer no tamanho, não na escala. */
+  .site-logo img { width: auto !important; height: 24px !important; }
+  .site-logo > span { gap: 6px !important; }
+  .site-logo span span:first-child { font-size: 14px !important; letter-spacing: 0.5px !important; }
+  .site-logo span span:last-child  { font-size: 7.5px !important; letter-spacing: 1.6px !important; margin-top: 2px !important; }
   .nav-cur-code, .nav-cur-caret { display: none !important; }
   .header-cart, .header-account { padding: 7px 9px !important; }
+}
+
+@media (max-width: 379px) {
+  /* Android de 360px: sem isto o botão do carrinho passa 5px da borda. */
+  .site-logo span span { display: none !important; }
+  .site-header-inner { gap: 6px !important; padding-left: 10px !important; padding-right: 10px !important; }
 }
