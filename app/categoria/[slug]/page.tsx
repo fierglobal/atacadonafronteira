@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { supabaseAdmin } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
+import CategoriaProductCard from '@/components/CategoriaProductCard'
 import { acharCategoriaPorSlug, type CategoriaSeo } from '@/lib/categorias'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
 
@@ -84,8 +84,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     twitter: { card: 'summary_large_image', title, description },
   }
 }
-
-const fmtUsd = (n: number) => n.toFixed(2).replace('.', ',')
 
 export default async function CategoriaPage({
   params, searchParams,
@@ -189,24 +187,8 @@ export default async function CategoriaPage({
             Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
           </p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 16 }}>
-            {itens.map(p => {
-              const promo = p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)
-              const preco = promo ? Number(p.usd_price_promo) : Number(p.usd_price)
-              return (
-                <Link key={p.id} href={`/produtos/${p.id}`}
-                  style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1 }}>
-                  <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#fafafa' }}>
-                    {p.img_url && <Image src={p.img_url} alt={p.name} fill sizes="190px" style={{ objectFit: 'contain', padding: 12 }} />}
-                  </div>
-                  <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 5, flex: 1 }}>
-                    {p.brand && <span style={{ fontSize: 8.5, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em' }}>{p.brand}</span>}
-                    <h2 style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#0a0a0a', lineHeight: 1.35 }}>{p.name}</h2>
-                    <div style={{ marginTop: 'auto', paddingTop: 6, fontSize: 15, fontWeight: 900, color: '#420E76' }}>USD {fmtUsd(preco)}</div>
-                  </div>
-                </Link>
-              )
-            })}
+          <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
+            {itens.map(p => <CategoriaProductCard key={p.id} p={p} />)}
           </div>
         )}
 

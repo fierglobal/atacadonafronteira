@@ -86,7 +86,7 @@ export function Departamentos({ cards }: { cards: DeptCard[] }) {
   if (!cards.length) return null
   return (
     <section className="home-only sec-dept" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
-      <div style={{ ...secao, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18 }}>
+      <div style={{ ...secao, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: 18 }}>
         {cards.map(d => (
           <div key={d.slug} style={{ border: '1px solid #ececec', borderRadius: 14, padding: '26px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
