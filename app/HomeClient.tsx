@@ -491,7 +491,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   )
 
   return (
-    <div className="min-h-screen font-sans" style={{ background: '#ffffff', color: '#0a0a0a' }}>
+    <div className="min-h-screen font-sans home-root" style={{ background: '#ffffff', color: '#0a0a0a' }}>
       <style>{`
         @keyframes slideIn {
           from { opacity: 0; transform: translateY(18px); }

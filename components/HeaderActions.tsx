@@ -48,8 +48,8 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
             <div style={{ position: 'relative', width: 20, height: 14, overflow: 'hidden', borderRadius: 2 }}>
               <Image src={currency.flag} alt={currency.label} fill style={{ objectFit: 'cover' }} unoptimized />
             </div>
-            {currency.code}
-            <svg style={{ width: 10, height: 10, transform: currencyOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <span className="nav-cur-code">{currency.code}</span>
+            <svg className="nav-cur-caret" style={{ width: 10, height: 10, transform: currencyOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>

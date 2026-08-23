@@ -25,7 +25,7 @@ const sub: React.CSSProperties = { margin: '6px 0 0', color: '#737373', fontSize
 
 export function Hero({ eletronicos, farmacia, total }: { eletronicos: number; farmacia: number; total: number }) {
   return (
-    <section className="home-only" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '56px 0 48px' }}>
+    <section className="home-only sec-hero" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '56px 0 48px' }}>
       <div style={{ ...secao, maxWidth: 900, textAlign: 'center' }}>
         {/* O h1 É a manchete. Antes existia um parágrafo de palavras-chave
             ocupando a dobra e falando com o Google enquanto o comprador olhava:
@@ -64,7 +64,7 @@ const PASSOS = [
 
 export function ComoComprar() {
   return (
-    <section id="como-comprar" className="home-only" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
+    <section id="como-comprar" className="home-only sec-como" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
       <div style={secao}>
         <h2 style={h2}>Como comprar no atacado</h2>
         <p style={sub}>Quatro passos, do carrinho à retirada.</p>
@@ -85,7 +85,7 @@ export function ComoComprar() {
 export function Departamentos({ cards }: { cards: DeptCard[] }) {
   if (!cards.length) return null
   return (
-    <section className="home-only" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
+    <section className="home-only sec-dept" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
       <div style={{ ...secao, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18 }}>
         {cards.map(d => (
           <div key={d.slug} style={{ border: '1px solid #ececec', borderRadius: 14, padding: '26px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -118,13 +118,14 @@ export function Departamentos({ cards }: { cards: DeptCard[] }) {
 export function Categorias({ cats }: { cats: CatLink[] }) {
   if (!cats.length) return null
   return (
-    <section className="home-only" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
+    <section className="home-only sec-cats" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
       <div style={secao}>
         <h2 style={h2}>Compre por categoria</h2>
         <p style={sub}>{cats.length} categorias · clique para ver o catálogo completo.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 24 }}>
+        <div className="cats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 24 }}>
           {cats.map(c => (
             <Link key={c.slug} href={`/categoria/${c.slug}`}
+              className="cat-card"
               style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, padding: 14, textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', textAlign: 'center' }}>
               <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#fafafa', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {c.img
@@ -149,7 +150,7 @@ const ENTREGAS = [
 
 export function Entrega() {
   return (
-    <section className="home-only" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
+    <section className="home-only sec-entrega" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
       <div style={secao}>
         <h2 style={h2}>Entrega e retirada</h2>
         <p style={sub}>Você escolhe no checkout, com o valor já calculado para o seu carrinho.</p>
@@ -171,7 +172,7 @@ export function Entrega() {
 // continuam na página, sem depender de o cliente esperar o slide certo aparecer.
 export function Contato() {
   return (
-    <section className="home-only" style={{ background: 'linear-gradient(135deg, #2b0a4e 0%, #420E76 55%, #5a1798 100%)', padding: '44px 0' }}>
+    <section className="home-only sec-contato" style={{ background: 'linear-gradient(135deg, #2b0a4e 0%, #420E76 55%, #5a1798 100%)', padding: '44px 0' }}>
       <div style={{ ...secao, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'center' }}>
         <div>
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 850, color: '#fff', letterSpacing: '-0.02em' }}>
