@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
-import { Hero, ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
+import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
+import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -90,6 +91,8 @@ export type HomeInitial = {
   total: number
   brands: { nome: string; total: number }[]        // nomes em base64, como a API
   secoes: { id: string; nome: string; total: number; items: Product[] }[]  // idem
+  heroEletronico: HeroProduct | null   // idem — decodificado dentro do HeroRotativo
+  heroPromo: HeroProduct | null
 }
 
 type VitrineRow = { id: string; nome: string; total: number; items: Product[] }
@@ -702,7 +705,10 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           língua do varejo hype e empurrava o catálogo pra baixo da dobra.
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
       {isHome && initial && (
-        <Hero eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total} />
+        <HeroRotativo
+          eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total}
+          heroEletronico={initial.heroEletronico} heroPromo={initial.heroPromo}
+        />
       )}
 
 

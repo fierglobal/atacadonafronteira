@@ -187,3 +187,6 @@
 
 <!-- session 2026-07-31 20:12 -->
 <!-- arquivos: .gitignore,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/financeiro/page.tsx,app/admin/layout.tsx,app/admin/login/page.tsx,app/admin/page.tsx,app/admin/pedidos/page.tsx,app/admin/produtos/page.tsx,app/api/admin/clientes-list/route.ts -->
+
+<!-- session 2026-08-23 18:28 -->
+<!-- arquivos: components/HomeSecoes.tsx -->

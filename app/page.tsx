@@ -145,6 +145,45 @@ async function getInitial(): Promise<HomeInitial | null> {
     }))
     secoes.sort((a, b) => b.total - a.total)
 
+    // Hero rotativo: o slide de Eletrônicos mostra o Apple/Xiaomi mais caro em
+    // Celular (foto de aparelho na mão cabe melhor no card quadrado do que um
+    // notebook) — vitrine, não "a partir de", não é o menor preço do departamento.
+    // Cai para o departamento inteiro só se Celular não tiver candidato.
+    // O slide de Farmácia mostra o MAIOR desconto real ativo hoje — se não houver
+    // nenhuma promoção rodando, o slide some sozinho em vez de inventar uma.
+    const eletronicosRaiz = raizes.find(r => r.nome === 'Eletrônicos')
+    const eletronicosIds = eletronicosRaiz
+      ? [eletronicosRaiz.id as string, ...cats.filter(c => c.parent_id === eletronicosRaiz.id).map(c => c.id as string)]
+      : []
+    const celularCat = eletronicosRaiz ? cats.find(c => c.nome === 'Celular' && c.parent_id === eletronicosRaiz.id) : null
+    const [{ data: destaqueCelular }, { data: destaqueEletronicosGeral }, { data: promos }] = await Promise.all([
+      celularCat
+        ? supabaseAdmin.from('products').select(CAMPOS)
+            .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+            .eq('categoria_id', celularCat.id as string).in('brand', ['APPLE', 'XIAOMI'])
+            .gt('estoque', 0).not('img_url', 'is', null)
+            .order('usd_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+      eletronicosIds.length
+        ? supabaseAdmin.from('products').select(CAMPOS)
+            .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+            .in('categoria_id', eletronicosIds).in('brand', ['APPLE', 'XIAOMI'])
+            .gt('estoque', 0).not('img_url', 'is', null)
+            .order('usd_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+      supabaseAdmin.from('products').select(CAMPOS)
+        .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+        .not('usd_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
+    ])
+    const heroEletronico = (destaqueCelular || [])[0] ?? (destaqueEletronicosGeral || [])[0]
+    const heroPromo = (promos || [])
+      // brand GENÉRICO é insumo (água bacteriostática etc.), não o produto que
+      // vende a categoria — mesmo com desconto real, não é o que deve liderar
+      // o hero. Todo produto de verdade tem marca de fabricante.
+      .filter(p => p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price) && p.brand !== 'GENÉRICO')
+      .sort((a, b) =>
+        (1 - Number(b.usd_price_promo) / Number(b.usd_price)) - (1 - Number(a.usd_price_promo) / Number(a.usd_price)))[0]
+
     // Só categorias-folha: os departamentos já têm card próprio logo acima, e
     // "Eletrônicos" aparecendo no grid ao lado de Celular e Notebook confunde
     // quem está escolhendo por nicho.
@@ -165,6 +204,12 @@ async function getInitial(): Promise<HomeInitial | null> {
       deptFarmacia: departamentos.find(d => d.nome === 'Farmácia')?.total ?? 0,
       departamentos,
       catLinks,
+      heroEletronico: heroEletronico
+        ? { ...heroEletronico, name: enc(heroEletronico.name), brand: enc(heroEletronico.brand) }
+        : null,
+      heroPromo: heroPromo
+        ? { ...heroPromo, name: enc(heroPromo.name), brand: enc(heroPromo.brand) }
+        : null,
       brands: Object.entries(marcas).sort((a, b) => b[1] - a[1]).map(([nome, total]) => ({ nome: enc(nome)!, total })),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       secoes: secoes as any,
