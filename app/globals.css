@@ -260,6 +260,14 @@ body { overflow-x: clip; }
      estoura a página em vez de rolar dentro da própria tira. */
   .carousel-track, .category-strip { min-width: 0; max-width: 100%; }
   .catalogo-section { padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* .category-strip (filtro client-side, herdado do clone atacadoconnect,
+     PR #26) e .cats-grid (grid "Compre por categoria" acima, que já virou
+     tira horizontal aqui) mostram as MESMAS 13 categorias com a mesma foto,
+     uma logo abaixo da outra na ordem mobile. .cats-grid navega para a
+     página /categoria/<slug> indexável; a strip só filtra em memória. Some a
+     redundante, mantém a que serve SEO. */
+  .category-strip-wrapper { display: none !important; }
 }
 
 @media (max-width: 767px) {

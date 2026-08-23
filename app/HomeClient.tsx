@@ -634,6 +634,14 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         .carousel-arrow:hover { border-color: rgba(66, 14, 118,0.4); color: #420E76; }
         .carousel-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; padding-bottom: 4px; }
         .carousel-track::-webkit-scrollbar { display: none; }
+        @media (max-width: 767px) {
+          /* VER TODOS tinha 17px de altura de toque — menos da metade do
+             mínimo de 44px, sendo o link principal de cada fileira. As setas
+             ficam redundantes no touch (o dedo desliza o carrossel), então
+             saem para abrir espaço. */
+          .carousel-arrow { display: none !important; }
+          .carousel-see-all { padding: 12px 0 !important; min-height: 44px; display: inline-flex; align-items: center; }
+        }
         .product-card-compact { transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s; }
         .product-card-compact:hover { border-color: #d4d4d4; box-shadow: 0 10px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
         @media (max-width: 900px) {
