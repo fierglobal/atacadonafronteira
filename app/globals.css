@@ -101,26 +101,32 @@ body {
   background: #A965ED;
   box-shadow: 0 0 8px rgba(66, 14, 118,0.5);
 }
-/* Dropdown de departamento. CSS puro (hover + focus-within) para o SiteHeader
-   seguir server component — no mobile a navegação é o drawer, não isto. */
+/* Mega menu animado (DesktopNav.tsx, framer-motion) — item vira 'use client'
+   porque o hover compartilhado (layoutId) e o open/close do painel precisam
+   de estado; SiteHeader continua server component, só delega esse pedaço. */
 .nav-item { position: relative; display: inline-flex; }
-.nav-caret { margin-left: 5px; font-size: 8px; opacity: 0.6; }
-.nav-dropdown {
-  display: none; position: absolute; top: 100%; left: 0;
-  min-width: 210px; padding: 8px;
-  background: #ffffff; border: 1px solid #ececec; border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.10);
-  flex-direction: column; gap: 2px; z-index: 300;
+.nav-hover-bg { position: absolute; inset: 0; background: rgba(66, 14, 118,0.08); border-radius: 99px; z-index: 0; }
+.nav-caret-icon { width: 13px; height: 13px; transition: transform 0.25s; }
+
+.nav-mega-wrap { position: absolute; left: 0; top: 100%; padding-top: 10px; z-index: 300; }
+.nav-mega {
+  background: #ffffff; border: 1px solid #ececec; border-radius: 16px;
+  padding: 14px; box-shadow: 0 16px 40px rgba(0,0,0,0.12);
 }
-.nav-item:hover .nav-dropdown,
-.nav-item:focus-within .nav-dropdown { display: flex; }
-.nav-drop-item {
-  padding: 9px 12px; border-radius: 8px;
-  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
-  color: #404040; text-decoration: none; white-space: nowrap;
-  transition: background 0.14s, color 0.14s;
+.nav-mega-grid { display: flex; flex-direction: column; gap: 2px; width: max-content; min-width: 240px; }
+.nav-mega-grid-2col { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 2px 14px; }
+.nav-mega-item {
+  display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 10px;
+  text-decoration: none; transition: background 0.14s;
 }
-.nav-drop-item:hover { background: rgba(66, 14, 118, 0.06); color: #420E76; }
+.nav-mega-item:hover { background: rgba(66, 14, 118, 0.06); }
+.nav-mega-icon {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: rgba(66, 14, 118, 0.08); color: #420E76;
+}
+.nav-mega-item-label { display: block; font-size: 13px; font-weight: 700; color: #0a0a0a; }
+.nav-mega-item-desc { display: block; font-size: 11.5px; color: #a3a3a3; margin-top: 1px; }
 
 .nav-rate {
   font-size: 10px; color: #a3a3a3;
