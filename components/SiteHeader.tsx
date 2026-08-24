@@ -2,21 +2,16 @@ import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import HeaderActions from '@/components/HeaderActions'
+import DesktopNav from '@/components/DesktopNav'
 import Logo from '@/components/Logo'
 import { MARCAS_VITRINE, WHATSAPP_HREF } from '@/lib/site'
-import { slugify } from '@/lib/slug'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
 export const revalidate = 300
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
-export type NavItem = { id: string; nome: string; subs: { id: string; nome: string }[]; marca?: string }
-
-// Categoria aponta para /categoria/<slug>, não para /?cat=<uuid>. O link com query
-// param resolvia tudo no client, então o Google via UMA página para 17 categorias.
-// O href virou a porta de entrada indexável de cada uma.
-const catHref = (nome: string) => `/categoria/${slugify(nome)}`
+export type NavItem = { id: string; nome: string; subs: { id: string; nome: string; total: number }[]; marca?: string }
 
 async function getTopCats(): Promise<NavItem[]> {
   try {
@@ -35,7 +30,8 @@ async function getTopCats(): Promise<NavItem[]> {
     const comProduto = (c: Categoria) =>
       (counts[c.id] || 0) > 0 || cats.some(ch => ch.parent_id === c.id && (counts[ch.id] || 0) > 0)
     const filhas = (id: string) =>
-      cats.filter(ch => ch.parent_id === id && (counts[ch.id] || 0) > 0).map(ch => ({ id: ch.id, nome: ch.nome }))
+      cats.filter(ch => ch.parent_id === id && (counts[ch.id] || 0) > 0)
+        .map(ch => ({ id: ch.id, nome: ch.nome, total: counts[ch.id] || 0 }))
 
     const raizes = cats.filter(c => !c.parent_id).filter(comProduto)
 
@@ -107,25 +103,7 @@ export default async function SiteHeader() {
         {/* Linha 2: navegação. Separar das ações acabou com o corte por
             nth-child que escondia departamento inteiro em tela média. */}
         <div className="nav-row">
-          <nav className="nav-desktop" aria-label="Categorias">
-            <Link href="/" className="nav-cat-btn">TODOS OS PRODUTOS</Link>
-            {topCats.map(c => (
-              <div key={c.id} className="nav-item">
-                <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : catHref(c.nome)} className="nav-cat-btn">
-                  {c.nome.toUpperCase()}
-                  {c.subs.length > 0 && <span className="nav-caret" aria-hidden="true">▾</span>}
-                </a>
-                {c.subs.length > 0 && (
-                  <div className="nav-dropdown">
-                    {c.subs.map(s => (
-                      <a key={s.id} href={catHref(s.nome)} className="nav-drop-item">{s.nome}</a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            <a href="/#como-comprar" className="nav-cat-btn nav-cat-ajuda">COMO COMPRAR</a>
-          </nav>
+          <DesktopNav items={topCats} />
         </div>
       </header>
     </>
