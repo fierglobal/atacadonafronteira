@@ -8,7 +8,7 @@ type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
 type RelacionadoMin = { id: string; name: string; img_url: string | null; usd_price: number }
 type Product = {
-  id: string; name: string; brand: string | null; usd_price: number
+  id: string; name: string; brand: string | null; usd_price: number; usd_price_promo?: number | null
   img_url: string | null; imagens?: string[] | null; estoque: number | null; categoria_id: string | null; descricao: string | null
   descricao_curta?: string | null
   badges?: string[] | null
@@ -274,7 +274,15 @@ export default function ProdutoPage() {
   }
 
   const tiers = product?.tiers || []
-  const unitPrice = product ? priceFor(qty, product.usd_price, tiers) : 0
+  // A PDP ignorava usd_price_promo (só home/categoria mostravam o desconto
+  // real) — o card do catálogo dizia "-22%" e o comprador clicava pra ver o
+  // preço cheio de novo. basePrice é o "preço de tabela" já com a promoção
+  // aplicada quando ela é melhor que o preço cheio; tier de volume continua
+  // podendo bater um preço ainda menor por cima.
+  const promoAtiva = product?.usd_price_promo != null && Number(product.usd_price_promo) < Number(product?.usd_price)
+  const basePrice = product ? (promoAtiva ? Number(product.usd_price_promo) : product.usd_price) : 0
+  const unitPrice = product ? priceFor(qty, basePrice, tiers) : 0
+  const tierAtivo = tiers.some(t => qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max))
   const multiplicador = Math.max(1, product?.multiplicador || 1)
   const vendaMinima = Math.max(1, product?.venda_minima || 1)
 
@@ -292,7 +300,7 @@ export default function ProdutoPage() {
 
   const handleAdd = () => {
     if (!product) return
-    const u = priceFor(qty, product.usd_price, tiers)
+    const u = priceFor(qty, basePrice, tiers)
     for (let i = 0; i < qty; i++) {
       adicionar({ id: product.id, name: product.name, usd: u, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
     }
@@ -302,7 +310,7 @@ export default function ProdutoPage() {
 
   const handleBuyNow = () => {
     if (!product) return
-    const u = priceFor(qty, product.usd_price, tiers)
+    const u = priceFor(qty, basePrice, tiers)
     adicionar({ id: product.id, name: product.name, usd: u, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
     router.push('/checkout')
   }
@@ -537,7 +545,7 @@ export default function ProdutoPage() {
                     <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
                       <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>{currency.code} {fmt(product.usd_price, currency.rate, currency.code)}</span>
                       <span style={{ color: '#420E76', fontWeight: 700 }}>
-                        −{Math.round((1 - unitPrice / product.usd_price) * 100)}% por volume
+                        −{Math.round((1 - unitPrice / product.usd_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
                       </span>
                     </div>
                   )}
