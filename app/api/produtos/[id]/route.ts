@@ -9,7 +9,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const { data } = await supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, img_url, imagens, estoque, categoria_id, descricao, descricao_curta, badges, published_at, multiplicador, venda_minima, unidade_venda, custom_fields, sku')
+    .select('id, name, brand, usd_price, usd_price_promo, img_url, imagens, estoque, categoria_id, descricao, descricao_curta, badges, published_at, multiplicador, venda_minima, unidade_venda, custom_fields, sku')
     .eq('id', id)
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${nowIso}`)
