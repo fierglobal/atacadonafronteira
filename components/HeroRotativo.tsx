@@ -98,7 +98,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, heroEletron
         <div className="hero-content">
           <span className="hero-kicker">Atacado na Fronteira</span>
           <h1 className="hero-h1">Direto do Paraguai<br />pra revenda</h1>
-          <p className="hero-sub">Eletrônicos e linha de farmácia com preço de fronteira, para lojistas e profissionais da saúde.</p>
+          <p className="hero-sub">Eletrônicos, farmácia e perfumaria com preço de fronteira, para lojistas e profissionais da saúde.</p>
           <div className="hero-stats">
             <div className="hero-stat"><span className="hero-stat-num">{total}</span><span className="hero-stat-label">produtos em estoque</span></div>
             <div className="hero-stat-div" />

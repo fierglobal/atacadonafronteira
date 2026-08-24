@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   // público usa, escrito uma vez, numa frase que faz sentido lida em voz alta.
   description:
     'Atacado na Fronteira (também procurado como Atacados na Fronteira): catálogo direto do ' +
-    'Paraguai com peptídeos, tirzepatida, retatrutida, anabolizantes, celulares e eletrônicos. ' +
-    'Preços em dólar, pagamento via PIX e retirada na loja.',
+    'Paraguai com peptídeos, tirzepatida, retatrutida, anabolizantes, celulares, eletrônicos e ' +
+    'perfumaria árabe, importada e de nicho. Preços em dólar, pagamento via PIX e retirada na loja.',
 }
 
 // Organization + WebSite: é o mecanismo padrão para declarar ao Google que a marca
@@ -39,7 +39,7 @@ const jsonLdLoja = () => ([
     image: `${SITE_URL}/og-image.png`,
     description:
       'Loja de atacado com produtos importados direto do Paraguai: peptídeos, tirzepatida, ' +
-      'retatrutida, anabolizantes, celulares e eletrônicos.',
+      'retatrutida, anabolizantes, celulares, eletrônicos e perfumaria árabe, importada e de nicho.',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'sales',
@@ -110,6 +110,7 @@ async function getInitial(): Promise<HomeInitial | null> {
     const DESC_DEPT: Record<string, string> = {
       'Eletrônicos': 'Celulares Xiaomi e Apple, notebooks, caixas JBL, robôs aspiradores e smartwatches.',
       'Farmácia': 'Peptídeos, tirzepatida, retatrutida, anabolizantes e linha estética.',
+      'Perfumes': 'Perfumaria árabe, importados e de nicho, direto do Paraguai.',
     }
     const departamentos = raizes
       .map(r => ({
