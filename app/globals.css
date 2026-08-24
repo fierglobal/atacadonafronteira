@@ -53,27 +53,36 @@ body {
 /* === SITE HEADER === */
 .site-header {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(255,255,255,0.94);
+  background: rgba(255, 246, 217, 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid #ececec;
 }
 .site-header-inner {
   max-width: 1280px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; gap: 16px; height: 60px;
+  display: flex; align-items: center; gap: 20px; height: 60px;
 }
 .site-logo { display: flex; align-items: center; flex-shrink: 0; }
+/* Busca centralizada entre a logo e o grupo de ações: flex:1 no meio absorve
+   o espaço sobrando, empurrando as ações (moeda/conta/carrinho) pra direita
+   sem precisar de margin-left:auto nelas. */
+.nav-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+.nav-search-wrap .nav-search { width: 100%; max-width: 420px; }
+.nav-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
 .nav-row {
   border-top: 1px solid #f0edf5;
-  background: rgba(255,255,255,0.72);
+  background: rgba(255, 246, 217, 0.7);
 }
 .nav-desktop {
   max-width: 1280px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; gap: 2px;
-  min-width: 0; overflow-x: auto; white-space: nowrap;
-  scrollbar-width: none;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+  min-width: 0;
 }
-.nav-desktop::-webkit-scrollbar { display: none; }
+/* Era overflow-x:auto — mas overflow-x diferente de 'visible' força overflow-y
+   a computar 'auto' também (regra do spec, não dá pra misturar visible+auto),
+   e isso cortava o .nav-dropdown (position:absolute, top:100%) na altura da
+   própria barra: o mega menu ficava com display:flex mas 0px visíveis.
+   flex-wrap deixa o item que não coube ir pra 2ª linha em vez de sumir. */
 .nav-cat-ajuda { margin-left: auto; color: #420E76 !important; }
 .nav-cat-btn {
   position: relative;
@@ -283,4 +292,20 @@ body { overflow-x: clip; }
   /* Android de 360px: sem isto o botão do carrinho passa 5px da borda. */
   .site-logo span span { display: none !important; }
   .site-header-inner { gap: 6px !important; padding-left: 10px !important; padding-right: 10px !important; }
+}
+
+/* ─── Página de categoria: filtro em sidebar ──────────────────────────────
+   Chips horizontais viravam duas fileiras cheias de borda antes do grid.
+   Sidebar fixa (sticky, some no mobile) devolve a primeira tela pro produto. */
+.cat-layout { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+.cat-sidebar { position: sticky; top: 132px; }
+.cat-filter-group { margin-bottom: 26px; }
+.cat-filter-title { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #a3a3a3; margin-bottom: 8px; }
+.cat-filter-list { display: flex; flex-direction: column; gap: 1px; }
+.cat-filter-list a:hover { background: #fafafa; }
+
+@media (max-width: 900px) {
+  .cat-layout { grid-template-columns: 1fr; gap: 20px; }
+  .cat-sidebar { position: static; display: flex; flex-wrap: wrap; gap: 0 28px; }
+  .cat-filter-group { flex: 1 1 220px; margin-bottom: 12px; }
 }
