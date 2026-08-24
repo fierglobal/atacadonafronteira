@@ -73,7 +73,9 @@ const dec = (s: string | null) => {
 const fmt = (n: number, rate: number, code: string) => {
   const v = n * rate
   if (code === 'PYG') return v.toLocaleString('es-PY', { maximumFractionDigits: 0 })
-  return v.toFixed(2).replace('.', ',')
+  // pt-BR com separador de milhar — "1.000,54" lê melhor que "1000,54" no
+  // card estreito, e ajuda o número a caber numa linha só.
+  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const PAGE_SIZE = 12
@@ -134,10 +136,18 @@ function ProductCardCompact({ p }: { p: Product }) {
         <h4 style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.35, minHeight: 30, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
         <div style={{ borderTop: '1px solid #f2f2f2', paddingTop: 7, marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6 }}>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em' }}>
-              {currency.code} {fmt(priceShown, currency.rate, currency.code)}
+            {promo && (
+              <div style={{ fontSize: 10.5, color: '#a3a3a3', textDecoration: 'line-through', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as const }}>
+                {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, whiteSpace: 'nowrap' as const }}>
+              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>{currency.code}</span>
+              <span style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const }}>
+                {fmt(priceShown, currency.rate, currency.code)}
+              </span>
             </div>
-            <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500 }}>
+            <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
               {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, brlRate, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
           </div>
