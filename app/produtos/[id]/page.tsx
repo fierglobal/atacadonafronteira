@@ -343,6 +343,16 @@ export default function ProdutoPage() {
           .price-usd { font-size: 36px !important; }
           .related-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .info-grid { grid-template-columns: 1fr !important; }
+          /* Botão de comprar ficava a 1231px do topo — 1,5 tela de rolagem —
+             porque estoque/descrição/SKU vinham antes do preço. Preço +
+             quantidade + CTA sobem pra logo depois do título; o resto desce.
+             Desktop nem entra aqui (flex-direction:row, order não se aplica
+             visualmente do mesmo jeito) — zero mudança lá. */
+          .product-info-col { display: flex; flex-direction: column; }
+          .pdp-title { order: 1; }
+          .pdp-buybox { order: 2; }
+          .pdp-secondary { order: 3; }
+          .pdp-infogrid { order: 4; }
         }
         @media (max-width: 640px) {
           .prod-nav-onde { display: none !important; }
@@ -443,6 +453,13 @@ export default function ProdutoPage() {
               {/* INFO COL */}
               <div className="product-info-col" style={{ flex: 1, minWidth: 0 }}>
 
+                {/* No mobile o comprador tinha que rolar 1,5 tela pra chegar no
+                    botão: a coluna inteira da imagem some por baixo, e ainda
+                    tinha estoque/descrição/SKU antes do preço. pdp-title/
+                    pdp-buybox/pdp-secondary/pdp-infogrid reordenam só no
+                    mobile (globals.css) — no desktop viram flex column na
+                    mesma ordem de sempre, zero mudança visual. */}
+                <div className="pdp-title">
                 {/* brand label */}
                 {product.brand && (
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#420E76', marginBottom: 10, textTransform: 'uppercase' }}>
@@ -454,7 +471,9 @@ export default function ProdutoPage() {
                 <h1 className="product-name" style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.01em', margin: '0 0 14px', color: '#0a0a0a' }}>
                   {product.name}
                 </h1>
+                </div>
 
+                <div className="pdp-secondary">
                 {/* badges manuais + stock */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18, alignItems: 'center' }}>
                   {(() => {
@@ -502,7 +521,9 @@ export default function ProdutoPage() {
                     </div>
                   )}
                 </div>
+                </div>
 
+                <div className="pdp-buybox">
                 {/* divider */}
                 <div style={{ height: 1, background: '#ececec', marginBottom: 28 }} />
 
@@ -665,7 +686,9 @@ export default function ProdutoPage() {
                     </a>
                   )}
                 </div>
+                </div>
 
+                <div className="pdp-infogrid">
                 {/* divider */}
                 <div style={{ height: 1, background: '#ececec', margin: '32px 0' }} />
 
@@ -682,6 +705,7 @@ export default function ProdutoPage() {
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a' }}>{item.value}</div>
                     </div>
                   ))}
+                </div>
                 </div>
               </div>
             </div>
