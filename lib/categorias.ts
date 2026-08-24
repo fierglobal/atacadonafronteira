@@ -16,8 +16,9 @@ export type CategoriaSeo = {
 }
 
 // Uma categoria vale página quando tem produto ativo nela OU em alguma filha.
-// Perfumes e PODs existem no banco com zero produtos: virariam página vazia
-// indexável, que é pior que não existir.
+// PODs existe no banco com zero produtos (e as subcategorias vazias de
+// Perfumes — Importados/Nicho, sem estoque ainda): virariam página vazia
+// indexável, que é pior que não existir. Somem sozinhas até ganharem produto.
 export async function listarCategoriasSeo(): Promise<CategoriaSeo[]> {
   const now = new Date().toISOString()
   const [{ data: cats }, { data: ativos }] = await Promise.all([

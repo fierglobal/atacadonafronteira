@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown, Smartphone, Laptop, Bot, Headphones, Speaker, Watch, Tablet, Package,
-  FlaskConical, Syringe, Dumbbell, Sparkles, type LucideIcon,
+  FlaskConical, Syringe, Dumbbell, Sparkles, SprayCan, Globe, Gem, type LucideIcon,
 } from 'lucide-react'
 import { slugify } from '@/lib/slug'
 import type { NavItem } from '@/components/SiteHeader'
@@ -26,6 +26,9 @@ const ICONS: Record<string, LucideIcon> = {
   'Retatrutida': Syringe,
   'Anabolizantes': Dumbbell,
   'Estética': Sparkles,
+  'Árabe': SprayCan,
+  'Importados': Globe,
+  'Nicho': Gem,
 }
 
 const catHref = (nome: string) => `/categoria/${slugify(nome)}`
