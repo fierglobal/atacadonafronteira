@@ -137,12 +137,21 @@ export default async function CategoriaPage({
     background: ativo ? '#420E76' : '#fff', color: ativo ? '#fff' : '#404040',
   })
 
+  // Itens de filtro da sidebar: lista vertical, não pílula horizontal.
+  const sidebarLink = (ativo: boolean) => ({
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
+    padding: '8px 10px', borderRadius: 8, fontSize: 13, textDecoration: 'none',
+    fontWeight: ativo ? 800 as const : 600 as const,
+    background: ativo ? 'rgba(66, 14, 118,0.08)' : 'transparent',
+    color: ativo ? '#420E76' : '#404040',
+  })
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
-      <main style={{ maxWidth: 1240, margin: '0 auto', padding: '24px 20px 60px' }}>
-        <nav aria-label="Trilha de navegação" style={{ fontSize: 12, color: '#737373', marginBottom: 16 }}>
+      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '20px 20px 60px' }}>
+        <nav aria-label="Trilha de navegação" style={{ fontSize: 12, color: '#737373', marginBottom: 14 }}>
           <Link href="/" style={{ color: '#737373', textDecoration: 'none' }}>Início</Link>
           {cat.paiNome && cat.paiSlug && (
             <>{' / '}<Link href={`/categoria/${cat.paiSlug}`} style={{ color: '#737373', textDecoration: 'none' }}>{cat.paiNome}</Link></>
@@ -150,62 +159,80 @@ export default async function CategoriaPage({
           {' / '}<span style={{ color: '#420E76', fontWeight: 700 }}>{cat.nome}</span>
         </nav>
 
-        <h1 style={{ fontSize: 28, fontWeight: 900, margin: '0 0 8px', color: '#0a0a0a', letterSpacing: '-0.02em' }}>
-          {cat.nome} no atacado
-        </h1>
-        <p style={{ fontSize: 15, color: '#525252', margin: '0 0 20px', maxWidth: 720, lineHeight: 1.6 }}>
-          {cat.total} {cat.total === 1 ? 'produto disponível' : 'produtos disponíveis'} de {cat.nome.toLowerCase()},
-          direto do Paraguai. Preços de atacado em dólar, pagamento via PIX e retirada na loja.
-        </p>
-
-        {/* Filtros como LINK, não estado de navegador: é o que devolve a navegação
-            ao cliente sem tirar a página do índice do Google. */}
-        {marcas.length > 1 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 12 }}>
-            <Link href={url({ marca: '', pagina: '1' })} style={chip(!b.marca)}>Todas as marcas</Link>
-            {marcas.map(([nome, qtd]) => (
-              <Link key={nome} href={url({ marca: nome, pagina: '1' })} style={chip(b.marca === nome)}>
-                {nome} <span style={{ opacity: 0.65, fontWeight: 600 }}>{qtd}</span>
-              </Link>
-            ))}
-          </div>
-        )}
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center', marginBottom: 22, paddingBottom: 16, borderBottom: '1px solid #ececec' }}>
-          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', color: '#a3a3a3' }}>ORDENAR</span>
-          {ORDENS.map(o => (
-            <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })} style={chip((b.ordem || '') === o.chave)}>{o.rotulo}</Link>
-          ))}
-          <span style={{ marginLeft: 'auto', fontSize: 12.5, color: '#737373' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: '#0a0a0a', letterSpacing: '-0.02em' }}>
+            {cat.nome} no atacado
+          </h1>
+          <span style={{ fontSize: 12.5, color: '#737373' }}>
             {total === 0 ? 'Nenhum produto' : `${total} produto${total > 1 ? 's' : ''}`}
             {b.marca ? ` · ${b.marca}` : ''}
           </span>
         </div>
 
-        {itens.length === 0 ? (
-          <p style={{ padding: '40px 0', color: '#737373' }}>
-            Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
-          </p>
-        ) : (
-          <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-            {itens.map(p => <CategoriaProductCard key={p.id} p={p} />)}
-          </div>
-        )}
+        {/* Sidebar + grid: no celular vira 1 coluna, os filtros ficam empilhados
+            em cima do grid (globals.css). Filtros como LINK, não estado de
+            navegador — devolve a navegação ao cliente sem tirar a página do
+            índice do Google. */}
+        <div className="cat-layout">
+          <aside className="cat-sidebar" aria-label="Filtros">
+            {marcas.length > 1 && (
+              <div className="cat-filter-group">
+                <span className="cat-filter-title">MARCA</span>
+                <div className="cat-filter-list">
+                  <Link href={url({ marca: '', pagina: '1' })} style={sidebarLink(!b.marca)}>Todas as marcas</Link>
+                  {marcas.map(([nome, qtd]) => (
+                    <Link key={nome} href={url({ marca: nome, pagina: '1' })} style={sidebarLink(b.marca === nome)}>
+                      <span>{nome}</span>
+                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{qtd}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="cat-filter-group">
+              <span className="cat-filter-title">ORDENAR</span>
+              <div className="cat-filter-list">
+                {ORDENS.map(o => (
+                  <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })} style={sidebarLink((b.ordem || '') === o.chave)}>{o.rotulo}</Link>
+                ))}
+              </div>
+            </div>
+          </aside>
 
-        {totalPaginas > 1 && (
-          <nav aria-label="Paginação" style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center', marginTop: 30 }}>
-            {pagina > 1 && <Link href={url({ pagina: String(pagina - 1) })} style={chip(false)}>← Anterior</Link>}
-            {Array.from({ length: totalPaginas }, (_, i) => i + 1)
-              .filter(n => n === 1 || n === totalPaginas || Math.abs(n - pagina) <= 2)
-              .map((n, i, arr) => (
-                <span key={n}>
-                  {i > 0 && arr[i - 1] !== n - 1 && <span style={{ color: '#a3a3a3', padding: '0 4px' }}>…</span>}
-                  <Link href={url({ pagina: String(n) })} style={chip(n === pagina)}>{n}</Link>
-                </span>
-              ))}
-            {pagina < totalPaginas && <Link href={url({ pagina: String(pagina + 1) })} style={chip(false)}>Próxima →</Link>}
-          </nav>
-        )}
+          <div className="cat-main">
+            {itens.length === 0 ? (
+              <p style={{ padding: '40px 0', color: '#737373' }}>
+                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
+              </p>
+            ) : (
+              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
+                {itens.map(p => <CategoriaProductCard key={p.id} p={p} />)}
+              </div>
+            )}
+
+            {totalPaginas > 1 && (
+              <nav aria-label="Paginação" style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center', marginTop: 30 }}>
+                {pagina > 1 && <Link href={url({ pagina: String(pagina - 1) })} style={chip(false)}>← Anterior</Link>}
+                {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+                  .filter(n => n === 1 || n === totalPaginas || Math.abs(n - pagina) <= 2)
+                  .map((n, i, arr) => (
+                    <span key={n}>
+                      {i > 0 && arr[i - 1] !== n - 1 && <span style={{ color: '#a3a3a3', padding: '0 4px' }}>…</span>}
+                      <Link href={url({ pagina: String(n) })} style={chip(n === pagina)}>{n}</Link>
+                    </span>
+                  ))}
+                {pagina < totalPaginas && <Link href={url({ pagina: String(pagina + 1) })} style={chip(false)}>Próxima →</Link>}
+              </nav>
+            )}
+          </div>
+        </div>
+
+        {/* Texto para SEO: fica no rodapé da página, não compete com o filtro
+            nem com o grid pela primeira tela. */}
+        <p style={{ fontSize: 14, color: '#737373', margin: '48px 0 0', paddingTop: 24, borderTop: '1px solid #ececec', maxWidth: 720, lineHeight: 1.6 }}>
+          {cat.total} {cat.total === 1 ? 'produto disponível' : 'produtos disponíveis'} de {cat.nome.toLowerCase()},
+          direto do Paraguai. Preços de atacado em dólar, pagamento via PIX e retirada na loja.
+        </p>
       </main>
     </>
   )

@@ -36,11 +36,13 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+      <div className="nav-search-wrap">
         <form onSubmit={buscar} className="nav-search" role="search">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar produto…" aria-label="Buscar produto" />
         </form>
+      </div>
+      <div className="nav-actions">
         <span className="nav-rate">USD/BRL = {brlRate.toFixed(2).replace('.', ',')}</span>
         <div style={{ position: 'relative' }}>
           <button onClick={() => setCurrencyOpen(p => !p)}
