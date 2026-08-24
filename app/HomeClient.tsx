@@ -592,15 +592,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         .product-card:hover .card-overlay { opacity: 1 !important; }
         .card-add-btn:hover:not(:disabled) { background: #420E76 !important; color: #ffffff !important; border-color: #420E76 !important; box-shadow: 0 4px 12px rgba(66, 14, 118,0.18) !important; }
         .skeleton { background: linear-gradient(90deg, #f5f5f5 25%, #ececec 50%, #f5f5f5 75%); background-size: 400px 100%; animation: shimmer 1.4s ease-in-out infinite; }
-        .nav-mobile-btn { display: none; }
-        .nav-mobile-drawer { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid #ececec; padding: 12px 16px; flex-direction: column; gap: 4px; z-index: 200; box-shadow: 0 8px 16px rgba(0,0,0,0.06); }
-        .nav-desktop { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; min-width: 0; }
-        .nav-cat-btn { padding: 0 12px; height: 60px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #737373; background: none; border: none; cursor: pointer; transition: color 0.15s; white-space: nowrap; }
-        .nav-cat-btn:hover { color: #0a0a0a; }
-        .nav-cat-btn.active { color: #420E76; }
-        .nav-cat-btn.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px; background: #A965ED; box-shadow: 0 0 6px rgba(66, 14, 118,0.4); }
-        .nav-cat-btn { position: relative; }
-        .nav-cat-skel { width: 78px; height: 12px; border-radius: 4px; flex-shrink: 0; }
         .header-account:hover { color: #0a0a0a !important; border-color: #d4d4d4 !important; }
         .header-cart:hover { box-shadow: 0 4px 12px rgba(66, 14, 118,0.18) !important; border-color: rgba(66, 14, 118,0.5) !important; }
         .trust-ticker { overflow: hidden; white-space: nowrap; }
