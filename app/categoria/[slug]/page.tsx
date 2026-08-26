@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
 import { acharCategoriaPorSlug, type CategoriaSeo } from '@/lib/categorias'
@@ -47,16 +47,18 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
 
 async function getMarcas(cat: CategoriaSeo) {
   const now = new Date().toISOString()
-  const { data } = await supabaseAdmin
-    .from('products')
-    .select('brand')
-    .eq('ativo', true)
-    .or(`published_at.is.null,published_at.lte.${now}`)
-    .in('categoria_id', [cat.id, ...cat.descendentes])
-    .not('brand', 'is', null)
-    .range(0, 4999)
+  const data = await fetchAllRows<{ brand: string | null }>((from, to) =>
+    supabaseAdmin
+      .from('products')
+      .select('brand')
+      .eq('ativo', true)
+      .or(`published_at.is.null,published_at.lte.${now}`)
+      .in('categoria_id', [cat.id, ...cat.descendentes])
+      .not('brand', 'is', null)
+      .range(from, to)
+  )
   const cont: Record<string, number> = {}
-  for (const p of data || []) if (p.brand) cont[p.brand as string] = (cont[p.brand as string] || 0) + 1
+  for (const p of data) if (p.brand) cont[p.brand] = (cont[p.brand] || 0) + 1
   return Object.entries(cont).sort((a, b) => b[1] - a[1])
 }
 

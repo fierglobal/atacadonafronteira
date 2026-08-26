@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import { slugify } from '@/lib/slug'
 import { DEPARTAMENTO_ELETRONICO } from '@/lib/entrega'
 
@@ -21,16 +21,18 @@ export type CategoriaSeo = {
 // indexável, que é pior que não existir. Somem sozinhas até ganharem produto.
 export async function listarCategoriasSeo(): Promise<CategoriaSeo[]> {
   const now = new Date().toISOString()
-  const [{ data: cats }, { data: ativos }] = await Promise.all([
+  const [{ data: cats }, ativos] = await Promise.all([
     supabaseAdmin.from('categorias').select('id, nome, parent_id'),
-    supabaseAdmin.from('products').select('categoria_id')
-      .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-      .range(0, 4999),
+    fetchAllRows<{ categoria_id: string | null }>((from, to) =>
+      supabaseAdmin.from('products').select('categoria_id')
+        .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+        .range(from, to)
+    ),
   ])
   if (!cats) return []
 
   const diretos: Record<string, number> = {}
-  for (const p of ativos || []) {
+  for (const p of ativos) {
     if (p.categoria_id) diretos[p.categoria_id] = (diretos[p.categoria_id] ?? 0) + 1
   }
 

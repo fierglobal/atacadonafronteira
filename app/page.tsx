@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import SiteHeader from '@/components/SiteHeader'
 import HomeClient, { type HomeInitial } from './HomeClient'
 import Link from 'next/link'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import { slugify } from '@/lib/slug'
 import { SITE_URL, SITE_NAME, WHATSAPP_NUMBER } from '@/lib/site'
 
@@ -75,13 +75,15 @@ const VITRINE_POR_SECAO = 12
 async function getInitial(): Promise<HomeInitial | null> {
   try {
     const now = new Date().toISOString()
-    const [{ data: cats }, { data: ativos }] = await Promise.all([
+    const [{ data: cats }, ativos] = await Promise.all([
       supabaseAdmin.from('categorias').select('id, nome, parent_id'),
-      supabaseAdmin.from('products').select('categoria_id, brand')
-        .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .range(0, 4999),
+      fetchAllRows<{ categoria_id: string | null; brand: string | null }>((from, to) =>
+        supabaseAdmin.from('products').select('categoria_id, brand')
+          .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+          .range(from, to)
+      ),
     ])
-    if (!cats || !ativos) return null
+    if (!cats) return null
 
     const counts: Record<string, number> = {}
     const marcas: Record<string, number> = {}
