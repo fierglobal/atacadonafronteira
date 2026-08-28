@@ -195,7 +195,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
                 ['CPF', order.customers.cpf],
                 ['WhatsApp', order.customers.telefone],
                 ['E-mail', order.customers.email],
-                ['Endereço', [order.customers.endereco, order.customers.numero].filter(Boolean).join(', ') + (order.customers.bairro ? ` — ${order.customers.bairro}` : '') || '— (retirada, sem endereço)'],
+                ['Endereço', [order.customers.endereco, order.customers.numero].filter(Boolean).join(', ') + (order.customers.bairro ? ` — ${order.customers.bairro}` : '') || (envio ? '— (ver endereço de entrega acima ↑)' : '— (retirada, sem endereço)')],
                 ['Cidade', order.customers.cidade ? `${order.customers.cidade}/${order.customers.uf}${order.customers.cep ? ` — CEP ${order.customers.cep}` : ''}` : '—'],
               ].map(([k, v]) => (
                 <div key={k}>
