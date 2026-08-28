@@ -21,10 +21,11 @@ export default function Estoque() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/admin/produtos-list').then(r => r.json()),
+      fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()),
       fetch('/api/admin/categorias').then(r => r.json()),
-    ]).then(([prods, cats]) => {
-      setProducts(Array.isArray(prods) ? prods : [])
+    ]).then(([prodsRes, cats]) => {
+      const prods: Product[] = Array.isArray(prodsRes) ? prodsRes : (prodsRes.rows || [])
+      setProducts(prods)
       setCategorias(Array.isArray(cats) ? cats : [])
       const init: Record<string, Draft> = {}
       prods.forEach((p: Product) => {
@@ -32,7 +33,7 @@ export default function Estoque() {
       })
       setDrafts(init)
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
   }, [])
 
   const setDraft = (id: string, value: string) =>

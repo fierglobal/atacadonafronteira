@@ -163,7 +163,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
       fetch('/api/admin/categorias').then(r => r.json()),
       fetch('/api/admin/sales-channels').then(r => r.json()),
       fetch('/api/admin/custom-fields?entity=products').then(r => r.json()),
-      fetch('/api/admin/produtos-list?perPage=500').then(r => r.json()),
+      fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()),
     ]).then(([m, c, sc, cf, pl]) => {
       setMarcas(Array.isArray(m) ? m : [])
       setCategorias(Array.isArray(c) ? c : [])
