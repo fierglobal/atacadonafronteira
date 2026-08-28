@@ -132,6 +132,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
   const [loadingLogs, setLoadingLogs] = useState(false)
   const [slugManual, setSlugManual] = useState(false)
   const [badgeInput, setBadgeInput] = useState('')
+  const [brlRate, setBrlRate] = useState(0)
 
   const [salesChannels, setSalesChannels] = useState<SalesChannel[]>([])
   const [customFieldDefs, setCustomFieldDefs] = useState<CustomFieldDef[]>([])
@@ -183,6 +184,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     fetch(`/api/admin/produtos/${id}/relacionados`).then(r => r.json()).then(d => {
       if (Array.isArray(d)) setRelacionados(d as Relacionado[])
     })
+    fetch('/api/config/loja').then(r => r.json()).then(d => setBrlRate(d.brl_rate || 0)).catch(() => {})
   }, [id])
 
   useEffect(() => {
@@ -604,10 +606,16 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                 <div>
                   <label style={lbl}>PREÇO DE VENDA (USD)</label>
                   <input type="number" step="0.01" value={form.usd_price} onChange={set('usd_price')} placeholder="0.00" style={IS} />
+                  {brlRate > 0 && parseFloat(form.usd_price) > 0 && (
+                    <p style={{ fontSize: 11, color: 'var(--a-text3)', marginTop: 4 }}>≈ R$ {(parseFloat(form.usd_price) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  )}
                 </div>
                 <div>
                   <label style={lbl}>PREÇO &quot;DE&quot; PROMOCIONAL (USD)</label>
                   <input type="number" step="0.01" value={form.usd_price_promo} onChange={set('usd_price_promo')} placeholder="Vazio = sem promoção" style={IS} />
+                  {brlRate > 0 && parseFloat(form.usd_price_promo) > 0 && (
+                    <p style={{ fontSize: 11, color: 'var(--a-text3)', marginTop: 4 }}>≈ R$ {(parseFloat(form.usd_price_promo) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  )}
                 </div>
                 <div>
                   <label style={lbl}>CUSTO DO PRODUTO (USD)</label>
@@ -689,6 +697,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
             {form.usd_price_promo && parseFloat(form.usd_price_promo) > 0 && parseFloat(form.usd_price) > 0 && (
               <div style={{ padding: '12px 16px', background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 9, fontSize: 13, color: '#A965ED', fontWeight: 600 }}>
                 Desconto de {((parseFloat(form.usd_price) - parseFloat(form.usd_price_promo)) / parseFloat(form.usd_price) * 100).toFixed(1)}% — de USD {parseFloat(form.usd_price).toFixed(2)} por USD {parseFloat(form.usd_price_promo).toFixed(2)}
+                {brlRate > 0 && ` (R$ ${(parseFloat(form.usd_price) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} por R$ ${(parseFloat(form.usd_price_promo) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`}
               </div>
             )}
           </div>

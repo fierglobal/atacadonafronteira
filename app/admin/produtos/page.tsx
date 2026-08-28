@@ -5,8 +5,11 @@ import Link from 'next/link'
 
 type Product = { id: string; name: string; brand: string; usd_price: number; img_url: string; ativo: boolean; sort_order: number; estoque: number | null }
 
+const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
 export default function Produtos() {
   const [products, setProducts] = useState<Product[]>([])
+  const [brlRate, setBrlRate] = useState(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterBrand, setFilterBrand] = useState('')
@@ -22,6 +25,7 @@ export default function Produtos() {
       setProducts(data.rows || data || [])
       setLoading(false)
     })
+    fetch('/api/config/loja').then(r => r.json()).then(d => setBrlRate(d.brl_rate || 0)).catch(() => {})
   }, [])
 
   const patch = async (id: string, payload: object) => {
@@ -151,7 +155,7 @@ export default function Produtos() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
-              {['Produto', 'Marca', 'Preço USD', 'Estoque', 'Status', ''].map(h => (
+              {['Produto', 'Marca', 'Preço (USD / BRL)', 'Estoque', 'Status', ''].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
@@ -209,9 +213,12 @@ export default function Produtos() {
                     </div>
                   ) : (
                     <button onClick={() => setEditingPrice({ id: p.id, price: p.usd_price.toString() })}
-                      style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                      <span style={{ fontSize: 14, fontWeight: 900, color: '#A965ED' }}>USD {p.usd_price.toFixed(2)}</span>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#A965ED' }}>USD {p.usd_price.toFixed(2)}</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </span>
+                      {brlRate > 0 && <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{fmtBRL(p.usd_price * brlRate)}</span>}
                     </button>
                   )}
                 </td>
