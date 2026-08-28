@@ -336,8 +336,8 @@ export default function Pedidos() {
                     ['CPF', selected.customers.cpf],
                     ['WhatsApp', selected.customers.telefone],
                     ['E-mail', selected.customers.email],
-                    ['Endereço', `${selected.customers.endereco}, ${selected.customers.numero} — ${selected.customers.bairro}`],
-                    ['Cidade', `${selected.customers.cidade}/${selected.customers.uf} — CEP ${selected.customers.cep}`],
+                    ['Endereço', [selected.customers.endereco, selected.customers.numero].filter(Boolean).join(', ') + (selected.customers.bairro ? ` — ${selected.customers.bairro}` : '') || '— (retirada, sem endereço)'],
+                    ['Cidade', selected.customers.cidade ? `${selected.customers.cidade}/${selected.customers.uf}${selected.customers.cep ? ` — CEP ${selected.customers.cep}` : ''}` : '—'],
                   ].map(([k, v]) => (
                     <div key={k}>
                       <p style={{ fontSize: 9, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 2 }}>{k}</p>
