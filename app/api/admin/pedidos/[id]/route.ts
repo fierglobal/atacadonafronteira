@@ -9,13 +9,22 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (auth) return auth
   const { id } = await params
 
-  const [{ data: history }, { data: items }] = await Promise.all([
+  const [{ data: order }, { data: statusHistory }, { data: acoes }, { data: items }] = await Promise.all([
+    supabaseAdmin.from('orders').select('*, customers(*), order_items(*)').eq('id', id).single(),
     supabaseAdmin
       .from('order_status_history')
       .select('status, created_at')
       .eq('order_id', id)
       .order('created_at', { ascending: false })
-      .limit(10),
+      .limit(20),
+    // Histórico de ações (tag/notas/etc) — mesma tabela de auditoria usada no
+    // resto do admin, filtrada pra esse pedido.
+    supabaseAdmin
+      .from('audit_logs')
+      .select('action, diff, user_nome, created_at')
+      .eq('entity', 'pedido').eq('entity_id', id)
+      .order('created_at', { ascending: false })
+      .limit(20),
     supabaseAdmin
       .from('order_items')
       .select('product_name')
@@ -26,13 +35,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   let stockMap: Record<string, number | null> = {}
   if (names.length > 0) {
     const { data: prods } = await supabaseAdmin
-      .from('produtos')
+      .from('products')
       .select('name, estoque')
       .in('name', names)
     ;(prods || []).forEach((p: any) => { stockMap[p.name] = p.estoque })
   }
 
-  return NextResponse.json({ history: history || [], stockMap })
+  const timeline = [
+    ...(statusHistory || []).map(h => ({ tipo: 'status' as const, status: h.status, created_at: h.created_at })),
+    ...(acoes || []).map(a => ({ tipo: 'acao' as const, action: a.action, diff: a.diff, user_nome: a.user_nome, created_at: a.created_at })),
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+  return NextResponse.json({ order: order || null, history: statusHistory || [], timeline, stockMap })
 }
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -68,6 +82,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     .update({ ...body, updated_at: new Date().toISOString() })
     .eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  await logAudit({ action: 'update', entity: 'pedido', entity_id: id, diff: body })
+
+  // Status já vira linha própria em order_status_history — não duplica aqui.
+  // Ação específica pra render melhor no histórico quando é só 1 campo.
+  const campos = Object.keys(body)
+  if (!(campos.length === 1 && campos[0] === 'status')) {
+    const action = campos.length === 1 && campos[0] === 'tags' ? 'tags'
+      : campos.length === 1 && campos[0] === 'notas' ? 'notas'
+      : 'update'
+    await logAudit({ action, entity: 'pedido', entity_id: id, diff: body })
+  }
   return NextResponse.json({ ok: true })
 }

@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 
@@ -7,40 +8,53 @@ type ManualItem = { id: string; name: string; brand: string; usd: number; quanti
 type Product = { id: string; name: string; brand: string; usd_price: number }
 
 const STATUSES = [
-  { value: '', label: 'Todos' },
   { value: 'pendente_pagamento', label: 'Pendente PIX', color: '#f59e0b' },
   { value: 'pago', label: 'Pago', color: '#3b82f6' },
   { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#A965ED' },
   { value: 'retirado', label: 'Retirado', color: '#555' },
   { value: 'cancelado', label: 'Cancelado', color: '#ef4444' },
 ]
+const GRUPOS: Record<string, string[]> = {
+  ativos: ['pendente_pagamento', 'pago', 'pronto_retirada'],
+  concluidos: ['retirado'],
+  inativos: ['cancelado'],
+}
 
 type Order = {
   id: string; order_num: string; status: string; total_usd: number; total_brl: number
   created_at: string; notas: string | null; comprovante_url: string | null; tags: string[] | null
   entrega_tipo?: 'retirada' | 'entrega_foz' | 'retirada_cde' | 'retirada_foz' | 'envio_brasil' | null
-  frete_brl?: number | null
-  seguro_brl?: number | null
-  seguro_recusado?: boolean | null
-  entrega_endereco?: string | null
-  customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
+  utm_source?: string | null; utm_campaign?: string | null
+  customers: { nome: string; cpf: string; telefone: string; email: string } | null
   order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number }[]
 }
 
-const ORDER_TAGS = ['urgente', 'atacadista', 'vip', 'novo cliente', 'problemático']
 const TAG_COLORS: Record<string, string> = {
   urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#A965ED', 'problemático': '#A965ED',
 }
 
+const sc = (s: string) => STATUSES.find(x => x.value === s)?.color || '#888'
+const sl = (s: string) => STATUSES.find(x => x.value === s)?.label || s
+
+function OrigemCell({ o }: { o: Order }) {
+  if (!o.utm_source && !o.utm_campaign) return <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>—</span>
+  return (
+    <span style={{ fontSize: 11, color: 'var(--a-text2)' }} title={[o.utm_source, o.utm_campaign].filter(Boolean).join(' · ')}>
+      {o.utm_source}{o.utm_source && o.utm_campaign ? ' · ' : ''}{o.utm_campaign}
+    </span>
+  )
+}
+
 export default function Pedidos() {
+  const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
-  const [filter, setFilter] = useState('')
+  const [grupo, setGrupo] = useState<'ativos' | 'concluidos' | 'inativos' | 'todos'>('ativos')
   const [search, setSearch] = useState('')
-  const [selected, setSelected] = useState<Order | null>(null)
-  const [history, setHistory] = useState<{ status: string; created_at: string }[]>([])
-  const [stockMap, setStockMap] = useState<Record<string, number | null>>({})
   const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
+  const [pagina, setPagina] = useState(1)
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [statusAlvo, setStatusAlvo] = useState('')
+  const [alterandoStatus, setAlterandoStatus] = useState(false)
   const [modalManual, setModalManual] = useState(false)
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [manualCustomer, setManualCustomer] = useState({ nome: '', cpf: '', telefone: '', email: '', cidade: '', endereco: '' })
@@ -48,10 +62,12 @@ export default function Pedidos() {
   const [manualSaving, setManualSaving] = useState(false)
   const [manualSuccess, setManualSuccess] = useState('')
 
+  const POR_PAGINA = 50
+
   const load = useCallback(async () => {
     setLoading(true)
     const url = new URL('/api/admin/pedidos-list', window.location.origin)
-    url.searchParams.set('perPage', '200')
+    url.searchParams.set('perPage', '500')
     const r = await fetch(url)
     const data = await r.json()
     setOrders(Array.isArray(data) ? data : (data.rows || []))
@@ -59,47 +75,7 @@ export default function Pedidos() {
   }, [])
 
   useEffect(() => { load() }, [load])
-
-  const selectOrder = async (o: Order) => {
-    setSelected(o)
-    setHistory([])
-    setStockMap({})
-    const { history: h, stockMap: sm } = await fetch(`/api/admin/pedidos/${o.id}`).then(r => r.json()).catch(() => ({ history: [], stockMap: {} }))
-    setHistory(h || [])
-    setStockMap(sm || {})
-  }
-
-  const updateStatus = async (id: string, status: string) => {
-    setUpdating(true)
-    await fetch(`/api/admin/pedidos/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-    setUpdating(false)
-    setSelected(prev => prev ? { ...prev, status } : null)
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
-    setHistory(prev => [{ status, created_at: new Date().toISOString() }, ...prev])
-  }
-
-  const toggleTag = async (id: string, tag: string, current: string[]) => {
-    const next = current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
-    setSelected(prev => prev ? { ...prev, tags: next } : null)
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, tags: next } : o))
-    await fetch(`/api/admin/pedidos/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tags: next }),
-    })
-  }
-
-  const updateNotas = async (id: string, notas: string) => {
-    await fetch(`/api/admin/pedidos/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notas }),
-    })
-  }
+  useEffect(() => { setPagina(1); setSelecionados(new Set()) }, [grupo, search])
 
   const exportCSV = () => {
     const rows = [['Pedido', 'Cliente', 'CPF', 'Telefone', 'Total BRL', 'Status', 'Data']]
@@ -155,8 +131,36 @@ export default function Pedidos() {
     setManualSaving(false)
   }
 
+  const toggleSelecionado = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelecionados(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const alterarStatusEmMassa = async () => {
+    if (selecionados.size === 0 || !statusAlvo) return
+    setAlterandoStatus(true)
+    try {
+      const res = await fetch('/api/admin/pedidos/bulk', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selecionados), status: statusAlvo }),
+      })
+      if (res.ok) {
+        setOrders(prev => prev.map(o => selecionados.has(o.id) ? { ...o, status: statusAlvo } : o))
+        setSelecionados(new Set())
+        setStatusAlvo('')
+      }
+    } finally {
+      setAlterandoStatus(false)
+    }
+  }
+
   const filtered = orders.filter(o => {
-    if (filter && o.status !== filter) return false
+    if (grupo !== 'todos' && !GRUPOS[grupo]?.includes(o.status)) return false
     if (search) {
       const s = search.toLowerCase()
       return o.order_num.toLowerCase().includes(s) || (o.customers?.nome || '').toLowerCase().includes(s) || (o.customers?.telefone || '').includes(s)
@@ -164,15 +168,20 @@ export default function Pedidos() {
     return true
   })
 
-  const sc = (s: string) => STATUSES.find(x => x.value === s)?.color || '#888'
-  const sl = (s: string) => STATUSES.find(x => x.value === s)?.label || s
+  const totalPaginas = Math.max(1, Math.ceil(filtered.length / POR_PAGINA))
+  const paginados = filtered.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
+
+  const countGrupo = (g: string) => g === 'todos' ? orders.length : orders.filter(o => GRUPOS[g]?.includes(o.status)).length
+  const valorTotalFiltro = filtered.reduce((s, o) => s + o.total_brl, 0)
 
   return (
     <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Pedidos</h1>
-          <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{orders.length} pedidos</p>
+          <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>
+            {filtered.length} pedido{filtered.length !== 1 ? 's' : ''} · {fmt(valorTotalFiltro)} no total
+          </p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pedido, cliente..."
@@ -188,39 +197,73 @@ export default function Pedidos() {
         </div>
       </div>
 
-      {/* Filter tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {STATUSES.map(s => (
-          <button key={s.value} onClick={() => setFilter(s.value)}
-            style={{ padding: '6px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${filter === s.value ? (s.color || '#A965ED') : 'var(--a-border)'}`, background: filter === s.value ? `${s.color || '#A965ED'}15` : 'transparent', color: filter === s.value ? (s.color || '#A965ED') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
-            {s.label}
+      {/* Abas de grupo */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)' }}>
+        {([
+          { v: 'ativos', label: 'Ativos' },
+          { v: 'concluidos', label: 'Concluídos' },
+          { v: 'inativos', label: 'Cancelados' },
+          { v: 'todos', label: 'Todos' },
+        ] as const).map(f => (
+          <button key={f.v} onClick={() => setGrupo(f.v)}
+            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: grupo === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: grupo === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1 }}>
+            {f.label} <span style={{ color: 'var(--a-text3)', fontWeight: 600 }}>({countGrupo(f.v)})</span>
           </button>
         ))}
       </div>
+
+      {/* Barra de ação em massa */}
+      {selecionados.size > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, background: 'rgba(169, 101, 237,0.08)', border: '1px solid rgba(169, 101, 237,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}</span>
+          <select value={statusAlvo} onChange={e => setStatusAlvo(e.target.value)} disabled={alterandoStatus}
+            style={{ padding: '6px 10px', fontSize: 12, borderRadius: 7, border: '1px solid var(--a-border)', background: 'var(--a-bg)', color: 'var(--a-text)', cursor: 'pointer', outline: 'none' }}>
+            <option value="">Mudar status…</option>
+            {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+          {statusAlvo && (
+            <button onClick={alterarStatusEmMassa} disabled={alterandoStatus}
+              style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: '#A965ED', color: '#000', border: 'none', cursor: 'pointer', opacity: alterandoStatus ? 0.6 : 1 }}>
+              {alterandoStatus ? '...' : `Aplicar (${selecionados.size})`}
+            </button>
+          )}
+          <button onClick={() => { setSelecionados(new Set()); setStatusAlvo('') }} style={{ fontSize: 12, color: 'var(--a-text3)', background: 'none', border: 'none', cursor: 'pointer' }}>
+            Limpar seleção
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
-              {['Pedido', 'Cliente', 'Telefone', 'Total', 'Status', 'Data', ''].map(h => (
+              <th style={{ padding: '11px 12px', width: 30 }}>
+                <div onClick={() => setSelecionados(prev => paginados.length > 0 && paginados.every(p => prev.has(p.id)) ? new Set() : new Set(paginados.map(p => p.id)))}
+                  style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+              </th>
+              {['Pedido', 'Cliente', 'Telefone', 'Origem', 'Total', 'Status', 'Data', ''].map(h => (
                 <th key={h} style={{ padding: '11px 18px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</td></tr>
-            ) : filtered.map(o => (
-              <tr key={o.id} style={{ borderBottom: '1px solid var(--a-surface)', cursor: 'pointer', transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                onClick={() => selectOrder(o)}>
+              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</td></tr>
+            ) : paginados.length === 0 ? (
+              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</td></tr>
+            ) : paginados.map(o => (
+              <tr key={o.id} style={{ borderBottom: '1px solid var(--a-surface)', cursor: 'pointer', background: selecionados.has(o.id) ? 'rgba(169, 101, 237,0.05)' : 'transparent', transition: 'background 0.1s' }}
+                onMouseEnter={e => { if (!selecionados.has(o.id)) e.currentTarget.style.background = 'var(--a-border)' }}
+                onMouseLeave={e => { if (!selecionados.has(o.id)) e.currentTarget.style.background = 'transparent' }}
+                onClick={() => router.push(`/admin/pedidos/${o.id}`)}>
+                <td style={{ padding: '12px' }} onClick={e => toggleSelecionado(o.id, e)}>
+                  <div style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+                </td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontWeight: 700 }}>{o.order_num}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text)' }}>{o.customers?.nome || '—'}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text2)' }}>{o.customers?.telefone || '—'}</td>
+                <td style={{ padding: '12px 18px' }}><OrigemCell o={o} /></td>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700 }}>{fmt(o.total_brl)}</td>
                 <td style={{ padding: '12px 18px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -248,167 +291,20 @@ export default function Pedidos() {
         </table>
       </div>
 
-      {/* Modal */}
-      {selected && (
-        <div onClick={() => setSelected(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: 'var(--a-surface)', border: '1px solid #2a2a2a', borderRadius: 16, width: '100%', maxWidth: 640, maxHeight: '90vh', overflowY: 'auto', padding: 28 }}>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-              <div>
-                <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.1em', marginBottom: 4 }}>PEDIDO</p>
-                <h2 style={{ fontSize: 20, fontWeight: 900, color: '#A965ED', margin: 0 }}>{selected.order_num}</h2>
-                <p style={{ fontSize: 12, color: 'var(--a-text3)', marginTop: 4 }}>{new Date(selected.created_at).toLocaleString('pt-BR')}</p>
-              </div>
-              <button onClick={() => setSelected(null)} style={{ background: 'var(--a-border)', border: 'none', color: 'var(--a-text2)', width: 32, height: 32, borderRadius: '50%', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-            </div>
-
-            {/* Status */}
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>STATUS</p>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {STATUSES.slice(1).map(s => (
-                  <button key={s.value} onClick={() => updateStatus(selected.id, s.value)} disabled={updating}
-                    style={{ padding: '7px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: `1px solid ${selected.status === s.value ? s.color : 'var(--a-border)'}`, background: selected.status === s.value ? `${s.color}15` : 'transparent', color: selected.status === s.value ? s.color : 'var(--a-text3)', cursor: updating ? 'wait' : 'pointer', transition: 'all 0.15s' }}>
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Tags */}
-            <div style={{ marginBottom: 20 }}>
-              <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>TAGS</p>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {ORDER_TAGS.map(tag => {
-                  const active = (selected.tags || []).includes(tag)
-                  const c = TAG_COLORS[tag] || '#888'
-                  return (
-                    <button key={tag} onClick={() => toggleTag(selected.id, tag, selected.tags || [])}
-                      style={{ padding: '5px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${active ? c : 'var(--a-border)'}`, background: active ? `${c}18` : 'transparent', color: active ? c : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
-                      {active ? '✓ ' : ''}{tag}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Forma de recebimento — entrega em Foz precisa saltar aos olhos
-                de quem separa o pedido */}
-            {(() => {
-              const t = selected.entrega_tipo
-              const envio = t === 'envio_brasil'
-              const foz = t === 'retirada_foz' || t === 'entrega_foz'
-              const rotulo = envio ? '📦 ENVIO PARA O BRASIL'
-                : foz ? '🚚 RETIRADA EM FOZ DO IGUAÇU'
-                : '🏬 Retirada em Ciudad del Este'
-              const destaque = envio || foz
-              const semSeguro = envio && selected.seguro_recusado === true
-              return (
-                <div style={{ background: destaque ? 'rgba(246,189,12,0.12)' : 'var(--a-border)', border: destaque ? '1px solid rgba(246,189,12,0.5)' : 'none', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
-                  <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 4 }}>RECEBIMENTO</p>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', margin: 0 }}>{rotulo}</p>
-                  {envio && selected.entrega_endereco && (
-                    <p style={{ fontSize: 12, color: 'var(--a-text2)', margin: '4px 0 0' }}>{selected.entrega_endereco}</p>
-                  )}
-                  <p style={{ fontSize: 12, color: 'var(--a-text2)', margin: '6px 0 0' }}>
-                    Frete R$ {Number(selected.frete_brl || 0).toFixed(2).replace('.', ',')}
-                    {' · '}
-                    Seguro R$ {Number(selected.seguro_brl || 0).toFixed(2).replace('.', ',')}
-                  </p>
-                  {/* Quem despacha precisa saber que este pacote não tem cobertura,
-                      senão promete reposição que o cliente não contratou. */}
-                  {semSeguro && (
-                    <p style={{ fontSize: 12, fontWeight: 800, color: '#ef4444', margin: '6px 0 0' }}>
-                      ⚠ CLIENTE RECUSOU O SEGURO — sem reposição em caso de extravio
-                    </p>
-                  )}
-                </div>
-              )
-            })()}
-
-            {/* Cliente */}
-            {selected.customers && (
-              <div style={{ background: 'var(--a-border)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
-                <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>CLIENTE</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {[
-                    ['Nome', selected.customers.nome],
-                    ['CPF', selected.customers.cpf],
-                    ['WhatsApp', selected.customers.telefone],
-                    ['E-mail', selected.customers.email],
-                    ['Endereço', [selected.customers.endereco, selected.customers.numero].filter(Boolean).join(', ') + (selected.customers.bairro ? ` — ${selected.customers.bairro}` : '') || '— (retirada, sem endereço)'],
-                    ['Cidade', selected.customers.cidade ? `${selected.customers.cidade}/${selected.customers.uf}${selected.customers.cep ? ` — CEP ${selected.customers.cep}` : ''}` : '—'],
-                  ].map(([k, v]) => (
-                    <div key={k}>
-                      <p style={{ fontSize: 9, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 2 }}>{k}</p>
-                      <p style={{ fontSize: 12, color: 'var(--a-text)', margin: 0 }}>{v}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Items */}
-            <div style={{ background: 'var(--a-border)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
-              <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>PRODUTOS</p>
-              {(selected.order_items || []).map((item, i) => {
-                const estoque = stockMap[item.product_name]
-                const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
-                const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
-                return (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, marginBottom: 8 }}>
-                    <span style={{ color: 'var(--a-text2)', flex: 1, marginRight: 12 }}>{item.product_name} × {item.quantity}</span>
-                    {estoqueLabel && <span style={{ fontSize: 10, fontWeight: 700, color: estoqueColor, marginRight: 10, whiteSpace: 'nowrap' }}>{estoqueLabel}</span>}
-                    <span style={{ color: '#A965ED', fontWeight: 700 }}>USD {item.subtotal_usd.toFixed(2)}</span>
-                  </div>
-                )
-              })}
-              <div style={{ borderTop: '1px solid var(--a-border)', paddingTop: 10, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontWeight: 900 }}>
-                <span style={{ fontSize: 13 }}>Total</span>
-                <span style={{ color: '#A965ED' }}>{fmt(selected.total_brl)}</span>
-              </div>
-            </div>
-
-            {/* Comprovante */}
-            {selected.comprovante_url && (
-              <div>
-                <p style={{ fontSize: 10, color: '#A965ED', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>COMPROVANTE DE PAGAMENTO</p>
-                <a href={selected.comprovante_url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 8, color: '#A965ED', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  Ver comprovante
-                </a>
-              </div>
-            )}
-
-            {/* Histórico de status */}
-            {history.length > 0 && (
-              <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>HISTÓRICO</p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {history.map((h, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, padding: '6px 10px', background: 'var(--a-bg)', borderRadius: 6 }}>
-                      <span style={{ color: STATUSES.find(s => s.value === h.status)?.color || '#888', fontWeight: 700 }}>
-                        {STATUSES.find(s => s.value === h.status)?.label || h.status}
-                      </span>
-                      <span style={{ color: 'var(--a-text3)' }}>{new Date(h.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Notas */}
-            <div>
-              <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 8 }}>NOTAS INTERNAS</p>
-              <textarea
-                defaultValue={selected.notas || ''}
-                onBlur={e => updateNotas(selected.id, e.target.value)}
-                rows={3}
-                placeholder="Observações internas..."
-                style={{ width: '100%', padding: '10px 12px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 8, color: 'var(--a-text2)', fontSize: 13, resize: 'none', outline: 'none', boxSizing: 'border-box' as const }} />
-            </div>
-          </div>
+      {/* Paginação */}
+      {totalPaginas > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 16 }}>
+          <button onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}
+            style={{ border: '1px solid var(--a-border)', background: pagina === 1 ? 'var(--a-bg)' : 'var(--a-surface)', color: pagina === 1 ? 'var(--a-text3)' : 'var(--a-text)', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, cursor: pagina === 1 ? 'default' : 'pointer' }}>
+            ← Anterior
+          </button>
+          <span style={{ fontSize: 13, color: 'var(--a-text2)' }}>
+            Página <strong style={{ color: 'var(--a-text)' }}>{pagina}</strong> de <strong style={{ color: 'var(--a-text)' }}>{totalPaginas}</strong>
+          </span>
+          <button onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}
+            style={{ border: '1px solid var(--a-border)', background: pagina === totalPaginas ? 'var(--a-bg)' : 'var(--a-surface)', color: pagina === totalPaginas ? 'var(--a-text3)' : 'var(--a-text)', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, cursor: pagina === totalPaginas ? 'default' : 'pointer' }}>
+            Próxima →
+          </button>
         </div>
       )}
 
