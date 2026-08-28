@@ -3,29 +3,54 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-type Product = { id: string; name: string; brand: string; usd_price: number; img_url: string; ativo: boolean; sort_order: number; estoque: number | null }
+type Product = {
+  id: string; name: string; brand: string; usd_price: number; usd_price_promo: number | null
+  custo: number | null; categoria_id: string | null
+  img_url: string; ativo: boolean; sort_order: number; estoque: number | null
+}
+type Categoria = { id: string; nome: string; parent_id: string | null }
 
 const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const POR_PAGINA = 100
+
+function MargemBadge({ preco, custo }: { preco: number; custo: number | null }) {
+  if (!custo) return <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>—</span>
+  const m = ((preco - custo) / preco) * 100
+  const [bg, cor] = m >= 40 ? ['rgba(169, 101, 237,0.12)', '#A965ED'] : m >= 20 ? ['rgba(245,158,11,0.12)', '#f59e0b'] : ['rgba(239,68,68,0.12)', '#ef4444']
+  return (
+    <span style={{ fontSize: 10, fontWeight: 700, background: bg, color: cor, borderRadius: 5, padding: '2px 6px', whiteSpace: 'nowrap' }}>
+      {m.toFixed(0)}%
+    </span>
+  )
+}
 
 export default function Produtos() {
   const [products, setProducts] = useState<Product[]>([])
+  const [categorias, setCategorias] = useState<Categoria[]>([])
   const [brlRate, setBrlRate] = useState(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterBrand, setFilterBrand] = useState('')
-  const [filterStatus, setFilterStatus] = useState<'todos' | 'ativos' | 'inativos'>('todos')
+  const [filterCategoria, setFilterCategoria] = useState('')
+  const [filterStatus, setFilterStatus] = useState<'ativos' | 'inativos' | 'todos'>('ativos')
+  const [ordenacao, setOrdenacao] = useState<'az' | 'preco' | 'margem'>('az')
   const [editingPrice, setEditingPrice] = useState<{ id: string; price: string } | null>(null)
   const [editingEstoque, setEditingEstoque] = useState<{ id: string; val: string } | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
   const [brandDropOpen, setBrandDropOpen] = useState(false)
   const brandRef = useRef<HTMLDivElement>(null)
+  const [pagina, setPagina] = useState(1)
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [ajustePercent, setAjustePercent] = useState('')
+  const [aplicandoLote, setAplicandoLote] = useState(false)
 
   useEffect(() => {
-    fetch('/api/admin/produtos-list?perPage=500').then(r => r.json()).then(data => {
+    fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()).then(data => {
       setProducts(data.rows || data || [])
       setLoading(false)
     })
     fetch('/api/config/loja').then(r => r.json()).then(d => setBrlRate(d.brl_rate || 0)).catch(() => {})
+    fetch('/api/admin/categorias').then(r => r.json()).then(d => setCategorias(Array.isArray(d) ? d : [])).catch(() => {})
   }, [])
 
   const patch = async (id: string, payload: object) => {
@@ -61,6 +86,7 @@ export default function Produtos() {
   }
 
   const brands = Array.from(new Set(products.map(p => p.brand).filter(Boolean))).sort()
+  const categoriaNome = (id: string | null) => categorias.find(c => c.id === id)?.nome || null
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -70,20 +96,64 @@ export default function Produtos() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  useEffect(() => { setPagina(1) }, [search, filterBrand, filterCategoria, filterStatus, ordenacao])
+
   const filtered = products.filter(p => {
     if (search) {
       const s = search.toLowerCase()
       if (!p.name?.toLowerCase().includes(s) && !p.brand?.toLowerCase().includes(s)) return false
     }
-    if (filterBrand && filterBrand !== 'Todos') {
-      if (p.brand !== filterBrand) return false
-    }
+    if (filterBrand && p.brand !== filterBrand) return false
+    if (filterCategoria && p.categoria_id !== filterCategoria) return false
     if (filterStatus === 'ativos' && !p.ativo) return false
     if (filterStatus === 'inativos' && p.ativo) return false
     return true
+  }).sort((a, b) => {
+    if (ordenacao === 'preco') return b.usd_price - a.usd_price
+    if (ordenacao === 'margem') {
+      const ma = a.custo ? (a.usd_price - a.custo) / a.usd_price : -1
+      const mb = b.custo ? (b.usd_price - b.custo) / b.usd_price : -1
+      return mb - ma
+    }
+    return a.name.localeCompare(b.name, 'pt-BR')
   })
 
+  const totalPaginas = Math.max(1, Math.ceil(filtered.length / POR_PAGINA))
+  const paginados = filtered.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA)
+
   const ativos = products.filter(p => p.ativo).length
+  const inativos = products.length - ativos
+
+  const toggleSelecionado = (id: string) => {
+    setSelecionados(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+  const toggleTodosVisiveis = () => {
+    setSelecionados(prev => paginados.every(p => prev.has(p.id)) ? new Set() : new Set(paginados.map(p => p.id)))
+  }
+
+  const aplicarLote = async (acao: { ativo?: boolean; ajustePercent?: number }) => {
+    if (selecionados.size === 0) return
+    setAplicandoLote(true)
+    try {
+      const res = await fetch('/api/admin/produtos/bulk', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: Array.from(selecionados), ...acao }),
+      })
+      if (res.ok) {
+        setSelecionados(new Set())
+        setAjustePercent('')
+        const data = await fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json())
+        setProducts(data.rows || data || [])
+      }
+    } finally {
+      setAplicandoLote(false)
+    }
+  }
 
   return (
     <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
@@ -91,7 +161,17 @@ export default function Produtos() {
       <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Produtos</h1>
-          <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{ativos} ativos de {products.length}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
+            <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--a-text3)', marginRight: 5 }} />{products.length} total
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#A965ED', marginRight: 5 }} />{ativos} ativos
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#ef4444', marginRight: 5 }} />{inativos} inativos
+            </span>
+          </div>
         </div>
         <input
           value={search}
@@ -101,18 +181,22 @@ export default function Produtos() {
         />
       </div>
 
+      {/* Abas de status */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)' }}>
+        {([
+          { v: 'ativos', label: 'Ativos', count: ativos },
+          { v: 'inativos', label: 'Inativos', count: inativos },
+          { v: 'todos', label: 'Todos', count: products.length },
+        ] as const).map(f => (
+          <button key={f.v} onClick={() => setFilterStatus(f.v)}
+            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: filterStatus === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: filterStatus === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1 }}>
+            {f.label} <span style={{ color: 'var(--a-text3)', fontWeight: 600 }}>({f.count})</span>
+          </button>
+        ))}
+      </div>
+
       {/* Filters */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-        {/* Status pills */}
-        <div style={{ display: 'flex', gap: 4, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 8, padding: 3 }}>
-          {(['todos', 'ativos', 'inativos'] as const).map(s => (
-            <button key={s} onClick={() => setFilterStatus(s)}
-              style={{ padding: '5px 14px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: 'none', background: filterStatus === s ? (s === 'ativos' ? 'rgba(169, 101, 237,0.15)' : s === 'inativos' ? 'rgba(239,68,68,0.12)' : 'var(--a-bg)') : 'transparent', color: filterStatus === s ? (s === 'ativos' ? '#A965ED' : s === 'inativos' ? '#ef4444' : 'var(--a-text)') : 'var(--a-text3)', cursor: 'pointer', transition: 'all 0.15s' }}>
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
-        </div>
-
         {/* Brand dropdown */}
         <div ref={brandRef} style={{ position: 'relative' }}>
           <button onClick={() => setBrandDropOpen(o => !o)}
@@ -137,11 +221,25 @@ export default function Produtos() {
           )}
         </div>
 
-        {/* Clear brand */}
-        {filterBrand && (
-          <button onClick={() => setFilterBrand('')}
+        {/* Categoria */}
+        <select value={filterCategoria} onChange={e => setFilterCategoria(e.target.value)}
+          style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid var(--a-border)', background: 'var(--a-surface)', color: filterCategoria ? 'var(--a-text)' : 'var(--a-text3)', cursor: 'pointer', outline: 'none' }}>
+          <option value="">Todas as categorias</option>
+          {categorias.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+        </select>
+
+        {/* Ordenação */}
+        <select value={ordenacao} onChange={e => setOrdenacao(e.target.value as typeof ordenacao)}
+          style={{ padding: '8px 12px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid var(--a-border)', background: 'var(--a-surface)', color: 'var(--a-text2)', cursor: 'pointer', outline: 'none' }}>
+          <option value="az">A → Z</option>
+          <option value="preco">Maior preço</option>
+          <option value="margem">Maior margem</option>
+        </select>
+
+        {(filterBrand || filterCategoria) && (
+          <button onClick={() => { setFilterBrand(''); setFilterCategoria('') }}
             style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', fontSize: 11, fontWeight: 600, borderRadius: 6, border: '1px solid var(--a-border)', background: 'transparent', color: 'var(--a-text3)', cursor: 'pointer' }}>
-            × Limpar
+            × Limpar filtros
           </button>
         )}
 
@@ -150,12 +248,43 @@ export default function Produtos() {
         </span>
       </div>
 
+      {/* Barra de ação em lote */}
+      {selecionados.size > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, background: 'rgba(169, 101, 237,0.08)', border: '1px solid rgba(169, 101, 237,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}</span>
+          <button onClick={() => aplicarLote({ ativo: true })} disabled={aplicandoLote}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: 'rgba(169, 101, 237,0.15)', color: '#A965ED', border: 'none', cursor: 'pointer', opacity: aplicandoLote ? 0.6 : 1 }}>
+            Ativar
+          </button>
+          <button onClick={() => aplicarLote({ ativo: false })} disabled={aplicandoLote}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: 'none', cursor: 'pointer', opacity: aplicandoLote ? 0.6 : 1 }}>
+            Desativar
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <input value={ajustePercent} onChange={e => setAjustePercent(e.target.value)} placeholder="ex: 5 ou -10" type="number"
+              style={{ width: 90, padding: '6px 8px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 7, color: 'var(--a-text)', fontSize: 12, outline: 'none' }} />
+            <button onClick={() => { const n = parseFloat(ajustePercent); if (!isNaN(n)) aplicarLote({ ajustePercent: n }) }}
+              disabled={aplicandoLote || !ajustePercent || isNaN(parseFloat(ajustePercent))}
+              style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: '#A965ED', color: '#000', border: 'none', cursor: 'pointer', opacity: (aplicandoLote || !ajustePercent) ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+              % no preço USD
+            </button>
+          </div>
+          <button onClick={() => setSelecionados(new Set())} style={{ fontSize: 12, color: 'var(--a-text3)', background: 'none', border: 'none', cursor: 'pointer' }}>
+            Limpar seleção
+          </button>
+        </div>
+      )}
+
       {/* List */}
       <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
-              {['Produto', 'Marca', 'Preço (USD / BRL)', 'Estoque', 'Status', ''].map(h => (
+              <th style={{ padding: '10px 16px', width: 32 }}>
+                <div onClick={toggleTodosVisiveis}
+                  style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+              </th>
+              {['Produto', 'Categoria', 'Marca', 'Preço (USD / BRL)', 'Margem', 'Estoque', 'Status', ''].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
@@ -164,15 +293,21 @@ export default function Produtos() {
             {loading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i}>
-                  <td colSpan={6} style={{ padding: 0 }}>
+                  <td colSpan={9} style={{ padding: 0 }}>
                     <div style={{ height: 64, background: i % 2 === 0 ? 'var(--a-surface)' : 'var(--a-bg)', margin: 0 }} />
                   </td>
                 </tr>
               ))
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum produto encontrado</td></tr>
-            ) : filtered.map(p => (
-              <tr key={p.id} style={{ borderBottom: '1px solid var(--a-border)', opacity: p.ativo ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+            ) : paginados.length === 0 ? (
+              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum produto encontrado</td></tr>
+            ) : paginados.map(p => (
+              <tr key={p.id} style={{ borderBottom: '1px solid var(--a-border)', opacity: p.ativo ? 1 : 0.5, background: selecionados.has(p.id) ? 'rgba(169, 101, 237,0.05)' : 'transparent', transition: 'opacity 0.2s, background 0.1s' }}>
+                {/* Checkbox */}
+                <td style={{ padding: '10px 16px' }}>
+                  <div onClick={() => toggleSelecionado(p.id)}
+                    style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(p.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(p.id) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+                </td>
+
                 {/* Thumbnail + Nome */}
                 <td style={{ padding: '10px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -184,8 +319,13 @@ export default function Produtos() {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                       )}
                     </div>
-                    <p style={{ fontSize: 12, color: 'var(--a-text)', margin: 0, lineHeight: 1.4, maxWidth: 260, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</p>
+                    <p style={{ fontSize: 12, color: 'var(--a-text)', margin: 0, lineHeight: 1.4, maxWidth: 220, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</p>
                   </div>
+                </td>
+
+                {/* Categoria */}
+                <td style={{ padding: '10px 16px' }}>
+                  <span style={{ fontSize: 12, color: 'var(--a-text2)' }}>{categoriaNome(p.categoria_id) || '—'}</span>
                 </td>
 
                 {/* Marca */}
@@ -219,8 +359,16 @@ export default function Produtos() {
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </span>
                       {brlRate > 0 && <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{fmtBRL(p.usd_price * brlRate)}</span>}
+                      {p.usd_price_promo != null && (
+                        <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>Promo USD {p.usd_price_promo.toFixed(2)}</span>
+                      )}
                     </button>
                   )}
+                </td>
+
+                {/* Margem */}
+                <td style={{ padding: '10px 16px' }}>
+                  <MargemBadge preco={p.usd_price} custo={p.custo} />
                 </td>
 
                 {/* Estoque */}
@@ -269,6 +417,24 @@ export default function Produtos() {
           </tbody>
         </table>
       </div>
+
+      {/* Paginação */}
+      {totalPaginas > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 16 }}>
+          <button onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagina === 1}
+            style={{ border: '1px solid var(--a-border)', background: pagina === 1 ? 'var(--a-bg)' : 'var(--a-surface)', color: pagina === 1 ? 'var(--a-text3)' : 'var(--a-text)', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, cursor: pagina === 1 ? 'default' : 'pointer' }}>
+            ← Anterior
+          </button>
+          <span style={{ fontSize: 13, color: 'var(--a-text2)' }}>
+            Página <strong style={{ color: 'var(--a-text)' }}>{pagina}</strong> de <strong style={{ color: 'var(--a-text)' }}>{totalPaginas}</strong>
+            <span style={{ color: 'var(--a-text3)', marginLeft: 6 }}>({filtered.length} produtos)</span>
+          </span>
+          <button onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))} disabled={pagina === totalPaginas}
+            style={{ border: '1px solid var(--a-border)', background: pagina === totalPaginas ? 'var(--a-bg)' : 'var(--a-surface)', color: pagina === totalPaginas ? 'var(--a-text3)' : 'var(--a-text)', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 600, cursor: pagina === totalPaginas ? 'default' : 'pointer' }}>
+            Próxima →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

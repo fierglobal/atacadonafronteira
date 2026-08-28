@@ -123,7 +123,7 @@ export default function Pedidos() {
     setModalManual(true)
     setManualSuccess('')
     if (allProducts.length === 0) {
-      const data = await fetch('/api/admin/produtos-list?perPage=500').then(r => r.json()).catch(() => ({ rows: [] }))
+      const data = await fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()).catch(() => ({ rows: [] }))
       const list = Array.isArray(data) ? data : (data.rows || [])
       setAllProducts(list.filter((p: Product) => p.usd_price > 0))
     }

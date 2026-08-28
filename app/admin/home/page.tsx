@@ -33,15 +33,16 @@ export default function AdminHome() {
   useEffect(() => {
     Promise.all([
       fetch('/api/admin/home').then(r => r.json()),
-      fetch('/api/admin/produtos-list').then(r => r.json()),
-    ]).then(([cfg, prods]) => {
+      fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()),
+    ]).then(([cfg, prodsRes]) => {
       if (cfg) {
         if (cfg.banners) setBanners(cfg.banners)
         if (cfg.destaques) setDestaques(cfg.destaques)
         if (cfg.aviso !== undefined) setAviso(cfg.aviso)
       }
+      const prods = Array.isArray(prodsRes) ? prodsRes : (prodsRes.rows || [])
       const dec = (s: string | null) => { try { return s ? atob(s) : null } catch { return s } }
-      setProdutos((Array.isArray(prods) ? prods : []).map((p: any) => ({ ...p, name: dec(p.name) ?? p.name })))
+      setProdutos(prods.map((p: any) => ({ ...p, name: dec(p.name) ?? p.name })))
       setLoading(false)
     })
   }, [])
