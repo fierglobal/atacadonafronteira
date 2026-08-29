@@ -69,6 +69,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [mounted, setMounted] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('admin-theme')
@@ -79,7 +80,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (activeGroup) initial.add(activeGroup.key)
     setOpenGroups(initial)
     setMounted(true)
+    setSidebarOpen(false)
   }, [pathname])
+
+  // Sidebar de menu vira drawer no mobile — sem isto ela ficava com os 220px
+  // fixos sempre, empurrando o conteúdo e forçando scroll lateral na tela
+  // inteira.
+  useEffect(() => {
+    if (!sidebarOpen) return
+    document.body.style.overflow = 'hidden'
+    const onEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') setSidebarOpen(false) }
+    window.addEventListener('keydown', onEsc)
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onEsc) }
+  }, [sidebarOpen])
 
   const toggleGroup = (key: string) => {
     setOpenGroups(prev => {
@@ -110,12 +123,58 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (pathname === '/admin/login') return <>{children}</>
 
+  const allItems = [dashboard, ...groups.flatMap(g => g.items)]
+  const currentLabel = pathname === '/admin' ? 'Dashboard' : (allItems.find(i => pathname.startsWith(i.href))?.label ?? 'Admin')
+
   return (
     <div className={dark ? 'admin-dark' : ''} style={{ minHeight: '100vh', background: 'var(--a-bg)', display: 'flex', color: 'var(--a-text)', visibility: mounted ? 'visible' : 'hidden' }}>
+      <style>{`
+        .admin-mobile-bar { display: none; }
+        @media (max-width: 900px) {
+          .admin-sidebar {
+            width: 260px !important;
+            max-width: 82vw !important;
+            transform: translateX(-100%);
+            transition: transform 0.22s ease;
+            box-shadow: 8px 0 32px rgba(0,0,0,0.35);
+          }
+          .admin-sidebar.open { transform: translateX(0); }
+          .admin-sidebar-close { display: flex !important; }
+          .admin-main { margin-left: 0 !important; padding-top: 54px; }
+          .admin-mobile-bar { display: flex !important; }
+        }
+      `}</style>
+
+      {/* Backdrop do drawer (só existe montado quando aberto) */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} aria-hidden="true"
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 45 }} />
+      )}
+
+      {/* Barra superior mobile */}
+      <header className="admin-mobile-bar"
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 54, alignItems: 'center', gap: 12, padding: '0 14px', background: 'var(--a-sidebar)', borderBottom: '1px solid var(--a-border)', zIndex: 40 }}>
+        <button onClick={() => setSidebarOpen(true)} aria-label="Abrir menu"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 7, background: 'var(--a-nav-active-bg)', border: 'none', color: 'var(--a-text)', cursor: 'pointer', flexShrink: 0 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentLabel}</span>
+      </header>
+
       {/* Sidebar */}
-      <aside style={{ width: 220, background: 'var(--a-sidebar)', borderRight: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 50 }}>
+      <aside className={`admin-sidebar${sidebarOpen ? ' open' : ''}`} style={{ width: 220, background: 'var(--a-sidebar)', borderRight: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 50 }}>
         <div style={{ padding: '20px 20px 12px', borderBottom: '1px solid var(--a-border)' }}>
-          <Logo size={26} dark />
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+            <Logo size={26} dark />
+            <button onClick={() => setSidebarOpen(false)} aria-label="Fechar menu" className="admin-sidebar-close"
+              style={{ display: 'none', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 6, background: 'transparent', border: 'none', color: 'var(--a-text2)', cursor: 'pointer', flexShrink: 0, marginTop: -2 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
           <p style={{ fontSize: 9, color: 'var(--a-text3)', letterSpacing: '0.12em', marginTop: 6, marginBottom: 10 }}>ADMIN</p>
           {/* Busca global */}
           <form onSubmit={handleSearch}>
@@ -232,7 +291,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main */}
-      <main style={{ marginLeft: 220, flex: 1, minHeight: '100vh' }}>
+      <main className="admin-main" style={{ marginLeft: 220, flex: 1, minHeight: '100vh', minWidth: 0 }}>
         {children}
       </main>
     </div>
