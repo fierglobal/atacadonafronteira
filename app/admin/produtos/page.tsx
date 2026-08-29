@@ -156,12 +156,21 @@ export default function Produtos() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="produtos-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .produtos-page { padding: 16px !important; }
+          .produtos-header { flex-direction: column; align-items: stretch !important; }
+          .produtos-search { width: 100% !important; box-sizing: border-box; }
+          .produtos-table-wrap { display: none !important; }
+          .produtos-cards { display: block !important; }
+        }
+      `}</style>
       {/* Header */}
-      <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div className="produtos-header" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Produtos</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
               <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--a-text3)', marginRight: 5 }} />{products.length} total
             </span>
@@ -174,6 +183,7 @@ export default function Produtos() {
           </div>
         </div>
         <input
+          className="produtos-search"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Buscar produto ou marca..."
@@ -181,15 +191,15 @@ export default function Produtos() {
         />
       </div>
 
-      {/* Abas de status */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)' }}>
+      {/* Abas de status — scroll horizontal contido só nesta faixa (não na página) */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as const }}>
         {([
           { v: 'ativos', label: 'Ativos', count: ativos },
           { v: 'inativos', label: 'Inativos', count: inativos },
           { v: 'todos', label: 'Todos', count: products.length },
         ] as const).map(f => (
           <button key={f.v} onClick={() => setFilterStatus(f.v)}
-            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: filterStatus === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: filterStatus === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1 }}>
+            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: filterStatus === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: filterStatus === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1, flexShrink: 0, whiteSpace: 'nowrap' }}>
             {f.label} <span style={{ color: 'var(--a-text3)', fontWeight: 600 }}>({f.count})</span>
           </button>
         ))}
@@ -275,8 +285,9 @@ export default function Produtos() {
         </div>
       )}
 
-      {/* List */}
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      {/* List — tabela no desktop, cards empilhados no mobile (o grid de colunas
+          não cabe numa tela estreita e forçava scroll lateral) */}
+      <div className="produtos-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -416,6 +427,98 @@ export default function Produtos() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="produtos-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} style={{ height: 88, background: i % 2 === 0 ? 'var(--a-surface)' : 'var(--a-bg)', borderBottom: '1px solid var(--a-border)' }} />
+          ))
+        ) : paginados.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum produto encontrado</div>
+        ) : paginados.map(p => (
+          <div key={p.id} style={{ display: 'flex', gap: 10, padding: '12px 14px', borderBottom: '1px solid var(--a-border)', opacity: p.ativo ? 1 : 0.55, background: selecionados.has(p.id) ? 'rgba(169, 101, 237,0.06)' : 'transparent' }}>
+            <div onClick={() => toggleSelecionado(p.id)}
+              style={{ width: 15, height: 15, marginTop: 3, border: `2px solid ${selecionados.has(p.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(p.id) ? '#A965ED' : 'transparent', cursor: 'pointer', flexShrink: 0 }} />
+            <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', background: 'var(--a-bg)', border: '1px solid var(--a-border)', flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {p.img_url ? (
+                <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'contain', padding: 4 }} unoptimized
+                  onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+              )}
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', margin: '0 0 4px', lineHeight: 1.3, wordBreak: 'break-word' as const }}>{p.name}</p>
+              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 6 }}>
+                {categoriaNome(p.categoria_id) && (
+                  <span style={{ fontSize: 10, color: 'var(--a-text2)', background: 'var(--a-bg)', borderRadius: 4, padding: '1px 6px' }}>{categoriaNome(p.categoria_id)}</span>
+                )}
+                {p.brand && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', borderRadius: 4, padding: '1px 6px' }}>{p.brand.toUpperCase()}</span>
+                )}
+                <MargemBadge preco={p.usd_price} custo={p.custo} />
+                {!p.ativo && <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(239,68,68,0.12)', color: '#ef4444', borderRadius: 4, padding: '1px 6px' }}>INATIVO</span>}
+              </div>
+
+              {editingPrice?.id === p.id ? (
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginBottom: 6 }}>
+                  <input value={editingPrice.price} onChange={e => setEditingPrice({ id: p.id, price: e.target.value })}
+                    onKeyDown={e => { if (e.key === 'Enter') savePrice(p.id); if (e.key === 'Escape') setEditingPrice(null) }}
+                    autoFocus style={{ width: 90, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(169, 101, 237,0.4)', borderRadius: 6, color: '#A965ED', fontSize: 13, fontWeight: 700, outline: 'none' }} />
+                  <button onClick={() => savePrice(p.id)} style={{ padding: '4px 8px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
+                  <button onClick={() => setEditingPrice(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
+                </div>
+              ) : (
+                <button onClick={() => setEditingPrice({ id: p.id, price: p.usd_price.toString() })}
+                  style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const, marginBottom: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' as const }}>
+                  <div>
+                    <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--a-text3)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 1px' }}>Preço</p>
+                    <p style={{ fontSize: 14, fontWeight: 900, color: '#A965ED', margin: 0 }}>USD {p.usd_price.toFixed(2)}</p>
+                    {brlRate > 0 && <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: 0 }}>{fmtBRL(p.usd_price * brlRate)}</p>}
+                  </div>
+                  {p.usd_price_promo != null && (
+                    <div>
+                      <p style={{ fontSize: 9, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 1px' }}>Promo</p>
+                      <p style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b', margin: 0 }}>USD {p.usd_price_promo.toFixed(2)}</p>
+                    </div>
+                  )}
+                </button>
+              )}
+
+              {editingEstoque?.id === p.id ? (
+                <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginBottom: 8 }}>
+                  <input type="number" min="0" value={editingEstoque.val} onChange={e => setEditingEstoque({ id: p.id, val: e.target.value })}
+                    onKeyDown={e => { if (e.key === 'Enter') saveEstoque(p.id); if (e.key === 'Escape') setEditingEstoque(null) }}
+                    autoFocus placeholder="∞" style={{ width: 80, padding: '5px 8px', background: 'var(--a-bg)', border: '1px solid rgba(169, 101, 237,0.4)', borderRadius: 6, color: '#A965ED', fontSize: 13, outline: 'none' }} />
+                  <button onClick={() => saveEstoque(p.id)} style={{ padding: '4px 8px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 5, fontWeight: 700, fontSize: 11, cursor: 'pointer' }}>✓</button>
+                  <button onClick={() => setEditingEstoque(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
+                </div>
+              ) : (
+                <button onClick={() => setEditingEstoque({ id: p.id, val: p.estoque?.toString() ?? '' })}
+                  style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <span style={{ fontSize: 11, color: p.estoque === 0 ? '#ef4444' : p.estoque !== null ? '#f59e0b' : 'var(--a-text3)', fontWeight: p.estoque !== null ? 700 : 400 }}>
+                    {p.estoque === null ? '∞ ilimitado' : p.estoque === 0 ? 'Sem estoque' : `${p.estoque} un.`}
+                  </span>
+                </button>
+              )}
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button onClick={() => toggleAtivo(p)} disabled={saving === p.id} title={p.ativo ? 'Desativar' : 'Ativar'}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}>
+                  <div style={{ width: 36, height: 20, borderRadius: 10, background: p.ativo ? '#A965ED' : 'var(--a-border)', position: 'relative' as const, transition: 'background .2s' }}>
+                    <span style={{ position: 'absolute', top: 2, width: 16, height: 16, borderRadius: '50%', background: '#fff', left: p.ativo ? 18 : 2, transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />
+                  </div>
+                </button>
+                <Link href={`/admin/produtos/${p.id}`}
+                  style={{ background: '#A965ED', color: '#000', border: 'none', borderRadius: 7, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', textDecoration: 'none' }}>
+                  Editar
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Paginação */}
