@@ -175,7 +175,16 @@ export default function Pedidos() {
   const valorTotalFiltro = filtered.reduce((s, o) => s + o.total_brl, 0)
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="pedidos-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .pedidos-page { padding: 16px !important; }
+          .pedidos-actions { width: 100%; }
+          .pedidos-search { flex: 1 1 auto !important; width: auto !important; }
+          .pedidos-table-wrap { display: none !important; }
+          .pedidos-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Pedidos</h1>
@@ -183,8 +192,8 @@ export default function Pedidos() {
             {filtered.length} pedido{filtered.length !== 1 ? 's' : ''} · {fmt(valorTotalFiltro)} no total
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pedido, cliente..."
+        <div className="pedidos-actions" style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input className="pedidos-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar pedido, cliente..."
             style={{ padding: '9px 14px', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 8, color: 'var(--a-text)', fontSize: 13, width: 220, outline: 'none' }} />
           <button onClick={exportCSV}
             style={{ padding: '9px 16px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 8, color: 'var(--a-text2)', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
@@ -197,8 +206,8 @@ export default function Pedidos() {
         </div>
       </div>
 
-      {/* Abas de grupo */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)' }}>
+      {/* Abas de grupo — scroll horizontal contido só nesta faixa (não na página) */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, borderBottom: '1px solid var(--a-border)', overflowX: 'auto', WebkitOverflowScrolling: 'touch' as const }}>
         {([
           { v: 'ativos', label: 'Ativos' },
           { v: 'concluidos', label: 'Concluídos' },
@@ -206,7 +215,7 @@ export default function Pedidos() {
           { v: 'todos', label: 'Todos' },
         ] as const).map(f => (
           <button key={f.v} onClick={() => setGrupo(f.v)}
-            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: grupo === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: grupo === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1 }}>
+            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: grupo === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: grupo === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1, flexShrink: 0, whiteSpace: 'nowrap' }}>
             {f.label} <span style={{ color: 'var(--a-text3)', fontWeight: 600 }}>({countGrupo(f.v)})</span>
           </button>
         ))}
@@ -233,8 +242,9 @@ export default function Pedidos() {
         </div>
       )}
 
-      {/* Table */}
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      {/* Table — desktop; no mobile vira cards empilhados abaixo (8 colunas não
+          cabem numa tela estreita e forçavam scroll lateral) */}
+      <div className="pedidos-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -289,6 +299,57 @@ export default function Pedidos() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile — faixa de status no topo, dados essenciais, total no rodapé */}
+      <div className="pedidos-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : paginados.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</div>
+        ) : paginados.map(o => (
+          <div key={o.id} onClick={() => router.push(`/admin/pedidos/${o.id}`)}
+            style={{ cursor: 'pointer', borderBottom: '1px solid var(--a-border)', background: selecionados.has(o.id) ? 'rgba(169, 101, 237,0.06)' : 'transparent' }}>
+            <div style={{ height: 4, background: sc(o.status) }} />
+            <div style={{ padding: '12px 14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div onClick={e => toggleSelecionado(o.id, e)}
+                    style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#A965ED' : 'transparent', cursor: 'pointer', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{o.order_num}</span>
+                </div>
+                <span style={{ fontSize: 11, color: 'var(--a-text3)', flexShrink: 0 }}>
+                  {new Date(o.created_at).toLocaleDateString('pt-BR')} {new Date(o.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+
+              <p style={{ margin: '10px 0 0', fontSize: 14, fontWeight: 700, color: 'var(--a-text)', lineHeight: 1.3, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                {o.customers?.nome || '—'}
+              </p>
+              {o.customers?.telefone && <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--a-text3)' }}>{o.customers.telefone}</p>}
+
+              <div style={{ display: 'flex', flexWrap: 'wrap' as const, alignItems: 'center', gap: 6, marginTop: 10 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: sc(o.status), background: `${sc(o.status)}15`, padding: '3px 8px', borderRadius: 4, border: `1px solid ${sc(o.status)}30`, whiteSpace: 'nowrap' as const }}>
+                  {sl(o.status)}
+                </span>
+                {(o.tags || []).map(tag => (
+                  <span key={tag} style={{ fontSize: 9, fontWeight: 700, color: TAG_COLORS[tag] || '#888', background: `${TAG_COLORS[tag] || '#888'}15`, padding: '2px 6px', borderRadius: 99, border: `1px solid ${TAG_COLORS[tag] || '#888'}30` }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {(o.utm_source || o.utm_campaign) && (
+                <div style={{ marginTop: 8 }}><OrigemCell o={o} /></div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--a-border)' }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: 'var(--a-text)' }}>{fmt(o.total_brl)}</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Paginação */}
