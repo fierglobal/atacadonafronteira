@@ -289,14 +289,20 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   // hero da home some (isHome vira false) e #catalogo sobe na página — um
   // scrollIntoView disparado antes disso mirava a posição de quando o hero
   // ainda estava lá; quando ele sumia, o scroll ficava preso além do
-  // resultado (curto), direto no rodapé.
+  // resultado (curto), direto no rodapé. loadStartedRef existe porque este
+  // efeito RODA UMA VEZ NO MOUNT com o estado inicial (loadingProducts=false
+  // ainda, o setLoadingProducts(true) do efeito acima só aparece no próximo
+  // render) — sem essa guarda, o "!loadingProducts && !refetching" já batia
+  // nessa primeira passagem e consumia pendingScrollRef cedo demais, contra
+  // o mesmo layout alto de antes.
+  const loadStartedRef = useRef(false)
   useEffect(() => {
-    if (!loadingProducts && !refetching) {
-      document.documentElement.removeAttribute('data-filtro-pendente')
-      if (pendingScrollRef.current) {
-        pendingScrollRef.current = false
-        document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })
-      }
+    if (loadingProducts || refetching) { loadStartedRef.current = true; return }
+    document.documentElement.removeAttribute('data-filtro-pendente')
+    if (pendingScrollRef.current && loadStartedRef.current) {
+      pendingScrollRef.current = false
+      loadStartedRef.current = false
+      document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [loadingProducts, refetching])
 
