@@ -281,6 +281,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       setLoadingProducts(true)
       pendingScrollRef.current = true
     }
+    console.log('[DBG] mount-effect', { cat, marca, q, pending: pendingScrollRef.current })
   }, [])
 
   // libera o grid quando o recorte da URL já foi aplicado (par do script
@@ -297,11 +298,13 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   // o mesmo layout alto de antes.
   const loadStartedRef = useRef(false)
   useEffect(() => {
+    console.log('[DBG] settle-effect', { loadingProducts, refetching, pending: pendingScrollRef.current, started: loadStartedRef.current })
     if (loadingProducts || refetching) { loadStartedRef.current = true; return }
     document.documentElement.removeAttribute('data-filtro-pendente')
     if (pendingScrollRef.current && loadStartedRef.current) {
       pendingScrollRef.current = false
       loadStartedRef.current = false
+      console.log('[DBG] scrolling now', document.getElementById('catalogo')?.getBoundingClientRect())
       document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })
     }
   }, [loadingProducts, refetching])
