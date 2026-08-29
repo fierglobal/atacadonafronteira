@@ -3,20 +3,25 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import { isPromo, effectiveBadges } from '@/lib/produto'
 
 const fmtBrl = (n: number, rate: number) => (n * rate).toFixed(2).replace('.', ',')
 
 export default function CategoriaProductCard({ p }: {
-  p: { id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number }
+  p: { id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number; badges?: string[] | null }
 }) {
   const { brlRate, adicionar } = useCarrinho()
-  const promo = p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)
+  const promo = isPromo(p)
   const preco = promo ? Number(p.usd_price_promo) : Number(p.usd_price)
+  const temBadgePromo = effectiveBadges(p).some(b => b.toLowerCase().includes('promo'))
 
   return (
     <Link href={`/produtos/${p.id}`}
       style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1 }}>
       <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#fafafa' }}>
+        {temBadgePromo && (
+          <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, background: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: '1px solid rgba(66, 14, 118,0.4)', fontSize: 8, fontWeight: 900, padding: '3px 8px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase' }}>PROMOÇÃO</span>
+        )}
         {p.img_url && (
           <Image src={p.img_url} alt={p.name} fill sizes="(max-width: 640px) 50vw, 190px" style={{ objectFit: 'contain', padding: 12 }} />
         )}

@@ -22,7 +22,14 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
     const q = busca.trim()
     if (!q) return
     setMobileMenu(false)
-    router.push(`/?q=${encodeURIComponent(q)}#catalogo`)
+    // Já na home, router.push('/?q=...') não remonta o HomeClient — a busca
+    // ficava sem efeito nenhum (só a URL mudava). O evento deixa o próprio
+    // HomeClient aplicar o filtro no estado que já tem.
+    if (isHome) {
+      window.dispatchEvent(new CustomEvent('anf:busca-header', { detail: q }))
+    } else {
+      router.push(`/?q=${encodeURIComponent(q)}#catalogo`)
+    }
   }
   const [userName, setUserName] = useState<string | null>(null)
 
