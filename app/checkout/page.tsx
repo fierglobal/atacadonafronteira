@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useCarrinho, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
-import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_NUMBER, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import Logo from '@/components/Logo'
 import EntregaSeguro from '@/components/EntregaSeguro'
 import { calcularEntrega, type Cotacao, type EntregaTipo } from '@/lib/entrega'
@@ -294,6 +294,8 @@ export default function Checkout() {
   const [lookupHit, setLookupHit] = useState(false)
   const [lookupBlocked, setLookupBlocked] = useState(false)
   const [crossSell, setCrossSell] = useState<CrossSellItem[]>([])
+  const [temSobEncomenda, setTemSobEncomenda] = useState(false)
+  const [pixTemSobEncomenda, setPixTemSobEncomenda] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -352,6 +354,7 @@ export default function Checkout() {
         usd_price: Number(p.usd_price) || 0, img_url: p.img_url || '',
       }))
       setCrossSell(products)
+      setTemSobEncomenda(!!d.temSobEncomenda)
     }).catch(() => {})
     return () => { alive = false }
   }, [itens.map(i => i.id).join('|')])
@@ -528,6 +531,7 @@ export default function Checkout() {
       setOrderNum(num)
       setOrderId(oid || '')
       setPixItens(snapshotItens)
+      setPixTemSobEncomenda(temSobEncomenda)
       setPixTotal(snapshotTotal)
       setPixForm(data)
       setPixDescontoBRL(cupomDescontoPct > 0 ? (snapshotTotal * brlRate) * cupomDescontoPct / 100 : 0)
@@ -818,6 +822,11 @@ export default function Checkout() {
               <span style={{ color: '#0a0a0a' }}>Total</span>
               <span style={{ color: '#420E76' }}>R$ {pixTotalBRLStr}</span>
             </div>
+            {pixTemSobEncomenda && (
+              <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
+                {SOB_ENCOMENDA_TEXTO}
+              </div>
+            )}
           </div>
 
           {/* comprovante */}
@@ -976,6 +985,11 @@ export default function Checkout() {
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
                   </div>
                 ))}
+                {temSobEncomenda && (
+                  <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
+                    {SOB_ENCOMENDA_TEXTO}
+                  </div>
+                )}
               </div>
               <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec' }}>
                 <CuponsList cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
@@ -1205,6 +1219,11 @@ export default function Checkout() {
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
                 </div>
               ))}
+              {temSobEncomenda && (
+                <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
+                  {SOB_ENCOMENDA_TEXTO}
+                </div>
+              )}
             </div>
             <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec' }}>
               <CuponsList cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
