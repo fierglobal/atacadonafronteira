@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 
 type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
@@ -29,6 +30,7 @@ const BADGE_COLORS: Record<string, { bg: string; color: string; border: string }
   'promocao': { bg: 'rgba(66, 14, 118,0.08)', color: '#420E76', border: 'rgba(66, 14, 118,0.35)' },
   'lançamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
   'lancamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
+  [SOB_ENCOMENDA_BADGE]: { bg: 'rgba(245,158,11,0.10)', color: '#b45309', border: 'rgba(245,158,11,0.4)' },
 }
 const DEFAULT_BADGE = { bg: '#fafafa', color: '#737373', border: '#d4d4d4' }
 const badgeStyle = (txt: string) => BADGE_COLORS[txt.trim().toLowerCase()] ?? DEFAULT_BADGE
@@ -512,6 +514,15 @@ export default function ProdutoPage() {
                   <p style={{ fontSize: 14, color: '#404040', lineHeight: 1.7, margin: '0 0 24px', display: product.descricao_curta ? 'block' : '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                     {product.descricao_curta || shortDesc(product.descricao!)}
                   </p>
+                )}
+
+                {product.badges?.some(b => b.trim().toLowerCase() === SOB_ENCOMENDA_BADGE) && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', marginTop: -12, marginBottom: 24, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8 }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+                      <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                    </svg>
+                    <span style={{ fontSize: 13, color: '#b45309', lineHeight: 1.5 }}>{SOB_ENCOMENDA_TEXTO}</span>
+                  </div>
                 )}
 
                 {/* SKU + Marca */}

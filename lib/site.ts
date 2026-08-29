@@ -35,3 +35,8 @@ export const WHATSAPP_GRUPO_HREF =
 // exatamente com products.brand, que é gravado em UPPERCASE.
 // A vitrine só aparece no menu se houver produto ativo daquela marca.
 export const MARCAS_VITRINE = ['APPLE', 'XIAOMI', 'JBL']
+
+// Badge 'sob encomenda' (iPhone 17 EUA, 29/08/2026): mesmo texto na PDP e no
+// checkout, então mora num só lugar em vez de duplicado nos dois arquivos.
+export const SOB_ENCOMENDA_BADGE = 'sob encomenda'
+export const SOB_ENCOMENDA_TEXTO = 'Sob encomenda: retirada em Ciudad del Este ou envio a partir de 30/09.'
