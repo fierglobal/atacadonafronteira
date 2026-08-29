@@ -281,7 +281,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       setLoadingProducts(true)
       pendingScrollRef.current = true
     }
-    console.log('[DBG] mount-effect', { cat, marca, q, pending: pendingScrollRef.current })
+    console.log('[DBG] mount-effect ' + JSON.stringify({ cat, marca, q, pending: pendingScrollRef.current }))
   }, [])
 
   // libera o grid quando o recorte da URL já foi aplicado (par do script
@@ -298,14 +298,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   // o mesmo layout alto de antes.
   const loadStartedRef = useRef(false)
   useEffect(() => {
-    console.log('[DBG] settle-effect', { loadingProducts, refetching, pending: pendingScrollRef.current, started: loadStartedRef.current })
+    console.log('[DBG] settle-effect ' + JSON.stringify({ loadingProducts, refetching, pending: pendingScrollRef.current, started: loadStartedRef.current, scrollHeight: document.documentElement.scrollHeight, scrollY: window.scrollY }))
     if (loadingProducts || refetching) { loadStartedRef.current = true; return }
     document.documentElement.removeAttribute('data-filtro-pendente')
     if (pendingScrollRef.current && loadStartedRef.current) {
       pendingScrollRef.current = false
       loadStartedRef.current = false
-      console.log('[DBG] scrolling now', document.getElementById('catalogo')?.getBoundingClientRect())
+      const r = document.getElementById('catalogo')?.getBoundingClientRect()
+      console.log('[DBG] scrolling now top=' + r?.top + ' scrollHeight=' + document.documentElement.scrollHeight)
       document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })
+      setTimeout(() => console.log('[DBG] after-scroll scrollY=' + window.scrollY + ' scrollHeight=' + document.documentElement.scrollHeight), 600)
     }
   }, [loadingProducts, refetching])
 
