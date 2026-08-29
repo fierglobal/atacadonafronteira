@@ -29,7 +29,7 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
 
   let q = supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, usd_price_promo, img_url, estoque', { count: 'exact' })
+    .select('id, name, brand, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
     .in('categoria_id', ids)

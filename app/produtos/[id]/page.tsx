@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
+import { effectiveBadges } from '@/lib/produto'
 
 type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
@@ -495,7 +496,7 @@ export default function ProdutoPage() {
                       </span>
                     )
                   })()}
-                  {product.badges && product.badges.map((b, i) => {
+                  {effectiveBadges(product).map((b, i) => {
                     const st = badgeStyle(b)
                     return (
                       <span key={i} style={{

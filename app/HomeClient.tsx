@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
+import { isPromo, effectiveBadges } from '@/lib/produto'
 import Logo from '@/components/Logo'
 import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
@@ -100,13 +101,6 @@ export type HomeInitial = {
 type VitrineRow = { id: string; nome: string; total: number; items: Product[] }
 
 const decodeProd = (p: Product): Product => ({ ...p, name: dec(p.name) ?? p.name, brand: dec(p.brand) })
-
-const isPromo = (p: Product) => p.usd_price_promo != null && p.usd_price_promo < p.usd_price
-const effectiveBadges = (p: Product) => {
-  const base = (p.badges ?? []).slice()
-  if (isPromo(p) && !base.some(b => b.toLowerCase().includes('promo'))) base.unshift('promoção')
-  return base
-}
 
 function ProductCardCompact({ p }: { p: Product }) {
   const router = useRouter()
@@ -268,6 +262,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
   const revealedCards = useRef(new Set<string>(initial ? initial.secoes.flatMap(s => s.items.map(i => i.id)) : []))
+  const pendingScrollRef = useRef(false)
 
   // Sync dos filtros com a URL: ?cat= (categoria) e ?marca= (vitrine de marca).
   // Marca precisa vir da URL, e não só do state, para o menu poder linkar uma
@@ -284,15 +279,43 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     if (cat || marca || q) {
       // o HTML estático trouxe a vitrine; o conteúdo certo ainda vai chegar
       setLoadingProducts(true)
-      setTimeout(() => document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' }), 100)
+      pendingScrollRef.current = true
     }
   }, [])
 
   // libera o grid quando o recorte da URL já foi aplicado (par do script
-  // anti-flash do layout)
+  // anti-flash do layout). O scroll pro #catalogo espera até aqui (conteúdo
+  // filtrado já assentado) em vez de um timeout fixo: com filtro ativo o
+  // hero da home some (isHome vira false) e #catalogo sobe na página — um
+  // scrollIntoView disparado antes disso mirava a posição de quando o hero
+  // ainda estava lá; quando ele sumia, o scroll ficava preso além do
+  // resultado (curto), direto no rodapé.
   useEffect(() => {
-    if (!loadingProducts && !refetching) document.documentElement.removeAttribute('data-filtro-pendente')
+    if (!loadingProducts && !refetching) {
+      document.documentElement.removeAttribute('data-filtro-pendente')
+      if (pendingScrollRef.current) {
+        pendingScrollRef.current = false
+        document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
   }, [loadingProducts, refetching])
+
+  // Busca disparada pelo campo do header enquanto já se está na home (ver
+  // HeaderActions.tsx) — router.push não remonta este componente, então o
+  // filtro tem que chegar por evento em vez de reler a URL.
+  useEffect(() => {
+    const onBuscaHeader = (e: Event) => {
+      const q = (e as CustomEvent<string>).detail
+      if (!q) return
+      setActiveCategoria('')
+      setActiveBrand('Todos')
+      setSearch(q)
+      pendingScrollRef.current = true
+      window.history.replaceState(null, '', `/?q=${encodeURIComponent(q)}#catalogo`)
+    }
+    window.addEventListener('anf:busca-header', onBuscaHeader)
+    return () => window.removeEventListener('anf:busca-header', onBuscaHeader)
+  }, [])
 
   useEffect(() => {
     fetch('/api/home-config').then(r => r.json()).then(cfg => {
