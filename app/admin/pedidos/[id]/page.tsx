@@ -28,7 +28,7 @@ type Order = {
   seguro_recusado?: boolean | null
   entrega_endereco?: string | null
   customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
-  order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number }[]
+  order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number; products: { img_url: string | null } | null }[]
 }
 type TimelineItem =
   | { tipo: 'status'; status: string; created_at: string }
@@ -268,8 +268,17 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               const estoque = stockMap[item.product_name]
               const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
               const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
+              const img = item.products?.img_url
               return (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < order.order_items.length - 1 ? '1px solid var(--a-bg)' : 'none' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 7, overflow: 'hidden', background: 'var(--a-bg)', border: '1px solid var(--a-border)', flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {img ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={img} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                    ) : (
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                    )}
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product_name}</p>
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
