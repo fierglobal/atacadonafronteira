@@ -187,10 +187,20 @@ export default async function AdminDashboard() {
   const topProdMax = d.topProducts[0]?.brl || 1
 
   return (
-    <div style={{ padding: '28px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="dash-page" style={{ padding: '28px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 900px) {
+          .dash-page { padding: 16px !important; }
+          .dash-kpis { grid-template-columns: repeat(2, 1fr) !important; }
+          .dash-charts, .dash-bottom { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .dash-kpis { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginBottom: 28 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Dashboard</h1>
           <p style={{ color: 'var(--a-text3)', fontSize: 12, marginTop: 4, textTransform: 'capitalize' }}>{today}</p>
@@ -204,7 +214,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="dash-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
 
         {/* Receita Hoje */}
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '18px 20px' }}>
@@ -269,7 +279,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 14, marginBottom: 14 }}>
+      <div className="dash-charts" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 14, marginBottom: 14 }}>
 
         {/* Area chart */}
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
@@ -312,7 +322,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+      <div className="dash-bottom" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
 
         {/* Top produtos */}
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '16px 20px' }}>
