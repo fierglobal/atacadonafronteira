@@ -174,7 +174,7 @@ export async function POST(req: Request) {
   if (oe) return NextResponse.json({ error: oe.message }, { status: 500 })
 
   const items = itens.map(i => ({
-    order_id: order.id, product_name: i.name, product_brand: i.brand || null,
+    order_id: order.id, product_id: i.id || null, product_name: i.name, product_brand: i.brand || null,
     unit_usd: i.usd, quantity: i.quantity, subtotal_usd: +(i.usd * i.quantity).toFixed(2),
   }))
   const { error: ie } = await supabaseAdmin.from('order_items').insert(items)

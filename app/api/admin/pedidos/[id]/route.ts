@@ -10,7 +10,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
 
   const [{ data: order }, { data: statusHistory }, { data: acoes }, { data: items }] = await Promise.all([
-    supabaseAdmin.from('orders').select('*, customers(*), order_items(*)').eq('id', id).single(),
+    supabaseAdmin.from('orders').select('*, customers(*), order_items(*, products(img_url))').eq('id', id).single(),
     supabaseAdmin
       .from('order_status_history')
       .select('status, created_at')
