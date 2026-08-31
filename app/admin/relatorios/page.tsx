@@ -59,7 +59,14 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
   ]
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="rel-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .rel-page { padding: 16px !important; }
+          .rel-table-wrap { display: none !important; }
+          .rel-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Relatório de Produtos</h1>
@@ -80,7 +87,7 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
           <p>Sem vendas no período selecionado</p>
         </div>
       ) : (
-        <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        <div className="rel-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -111,6 +118,33 @@ export default async function Relatorios({ searchParams }: { searchParams: Promi
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {items.length > 0 && (
+        <div className="rel-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+          {items.map((p, i) => {
+            const pct = totalBrl > 0 ? (p.brl / totalBrl * 100) : 0
+            return (
+              <div key={p.name} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: i === 0 ? '#A965ED' : 'var(--a-text3)', flexShrink: 0, marginTop: 1 }}>#{i + 1}</span>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)', margin: 0 }}>{p.name}</p>
+                    <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '2px 0 0' }}>{p.brand || '—'}</p>
+                    <div style={{ marginTop: 6, height: 3, background: 'var(--a-border)', borderRadius: 99 }}>
+                      <div style={{ height: '100%', width: `${(p.brl / maxBrl) * 100}%`, background: i === 0 ? '#A965ED' : '#3b82f6', borderRadius: 99, opacity: i === 0 ? 1 : 0.6 }} />
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{p.qty} un. · {p.orders} pedido{p.orders === 1 ? '' : 's'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{fmtK(p.brl)}</span>
+                  <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{pct.toFixed(1)}%</span>
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
