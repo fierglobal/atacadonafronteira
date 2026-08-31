@@ -332,6 +332,8 @@ export default function Clientes() {
           .clientes-page { padding: 16px !important; }
           .clientes-table-wrap { display: none !important; }
           .clientes-cards { display: block !important; }
+          .cli-grid { grid-template-columns: minmax(0, 1fr) !important; }
+          .cli-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         }
       `}</style>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
@@ -569,7 +571,7 @@ export default function Clientes() {
 
               {tab === 'overview' && (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
+                  <div className="cli-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 18 }}>
                     {[
                       { label: 'Total Pedidos', value: totalPedidos, color: 'var(--a-text)', sub: '' },
                       { label: 'Pedidos Pagos', value: pedidosPagos, color: '#A965ED', sub: '' },
@@ -638,7 +640,7 @@ export default function Clientes() {
                   <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, marginBottom: 16, border: '1px solid var(--a-border)' }}>
                     <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 14 }}>DADOS CADASTRAIS (PF)</p>
                     {editing ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         {([['nome', 'Nome completo'], ['cpf', 'CPF'], ['telefone', 'WhatsApp'], ['email', 'E-mail'], ['cidade', 'Cidade'], ['uf', 'UF']] as [string, string][]).map(([k, label]) => (
                           <div key={k}>
                             <label style={lbl}>{label.toUpperCase()}</label>
@@ -647,7 +649,7 @@ export default function Clientes() {
                         ))}
                       </div>
                     ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                      <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                         {[['Nome', selected.nome], ['CPF', selected.cpf], ['WhatsApp', fmtTel(selected.telefone)], ['E-mail', selected.email], ['Cidade', selected.cidade], ['UF', selected.uf]].map(([k, v]) => (
                           <div key={k}>
                             <p style={{ fontSize: 9, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 3 }}>{k}</p>
@@ -662,7 +664,7 @@ export default function Clientes() {
                     <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 4 }}>DADOS PJ</p>
                     <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: 0, marginBottom: 14 }}>(preencha se for PJ)</p>
                     {editing ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                      <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                         {([['razao_social', 'Razão social'], ['cnpj', 'CNPJ'], ['ie', 'IE']] as [string, string][]).map(([k, label]) => (
                           <div key={k}>
                             <label style={lbl}>{label.toUpperCase()}</label>
@@ -671,7 +673,7 @@ export default function Clientes() {
                         ))}
                       </div>
                     ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                      <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                         {[['Razão social', selected.razao_social], ['CNPJ', selected.cnpj], ['IE', selected.ie]].map(([k, v]) => (
                           <div key={k}>
                             <p style={{ fontSize: 9, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.06em', marginBottom: 3 }}>{k}</p>
@@ -682,7 +684,7 @@ export default function Clientes() {
                     )}
                   </div>
 
-                  <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, marginBottom: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div className="cli-grid" style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, marginBottom: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                     <div>
                       <label style={lbl}>SALES CHANNEL</label>
                       <select value={selected.sales_channel_id || ''} onChange={e => saveChannel(e.target.value || null)} style={inp as any}>
@@ -775,7 +777,7 @@ export default function Clientes() {
                 <>
                   <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, marginBottom: 14, border: '1px solid var(--a-border)' }}>
                     <p style={{ fontSize: 10, color: 'var(--a-text3)', letterSpacing: '0.08em', fontWeight: 700, marginBottom: 10 }}>ENVIAR DOCUMENTO</p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+                    <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
                       <input type="file" ref={fileRef} onChange={e => { const f = e.target.files?.[0]; if (f && !uploadName) setUploadName(f.name) }}
                         style={{ ...inp, padding: 8 }} />
                       <input value={uploadName} onChange={e => setUploadName(e.target.value)} placeholder="Nome do documento" style={inp} />
@@ -789,7 +791,7 @@ export default function Clientes() {
                   {docs.length === 0 ? (
                     <div style={{ padding: 30, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum documento ainda.</div>
                   ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       {docs.map((d: any) => (
                         <div key={d.id} style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--a-border)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
@@ -842,7 +844,7 @@ export default function Clientes() {
                       Nenhum atributo customizado definido para clientes.
                     </div>
                   ) : (
-                    <div style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div className="cli-grid" style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                       {[...fieldDefs].sort((a: any, b: any) => (a.ordem || 0) - (b.ordem || 0)).map((def: any) => {
                         const val = selected.custom_fields?.[def.field_key]
                         const t = def.field_type
