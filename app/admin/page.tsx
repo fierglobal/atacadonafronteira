@@ -189,13 +189,19 @@ export default async function AdminDashboard() {
   return (
     <div className="dash-page" style={{ padding: '28px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
       <style>{`
+        /* minmax(0, 1fr) e não só 1fr: uma track de grid não encolhe abaixo do
+           min-content de quem está dentro por padrão (mesma regra do flex) —
+           sem o 0 aqui, o nome comprido de um produto em "Top Produtos"
+           mantinha a coluna larga mesmo com 1 coluna só. */
+        .dash-kpis, .dash-charts, .dash-bottom { min-width: 0; }
+        .dash-kpis > *, .dash-charts > *, .dash-bottom > * { min-width: 0; }
         @media (max-width: 900px) {
           .dash-page { padding: 16px !important; }
-          .dash-kpis { grid-template-columns: repeat(2, 1fr) !important; }
-          .dash-charts, .dash-bottom { grid-template-columns: 1fr !important; }
+          .dash-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+          .dash-charts, .dash-bottom { grid-template-columns: minmax(0, 1fr) !important; }
         }
         @media (max-width: 480px) {
-          .dash-kpis { grid-template-columns: 1fr !important; }
+          .dash-kpis { grid-template-columns: minmax(0, 1fr) !important; }
         }
       `}</style>
 
@@ -338,7 +344,7 @@ export default async function AdminDashboard() {
                 <div key={p.name}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
                     <span style={{ fontSize: 10, fontWeight: 900, color: i === 0 ? '#A965ED' : 'var(--a-text3)', minWidth: 16 }}>#{i + 1}</span>
-                    <span style={{ fontSize: 12, color: 'var(--a-text)', fontWeight: 500, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                    <span style={{ fontSize: 12, color: 'var(--a-text)', fontWeight: 500, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
                     <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED', whiteSpace: 'nowrap' }}>{fmtK(p.brl)}</span>
                     <span style={{ fontSize: 10, color: 'var(--a-text3)', minWidth: 28, textAlign: 'right' }}>×{p.qty}</span>
                   </div>
