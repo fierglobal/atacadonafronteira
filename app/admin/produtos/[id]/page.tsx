@@ -453,7 +453,13 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
   if (loading) return <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }} />
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="pd-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .pd-page { padding: 16px !important; }
+          .pd-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {/* Breadcrumb */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
         <button onClick={() => router.push('/admin/produtos')}
@@ -544,7 +550,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               </div>
             </div>
 
-            <div style={{ ...card, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="pd-grid" style={{ ...card, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <p style={{ ...sec(), marginBottom: 12 }}>MARCA</p>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -602,7 +608,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
               <p style={sec('#f59e0b')}>PRECIFICAÇÃO</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>PREÇO DE VENDA (USD)</label>
                   <input type="number" step="0.01" value={form.usd_price} onChange={set('usd_price')} placeholder="0.00" style={IS} />
@@ -638,7 +644,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
             <div style={{ ...card, background: 'rgba(245,158,11,0.04)' }}>
               <p style={sec('#f59e0b')}>PREÇO POR QUANTIDADE</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>PREÇO ESPECIAL (USD)</label>
                   <input type="number" step="0.01" value={form.usd_price_qty} onChange={set('usd_price_qty')} placeholder="Vazio = não usar" style={IS} />
@@ -664,7 +670,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               )}
 
               {tiers.map((t, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, marginBottom: 8, alignItems: 'end' }}>
+                <div key={i} className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: 8, marginBottom: 8, alignItems: 'end' }}>
                   <div>
                     {i === 0 && <label style={lbl}>QTD MÍN</label>}
                     <input type="number" min="1" value={t.qty_min} onChange={e => updateTier(i, 'qty_min', e.target.value)} placeholder="1" style={IS} />
@@ -771,7 +777,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={card}>
               <p style={sec()}>IDENTIFICAÇÃO</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>SKU (código do produto)</label>
                   <input value={form.sku} onChange={set('sku')} placeholder="Ex: PROD-001" style={{ ...IS, fontFamily: 'monospace' }} />
@@ -785,7 +791,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
             <div style={card}>
               <p style={sec()}>ESTOQUE</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>QUANTIDADE DISPONÍVEL (vazio = ilimitado)</label>
                   <input type="number" min="0" value={form.estoque} onChange={set('estoque')} placeholder="∞" style={IS} />
@@ -805,7 +811,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                 <input value={form.unidade_venda} onChange={set('unidade_venda')}
                   placeholder='Ex: "caixa com 12 frascos", "fardo de 24"' style={IS} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
                   <label style={lbl}>MULTIPLICADOR</label>
                   <input type="number" min="1" value={form.multiplicador} onChange={set('multiplicador')} placeholder="1" style={IS} />
@@ -826,7 +832,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
             <div style={card}>
               <p style={sec()}>DIMENSÕES E PESO <span style={{ fontSize: 9, fontWeight: 400, color: 'var(--a-text3)' }}>(para cálculo de frete)</span></p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 14 }}>
+              <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 14 }}>
                 {[
                   { k: 'peso', label: 'PESO (kg)', ph: '0.5' },
                   { k: 'comprimento', label: 'COMPRIMENTO (cm)', ph: '30' },
@@ -884,7 +890,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
                   {/* Atributos */}
                   {novaVariante.atributos.map((a, i) => (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8, marginBottom: 8 }}>
+                    <div key={i} className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 8, marginBottom: 8 }}>
                       <input value={a.nome} onChange={e => setNovaVariante(v => { if (!v) return v; const arr = [...v.atributos]; arr[i] = { ...arr[i], nome: e.target.value }; return { ...v, atributos: arr } })}
                         placeholder="Atributo (ex: Cor)" style={IS} />
                       <input value={a.valor} onChange={e => setNovaVariante(v => { if (!v) return v; const arr = [...v.atributos]; arr[i] = { ...arr[i], valor: e.target.value }; return { ...v, atributos: arr } })}
@@ -898,7 +904,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                     + Adicionar atributo
                   </button>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
+                  <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
                     <div><label style={lbl}>PREÇO ADICIONAL (USD)</label>
                       <input type="number" step="0.01" value={novaVariante.preco_adicional}
                         onChange={e => setNovaVariante(v => v ? { ...v, preco_adicional: e.target.value } : v)}
