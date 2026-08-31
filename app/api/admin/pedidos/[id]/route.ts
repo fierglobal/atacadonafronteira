@@ -33,16 +33,19 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   // products.categoria_id não tem FK formal para categorias (schema sem a constraint),
   // então o PostgREST recusa o embed aninhado products(categorias(nome)) com PGRST200 —
-  // resolvido à mão numa segunda query.
+  // resolvido à mão numa segunda query, reconstruindo os itens (sem mutar o embed original).
   if (order?.order_items?.length) {
-    const catIds = [...new Set((order.order_items as any[]).map(i => i.products?.categoria_id).filter(Boolean))]
+    const itens = order.order_items as any[]
+    const catIds = [...new Set(itens.map(i => i.products?.categoria_id).filter(Boolean))]
+    const catMap = new Map<string, string>()
     if (catIds.length) {
       const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
-      const catMap = new Map((cats || []).map((c: any) => [c.id, c.nome]))
-      ;(order.order_items as any[]).forEach(i => {
-        if (i.products) i.products.categorias = catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null
-      })
+      ;(cats || []).forEach((c: any) => catMap.set(c.id, c.nome))
     }
+    ;(order as any).order_items = itens.map(i => ({
+      ...i,
+      products: i.products ? { ...i.products, categorias: catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null } : null,
+    }))
   }
 
   const names = (items || []).map((i: any) => i.product_name)
