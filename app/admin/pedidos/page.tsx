@@ -183,6 +183,7 @@ export default function Pedidos() {
           .pedidos-search { flex: 1 1 auto !important; width: auto !important; }
           .pedidos-table-wrap { display: none !important; }
           .pedidos-cards { display: block !important; }
+          .pedidos-manual-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
@@ -386,7 +387,7 @@ export default function Pedidos() {
                 <button onClick={() => { setModalManual(false); setManualSuccess('') }} style={{ padding: '10px 24px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Fechar</button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+              <div className="pedidos-manual-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 24 }}>
                 {/* Cliente */}
                 <div>
                   <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
@@ -408,8 +409,8 @@ export default function Pedidos() {
                         style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid var(--a-border)', fontSize: 12 }}
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                        <span style={{ color: 'var(--a-text2)', flex: 1 }}>{p.name}</span>
-                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap' }}>+  USD {p.usd_price.toFixed(2)}</span>
+                        <span style={{ color: 'var(--a-text2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
+                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+  USD {p.usd_price.toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
@@ -417,7 +418,7 @@ export default function Pedidos() {
                     <div style={{ background: 'var(--a-border)', borderRadius: 8, padding: '10px 12px' }}>
                       {manualItems.map(item => (
                         <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                          <span style={{ fontSize: 11, color: 'var(--a-text2)', flex: 1 }}>{item.name}</span>
+                          <span style={{ fontSize: 11, color: 'var(--a-text2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
                           <button onClick={() => setManualItems(prev => prev.map(i => i.id === item.id ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i))}
                             style={{ width: 22, height: 22, background: 'var(--a-border)', border: 'none', color: 'var(--a-text2)', borderRadius: 4, cursor: 'pointer', fontSize: 14 }}>−</button>
                           <span style={{ fontSize: 12, color: 'var(--a-text)', minWidth: 16, textAlign: 'center' }}>{item.quantity}</span>
