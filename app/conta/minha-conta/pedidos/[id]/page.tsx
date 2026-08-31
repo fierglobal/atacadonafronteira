@@ -3,8 +3,9 @@ import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import { WILSON_ORDER_IDS, WILSON_PRODUCT_LISTA } from '@/lib/wilson-pedido-listas'
 
-type OrderItem = { id: string; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
+type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
 type Order = { id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string; notas: string | null; comprovante_url: string | null; nome_retirador: string | null; order_items: OrderItem[] }
 
 const STATUS_STEPS = ['pendente_pagamento', 'pago', 'pronto_retirada', 'retirado']
@@ -77,10 +78,13 @@ export default function PedidoDetalhe() {
         const { data: cats } = await supabase.from('categorias').select('id, nome').in('id', catIds)
         ;(cats || []).forEach((cat: any) => catMap.set(cat.id, cat.nome))
       }
-      data.order_items = itens.map(i => ({
-        ...i,
-        products: i.products ? { ...i.products, categorias: catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null } : null,
-      }))
+      const isWilson = WILSON_ORDER_IDS.has(data.id)
+      data.order_items = itens.map(i => {
+        const nome = isWilson
+          ? (WILSON_PRODUCT_LISTA[i.product_id] || 'Outros')
+          : (i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null)
+        return { ...i, products: i.products ? { ...i.products, categorias: nome ? { nome } : null } : null }
+      })
 
       setOrder(data)
       setLoading(false)

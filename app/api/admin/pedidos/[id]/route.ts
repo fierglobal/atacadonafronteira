@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin, logAudit } from '@/lib/admin-auth'
 import { getConfig } from '@/lib/config'
 import { emailProntoRetirada } from '@/lib/email'
+import { WILSON_ORDER_IDS, WILSON_PRODUCT_LISTA } from '@/lib/wilson-pedido-listas'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin('pedidos', 'r')
@@ -42,10 +43,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
       ;(cats || []).forEach((c: any) => catMap.set(c.id, c.nome))
     }
-    ;(order as any).order_items = itens.map(i => ({
-      ...i,
-      products: i.products ? { ...i.products, categorias: catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null } : null,
-    }))
+    const isWilson = WILSON_ORDER_IDS.has(id)
+    ;(order as any).order_items = itens.map(i => {
+      const nome = isWilson
+        ? (WILSON_PRODUCT_LISTA[i.product_id] || 'Outros')
+        : (i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null)
+      return { ...i, products: i.products ? { ...i.products, categorias: nome ? { nome } : null } : null }
+    })
   }
 
   const names = (items || []).map((i: any) => i.product_name)
