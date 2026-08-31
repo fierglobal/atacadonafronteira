@@ -111,7 +111,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                 return acc
               }, {} as Record<string, OrderItem[]>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
-              const mostrarGrupos = categorias.length > 1
+              const mostrarGrupos = categorias.length > 1 || isWilson
               return categorias.map(cat => (
                 <Fragment key={cat}>
                   {mostrarGrupos && (
