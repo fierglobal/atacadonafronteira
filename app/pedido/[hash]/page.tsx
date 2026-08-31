@@ -3,7 +3,6 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
 import PrintButton from './PrintButton'
-import { WILSON_ORDER_IDS, WILSON_PRODUCT_LISTA } from '@/lib/wilson-pedido-listas'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,13 +36,10 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
     const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
     ;(cats || []).forEach(cat => catMap.set(cat.id, cat.nome))
   }
-  const isWilson = WILSON_ORDER_IDS.has(order.id)
   const xs: OrderItem[] = raw.map(i => ({
     product_name: i.product_name, product_brand: i.product_brand, unit_usd: i.unit_usd,
     quantity: i.quantity, subtotal_usd: i.subtotal_usd,
-    categoriaNome: isWilson
-      ? (WILSON_PRODUCT_LISTA[i.product_id || ''] || 'Outros')
-      : (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
+    categoriaNome: (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
   }))
   const totalBRL = order.total_brl || order.total_usd * config.brl_rate
   const dt = new Date(order.created_at).toLocaleString('pt-BR')
@@ -111,7 +107,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                 return acc
               }, {} as Record<string, OrderItem[]>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
-              const mostrarGrupos = categorias.length > 1 || isWilson
+              const mostrarGrupos = categorias.length > 1
               return categorias.map(cat => (
                 <Fragment key={cat}>
                   {mostrarGrupos && (

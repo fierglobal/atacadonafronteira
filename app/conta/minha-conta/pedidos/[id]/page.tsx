@@ -3,7 +3,6 @@ import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
-import { WILSON_ORDER_IDS, WILSON_PRODUCT_LISTA } from '@/lib/wilson-pedido-listas'
 
 type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
 type Order = { id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string; notas: string | null; comprovante_url: string | null; nome_retirador: string | null; order_items: OrderItem[] }
@@ -78,11 +77,8 @@ export default function PedidoDetalhe() {
         const { data: cats } = await supabase.from('categorias').select('id, nome').in('id', catIds)
         ;(cats || []).forEach((cat: any) => catMap.set(cat.id, cat.nome))
       }
-      const isWilson = WILSON_ORDER_IDS.has(data.id)
       data.order_items = itens.map(i => {
-        const nome = isWilson
-          ? (WILSON_PRODUCT_LISTA[i.product_id] || 'Outros')
-          : (i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null)
+        const nome = i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null
         return { ...i, products: i.products ? { ...i.products, categorias: nome ? { nome } : null } : null }
       })
 
@@ -277,7 +273,7 @@ export default function PedidoDetalhe() {
                 return acc
               }, {} as Record<string, OrderItem[]>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
-              const mostrarGrupos = categorias.length > 1 || WILSON_ORDER_IDS.has(order.id)
+              const mostrarGrupos = categorias.length > 1
               return categorias.map(cat => (
                 <Fragment key={cat}>
                   {mostrarGrupos && (
