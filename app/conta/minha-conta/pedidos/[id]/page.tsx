@@ -127,16 +127,16 @@ export default function PedidoDetalhe() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28 }}>
-        <button onClick={() => router.push('/conta/minha-conta/pedidos')} style={{ background: 'transparent', border: '1px solid #d4d4d4', borderRadius: 8, color: '#404040', padding: '7px 14px', fontSize: 12, cursor: 'pointer' }}>← Pedidos</button>
-        <div style={{ flex: 1 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#0a0a0a' }}>{order.order_num}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28, flexWrap: 'wrap' }}>
+        <button onClick={() => router.push('/conta/minha-conta/pedidos')} style={{ background: 'transparent', border: '1px solid #d4d4d4', borderRadius: 8, color: '#404040', padding: '7px 14px', fontSize: 12, cursor: 'pointer', flexShrink: 0 }}>← Pedidos</button>
+        <div style={{ flex: 1, minWidth: 120 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.order_num}</h1>
           <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>
             {new Date(order.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
           </p>
         </div>
         <button onClick={reorder} disabled={reordering}
-          style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 8, color: '#420E76', padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1 }}>
+          style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 8, color: '#420E76', padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0 }}>
           {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
         </button>
       </div>
