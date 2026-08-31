@@ -5,7 +5,8 @@ import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
+type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; categoriaNome: string }
+type OrderItemRaw = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categoria_id: string | null } | null }
 type Customer = { nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string }
 
 export default async function PedidoCopia({ params }: { params: Promise<{ hash: string }> }) {
@@ -24,19 +25,21 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
   ])
 
   const c = (customer as Customer) || { nome: '', cpf: '', email: '', telefone: '', cidade: '', uf: '' }
-  const xs = (items as unknown as OrderItem[]) || []
+  const raw = (items as unknown as OrderItemRaw[]) || []
 
   // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
   // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui.
-  const catIds = [...new Set(xs.map(i => (i.products as any)?.categoria_id).filter(Boolean))]
+  const catIds = [...new Set(raw.map(i => i.products?.categoria_id).filter(Boolean))] as string[]
+  const catMap = new Map<string, string>()
   if (catIds.length) {
     const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
-    const catMap = new Map((cats || []).map(cat => [cat.id, cat.nome]))
-    xs.forEach(i => {
-      const catId = (i.products as any)?.categoria_id
-      if (i.products) i.products.categorias = catMap.has(catId) ? { nome: catMap.get(catId)! } : null
-    })
+    ;(cats || []).forEach(cat => catMap.set(cat.id, cat.nome))
   }
+  const xs: OrderItem[] = raw.map(i => ({
+    product_name: i.product_name, product_brand: i.product_brand, unit_usd: i.unit_usd,
+    quantity: i.quantity, subtotal_usd: i.subtotal_usd,
+    categoriaNome: (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
+  }))
   const totalBRL = order.total_brl || order.total_usd * config.brl_rate
   const dt = new Date(order.created_at).toLocaleString('pt-BR')
 
@@ -99,8 +102,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
           <tbody>
             {(() => {
               const grupos = xs.reduce((acc, it) => {
-                const cat = it.products?.categorias?.nome || 'Outros'
-                ;(acc[cat] ||= []).push(it)
+                ;(acc[it.categoriaNome] ||= []).push(it)
                 return acc
               }, {} as Record<string, OrderItem[]>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))

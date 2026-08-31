@@ -68,15 +68,19 @@ export default function PedidoDetalhe() {
       if (!data) { router.replace('/conta/minha-conta/pedidos'); return }
 
       // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
-      // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui.
-      const catIds = [...new Set((data.order_items || []).map((i: any) => i.products?.categoria_id).filter(Boolean))]
+      // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui
+      // (reconstruindo os itens, sem mutar o embed original).
+      const itens: any[] = data.order_items || []
+      const catIds = [...new Set(itens.map(i => i.products?.categoria_id).filter(Boolean))]
+      const catMap = new Map<string, string>()
       if (catIds.length) {
         const { data: cats } = await supabase.from('categorias').select('id, nome').in('id', catIds)
-        const catMap = new Map((cats || []).map((cat: any) => [cat.id, cat.nome]))
-        ;(data.order_items || []).forEach((i: any) => {
-          if (i.products) i.products.categorias = catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null
-        })
+        ;(cats || []).forEach((cat: any) => catMap.set(cat.id, cat.nome))
       }
+      data.order_items = itens.map(i => ({
+        ...i,
+        products: i.products ? { ...i.products, categorias: catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null } : null,
+      }))
 
       setOrder(data)
       setLoading(false)
