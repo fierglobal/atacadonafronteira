@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
+import PrintButton from './PrintButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -137,9 +138,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
         {order.notas && <><h2>Observações</h2><p style={{ whiteSpace: 'pre-wrap' }}>{order.notas}</p></>}
 
-        <div className="no-print" style={{ marginTop: 32, textAlign: 'center' }}>
-          <button onClick={() => window.print()} className="btn">Imprimir / Salvar PDF</button>
-        </div>
+        <PrintButton />
 
         <p style={{ marginTop: 40, textAlign: 'center', fontSize: 10, color: '#aaa' }}>
           atacadonafronteira.com · documento gerado automaticamente
