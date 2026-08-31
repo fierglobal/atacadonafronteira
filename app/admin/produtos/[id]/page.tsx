@@ -457,7 +457,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
       <style>{`
         @media (max-width: 768px) {
           .pd-page { padding: 16px !important; }
-          .pd-grid { grid-template-columns: 1fr !important; }
+          .pd-grid { grid-template-columns: minmax(0, 1fr) !important; }
         }
       `}</style>
       {/* Breadcrumb */}

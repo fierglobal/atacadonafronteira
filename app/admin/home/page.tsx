@@ -72,7 +72,7 @@ export default function AdminHome() {
       <style>{`
         @media (max-width: 768px) {
           .home-page { padding: 16px !important; }
-          .home-grid { grid-template-columns: 1fr !important; }
+          .home-grid { grid-template-columns: minmax(0, 1fr) !important; }
         }
       `}</style>
       <div style={{ marginBottom: 28 }}>

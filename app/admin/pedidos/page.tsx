@@ -183,7 +183,7 @@ export default function Pedidos() {
           .pedidos-search { flex: 1 1 auto !important; width: auto !important; }
           .pedidos-table-wrap { display: none !important; }
           .pedidos-cards { display: block !important; }
-          .pedidos-manual-grid { grid-template-columns: 1fr !important; }
+          .pedidos-manual-grid { grid-template-columns: minmax(0, 1fr) !important; }
         }
       `}</style>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>

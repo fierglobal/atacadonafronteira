@@ -68,7 +68,7 @@ export default function Configuracoes() {
       <style>{`
         @media (max-width: 768px) {
           .cfg-page { padding: 16px !important; }
-          .cfg-grid { grid-template-columns: 1fr !important; }
+          .cfg-grid { grid-template-columns: minmax(0, 1fr) !important; }
         }
       `}</style>
       <div style={{ marginBottom: 32 }}>
