@@ -389,7 +389,7 @@ export default function Pedidos() {
             ) : (
               <div className="pedidos-manual-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 24 }}>
                 {/* Cliente */}
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
                   {(['nome', 'cpf', 'telefone', 'email', 'cidade', 'endereco'] as const).map(k => (
                     <div key={k} style={{ marginBottom: 10 }}>
@@ -401,9 +401,9 @@ export default function Pedidos() {
                 </div>
 
                 {/* Produtos */}
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>PRODUTOS</p>
-                  <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 14, border: '1px solid var(--a-border)', borderRadius: 8 }}>
+                  <div style={{ width: '100%', boxSizing: 'border-box', maxHeight: 220, overflowY: 'auto', marginBottom: 14, border: '1px solid var(--a-border)', borderRadius: 8 }}>
                     {allProducts.map(p => (
                       <div key={p.id} onClick={() => addManualItem(p)}
                         style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid var(--a-border)', fontSize: 12 }}
