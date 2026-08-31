@@ -37,7 +37,10 @@ export async function proxy(req: NextRequest) {
   }
 
   if (pathname.startsWith('/admin')) {
-    if (pathname === '/admin/login') return response
+    // Manifest do PWA: o navegador/SO busca isso pra decidir se oferece
+    // "adicionar à tela inicial" — precisa responder sem cookie de sessão,
+    // senão nunca instala (e nem dá pra checar o manifest deslogado).
+    if (pathname === '/admin/login' || pathname === '/admin/manifest.webmanifest') return response
     const token = req.cookies.get('admin_token')?.value
     if (!token) return NextResponse.redirect(new URL('/admin/login', req.url))
     // Validação real da sessão acontece em requireAdmin() nas rotas /api/admin.
