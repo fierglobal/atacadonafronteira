@@ -56,7 +56,14 @@ export default function Carrinhos() {
   const naoContatados = filtered.filter(s => !s.contatado).length
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="carrinhos-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .carrinhos-page { padding: 16px !important; }
+          .carrinhos-table-wrap { display: none !important; }
+          .carrinhos-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Carrinhos Abandonados</h1>
         <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>
@@ -86,7 +93,7 @@ export default function Carrinhos() {
       </div>
 
       {/* Tabela */}
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="carrinhos-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -147,6 +154,57 @@ export default function Carrinhos() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="carrinhos-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum carrinho abandonado nesse período</div>
+        ) : filtered.map(s => (
+          <div key={s.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)', opacity: s.contatado ? 0.5 : 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--a-text)', margin: 0 }}>{s.nome || 'Anônimo'}</p>
+                {s.email && <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '2px 0 0' }}>{s.email}</p>}
+                {s.telefone && <p style={{ fontSize: 11, color: 'var(--a-text2)', margin: '2px 0 0' }}>{s.telefone}</p>}
+              </div>
+              <span style={{ fontSize: 10, color: 'var(--a-text3)', whiteSpace: 'nowrap', flexShrink: 0 }}>{elapsed(s.created_at)}</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 8 }}>
+              {(s.itens || []).slice(0, 3).map((item, i) => (
+                <span key={i} style={{ fontSize: 11, color: 'var(--a-text2)' }}>
+                  {item.name?.slice(0, 40)}{item.name?.length > 40 ? '…' : ''} ×{item.qty}
+                </span>
+              ))}
+              {(s.itens || []).length > 3 && <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>+{(s.itens || []).length - 3} mais</span>}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--a-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#A965ED' }}>{s.total_usd ? fmt(s.total_usd) : '—'}</span>
+                {s.contatado
+                  ? <span style={{ fontSize: 10, fontWeight: 700, color: '#A965ED', background: 'rgba(169, 101, 237,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(169, 101, 237,0.2)' }}>Contatado</span>
+                  : <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(245,158,11,0.2)' }}>Pendente</span>
+                }
+              </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                {s.telefone && (
+                  <a href={waLink(s)} target="_blank" rel="noopener"
+                    style={{ padding: '5px 12px', fontSize: 11, fontWeight: 700, borderRadius: 6, border: '1px solid rgba(37,211,102,0.3)', background: 'rgba(37,211,102,0.06)', color: '#25d366', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    WhatsApp
+                  </a>
+                )}
+                <button onClick={() => marcarContatado(s.id, !s.contatado)}
+                  style={{ padding: '5px 10px', fontSize: 10, fontWeight: 700, borderRadius: 6, border: '1px solid var(--a-border)', background: 'transparent', color: 'var(--a-text3)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                  {s.contatado ? 'Desfazer' : '✓ Contatado'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )

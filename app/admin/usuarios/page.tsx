@@ -62,8 +62,15 @@ export default function Usuarios() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="usuarios-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .usuarios-page { padding: 16px !important; }
+          .usuarios-table-wrap { display: none !important; }
+          .usuarios-cards { display: block !important; }
+        }
+      `}</style>
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Usuários Admin</h1>
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Gerencie o acesso ao painel</p>
@@ -78,7 +85,7 @@ export default function Usuarios() {
         Usuários criados aqui fazem login com email + senha. O acesso legado (variável ADMIN_PASSWORD) continua funcionando.
       </div>
 
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="usuarios-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -125,6 +132,40 @@ export default function Usuarios() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="usuarios-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : users.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum usuário cadastrado</div>
+        ) : users.map(u => (
+          <div key={u.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: '50%', background: u.role === 'dono' ? 'rgba(245,158,11,0.15)' : 'rgba(169, 101, 237,0.15)', border: `1px solid ${u.role === 'dono' ? 'rgba(245,158,11,0.3)' : 'rgba(169, 101, 237,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#A965ED', flexShrink: 0 }}>
+                {u.nome[0].toUpperCase()}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.nome}</p>
+                <p style={{ fontSize: 12, color: 'var(--a-text3)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: u.role === 'dono' ? '#f59e0b' : '#A965ED', background: u.role === 'dono' ? 'rgba(245,158,11,0.1)' : 'rgba(169, 101, 237,0.1)', padding: '3px 10px', borderRadius: 4, flexShrink: 0 }}>
+                {u.role === 'dono' ? 'Dono' : 'Operador'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, gap: 8 }}>
+              <button onClick={() => toggleAtivo(u)}
+                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${u.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: u.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: u.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
+                {u.ativo ? '● Ativo' : '○ Inativo'}
+              </button>
+              <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</span>
+              <button onClick={() => excluir(u)}
+                style={{ padding: '4px 10px', background: 'transparent', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {modal && (

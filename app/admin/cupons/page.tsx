@@ -69,8 +69,15 @@ export default function Cupons() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="cupons-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .cupons-page { padding: 16px !important; }
+          .cupons-table-wrap { display: none !important; }
+          .cupons-cards { display: block !important; }
+        }
+      `}</style>
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Cupons de Desconto</h1>
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{cupons.length} cupons cadastrados</p>
@@ -81,7 +88,7 @@ export default function Cupons() {
         </button>
       </div>
 
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="cupons-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -130,6 +137,45 @@ export default function Cupons() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="cupons-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : cupons.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum cupom cadastrado</div>
+        ) : cupons.map(c => (
+          <div key={c.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#A965ED', fontFamily: 'monospace', letterSpacing: '0.06em' }}>{c.codigo}</span>
+                  <button onClick={() => copiar(c.codigo)}
+                    style={{ padding: '3px 8px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 4, color: 'var(--a-text3)', fontSize: 10, cursor: 'pointer' }}>
+                    {copied === c.codigo ? '✓' : 'Copiar'}
+                  </button>
+                </div>
+                <p style={{ fontSize: 18, fontWeight: 900, color: '#f59e0b', margin: '4px 0 0' }}>{c.desconto_pct}%</p>
+              </div>
+              <button onClick={() => toggleAtivo(c)}
+                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: c.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                {c.ativo ? '● Ativo' : '○ Inativo'}
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginTop: 10, fontSize: 12, color: 'var(--a-text2)' }}>
+              <span>Validade: {c.validade ? (new Date(c.validade) < new Date() ? <span style={{ color: '#ef4444' }}>Expirado ({c.validade})</span> : c.validade) : '—'}</span>
+              <span>Usos: {c.usos_count}{c.usos_max ? ` / ${c.usos_max}` : ''}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--a-border)' }}>
+              <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{new Date(c.created_at).toLocaleDateString('pt-BR')}</span>
+              <button onClick={() => excluir(c.id)}
+                style={{ padding: '4px 10px', background: 'transparent', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
       {modal && (

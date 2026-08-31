@@ -91,7 +91,14 @@ export default function Estoque() {
   const subCats = categorias.filter(c => c.parent_id)
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="estoque-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .estoque-page { padding: 16px !important; }
+          .estoque-table-wrap { display: none !important; }
+          .estoque-cards { display: block !important; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ marginBottom: 22 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Estoque</h1>
@@ -134,7 +141,7 @@ export default function Estoque() {
       </div>
 
       {/* Tabela */}
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="estoque-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -229,6 +236,74 @@ export default function Estoque() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="estoque-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ padding: '14px 16px', borderBottom: '1px solid var(--a-border)' }}>
+              <div style={{ height: 14, background: 'var(--a-border)', borderRadius: 4, width: `${60 + (i % 3) * 15}%`, opacity: 0.5 }} />
+            </div>
+          ))
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum produto encontrado</div>
+        ) : filtered.map(p => {
+          const draft = drafts[p.id] || { value: '', saving: false, saved: false, error: '' }
+          const isDirty = changed(p)
+          const estoqueNum = p.estoque
+          const statusColor = estoqueNum === null ? 'var(--a-text3)' : estoqueNum === 0 ? '#ef4444' : estoqueNum <= 5 ? '#f59e0b' : '#A965ED'
+          const statusLabel = estoqueNum === null ? 'Ilimitado' : estoqueNum === 0 ? 'Sem estoque' : estoqueNum <= 5 ? 'Baixo' : 'Ok'
+
+          return (
+            <div key={p.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)', opacity: p.ativo ? 1 : 0.45 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 7, overflow: 'hidden', background: 'var(--a-border)', flexShrink: 0, position: 'relative' }}>
+                  {p.img_url && <Image src={p.img_url} alt="" fill style={{ objectFit: 'cover' }} unoptimized />}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--a-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                  {p.brand && <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: 0, marginTop: 2 }}>{p.brand}</p>}
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, background: `${statusColor}18`, padding: '3px 9px', borderRadius: 5, border: `1px solid ${statusColor}30`, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  {statusLabel}
+                </span>
+              </div>
+              <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '8px 0 0' }}>
+                {p.categoria_id ? catMap[p.categoria_id] || '—' : '—'}
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                <input
+                  type="number" min="0"
+                  value={draft.value}
+                  onChange={e => setDraft(p.id, e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && isDirty && salvar(p)}
+                  placeholder="∞"
+                  style={{ width: 90, padding: '7px 10px', background: 'var(--a-bg)', border: `1px solid ${isDirty ? 'rgba(169, 101, 237,0.5)' : 'var(--a-border)'}`, borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', textAlign: 'center', transition: 'border-color 0.15s' }}
+                />
+                <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>un.</span>
+                <div style={{ marginLeft: 'auto' }}>
+                  {draft.saved ? (
+                    <span style={{ fontSize: 12, color: '#A965ED', fontWeight: 700 }}>✓ Salvo</span>
+                  ) : (
+                    <button
+                      onClick={() => salvar(p)}
+                      disabled={!isDirty || draft.saving}
+                      style={{
+                        padding: '7px 18px', fontSize: 12, fontWeight: 700, borderRadius: 7, cursor: !isDirty || draft.saving ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
+                        background: !isDirty ? 'transparent' : draft.saving ? 'var(--a-border)' : '#A965ED',
+                        color: !isDirty ? 'var(--a-text3)' : draft.saving ? 'var(--a-text3)' : '#000',
+                        border: !isDirty ? '1px solid var(--a-border)' : 'none',
+                      }}>
+                      {draft.saving ? 'Salvando...' : 'Salvar'}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {draft.error && <p style={{ fontSize: 11, color: '#ef4444', margin: '6px 0 0' }}>{draft.error}</p>}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
