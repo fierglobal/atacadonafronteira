@@ -64,17 +64,23 @@ export default function Configuracoes() {
   if (loading) return <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }} />
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="cfg-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .cfg-page { padding: 16px !important; }
+          .cfg-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Configurações</h1>
         <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Ajuste PIX, câmbio, checkout e recuperação</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 900 }}>
+      <div className="cfg-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 900 }}>
 
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 14, padding: 24, gridColumn: '1 / -1' }}>
           <p style={{ fontSize: 11, fontWeight: 800, color: '#A965ED', letterSpacing: '0.1em', margin: '0 0 20px' }}>PAGAMENTO PIX</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 16 }}>
+          <div className="cfg-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 16 }}>
             <div>
               <label style={lbl}>CHAVE PIX</label>
               <input value={cfg.pix_key} onChange={set('pix_key')} placeholder="CNPJ, CPF, e-mail ou aleatória" style={inp} />
@@ -108,7 +114,7 @@ export default function Configuracoes() {
 
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 14, padding: 24, gridColumn: '1 / -1' }}>
           <p style={{ fontSize: 11, fontWeight: 800, color: 'var(--a-text2)', letterSpacing: '0.1em', margin: '0 0 20px' }}>DADOS DA LOJA</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="cfg-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
               <label style={lbl}>NOME DA LOJA</label>
               <input value={cfg.store_name} onChange={set('store_name')} placeholder="Atacado na Fronteira" style={inp} />

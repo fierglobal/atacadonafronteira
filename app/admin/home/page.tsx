@@ -68,7 +68,13 @@ export default function AdminHome() {
   if (loading) return <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }} />
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="home-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .home-page { padding: 16px !important; }
+          .home-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Personalização da Home</h1>
         <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Edite banners, aviso e produtos em destaque sem deploy</p>
@@ -90,7 +96,7 @@ export default function AdminHome() {
             <div style={{ width: 10, height: 10, borderRadius: '50%', background: b.color, boxShadow: `0 0 8px ${b.color}` }} />
             <p style={{ fontSize: 10, fontWeight: 800, color: 'var(--a-text2)', letterSpacing: '0.1em', margin: 0 }}>BANNER {i + 1}</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+          <div className="home-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
             <div>
               <label style={lbl}>TAG (acima do título)</label>
               <input value={b.tag} onChange={e => setBanner(i, 'tag', e.target.value)} style={inp} />
