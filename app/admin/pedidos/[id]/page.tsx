@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback, use } from 'react'
 import Link from 'next/link'
+import { WILSON_ORDER_IDS } from '@/lib/wilson-pedido-listas'
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 
@@ -272,7 +273,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
                 return acc
               }, {} as Record<string, typeof itens>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
-              const mostrarGrupos = categorias.length > 1
+              const mostrarGrupos = categorias.length > 1 || WILSON_ORDER_IDS.has(order.id)
               return categorias.map(cat => (
                 <div key={cat}>
                   {mostrarGrupos && (

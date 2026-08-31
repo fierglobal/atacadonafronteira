@@ -277,7 +277,7 @@ export default function PedidoDetalhe() {
                 return acc
               }, {} as Record<string, OrderItem[]>)
               const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
-              const mostrarGrupos = categorias.length > 1
+              const mostrarGrupos = categorias.length > 1 || WILSON_ORDER_IDS.has(order.id)
               return categorias.map(cat => (
                 <Fragment key={cat}>
                   {mostrarGrupos && (
