@@ -1,10 +1,11 @@
+import { Fragment } from 'react'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
-type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number }
+type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
 type Customer = { nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string }
 
 export default async function PedidoCopia({ params }: { params: Promise<{ hash: string }> }) {
@@ -18,12 +19,24 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
   const [{ data: customer }, { data: items }, config] = await Promise.all([
     supabaseAdmin.from('customers').select('nome, cpf, email, telefone, cidade, uf').eq('id', order.customer_id).single(),
-    supabaseAdmin.from('order_items').select('product_name, product_brand, unit_usd, quantity, subtotal_usd').eq('order_id', order.id),
+    supabaseAdmin.from('order_items').select('product_name, product_brand, unit_usd, quantity, subtotal_usd, products(categoria_id)').eq('order_id', order.id),
     getConfig(),
   ])
 
   const c = (customer as Customer) || { nome: '', cpf: '', email: '', telefone: '', cidade: '', uf: '' }
-  const xs = (items as OrderItem[]) || []
+  const xs = (items as unknown as OrderItem[]) || []
+
+  // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
+  // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui.
+  const catIds = [...new Set(xs.map(i => (i.products as any)?.categoria_id).filter(Boolean))]
+  if (catIds.length) {
+    const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
+    const catMap = new Map((cats || []).map(cat => [cat.id, cat.nome]))
+    xs.forEach(i => {
+      const catId = (i.products as any)?.categoria_id
+      if (i.products) i.products.categorias = catMap.has(catId) ? { nome: catMap.get(catId)! } : null
+    })
+  }
   const totalBRL = order.total_brl || order.total_usd * config.brl_rate
   const dt = new Date(order.created_at).toLocaleString('pt-BR')
 
@@ -84,17 +97,33 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
             </tr>
           </thead>
           <tbody>
-            {xs.map((it, i) => (
-              <tr key={i}>
-                <td>
-                  {it.product_name}
-                  {it.product_brand && <div className="muted">{it.product_brand}</div>}
-                </td>
-                <td className="right">{it.quantity}</td>
-                <td className="right">${it.unit_usd.toFixed(2)}</td>
-                <td className="right">${it.subtotal_usd.toFixed(2)}</td>
-              </tr>
-            ))}
+            {(() => {
+              const grupos = xs.reduce((acc, it) => {
+                const cat = it.products?.categorias?.nome || 'Outros'
+                ;(acc[cat] ||= []).push(it)
+                return acc
+              }, {} as Record<string, OrderItem[]>)
+              const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
+              const mostrarGrupos = categorias.length > 1
+              return categorias.map(cat => (
+                <Fragment key={cat}>
+                  {mostrarGrupos && (
+                    <tr><td colSpan={4} style={{ fontSize: 11, fontWeight: 700, color: '#555', textTransform: 'uppercase', letterSpacing: '0.05em', paddingTop: 10 }}>{cat}</td></tr>
+                  )}
+                  {grupos[cat].map((it, i) => (
+                    <tr key={i}>
+                      <td>
+                        {it.product_name}
+                        {it.product_brand && <div className="muted">{it.product_brand}</div>}
+                      </td>
+                      <td className="right">{it.quantity}</td>
+                      <td className="right">${it.unit_usd.toFixed(2)}</td>
+                      <td className="right">${it.subtotal_usd.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </Fragment>
+              ))
+            })()}
           </tbody>
         </table>
 

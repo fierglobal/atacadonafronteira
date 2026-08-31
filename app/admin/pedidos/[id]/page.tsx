@@ -28,7 +28,7 @@ type Order = {
   seguro_recusado?: boolean | null
   entrega_endereco?: string | null
   customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
-  order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number; products: { img_url: string | null } | null }[]
+  order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number; products: { img_url: string | null; categorias: { nome: string } | null } | null }[]
 }
 type TimelineItem =
   | { tipo: 'status'; status: string; created_at: string }
@@ -264,35 +264,52 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
             <div style={{ padding: '11px 16px', borderBottom: '1px solid var(--a-border)' }}>
               <h3 style={{ margin: 0, fontSize: 11, fontWeight: 800, color: 'var(--a-text3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Produtos</h3>
             </div>
-            {(order.order_items || []).map((item, i) => {
-              const estoque = stockMap[item.product_name]
-              const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
-              const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
-              const img = item.products?.img_url
-              return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < order.order_items.length - 1 ? '1px solid var(--a-bg)' : 'none' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 7, overflow: 'hidden', background: 'var(--a-bg)', border: '1px solid var(--a-border)', flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {img ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={img} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
-                    ) : (
-                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
-                    )}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product_name}</p>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
-                      {item.product_brand && (
-                        <span style={{ fontSize: 9, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', borderRadius: 4, padding: '1px 6px' }}>{item.product_brand.toUpperCase()}</span>
-                      )}
-                      {estoqueLabel && <span style={{ fontSize: 9, fontWeight: 700, color: estoqueColor }}>{estoqueLabel} em estoque</span>}
-                    </div>
-                    <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--a-text3)' }}>{item.quantity}x · USD {item.unit_usd.toFixed(2)}/un</p>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>USD {item.subtotal_usd.toFixed(2)}</p>
+            {(() => {
+              const itens = order.order_items || []
+              const grupos = itens.reduce((acc, item) => {
+                const cat = item.products?.categorias?.nome || 'Outros'
+                ;(acc[cat] ||= []).push(item)
+                return acc
+              }, {} as Record<string, typeof itens>)
+              const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
+              const mostrarGrupos = categorias.length > 1
+              return categorias.map(cat => (
+                <div key={cat}>
+                  {mostrarGrupos && (
+                    <p style={{ margin: 0, padding: '8px 16px 4px', fontSize: 10, fontWeight: 800, color: '#A965ED', letterSpacing: '0.08em', textTransform: 'uppercase', background: 'var(--a-bg)' }}>{cat}</p>
+                  )}
+                  {grupos[cat].map((item, i) => {
+                    const estoque = stockMap[item.product_name]
+                    const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
+                    const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
+                    const img = item.products?.img_url
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: '1px solid var(--a-bg)' }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 7, overflow: 'hidden', background: 'var(--a-bg)', border: '1px solid var(--a-border)', flexShrink: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {img ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={img} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }} />
+                          ) : (
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product_name}</p>
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
+                            {item.product_brand && (
+                              <span style={{ fontSize: 9, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', borderRadius: 4, padding: '1px 6px' }}>{item.product_brand.toUpperCase()}</span>
+                            )}
+                            {estoqueLabel && <span style={{ fontSize: 9, fontWeight: 700, color: estoqueColor }}>{estoqueLabel} em estoque</span>}
+                          </div>
+                          <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--a-text3)' }}>{item.quantity}x · USD {item.unit_usd.toFixed(2)}/un</p>
+                        </div>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>USD {item.subtotal_usd.toFixed(2)}</p>
+                      </div>
+                    )
+                  })}
                 </div>
-              )
-            })}
+              ))
+            })()}
             <div style={{ padding: '14px 16px', borderTop: '1px solid var(--a-border)', background: 'var(--a-bg)' }}>
               {frete > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--a-text2)', marginBottom: 6 }}>
