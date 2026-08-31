@@ -10,7 +10,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
 
   const [{ data: order }, { data: statusHistory }, { data: acoes }, { data: items }] = await Promise.all([
-    supabaseAdmin.from('orders').select('*, customers(*), order_items(*, products(img_url))').eq('id', id).single(),
+    supabaseAdmin.from('orders').select('*, customers(*), order_items(*, products(img_url, categoria_id))').eq('id', id).single(),
     supabaseAdmin
       .from('order_status_history')
       .select('status, created_at')
@@ -30,6 +30,20 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       .select('product_name')
       .eq('order_id', id),
   ])
+
+  // products.categoria_id não tem FK formal para categorias (schema sem a constraint),
+  // então o PostgREST recusa o embed aninhado products(categorias(nome)) com PGRST200 —
+  // resolvido à mão numa segunda query.
+  if (order?.order_items?.length) {
+    const catIds = [...new Set((order.order_items as any[]).map(i => i.products?.categoria_id).filter(Boolean))]
+    if (catIds.length) {
+      const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
+      const catMap = new Map((cats || []).map((c: any) => [c.id, c.nome]))
+      ;(order.order_items as any[]).forEach(i => {
+        if (i.products) i.products.categorias = catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null
+      })
+    }
+  }
 
   const names = (items || []).map((i: any) => i.product_name)
   let stockMap: Record<string, number | null> = {}

@@ -1,10 +1,10 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
 
-type OrderItem = { id: string; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number }
+type OrderItem = { id: string; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
 type Order = { id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string; notas: string | null; comprovante_url: string | null; nome_retirador: string | null; order_items: OrderItem[] }
 
 const STATUS_STEPS = ['pendente_pagamento', 'pago', 'pronto_retirada', 'retirado']
@@ -16,8 +16,9 @@ const STATUS_LABEL: Record<string, string> = {
   cancelado: 'Cancelado',
 }
 
-const PIX_KEY = '52347525000100'
-const PIX_HOLDER = 'FIER GLOBAL'
+// Fallback se /api/checkout-config não responder: mesmos valores que a config traz hoje.
+const PIX_KEY_FALLBACK = '65078504000170'
+const PIX_HOLDER_FALLBACK = 'ATACADO NA FRONTEIRA'
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 const fmtUsd = (n: number) => `$ ${n.toFixed(2)}`
 
@@ -30,6 +31,9 @@ export default function PedidoDetalhe() {
   const [copied, setCopied] = useState<'key' | 'valor' | null>(null)
   const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
   const [reordering, setReordering] = useState(false)
+  const [config, setConfig] = useState<{ pix_key?: string; pix_holder?: string } | null>(null)
+  const pixKey = config?.pix_key || PIX_KEY_FALLBACK
+  const pixHolder = config?.pix_holder || PIX_HOLDER_FALLBACK
 
   const reorder = async () => {
     if (!order) return
@@ -48,16 +52,32 @@ export default function PedidoDetalhe() {
   }
 
   useEffect(() => {
+    fetch('/api/checkout-config').then(r => r.json()).then(c => setConfig(c)).catch(() => {})
+  }, [])
+
+  useEffect(() => {
     const supabase = getSupabaseClient()
     supabase.auth.getUser().then(async ({ data: { user } }: any) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data } = await supabase
         .from('orders')
-        .select('*, order_items(*)')
+        .select('*, order_items(*, products(categoria_id))')
         .eq('id', params.id)
         .eq('user_id', user.id)
         .single()
       if (!data) { router.replace('/conta/minha-conta/pedidos'); return }
+
+      // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
+      // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui.
+      const catIds = [...new Set((data.order_items || []).map((i: any) => i.products?.categoria_id).filter(Boolean))]
+      if (catIds.length) {
+        const { data: cats } = await supabase.from('categorias').select('id, nome').in('id', catIds)
+        const catMap = new Map((cats || []).map((cat: any) => [cat.id, cat.nome]))
+        ;(data.order_items || []).forEach((i: any) => {
+          if (i.products) i.products.categorias = catMap.has(i.products.categoria_id) ? { nome: catMap.get(i.products.categoria_id) } : null
+        })
+      }
+
       setOrder(data)
       setLoading(false)
     })
@@ -172,12 +192,12 @@ export default function PedidoDetalhe() {
             <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, padding: '14px 16px' }}>
               <p style={{ fontSize: 10, color: '#737373', fontWeight: 700, margin: '0 0 8px', letterSpacing: '0.08em' }}>CHAVE PIX (CNPJ)</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 15, fontWeight: 900, fontFamily: 'monospace', letterSpacing: '0.05em', flex: 1, color: '#0a0a0a' }}>{PIX_KEY}</span>
-                <button onClick={() => copy(PIX_KEY, 'key')} style={{ padding: '6px 14px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#fafafa', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'key' ? '#420E76' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                <span style={{ fontSize: 15, fontWeight: 900, fontFamily: 'monospace', letterSpacing: '0.05em', flex: 1, color: '#0a0a0a' }}>{pixKey}</span>
+                <button onClick={() => copy(pixKey, 'key')} style={{ padding: '6px 14px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#fafafa', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'key' ? '#420E76' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                   {copied === 'key' ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
-              <p style={{ fontSize: 11, color: '#737373', margin: '8px 0 0' }}>Beneficiário: {PIX_HOLDER}</p>
+              <p style={{ fontSize: 11, color: '#737373', margin: '8px 0 0' }}>Beneficiário: {pixHolder}</p>
             </div>
             <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, padding: '14px 16px' }}>
               <p style={{ fontSize: 10, color: '#737373', fontWeight: 700, margin: '0 0 8px', letterSpacing: '0.08em' }}>VALOR A TRANSFERIR</p>
@@ -242,17 +262,35 @@ export default function PedidoDetalhe() {
             </tr>
           </thead>
           <tbody>
-            {order.order_items.map(item => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #ececec' }}>
-                <td style={{ padding: '12px 20px' }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: '#0a0a0a' }}>{item.product_name}</p>
-                  {item.product_brand && <p style={{ fontSize: 10, color: '#737373', margin: '2px 0 0' }}>{item.product_brand}</p>}
-                </td>
-                <td style={{ padding: '12px 20px', fontSize: 13, color: '#404040' }}>{item.quantity}x</td>
-                <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmtUsd(item.unit_usd)}</td>
-                <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmtUsd(item.subtotal_usd)}</td>
-              </tr>
-            ))}
+            {(() => {
+              const grupos = order.order_items.reduce((acc, item) => {
+                const cat = item.products?.categorias?.nome || 'Outros'
+                ;(acc[cat] ||= []).push(item)
+                return acc
+              }, {} as Record<string, OrderItem[]>)
+              const categorias = Object.keys(grupos).sort((a, b) => a === 'Outros' ? 1 : b === 'Outros' ? -1 : a.localeCompare(b))
+              const mostrarGrupos = categorias.length > 1
+              return categorias.map(cat => (
+                <Fragment key={cat}>
+                  {mostrarGrupos && (
+                    <tr key={`h-${cat}`}>
+                      <td colSpan={4} style={{ padding: '8px 20px 4px', fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.08em', background: '#fafafa' }}>{cat}</td>
+                    </tr>
+                  )}
+                  {grupos[cat].map(item => (
+                    <tr key={item.id} style={{ borderBottom: '1px solid #ececec' }}>
+                      <td style={{ padding: '12px 20px' }}>
+                        <p style={{ fontSize: 13, fontWeight: 600, margin: 0, color: '#0a0a0a' }}>{item.product_name}</p>
+                        {item.product_brand && <p style={{ fontSize: 10, color: '#737373', margin: '2px 0 0' }}>{item.product_brand}</p>}
+                      </td>
+                      <td style={{ padding: '12px 20px', fontSize: 13, color: '#404040' }}>{item.quantity}x</td>
+                      <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmtUsd(item.unit_usd)}</td>
+                      <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmtUsd(item.subtotal_usd)}</td>
+                    </tr>
+                  ))}
+                </Fragment>
+              ))
+            })()}
           </tbody>
         </table>
         <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
