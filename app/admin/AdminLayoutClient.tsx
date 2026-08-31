@@ -138,7 +138,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             transition: transform 0.22s ease;
             box-shadow: 8px 0 32px rgba(0,0,0,0.35);
           }
-          .admin-sidebar.open { transform: translateX(0); }
+          .admin-sidebar.open { transform: translateX(0) !important; }
           .admin-sidebar-close { display: flex !important; }
           .admin-main { margin-left: 0 !important; padding-top: 54px; }
           .admin-mobile-bar { display: flex !important; }
