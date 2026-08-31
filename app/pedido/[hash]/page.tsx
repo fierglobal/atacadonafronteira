@@ -3,11 +3,12 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
 import PrintButton from './PrintButton'
+import { WILSON_ORDER_IDS, WILSON_PRODUCT_LISTA } from '@/lib/wilson-pedido-listas'
 
 export const dynamic = 'force-dynamic'
 
 type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; categoriaNome: string }
-type OrderItemRaw = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categoria_id: string | null } | null }
+type OrderItemRaw = { product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categoria_id: string | null } | null }
 type Customer = { nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string }
 
 export default async function PedidoCopia({ params }: { params: Promise<{ hash: string }> }) {
@@ -21,7 +22,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
   const [{ data: customer }, { data: items }, config] = await Promise.all([
     supabaseAdmin.from('customers').select('nome, cpf, email, telefone, cidade, uf').eq('id', order.customer_id).single(),
-    supabaseAdmin.from('order_items').select('product_name, product_brand, unit_usd, quantity, subtotal_usd, products(categoria_id)').eq('order_id', order.id),
+    supabaseAdmin.from('order_items').select('product_id, product_name, product_brand, unit_usd, quantity, subtotal_usd, products(categoria_id)').eq('order_id', order.id),
     getConfig(),
   ])
 
@@ -36,10 +37,13 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
     const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
     ;(cats || []).forEach(cat => catMap.set(cat.id, cat.nome))
   }
+  const isWilson = WILSON_ORDER_IDS.has(order.id)
   const xs: OrderItem[] = raw.map(i => ({
     product_name: i.product_name, product_brand: i.product_brand, unit_usd: i.unit_usd,
     quantity: i.quantity, subtotal_usd: i.subtotal_usd,
-    categoriaNome: (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
+    categoriaNome: isWilson
+      ? (WILSON_PRODUCT_LISTA[i.product_id || ''] || 'Outros')
+      : (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
   }))
   const totalBRL = order.total_brl || order.total_usd * config.brl_rate
   const dt = new Date(order.created_at).toLocaleString('pt-BR')
