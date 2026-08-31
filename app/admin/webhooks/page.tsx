@@ -107,8 +107,15 @@ export default function Webhooks() {
   const lbl = { fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
-      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="wh-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .wh-page { padding: 16px !important; }
+          .wh-table-wrap { display: none !important; }
+          .wh-cards { display: block !important; }
+        }
+      `}</style>
+      <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Webhooks</h1>
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{hooks.length} webhooks cadastrados</p>
@@ -140,7 +147,7 @@ export default function Webhooks() {
         </div>
       )}
 
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="wh-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -194,6 +201,52 @@ export default function Webhooks() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="wh-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : hooks.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum webhook cadastrado</div>
+        ) : hooks.map(h => (
+          <div key={h.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--a-text)', margin: 0 }}>{h.nome}</p>
+                <p style={{ fontSize: 11, color: 'var(--a-text3)', fontFamily: 'monospace', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{h.url}</p>
+              </div>
+              <button onClick={() => toggleAtivo(h)}
+                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${h.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: h.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: h.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                {h.ativo ? '● Ativo' : '○ Inativo'}
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 8 }}>
+              {(h.events || []).map(ev => (
+                <span key={ev} style={{ padding: '2px 8px', fontSize: 10, background: 'rgba(169, 101, 237,0.1)', color: '#A965ED', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 4 }}>
+                  {ev}
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--a-border)' }}>
+              <button onClick={() => testar(h)} disabled={testing === h.id}
+                style={{ padding: '5px 12px', background: 'transparent', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 6, color: '#f59e0b', fontSize: 11, cursor: 'pointer' }}>
+                {testing === h.id ? '…' : 'Testar'}
+              </button>
+              <a href={`/admin/webhooks/${h.id}/deliveries`}
+                style={{ padding: '5px 12px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 6, color: 'var(--a-text2)', fontSize: 11, textDecoration: 'none' }}>
+                Entregas
+              </a>
+              <button onClick={() => excluir(h)}
+                style={{ padding: '5px 12px', background: 'transparent', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 6, color: '#ef4444', fontSize: 11, cursor: 'pointer' }}>
+                Excluir
+              </button>
+            </div>
+            {testMsg && testMsg.id === h.id && (
+              <div style={{ marginTop: 8, fontSize: 11, color: testMsg.ok ? '#A965ED' : '#ef4444' }}>{testMsg.msg}</div>
+            )}
+          </div>
+        ))}
       </div>
 
       {modal && (

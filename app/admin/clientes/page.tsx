@@ -326,7 +326,14 @@ export default function Clientes() {
   })
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="clientes-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .clientes-page { padding: 16px !important; }
+          .clientes-table-wrap { display: none !important; }
+          .clientes-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Clientes</h1>
@@ -365,7 +372,7 @@ export default function Clientes() {
         })}
       </div>
 
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="clientes-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -430,6 +437,57 @@ export default function Clientes() {
             })}
           </tbody>
         </table>
+      </div>
+
+      <div className="clientes-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum cliente encontrado</div>
+        ) : filtered.map((c: any) => {
+          const color = getAvatarColor(c.id)
+          const totalGasto = (c.orders || []).filter((o: Order) => ['pago', 'pronto_retirada', 'retirado'].includes(o.status)).reduce((s: number, o: Order) => s + o.total_brl, 0)
+          return (
+            <div key={c.id} onClick={() => { setSelected(c); setEditing(null); setTab('overview') }}
+              style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)', cursor: 'pointer', opacity: c.bloqueado ? 0.6 : 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: `${color}22`, border: `1.5px solid ${color}55`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color }}>{getInitials(c.nome)}</span>
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    {c.bloqueado && <span title={c.bloqueio_motivo || 'Bloqueado'} style={{ fontSize: 13 }}>🚫</span>}
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.nome}</p>
+                  </div>
+                  {c.cpf && <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0, fontFamily: 'monospace' }}>{c.cpf}</p>}
+                </div>
+                <SegBadge rfm={c.rfm} />
+              </div>
+              {(c.tags || []).length > 0 && (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 8 }}>
+                  {(c.tags || []).map((tag: string) => (
+                    <span key={tag} style={{ fontSize: 9, fontWeight: 700, color: CTAG_COLORS[tag] || '#888', background: `${CTAG_COLORS[tag] || '#888'}15`, padding: '2px 6px', borderRadius: 99, border: `1px solid ${CTAG_COLORS[tag] || '#888'}30` }}>{tag}</span>
+                  ))}
+                </div>
+              )}
+              <div style={{ marginTop: 8 }}>
+                <p style={{ fontSize: 12, color: 'var(--a-text2)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fmtTel(c.telefone) || '—'}</p>
+                <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email || '—'}</p>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>
+                  {c.cidade && c.uf ? `${c.cidade}/${c.uf}` : '—'}
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: (c.orders || []).length > 0 ? '#A965ED' : 'var(--a-text3)' }}>
+                  {(c.orders || []).length} pedido{(c.orders || []).length === 1 ? '' : 's'}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: totalGasto > 0 ? 700 : 400, color: totalGasto > 0 ? 'var(--a-text)' : 'var(--a-text3)' }}>
+                  {totalGasto > 0 ? fmt(totalGasto) : '—'}
+                </span>
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       {selected && (() => {

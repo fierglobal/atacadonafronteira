@@ -61,7 +61,14 @@ export default function Marcas() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="marcas-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .marcas-page { padding: 16px !important; }
+          .marcas-table-wrap { display: none !important; }
+          .marcas-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Marcas</h1>
         <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{marcas.length} marcas cadastradas</p>
@@ -87,7 +94,7 @@ export default function Marcas() {
       </div>
 
       {/* Lista de marcas */}
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden', maxWidth: 560 }}>
+      <div className="marcas-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden', maxWidth: 560 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -148,6 +155,52 @@ export default function Marcas() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="marcas-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden', maxWidth: 560 }}>
+        {loading ? (
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Carregando...</div>
+        ) : marcas.length === 0 ? (
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhuma marca cadastrada</div>
+        ) : marcas.map(m => (
+          <div key={m.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+            {editando?.id === m.id ? (
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  value={editando.nome}
+                  onChange={e => setEditando({ id: m.id, nome: e.target.value })}
+                  onKeyDown={e => { if (e.key === 'Enter') salvarEdicao(m.id); if (e.key === 'Escape') setEditando(null) }}
+                  autoFocus
+                  style={{ ...inp, flex: 1, borderColor: 'rgba(169, 101, 237,0.4)' }}
+                />
+                <button onClick={() => salvarEdicao(m.id)} disabled={salvando === m.id}
+                  style={{ padding: '6px 12px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 6, fontWeight: 700, fontSize: 12, cursor: 'pointer' }}>
+                  {salvando === m.id ? '...' : '✓'}
+                </button>
+                <button onClick={() => setEditando(null)}
+                  style={{ padding: '6px 10px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14 }}>×</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--a-text)' }}>{m.nome}</span>
+                  <span style={{ fontSize: 11, color: 'var(--a-text3)', flexShrink: 0 }}>{new Date(m.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 6, marginTop: 10 }}>
+                  <button onClick={() => setEditando({ id: m.id, nome: m.nome })}
+                    style={{ padding: '5px 12px', fontSize: 11, fontWeight: 700, borderRadius: 5, border: '1px solid var(--a-border)', background: 'transparent', color: 'var(--a-text2)', cursor: 'pointer' }}>
+                    Editar
+                  </button>
+                  <button onClick={() => excluir(m)} disabled={salvando === m.id}
+                    style={{ padding: '5px 12px', fontSize: 11, fontWeight: 700, borderRadius: 5, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer' }}>
+                    {salvando === m.id ? '...' : 'Excluir'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   )

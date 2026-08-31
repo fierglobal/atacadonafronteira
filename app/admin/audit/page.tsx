@@ -63,7 +63,14 @@ export default function Audit() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+    <div className="audit-page" style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .audit-page { padding: 16px !important; }
+          .audit-table-wrap { display: none !important; }
+          .audit-cards { display: block !important; }
+        }
+      `}</style>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Auditoria</h1>
         <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>
@@ -88,7 +95,7 @@ export default function Audit() {
         </button>
       </div>
 
-      <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="audit-table-wrap" style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
@@ -141,6 +148,40 @@ export default function Audit() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Cards mobile */}
+      <div className="audit-cards" style={{ display: 'none', background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
+        ) : items.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum registro</div>
+        ) : items.map(l => (
+          <div key={l.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 10, color: 'var(--a-text3)', fontFamily: 'monospace' }}>{new Date(l.created_at).toLocaleString('pt-BR')}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: actionColor(l.action), textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{l.action}</span>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--a-text)', margin: '6px 0 0' }}>{l.user_nome}</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 6 }}>
+              <span style={{ fontSize: 11, color: '#A965ED', fontFamily: 'monospace' }}>{l.entity}</span>
+              {l.entity_id && <span style={{ fontSize: 10, color: 'var(--a-text3)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{l.entity_id}</span>}
+            </div>
+            {l.diff != null && (
+              <>
+                <button onClick={() => setOpen(open === l.id ? null : l.id)}
+                  style={{ marginTop: 8, padding: '4px 10px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 6, color: 'var(--a-text2)', fontSize: 11, cursor: 'pointer' }}>
+                  {open === l.id ? 'Ocultar' : 'Ver diff'}
+                </button>
+                {open === l.id && (
+                  <pre style={{ margin: '8px 0 0', padding: 12, background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 6, fontSize: 11, color: 'var(--a-text)', fontFamily: 'monospace', overflow: 'auto', maxHeight: 280 }}>
+                    {JSON.stringify(l.diff, null, 2)}
+                  </pre>
+                )}
+              </>
+            )}
+          </div>
+        ))}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
