@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
-import { isPromo, effectiveBadges } from '@/lib/produto'
+import { isPromo, isEmBreve, ROTULO_EM_BREVE, effectiveBadges } from '@/lib/produto'
 import Logo from '@/components/Logo'
 import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
@@ -106,7 +106,9 @@ function ProductCardCompact({ p }: { p: Product }) {
   const router = useRouter()
   const { currency, brlRate, adicionar } = useCarrinho()
   const promo = isPromo(p)
+  const emBreve = isEmBreve(p)
   const priceShown = promo ? p.usd_price_promo! : p.usd_price
+  const semCompra = p.estoque === 0 || emBreve
   const badges = effectiveBadges(p)
   const badge = badges[0] ? cardBadge(badges[0]) : null
   return (
@@ -117,9 +119,9 @@ function ProductCardCompact({ p }: { p: Product }) {
         {badges.length > 0 && badge && (
           <span style={{ position: 'absolute', top: 7, left: 7, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, fontSize: 8, fontWeight: 900, padding: '3px 7px', borderRadius: 99, letterSpacing: '0.05em', textTransform: 'uppercase' }}>{badges[0]}</span>
         )}
-        {p.estoque === 0 && (
+        {(p.estoque === 0 || emBreve) && (
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 9, fontWeight: 800, color: '#dc2626', border: '1px solid rgba(239,68,68,0.4)', padding: '4px 9px', borderRadius: 4, background: '#ffffff', letterSpacing: '0.05em' }}>SEM ESTOQUE</span>
+            <span style={{ fontSize: 9, fontWeight: 800, color: emBreve ? '#420E76' : '#dc2626', border: `1px solid ${emBreve ? 'rgba(66,14,118,0.4)' : 'rgba(239,68,68,0.4)'}`, padding: '4px 9px', borderRadius: 4, background: '#ffffff', letterSpacing: '0.05em' }}>{emBreve ? ROTULO_EM_BREVE : 'SEM ESTOQUE'}</span>
           </div>
         )}
       </div>
@@ -130,6 +132,9 @@ function ProductCardCompact({ p }: { p: Product }) {
         <h4 style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.35, minHeight: 30, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
         <div style={{ borderTop: '1px solid #f2f2f2', paddingTop: 7, marginTop: 'auto', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 6 }}>
           <div style={{ minWidth: 0 }}>
+            {emBreve ? (
+              <span style={{ fontSize: 12, fontWeight: 900, color: '#420E76', letterSpacing: '0.04em' }}>{ROTULO_EM_BREVE}</span>
+            ) : <>
             {promo && (
               <div style={{ fontSize: 10.5, color: '#a3a3a3', textDecoration: 'line-through', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as const }}>
                 {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
@@ -144,12 +149,13 @@ function ProductCardCompact({ p }: { p: Product }) {
             <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
               {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, brlRate, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
+            </>}
           </div>
-          <button disabled={p.estoque === 0} aria-label="Adicionar ao carrinho"
+          <button disabled={semCompra} aria-label="Adicionar ao carrinho"
             onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShown, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-            style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: p.estoque === 0 ? '#fafafa' : '#420E76', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: p.estoque === 0 ? 'not-allowed' : 'pointer', transition: 'background 0.15s, transform 0.15s' }}
-            onMouseEnter={e => { if (p.estoque !== 0) (e.currentTarget as HTMLButtonElement).style.background = '#5a1798' }}
-            onMouseLeave={e => { if (p.estoque !== 0) (e.currentTarget as HTMLButtonElement).style.background = '#420E76' }}>
+            style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: semCompra ? '#fafafa' : '#420E76', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: semCompra ? 'not-allowed' : 'pointer', transition: 'background 0.15s, transform 0.15s' }}
+            onMouseEnter={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#5a1798' }}
+            onMouseLeave={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#420E76' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
@@ -980,6 +986,8 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
             ) : visible.map((p, pIdx) => {
               const promo = isPromo(p)
               const badges = effectiveBadges(p)
+              const emBreveLista = isEmBreve(p)
+              const semCompraLista = p.estoque === 0 || emBreveLista
               const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
               return (
                 <Fragment key={p.id}>
@@ -1105,7 +1113,9 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                       <p style={{ fontSize: 10.5, color: '#737373', lineHeight: 1.4, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.descricao_curta}</p>
                     )}
                     <div className="price-display" style={{ borderTop: '1px solid #ececec', paddingTop: 10, marginTop: 'auto' }}>
-                      {promo ? (
+                      {emBreveLista ? (
+                        <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
+                      ) : promo ? (
                         <>
                           <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {fmt(p.usd_price, currency.rate, currency.code)}</div>
                           <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
@@ -1118,14 +1128,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                           {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
                         </div>
                       )}
-                      <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
-                        {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, brlRate, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
-                      </div>
+                      {!emBreveLista && (
+                        <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
+                          {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, brlRate, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
+                        </div>
+                      )}
                     </div>
-                    <button disabled={p.estoque === 0} className="card-add-btn"
+                    <button disabled={semCompraLista} className="card-add-btn"
                       onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: promo ? p.usd_price_promo! : p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-                      style={{ width: '100%', padding: '11px 0', borderRadius: 8, background: p.estoque === 0 ? '#fafafa' : '#ffffff', border: `1px solid ${p.estoque === 0 ? '#ececec' : 'rgba(66, 14, 118,0.4)'}`, color: p.estoque === 0 ? '#a3a3a3' : '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', cursor: p.estoque === 0 ? 'not-allowed' : 'pointer', transition: 'background 0.15s, border-color 0.15s, color 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      {p.estoque === 0 ? 'INDISPONÍVEL' : (
+                      style={{ width: '100%', padding: '11px 0', borderRadius: 8, background: semCompraLista ? '#fafafa' : '#ffffff', border: `1px solid ${semCompraLista ? '#ececec' : 'rgba(66, 14, 118,0.4)'}`, color: semCompraLista ? '#a3a3a3' : '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.12em', cursor: semCompraLista ? 'not-allowed' : 'pointer', transition: 'background 0.15s, border-color 0.15s, color 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      {emBreveLista ? ROTULO_EM_BREVE : p.estoque === 0 ? 'INDISPONÍVEL' : (
                         <>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>

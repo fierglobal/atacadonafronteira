@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isEmBreve } from '@/lib/produto'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { rateLimit, getIp } from '@/lib/rate-limit'
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
   if (productIds.length) {
     const { data: prods } = await supabaseAdmin
       .from('products')
-      .select('id, name, estoque, ativo, published_at')
+      .select('id, name, estoque, ativo, published_at, badges, usd_price')
       .in('id', productIds)
     const now = new Date()
     const indisponiveis: string[] = []
@@ -65,6 +66,9 @@ export async function POST(req: Request) {
       const p = (prods || []).find(x => x.id === it.id)
       if (!p || !p.ativo) { indisponiveis.push(it.name); continue }
       if (p.published_at && new Date(p.published_at) > now) { indisponiveis.push(it.name); continue }
+      // Pré-venda não lançada: a vitrine já esconde preço e botão, mas UI não é barreira —
+      // um POST direto aqui compraria um aparelho que ainda não existe.
+      if (isEmBreve(p)) { indisponiveis.push(`${it.name} (ainda não está à venda)`); continue }
       if (p.estoque !== null && p.estoque < it.quantity) indisponiveis.push(`${it.name} (resta ${p.estoque})`)
     }
     if (indisponiveis.length) {

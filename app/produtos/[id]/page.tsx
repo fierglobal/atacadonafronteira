@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
-import { effectiveBadges } from '@/lib/produto'
+import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 
 type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
@@ -284,6 +284,8 @@ export default function ProdutoPage() {
   // podendo bater um preço ainda menor por cima.
   const promoAtiva = product?.usd_price_promo != null && Number(product.usd_price_promo) < Number(product?.usd_price)
   const basePrice = product ? (promoAtiva ? Number(product.usd_price_promo) : product.usd_price) : 0
+  // Pré-venda não lançada: sem preço e sem compra em nenhum ponto desta página.
+  const emBreve = product ? isEmBreve(product) : false
   const unitPrice = product ? priceFor(qty, basePrice, tiers) : 0
   const tierAtivo = tiers.some(t => qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max))
   const multiplicador = Math.max(1, product?.multiplicador || 1)
@@ -302,6 +304,7 @@ export default function ProdutoPage() {
   const galeria = Array.from(new Set([product?.img_url, ...(product?.imagens ?? [])].filter(Boolean) as string[]))
 
   const handleAdd = () => {
+    if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
     const u = priceFor(qty, basePrice, tiers)
     for (let i = 0; i < qty; i++) {
@@ -312,6 +315,7 @@ export default function ProdutoPage() {
   }
 
   const handleBuyNow = () => {
+    if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
     const u = priceFor(qty, basePrice, tiers)
     adicionar({ id: product.id, name: product.name, usd: u, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
@@ -549,6 +553,14 @@ export default function ProdutoPage() {
 
                 {/* PRICE */}
                 <div style={{ marginBottom: 28 }}>
+                  {emBreve ? (
+                    <div style={{ background: '#faf7ff', border: '1px solid #d9c7f0', borderRadius: 12, padding: '18px 20px' }}>
+                      <div style={{ fontSize: 26, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em', lineHeight: 1.1 }}>{ROTULO_EM_BREVE}</div>
+                      <p style={{ fontSize: 13, color: '#5b4a6b', margin: '8px 0 0', lineHeight: 1.55 }}>
+                        Ainda não estamos vendendo este modelo. Assim que ele chegar, anunciamos preço e disponibilidade aqui.
+                      </p>
+                    </div>
+                  ) : (<>
                   <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
                   <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                     {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
@@ -571,6 +583,7 @@ export default function ProdutoPage() {
                       ≈ R$ {fmt(unitPrice, brlRate, 'BRL')} · por unidade
                     </div>
                   )}
+                  </>)}
                 </div>
 
                 {/* TIER TABLE */}
@@ -657,7 +670,7 @@ export default function ProdutoPage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                           boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
                         }}>
-                        {added ? (
+                        {emBreve ? ROTULO_EM_BREVE : added ? (
                           <>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                             ADICIONADO
@@ -943,12 +956,16 @@ export default function ProdutoPage() {
               boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
             }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.12em' }}>PREÇO ATACADO</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
-                  {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
-                </div>
+                {emBreve ? (
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
+                ) : (<>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.12em' }}>PREÇO ATACADO</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+                    {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
+                  </div>
+                </>)}
               </div>
-              <button onClick={handleAdd}
+              <button onClick={handleAdd} disabled={emBreve}
                 style={{
                   padding: '14px 22px', borderRadius: 10, border: 'none',
                   background: added ? 'rgba(66, 14, 118,0.12)' : '#A965ED',
@@ -957,7 +974,7 @@ export default function ProdutoPage() {
                   cursor: 'pointer', whiteSpace: 'nowrap',
                   boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
                 }}>
-                {added ? 'ADICIONADO' : 'ADICIONAR'}
+                {emBreve ? ROTULO_EM_BREVE : added ? 'ADICIONADO' : 'ADICIONAR'}
               </button>
             </div>
           )}

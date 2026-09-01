@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import { isEmBreve } from '@/lib/produto'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/SiteHeader'
 import HomeClient, { type HomeInitial } from './HomeClient'
@@ -178,8 +179,18 @@ async function getInitial(): Promise<HomeInitial | null> {
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
         .not('usd_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
     ])
-    const heroEletronico = (destaqueCelular || [])[0] ?? (destaqueEletronicosGeral || [])[0]
-    const heroPromo = (promos || [])
+    // Produto de pré-venda não pode liderar o hero: o hero anuncia preço, e ele não tem preço
+    // a anunciar. Filtrar aqui evita ter que tratar o caso dentro do HeroRotativo, que nem
+    // recebe `badges`.
+    // Pré-venda não pode liderar o hero: o hero anuncia preço e ela não tem preço a anunciar.
+    // Filtrado aqui porque o HeroRotativo nem recebe `badges`.
+    // Os dois arrays de destaque têm formatos diferentes (um nem seleciona `badges`), então o
+    // predicado aceita qualquer objeto e lê o campo de forma defensiva.
+    const naoEhPreVenda = (x: unknown) =>
+      !isEmBreve({ usd_price: 0, badges: (x as { badges?: string[] | null })?.badges })
+    const heroEletronico = (destaqueCelular ?? []).filter(naoEhPreVenda)[0]
+      ?? (destaqueEletronicosGeral ?? []).filter(naoEhPreVenda)[0]
+    const heroPromo = (promos ?? []).filter(naoEhPreVenda)
       // brand GENÉRICO é insumo (água bacteriostática etc.), não o produto que
       // vende a categoria — mesmo com desconto real, não é o que deve liderar
       // o hero. Todo produto de verdade tem marca de fabricante.
