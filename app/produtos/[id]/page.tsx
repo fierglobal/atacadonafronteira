@@ -647,9 +647,11 @@ export default function ProdutoPage() {
                       {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
                     </div>
                   )}
-                  <div style={{ fontSize: 13, color: '#404040', marginTop: 10 }}>
-                    Total: <span style={{ color: '#420E76', fontWeight: 800 }}>{currency.code} {fmt(unitPrice * qty, currency.rate, currency.code)}</span>
-                  </div>
+                  {!emBreve && (
+                    <div style={{ fontSize: 13, color: '#404040', marginTop: 10 }}>
+                      Total: <span style={{ color: '#420E76', fontWeight: 800 }}>{currency.code} {fmt(unitPrice * qty, currency.rate, currency.code)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* CTA */}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { isEmBreve } from '@/lib/produto'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
@@ -62,7 +63,7 @@ export default async function ProdutoLayout({ children, params }: { children: Re
   const { id } = await params
   const { data: p } = await supabaseAdmin
     .from('products')
-    .select('name, titulo, descricao_curta, descricao, img_url, brand, usd_price, usd_price_promo, estoque, sku')
+    .select('name, titulo, descricao_curta, descricao, img_url, brand, usd_price, usd_price_promo, estoque, sku, badges')
     .eq('id', id)
     .eq('ativo', true)
     .single()
@@ -87,7 +88,10 @@ export default async function ProdutoLayout({ children, params }: { children: Re
     description: (p.descricao_curta as string) || (p.descricao ? stripMd(p.descricao as string).slice(0, 300) : undefined),
     brand: brand ? { '@type': 'Brand', name: brand } : undefined,
     sku: p.sku || undefined,
-    offers: {
+    // Produto de pré-venda sai sem `offers`: declarar preço e InStock pro Google anuncia
+    // disponibilidade que não existe, e alimenta Shopping e rich result. Offer sem `price` é
+    // inválido no schema, então o certo é omitir o bloco, não zerar o valor.
+    ...(isEmBreve(p as never) ? {} : { offers: {
       '@type': 'Offer',
       // Mesma regra da vitrine (promo < base vence). Antes anunciava sempre o
       // usd_price: num produto em oferta o rich result do Google mostrava um preço
@@ -97,7 +101,7 @@ export default async function ProdutoLayout({ children, params }: { children: Re
       priceCurrency: 'USD',
       availability: p.estoque === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
       url: `https://atacadonafronteira.com/produtos/${id}`,
-    },
+    } }),
   }
 
   return (
