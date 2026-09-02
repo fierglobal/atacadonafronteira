@@ -25,7 +25,7 @@ type Order = {
   created_at: string; notas: string | null; comprovante_url: string | null; tags: string[] | null
   entrega_tipo?: 'retirada' | 'entrega_foz' | 'retirada_cde' | 'retirada_foz' | 'envio_brasil' | null
   utm_source?: string | null; utm_campaign?: string | null
-  customers: { nome: string; cpf: string; telefone: string; email: string } | null
+  customers: { nome: string; cpf: string; telefone: string; email: string; cidade?: string; uf?: string } | null
   order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number }[]
 }
 
@@ -55,6 +55,7 @@ export default function Pedidos() {
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [statusAlvo, setStatusAlvo] = useState('')
   const [alterandoStatus, setAlterandoStatus] = useState(false)
+  const [imprimindo, setImprimindo] = useState(false)
   const [modalManual, setModalManual] = useState(false)
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [manualCustomer, setManualCustomer] = useState({ nome: '', cpf: '', telefone: '', email: '', cidade: '', endereco: '' })
@@ -159,6 +160,72 @@ export default function Pedidos() {
     }
   }
 
+  const imprimirPedidos = async () => {
+    if (selecionados.size === 0) return
+    setImprimindo(true)
+    try {
+      const detalhes = orders
+        .filter(o => selecionados.has(o.id))
+        .sort((a, b) => a.order_num.localeCompare(b.order_num))
+
+      const { default: jsPDF } = await import('jspdf')
+      const { default: autoTable } = await import('jspdf-autotable')
+
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+      const dataHoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(169, 101, 237)
+      doc.text('Atacado na Fronteira — Relatório de Pedidos', 14, 14)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(100, 100, 100)
+      doc.text(`Gerado em ${dataHoje} · ${detalhes.length} pedido${detalhes.length !== 1 ? 's' : ''}`, 14, 20)
+
+      const body = detalhes.map(o => {
+        const produtos = o.order_items.length > 0
+          ? o.order_items.map(i => `${i.product_name}${i.quantity > 1 ? ` x${i.quantity}` : ''}`).join('\n')
+          : '—'
+        const cidade = o.customers?.cidade && o.customers?.uf ? `${o.customers.cidade}/${o.customers.uf}` : '—'
+        return [
+          o.order_num,
+          o.customers?.nome || '—',
+          o.customers?.telefone || '—',
+          produtos,
+          fmt(o.total_brl),
+          sl(o.status),
+          cidade,
+          new Date(o.created_at).toLocaleDateString('pt-BR'),
+        ]
+      })
+
+      autoTable(doc, {
+        startY: 24,
+        head: [['Pedido', 'Nome', 'Telefone', 'Produto(s)', 'Valor', 'Status', 'Cidade/UF', 'Data']],
+        body,
+        styles: { fontSize: 9, cellPadding: 3, valign: 'top', lineColor: [229, 231, 235], lineWidth: 0.2 },
+        headStyles: { fillColor: [169, 101, 237], textColor: 0, fontStyle: 'bold', fontSize: 9 },
+        alternateRowStyles: { fillColor: [248, 244, 253] },
+        columnStyles: {
+          0: { cellWidth: 24, fontStyle: 'bold', textColor: [169, 101, 237] },
+          1: { cellWidth: 46 },
+          2: { cellWidth: 28 },
+          3: { cellWidth: 'auto' },
+          4: { cellWidth: 24, fontStyle: 'bold' },
+          5: { cellWidth: 26 },
+          6: { cellWidth: 26 },
+          7: { cellWidth: 22 },
+        },
+        margin: { left: 14, right: 14 },
+      })
+
+      doc.save(`pedidos-${new Date().toISOString().slice(0, 10)}.pdf`)
+    } finally {
+      setImprimindo(false)
+    }
+  }
+
   const filtered = orders.filter(o => {
     if (grupo !== 'todos' && !GRUPOS[grupo]?.includes(o.status)) return false
     if (search) {
@@ -237,6 +304,10 @@ export default function Pedidos() {
               {alterandoStatus ? '...' : `Aplicar (${selecionados.size})`}
             </button>
           )}
+          <button onClick={imprimirPedidos} disabled={imprimindo}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: imprimindo ? '#9ca3af' : '#059669', color: '#fff', border: 'none', cursor: imprimindo ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+            {imprimindo ? 'Gerando...' : `PDF (${selecionados.size})`}
+          </button>
           <button onClick={() => { setSelecionados(new Set()); setStatusAlvo('') }} style={{ fontSize: 12, color: 'var(--a-text3)', background: 'none', border: 'none', cursor: 'pointer' }}>
             Limpar seleção
           </button>
