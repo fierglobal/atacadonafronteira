@@ -36,7 +36,7 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/relatorio-pedidos')) {
     // Manifest do PWA: o navegador/SO busca isso pra decidir se oferece
     // "adicionar à tela inicial" — precisa responder sem cookie de sessão,
     // senão nunca instala (e nem dá pra checar o manifest deslogado).
