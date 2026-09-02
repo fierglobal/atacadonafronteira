@@ -25,7 +25,7 @@ type Order = {
   created_at: string; notas: string | null; comprovante_url: string | null; tags: string[] | null
   entrega_tipo?: 'retirada' | 'entrega_foz' | 'retirada_cde' | 'retirada_foz' | 'envio_brasil' | null
   utm_source?: string | null; utm_campaign?: string | null
-  customers: { nome: string; cpf: string; telefone: string; email: string } | null
+  customers: { nome: string; cpf: string; telefone: string; email: string; cidade?: string; uf?: string } | null
   order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number }[]
 }
 
@@ -159,6 +159,11 @@ export default function Pedidos() {
     }
   }
 
+  const imprimirPedidos = () => {
+    if (selecionados.size === 0) return
+    window.open(`/relatorio-pedidos?ids=${Array.from(selecionados).join(',')}`, '_blank')
+  }
+
   const filtered = orders.filter(o => {
     if (grupo !== 'todos' && !GRUPOS[grupo]?.includes(o.status)) return false
     if (search) {
@@ -237,6 +242,10 @@ export default function Pedidos() {
               {alterandoStatus ? '...' : `Aplicar (${selecionados.size})`}
             </button>
           )}
+          <button onClick={imprimirPedidos}
+            style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: '#059669', color: '#fff', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            Relatório ({selecionados.size})
+          </button>
           <button onClick={() => { setSelecionados(new Set()); setStatusAlvo('') }} style={{ fontSize: 12, color: 'var(--a-text3)', background: 'none', border: 'none', cursor: 'pointer' }}>
             Limpar seleção
           </button>
