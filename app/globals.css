@@ -306,12 +306,26 @@ body { overflow-x: clip; }
 .cat-layout { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
 .cat-sidebar { position: sticky; top: 132px; }
 .cat-filter-group { margin-bottom: 26px; }
-.cat-filter-title { display: block; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #a3a3a3; margin-bottom: 8px; }
+.cat-filter-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #a3a3a3; margin-bottom: 8px; list-style: none; }
+.cat-filter-title::-webkit-details-marker { display: none; }
+.cat-filter-chevron { flex-shrink: 0; transition: transform 0.15s; }
+.cat-filter-group[open] .cat-filter-chevron { transform: rotate(180deg); }
 .cat-filter-list { display: flex; flex-direction: column; gap: 1px; }
 .cat-filter-list a:hover { background: #fafafa; }
 
+/* Desktop: <details> sempre visualmente aberto, sem cara de botão — igual ao
+   comportamento de antes, mesmo fechado no DOM (o toggle só existe pro mobile). */
+@media (min-width: 901px) {
+  .cat-filter-group .cat-filter-list { display: flex !important; }
+  .cat-filter-title { cursor: default; pointer-events: none; }
+  .cat-filter-chevron { display: none; }
+}
+
 @media (max-width: 900px) {
   .cat-layout { grid-template-columns: 1fr; gap: 20px; }
-  .cat-sidebar { position: static; display: flex; flex-wrap: wrap; gap: 0 28px; }
-  .cat-filter-group { flex: 1 1 220px; margin-bottom: 12px; }
+  .cat-sidebar { position: static; display: flex; flex-direction: column; gap: 8px; }
+  .cat-filter-group { flex: none; margin-bottom: 0; border: 1px solid #ececec; border-radius: 10px; padding: 12px 14px; }
+  .cat-filter-title { margin-bottom: 0; font-size: 12px; font-weight: 700; color: #404040; cursor: pointer; }
+  .cat-filter-group[open] .cat-filter-title { margin-bottom: 10px; }
+  .cat-filter-list { max-height: 260px; overflow-y: auto; }
 }

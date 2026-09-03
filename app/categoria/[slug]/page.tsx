@@ -174,12 +174,21 @@ export default async function CategoriaPage({
         {/* Sidebar + grid: no celular vira 1 coluna, os filtros ficam empilhados
             em cima do grid (globals.css). Filtros como LINK, não estado de
             navegador — devolve a navegação ao cliente sem tirar a página do
-            índice do Google. */}
+            índice do Google. <details>/<summary> dá o toggle sem JS (nasce
+            "open" — sem JS o comportamento é idêntico a antes, só com uma
+            alça pra fechar). O script logo abaixo é só uma melhoria
+            progressiva: fecha por padrão no celular pra não empurrar o grid
+            pra baixo da dobra — <details> não tem como nascer aberto só no
+            desktop via CSS puro (o conteúdo fechado usa render nativo do
+            browser, um "display:flex!important" no CSS não sobrepõe). */}
         <div className="cat-layout">
           <aside className="cat-sidebar" aria-label="Filtros">
             {marcas.length > 1 && (
-              <div className="cat-filter-group">
-                <span className="cat-filter-title">MARCA</span>
+              <details className="cat-filter-group" open>
+                <summary className="cat-filter-title">
+                  <span>MARCA{b.marca ? `: ${b.marca}` : ''}</span>
+                  <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
                 <div className="cat-filter-list">
                   <Link href={url({ marca: '', pagina: '1' })} style={sidebarLink(!b.marca)}>Todas as marcas</Link>
                   {marcas.map(([nome, qtd]) => (
@@ -189,17 +198,23 @@ export default async function CategoriaPage({
                     </Link>
                   ))}
                 </div>
-              </div>
+              </details>
             )}
-            <div className="cat-filter-group">
-              <span className="cat-filter-title">ORDENAR</span>
+            <details className="cat-filter-group" open>
+              <summary className="cat-filter-title">
+                <span>ORDENAR: {ORDENS.find(o => o.chave === (b.ordem || ''))?.rotulo}</span>
+                <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
               <div className="cat-filter-list">
                 {ORDENS.map(o => (
                   <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })} style={sidebarLink((b.ordem || '') === o.chave)}>{o.rotulo}</Link>
                 ))}
               </div>
-            </div>
+            </details>
           </aside>
+          <script dangerouslySetInnerHTML={{ __html:
+            `if(window.innerWidth<=900)document.querySelectorAll('.cat-filter-group').forEach(function(d){d.removeAttribute('open')})`
+          }} />
 
           <div className="cat-main">
             {itens.length === 0 ? (
