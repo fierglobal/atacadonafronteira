@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED } from '@/lib/site'
+import type { User } from '@supabase/supabase-js'
 import { slugify } from '@/lib/slug'
 
 type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[]; marca?: string }
@@ -34,7 +35,7 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
   const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
-    getSupabaseClient().auth.getUser().then(({ data: { user } }: any) => {
+    getSupabaseClient().auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       if (user) setUserName(user.user_metadata?.nome || user.email?.split('@')[0] || 'Conta')
     })
   }, [])

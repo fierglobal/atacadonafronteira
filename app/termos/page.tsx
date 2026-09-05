@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { WHATSAPP_HREF } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function Termos() {
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa', color: '#0a0a0a', padding: '40px 24px 80px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
-        <a href="/" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>← Voltar ao site</a>
+        <Link href="/" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>← Voltar ao site</Link>
         <h1 style={{ fontSize: 32, fontWeight: 800, margin: '20px 0 8px', letterSpacing: '-0.02em', color: '#0a0a0a' }}>Termos de Uso</h1>
         <p style={{ color: '#737373', fontSize: 13, marginBottom: 28 }}>Última atualização: {UPDATE_DATE}</p>
 

@@ -72,15 +72,17 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('admin-theme')
-    setDark(saved === 'dark')
-    const activeGroup = groups.find(g => g.items.some(i => pathname.startsWith(i.href)))
-    const savedGroups = localStorage.getItem('admin-nav-groups')
-    const initial = new Set<string>(savedGroups ? JSON.parse(savedGroups) : [])
-    if (activeGroup) initial.add(activeGroup.key)
-    setOpenGroups(initial)
-    setMounted(true)
-    setSidebarOpen(false)
+    queueMicrotask(() => {
+      const saved = localStorage.getItem('admin-theme')
+      setDark(saved === 'dark')
+      const activeGroup = groups.find(g => g.items.some(i => pathname.startsWith(i.href)))
+      const savedGroups = localStorage.getItem('admin-nav-groups')
+      const initial = new Set<string>(savedGroups ? JSON.parse(savedGroups) : [])
+      if (activeGroup) initial.add(activeGroup.key)
+      setOpenGroups(initial)
+      setMounted(true)
+      setSidebarOpen(false)
+    })
   }, [pathname])
 
   // Sidebar de menu vira drawer no mobile — sem isto ela ficava com os 220px

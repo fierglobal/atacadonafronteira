@@ -7,7 +7,7 @@ import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 
 type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
-type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
+type CFD = { field_key: string; label: string; field_type: string; options: unknown; ordem: number }
 type RelacionadoMin = { id: string; name: string; img_url: string | null; usd_price: number }
 type Product = {
   id: string; name: string; brand: string | null; usd_price: number; usd_price_promo?: number | null
@@ -17,7 +17,7 @@ type Product = {
   multiplicador?: number | null
   venda_minima?: number | null
   unidade_venda?: string | null
-  custom_fields?: Record<string, any> | null
+  custom_fields?: Record<string, unknown> | null
   sku?: string | null
   tiers?: Tier[]
   relacionados?: Record<string, RelacionadoMin[]>
@@ -180,7 +180,7 @@ function ProductImage({ src, alt }: { src: string | null; alt: string }) {
 export default function ProdutoPage() {
   const router = useRouter()
   const params = useParams()
-  const { adicionar, abrirSidebar, quantidade, currency, brlRate, setCurrency } = useCarrinho()
+  const { adicionar, abrirSidebar, currency, brlRate } = useCarrinho()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
@@ -188,7 +188,6 @@ export default function ProdutoPage() {
   const [qty, setQty] = useState(1)
   const [imgAtiva, setImgAtiva] = useState(0)
   const [added, setAdded] = useState(false)
-  const [currencyOpen, setCurrencyOpen] = useState(false)
   const [whatsapp, setWhatsapp] = useState<string | null>(null)
   const [reviews, setReviews] = useState<{ id: string; nome: string; rating: number; comentario: string | null; created_at: string }[]>([])
   const [reviewForm, setReviewForm] = useState({ nome: '', rating: 5, comentario: '' })
@@ -249,7 +248,7 @@ export default function ProdutoPage() {
     setRelated(rel.slice(0, 4))
   }, [params.id, router])
 
-  useEffect(() => { loadProduct() }, [loadProduct])
+  useEffect(() => { queueMicrotask(() => loadProduct()) }, [loadProduct])
 
   useEffect(() => {
     if (!params.id) return

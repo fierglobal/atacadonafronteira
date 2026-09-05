@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { useCarrinho, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import type { User } from '@supabase/supabase-js'
 import { WHATSAPP_ENABLED, WHATSAPP_NUMBER, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import Logo from '@/components/Logo'
 import EntregaSeguro from '@/components/EntregaSeguro'
-import { calcularEntrega, type Cotacao, type EntregaTipo } from '@/lib/entrega'
+import type { Cotacao, EntregaTipo } from '@/lib/entrega'
 
 // Fallback se /api/checkout-config não responder: mesmos valores que a config
 // traz hoje, para nunca montar um payload PIX sem chave.
@@ -120,7 +121,7 @@ function isProfileComplete(p: Partial<Profile>): boolean {
 function PixQrBlock({ qrDataUrl, totalSecs }: { qrDataUrl: string; totalSecs: number }) {
   const [secsLeft, setSecsLeft] = useState(totalSecs)
   useEffect(() => {
-    setSecsLeft(totalSecs)
+    queueMicrotask(() => setSecsLeft(totalSecs))
     let remaining = totalSecs
     const id = setInterval(() => {
       remaining -= 1
@@ -135,7 +136,7 @@ function PixQrBlock({ qrDataUrl, totalSecs }: { qrDataUrl: string; totalSecs: nu
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 20, padding: '20px', background: '#fafafa', border: '1px solid #ececec', borderRadius: 16 }}>
       <div style={{ padding: 12, background: '#fff', border: '1px solid #ececec', borderRadius: 10, display: 'inline-block' }}>
-        <img src={qrDataUrl} alt="QR Code PIX" width={180} height={180} />
+        <Image src={qrDataUrl} alt="QR Code PIX" width={180} height={180} unoptimized />
       </div>
       <p style={{ fontSize: 12, color: '#525252', margin: 0 }}>Escaneie com o app do banco</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: expired ? 'rgba(239,68,68,0.06)' : 'rgba(66, 14, 118,0.06)', border: `1px solid ${expired ? 'rgba(239,68,68,0.3)' : 'rgba(66, 14, 118,0.3)'}`, borderRadius: 20 }}>
@@ -162,7 +163,7 @@ function CuponsList({
   cupomErr: string
 }) {
   const [showInput, setShowInput] = useState(cupons.length === 0)
-  useEffect(() => { if (cupons.length === 0) setShowInput(true) }, [cupons.length])
+  useEffect(() => { if (cupons.length === 0) queueMicrotask(() => setShowInput(true)) }, [cupons.length])
   const podeAdicionar = cupons.length < 2
   return (
     <div style={{ marginBottom: 12 }}>
@@ -245,6 +246,38 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
   )
 }
 
+function StepIndicator({ step }: { step: 1 | 2 }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > 1 ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: step > 1 ? '1px solid rgba(66, 14, 118,0.4)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step > 1 ? '#420E76' : '#000' }}>
+          {step > 1 ? '✓' : '1'}
+        </div>
+        <span style={{ fontSize: 11, color: step === 1 ? '#0a0a0a' : '#737373', fontWeight: step === 1 ? 700 : 400 }}>Dados</span>
+      </div>
+      <span style={{ color: '#a3a3a3' }}>→</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step === 2 ? '#A965ED' : '#ffffff', border: step === 2 ? 'none' : '1px solid #d4d4d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step === 2 ? '#000' : '#a3a3a3' }}>2</div>
+        <span style={{ fontSize: 11, color: step === 2 ? '#0a0a0a' : '#a3a3a3', fontWeight: step === 2 ? 700 : 400 }}>Pagamento</span>
+      </div>
+    </div>
+  )
+}
+
+function Header({ step }: { step?: 1 | 2 }) {
+  const router = useRouter()
+  return (
+    <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
+      <Logo size={26} />
+      {step ? <StepIndicator step={step} /> : (
+        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>
+          ← Voltar
+        </button>
+      )}
+    </header>
+  )
+}
+
 export default function Checkout() {
   const router = useRouter()
   const { itens, totalUsd, limpar, adicionar, brlRate } = useCarrinho()
@@ -298,7 +331,7 @@ export default function Checkout() {
   const [pixTemSobEncomenda, setPixTemSobEncomenda] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    queueMicrotask(() => setMounted(true))
     import('@vercel/analytics').then(({ track }) => {
       track('checkout_started', { items_count: itens.length, total_usd: +totalUsd.toFixed(2) })
     }).catch(() => {})
@@ -306,17 +339,17 @@ export default function Checkout() {
       const raw = sessionStorage.getItem('utm')
       if (raw) {
         const u = JSON.parse(raw)
-        setUtm({
+        queueMicrotask(() => setUtm({
           source: u.source || '', medium: u.medium || '', campaign: u.campaign || '',
           content: u.content || '', term: u.term || '',
-        })
+        }))
       }
     } catch {}
     // config
     fetch('/api/checkout-config').then(r => r.json()).then(c => setConfig(c)).catch(() => {})
 
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { setPageState('form'); return }
       setUserId(user.id)
       setUserEmail(user.email || '')
@@ -337,19 +370,21 @@ export default function Checkout() {
         setPageState('form')
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- track de checkout_started deve disparar 1x na entrada, não a cada mudança de itens/totalUsd
   }, [])
 
   // cross-sell por carrinho
+  const itensIdsKey = itens.map(i => i.id).filter(Boolean).join('|')
   useEffect(() => {
-    const productIds = itens.map(i => i.id).filter(Boolean) as string[]
-    if (!productIds.length) { setCrossSell([]); return }
+    const productIds = itensIdsKey ? itensIdsKey.split('|') : []
+    if (!productIds.length) { queueMicrotask(() => setCrossSell([])); return }
     let alive = true
     fetch('/api/cross-sell', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productIds }),
     }).then(r => r.json()).then(d => {
       if (!alive) return
-      const products = (d.products || []).map((p: any) => ({
+      const products = (d.products || []).map((p: { id: string; name: string; brand: string; usd_price: number; img_url: string | null }) => ({
         id: p.id, name: decBase64(p.name), brand: decBase64(p.brand),
         usd_price: Number(p.usd_price) || 0, img_url: p.img_url || '',
       }))
@@ -357,7 +392,7 @@ export default function Checkout() {
       setTemSobEncomenda(!!d.temSobEncomenda)
     }).catch(() => {})
     return () => { alive = false }
-  }, [itens.map(i => i.id).join('|')])
+  }, [itensIdsKey])
 
   // guest form handlers
   const set = (k: keyof GuestForm) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -480,7 +515,7 @@ export default function Checkout() {
       setSubmitting(false)
       return
     }
-    const fullForm: any = {
+    const fullForm = {
       nome: data.nome, cpf: data.cpf, email: data.email, telefone: data.telefone,
       cidade: data.cidade, uf: data.uf,
       entrega_tipo: entregaTipo,
@@ -620,7 +655,7 @@ export default function Checkout() {
   // o servidor devolve as três opções já precificadas para este carrinho.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
-    if (!linhas.length) { setCotacoes(null); return }
+    if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }
     let vivo = true
     fetch('/api/entrega/cotacao', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -676,33 +711,6 @@ export default function Checkout() {
   }
 
   /* ─── HEADER COMPARTILHADO ─── */
-  const StepIndicator = ({ step }: { step: 1 | 2 }) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > 1 ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: step > 1 ? '1px solid rgba(66, 14, 118,0.4)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step > 1 ? '#420E76' : '#000' }}>
-          {step > 1 ? '✓' : '1'}
-        </div>
-        <span style={{ fontSize: 11, color: step === 1 ? '#0a0a0a' : '#737373', fontWeight: step === 1 ? 700 : 400 }}>Dados</span>
-      </div>
-      <span style={{ color: '#a3a3a3' }}>→</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step === 2 ? '#A965ED' : '#ffffff', border: step === 2 ? 'none' : '1px solid #d4d4d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step === 2 ? '#000' : '#a3a3a3' }}>2</div>
-        <span style={{ fontSize: 11, color: step === 2 ? '#0a0a0a' : '#a3a3a3', fontWeight: step === 2 ? 700 : 400 }}>Pagamento</span>
-      </div>
-    </div>
-  )
-
-  const Header = ({ step }: { step?: 1 | 2 }) => (
-    <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
-      <Logo size={26} />
-      {step ? <StepIndicator step={step} /> : (
-        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>
-          ← Voltar
-        </button>
-      )}
-    </header>
-  )
-
   /* ─── CHECKING ─── */
   if (pageState === 'checking') {
     return (

@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import Logo from '@/components/Logo'
 
@@ -31,7 +32,7 @@ export default function Cadastro() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    setRedirect(params.get('redirect') || '/')
+    queueMicrotask(() => setRedirect(params.get('redirect') || '/'))
   }, [])
 
   const set = (k: keyof F) => (e: ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +137,7 @@ export default function Cadastro() {
       `}</style>
       <div style={{ maxWidth: 480, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <a href="/"><Logo size={30} /></a>
+          <Link href="/"><Logo size={30} /></Link>
           <h1 style={{ fontSize: 20, fontWeight: 900, marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Criar conta</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>Cadastre-se para finalizar seu pedido</p>
         </div>

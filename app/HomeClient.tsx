@@ -263,7 +263,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [refetching, setRefetching] = useState(false)
   const [destaques, setDestaques] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
-  const { currency, brlRate, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
+  const { currency, brlRate, adicionar } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
@@ -279,14 +279,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     const cat = sp.get('cat') ?? ''
     const marca = sp.get('marca') ?? ''
     const q = sp.get('q') ?? ''
-    if (cat) setActiveCategoria(cat)
-    if (marca) setActiveBrand(marca)
-    if (q) setSearch(q)
-    if (cat || marca || q) {
-      // o HTML estático trouxe a vitrine; o conteúdo certo ainda vai chegar
-      setLoadingProducts(true)
-      pendingScrollRef.current = true
-    }
+    queueMicrotask(() => {
+      if (cat) setActiveCategoria(cat)
+      if (marca) setActiveBrand(marca)
+      if (q) setSearch(q)
+      if (cat || marca || q) {
+        // o HTML estático trouxe a vitrine; o conteúdo certo ainda vai chegar
+        setLoadingProducts(true)
+        pendingScrollRef.current = true
+      }
+    })
   }, [])
 
   // libera o grid quando o recorte da URL já foi aplicado (par do script
@@ -454,9 +456,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-
-  const childrenOf = (id: string) => categorias.filter(c => c.parent_id === id).map(c => c.id)
-
   // Com uma única raiz (Farmácia), listar só ela esconderia a subcategorização
   // inteira do cliente. Nesse caso navegamos pelas filhas, como o Expresso
   // Paraguai faz: o grupo não vira item de menu, as categorias sim.
@@ -490,7 +489,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const visible = products
   const hasMore = !modoVitrine && products.length < totalFiltrado
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (loadingProducts) return
     const obs = new IntersectionObserver((entries) => {
@@ -517,7 +515,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [destaquesProdutos, setDestaquesProdutos] = useState<Product[]>([])
   const destaquesKey = destaques.join(',')
   useEffect(() => {
-    if (!destaquesKey) { setDestaquesProdutos([]); return }
+    if (!destaquesKey) { queueMicrotask(() => setDestaquesProdutos([])); return }
     let cancelado = false
     Promise.all(destaquesKey.split(',').map(id =>
       fetch(`/api/produtos/${id}`).then(r => r.ok ? r.json() : null).catch(() => null)
@@ -527,16 +525,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
     })
     return () => { cancelado = true }
   }, [destaquesKey])
-
-  const brandCounts = useMemo(
-    () => marcasFacet.reduce((acc, m) => { acc[m.nome] = m.total; return acc }, {} as Record<string, number>),
-    [marcasFacet]
-  )
-
-  const topBrands = useMemo(
-    () => Object.entries(brandCounts).sort((a, b) => b[1] - a[1]).slice(0, 8),
-    [brandCounts]
-  )
 
   return (
     <div className="min-h-screen font-sans home-root" style={{ background: '#ffffff', color: '#0a0a0a' }}>
@@ -983,6 +971,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="skeleton" style={{ borderRadius: 14, height: 320 }} />
               ))
+            // eslint-disable-next-line react-hooks/refs -- cache de "já revelado" só decide a classe inicial do card; virar state faria cada card na viewport re-renderizar a grid inteira
             ) : visible.map((p, pIdx) => {
               const promo = isPromo(p)
               const badges = effectiveBadges(p)

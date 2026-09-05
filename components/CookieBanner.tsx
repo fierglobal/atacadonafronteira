@@ -4,12 +4,9 @@ import { useEffect, useState } from 'react'
 export default function CookieBanner() {
   const [show, setShow] = useState(false)
 
-  // localStorage só existe no cliente, então a leitura precisa ser pós-montagem.
-  // Roda uma única vez e não encadeia re-render.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     try {
-      if (!localStorage.getItem('cookie-consent')) setShow(true)
+      if (!localStorage.getItem('cookie-consent')) queueMicrotask(() => setShow(true))
     } catch {}
   }, [])
 

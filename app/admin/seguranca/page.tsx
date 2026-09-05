@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 export default function Seguranca() {
   const [status, setStatus] = useState<{ enabled: boolean; email: string } | null>(null)
@@ -12,7 +13,7 @@ export default function Seguranca() {
     const r = await fetch('/api/admin/2fa')
     if (r.ok) setStatus(await r.json())
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const startSetup = async () => {
     setBusy(true); setMsg('')
@@ -79,7 +80,7 @@ export default function Seguranca() {
       {setup && (
         <div style={{ padding: 20, background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12 }}>
           <p style={{ fontSize: 13, marginBottom: 12 }}><strong>1.</strong> Abra o Google Authenticator, Authy ou similar e leia o QR code:</p>
-          <img src={setup.qr} alt="QR Code" style={{ display: 'block', margin: '0 auto 16px', background: '#fff', borderRadius: 8 }} />
+          <Image src={setup.qr} alt="QR Code" width={200} height={200} unoptimized style={{ display: 'block', margin: '0 auto 16px', background: '#fff', borderRadius: 8 }} />
           <p style={{ fontSize: 12, color: 'var(--a-text3)', textAlign: 'center', marginBottom: 16 }}>
             Ou digite manualmente: <code style={{ background: 'var(--a-bg)', padding: '4px 8px', borderRadius: 4 }}>{setup.secret}</code>
           </p>

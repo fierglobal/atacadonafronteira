@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   if (!order || !order.comprovante_url) return NextResponse.json({ ok: false }, { status: 404 })
   if (!config.admin_email) return NextResponse.json({ ok: true, warning: 'admin_email não configurado' })
 
-  const customer = (order as any).customers
+  const customer = (order as unknown as { customers: { nome: string; email: string | null } | null }).customers
   await emailComprovanteRecebido(
     config.admin_email,
     order.order_num,

@@ -28,7 +28,7 @@ export default function Carrinhos() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { queueMicrotask(() => load()) }, [load])
 
   const marcarContatado = async (id: string, val: boolean) => {
     await fetch(`/api/admin/carrinhos/${id}`, {
@@ -45,7 +45,7 @@ export default function Carrinhos() {
     return `https://wa.me/${(s.telefone || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`
   }
 
-  const now = Date.now()
+  const [now] = useState(() => Date.now())
   const filtered = sessions.filter(s => {
     const dt = new Date(s.created_at).getTime()
     if (filter === 'hoje') return now - dt < 86400000

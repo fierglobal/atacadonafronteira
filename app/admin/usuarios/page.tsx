@@ -18,7 +18,7 @@ export default function Usuarios() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!form.nome || !form.email || !form.senha) return
@@ -179,14 +179,14 @@ export default function Usuarios() {
               {[['NOME', 'nome', 'text'], ['EMAIL', 'email', 'email'], ['SENHA', 'senha', 'password']].map(([label, key, type]) => (
                 <div key={key}>
                   <label style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{label}</label>
-                  <input value={(form as any)[key]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                  <input value={form[key as keyof typeof form]} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
                     type={type} style={inp} />
                 </div>
               ))}
               <div>
                 <label style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>PERFIL</label>
                 <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-                  style={{ ...inp, appearance: 'none' as any }}>
+                  style={{ ...inp, appearance: 'none' as React.CSSProperties['appearance'] }}>
                   <option value="operador">Operador (acesso limitado)</option>
                   <option value="dono">Dono (acesso total)</option>
                 </select>

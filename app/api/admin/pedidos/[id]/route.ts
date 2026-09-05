@@ -34,28 +34,33 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   // products.categoria_id não tem FK formal para categorias (schema sem a constraint),
   // então o PostgREST recusa o embed aninhado products(categorias(nome)) com PGRST200 —
   // resolvido à mão numa segunda query, reconstruindo os itens (sem mutar o embed original).
+  type OrderItemRow = Record<string, unknown> & {
+    products: { img_url: string | null; categoria_id: string | null } | null
+  }
+
   if (order?.order_items?.length) {
-    const itens = order.order_items as any[]
+    const itens = order.order_items as OrderItemRow[]
     const catIds = [...new Set(itens.map(i => i.products?.categoria_id).filter(Boolean))]
     const catMap = new Map<string, string>()
     if (catIds.length) {
       const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome').in('id', catIds)
-      ;(cats || []).forEach((c: any) => catMap.set(c.id, c.nome))
+      ;(cats || []).forEach((c: { id: string; nome: string }) => catMap.set(c.id, c.nome))
     }
-    ;(order as any).order_items = itens.map(i => {
-      const nome = i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null
+    ;(order as unknown as { order_items: unknown[] }).order_items = itens.map(i => {
+      const catId = i.products?.categoria_id
+      const nome = catId && catMap.has(catId) ? catMap.get(catId) : null
       return { ...i, products: i.products ? { ...i.products, categorias: nome ? { nome } : null } : null }
     })
   }
 
-  const names = (items || []).map((i: any) => i.product_name)
-  let stockMap: Record<string, number | null> = {}
+  const names = (items || []).map((i: { product_name: string }) => i.product_name)
+  const stockMap: Record<string, number | null> = {}
   if (names.length > 0) {
     const { data: prods } = await supabaseAdmin
       .from('products')
       .select('name, estoque')
       .in('name', names)
-    ;(prods || []).forEach((p: any) => { stockMap[p.name] = p.estoque })
+    ;(prods || []).forEach((p: { name: string; estoque: number | null }) => { stockMap[p.name] = p.estoque })
   }
 
   const timeline = [
@@ -85,7 +90,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
       if (body.status === 'pronto_retirada') {
         const config = await getConfig()
-        const customer = (order as any).customers
+        const customer = (order as unknown as { customers: { nome: string; email: string | null } | null }).customers
         if (customer?.email) {
           emailProntoRetirada(customer.email, customer.nome, order.order_num, order.total_brl).catch(() => {})
         }

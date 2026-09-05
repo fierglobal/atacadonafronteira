@@ -26,7 +26,8 @@ export default function Deliveries({ params }: { params: Promise<{ id: string }>
     setItems(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [id])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- load fecha sobre id; incluí-lo re-executaria a cada fetch
+  useEffect(() => { queueMicrotask(() => load()) }, [id])
 
   const statusColor = (d: Delivery): string => {
     if (d.error) return '#ef4444'

@@ -115,6 +115,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
   const descRef = useRef<HTMLTextAreaElement>(null)
 
   const [tab, setTab] = useState<Tab>('basico')
+  const [now] = useState(() => Date.now())
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -219,7 +220,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
   useEffect(() => {
     if (tab === 'historico') {
-      setLoadingLogs(true)
+      queueMicrotask(() => setLoadingLogs(true))
       fetch(`/api/admin/produtos/${id}/logs`).then(r => r.json()).then(d => {
         setLogs(Array.isArray(d) ? d : [])
         setLoadingLogs(false)
@@ -437,7 +438,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
   // Status de publicação agendada
   const publishedDate = form.published_at ? new Date(form.published_at) : null
-  const isAgendado = publishedDate && publishedDate.getTime() > Date.now()
+  const isAgendado = publishedDate && publishedDate.getTime() > now
   const fmtAgendado = publishedDate
     ? `${String(publishedDate.getDate()).padStart(2, '0')}/${String(publishedDate.getMonth() + 1).padStart(2, '0')} ${String(publishedDate.getHours()).padStart(2, '0')}:${String(publishedDate.getMinutes()).padStart(2, '0')}`
     : ''

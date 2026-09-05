@@ -190,3 +190,24 @@
 
 <!-- session 2026-08-23 18:28 -->
 <!-- arquivos: components/HomeSecoes.tsx -->
+
+<!-- session 2026-09-05 14:19 -->
+<!-- arquivos: lib/entrega.ts -->
+
+<!-- session 2026-09-05 14:43 -->
+<!-- arquivos: app/admin/audit/page.tsx,app/admin/carrinhos/page.tsx,app/admin/clientes/page.tsx,app/api/admin/pedidos/[id]/route.ts,app/api/produtos/[id]/route.ts,app/checkout/page.tsx,app/HomeClient.tsx,app/page.tsx,eslint.config.mjs,lib/entrega.ts -->
+
+<!-- session 2026-09-05 14:48 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->
+
+<!-- session 2026-09-05 14:50 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->
+
+<!-- session 2026-09-05 14:57 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->
+
+<!-- session 2026-09-05 15:02 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->
+
+<!-- session 2026-09-05 15:05 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->

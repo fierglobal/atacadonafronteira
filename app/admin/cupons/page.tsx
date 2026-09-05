@@ -21,7 +21,7 @@ export default function Cupons() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!form.codigo || !form.desconto_pct) return

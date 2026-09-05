@@ -24,7 +24,7 @@ export default function SalesChannels() {
     setChannels(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!form.slug || !form.nome) { setErr('Slug e nome obrigatórios'); return }

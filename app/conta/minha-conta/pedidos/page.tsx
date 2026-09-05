@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import type { User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabase-client'
 
 type Order = { id: string; order_num: string; status: string; total_brl: number; created_at: string }
@@ -24,7 +26,7 @@ export default function MeusPedidos() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data } = await supabase
         .from('orders')
@@ -46,7 +48,7 @@ export default function MeusPedidos() {
       {orders.length === 0 ? (
         <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '60px 40px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <p style={{ color: '#737373', fontSize: 14, marginBottom: 16 }}>Nenhum pedido ainda.</p>
-          <a href="/" style={{ color: '#420E76', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</a>
+          <Link href="/" style={{ color: '#420E76', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</Link>
         </div>
       ) : (
         <>

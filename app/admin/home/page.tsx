@@ -42,7 +42,7 @@ export default function AdminHome() {
       }
       const prods = Array.isArray(prodsRes) ? prodsRes : (prodsRes.rows || [])
       const dec = (s: string | null) => { try { return s ? atob(s) : null } catch { return s } }
-      setProdutos(prods.map((p: any) => ({ ...p, name: dec(p.name) ?? p.name })))
+      setProdutos(prods.map((p: { id: string; name: string; img_url: string }) => ({ ...p, name: dec(p.name) ?? p.name })))
       setLoading(false)
     })
   }, [])

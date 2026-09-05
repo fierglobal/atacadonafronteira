@@ -96,7 +96,7 @@ export default function Produtos() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  useEffect(() => { setPagina(1) }, [search, filterBrand, filterCategoria, filterStatus, ordenacao])
+  useEffect(() => { queueMicrotask(() => setPagina(1)) }, [search, filterBrand, filterCategoria, filterStatus, ordenacao])
 
   const filtered = products.filter(p => {
     if (search) {
@@ -127,7 +127,7 @@ export default function Produtos() {
   const toggleSelecionado = (id: string) => {
     setSelecionados(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id); else next.add(id)
       return next
     })
   }

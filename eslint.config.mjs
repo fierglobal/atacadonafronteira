@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Saída de build do OpenNext/Cloudflare — código gerado, não fonte.
     ".open-next/**",
+    // Saída de build do Vercel adapter — código gerado, não fonte.
+    ".vercel/**",
   ]),
 ]);
 

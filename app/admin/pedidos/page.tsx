@@ -74,8 +74,8 @@ export default function Pedidos() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
-  useEffect(() => { setPagina(1); setSelecionados(new Set()) }, [grupo, search])
+  useEffect(() => { queueMicrotask(() => load()) }, [load])
+  useEffect(() => { queueMicrotask(() => { setPagina(1); setSelecionados(new Set()) }) }, [grupo, search])
 
   const exportCSV = () => {
     const rows = [['Pedido', 'Cliente', 'CPF', 'Telefone', 'Total BRL', 'Status', 'Data']]
@@ -135,7 +135,7 @@ export default function Pedidos() {
     e.stopPropagation()
     setSelecionados(prev => {
       const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
+      if (next.has(id)) next.delete(id); else next.add(id)
       return next
     })
   }

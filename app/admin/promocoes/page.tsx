@@ -57,7 +57,7 @@ export default function Promocoes() {
     setPromos(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const abrirNovo = () => { setForm(empty); setErr(''); setModal(true) }
   const abrirEdicao = (p: Promo) => {

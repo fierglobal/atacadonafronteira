@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin, logAudit } from '@/lib/admin-auth'
 
-export async function GET(req: Request) {
+export async function GET() {
   const auth = await requireAdmin('cupons', 'r')
   if (auth) return auth
   const { data } = await supabaseAdmin.from('cupons').select('*').order('created_at', { ascending: false })

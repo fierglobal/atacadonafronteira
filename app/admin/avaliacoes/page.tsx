@@ -26,7 +26,7 @@ export default function Avaliacoes() {
     setLoading(false)
   }
 
-  useEffect(() => { load(filter) }, [filter])
+  useEffect(() => { queueMicrotask(() => load(filter)) }, [filter])
 
   const aprovar = async (r: Review) => {
     setReviews(prev => prev.map(x => x.id === r.id ? { ...x, aprovado: true } : x))
@@ -46,8 +46,6 @@ export default function Avaliacoes() {
       body: JSON.stringify({ id }),
     })
   }
-
-  const pendingCount = reviews.filter(r => !r.aprovado).length
 
   return (
     <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>

@@ -39,7 +39,8 @@ export default function Audit() {
     setLoading(false)
   }
 
-  useEffect(() => { load(0) }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- load fecha sobre offset/entity/user; incluí-lo re-executaria a cada fetch
+  useEffect(() => { queueMicrotask(() => load(0)) }, [])
 
   const filtrar = () => load(0)
 

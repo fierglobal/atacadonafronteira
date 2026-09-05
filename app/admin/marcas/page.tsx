@@ -19,7 +19,7 @@ export default function Marcas() {
     setMarcas(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!novoNome.trim()) return

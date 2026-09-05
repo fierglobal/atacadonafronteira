@@ -33,7 +33,7 @@ export function CarrinhoSidebar() {
   }, [])
 
   useEffect(() => {
-    if (!sidebarAberto || itens.length === 0) { setCrossSell([]); return }
+    if (!sidebarAberto || itens.length === 0) { queueMicrotask(() => setCrossSell([])); return }
     const productIds = itens.map(i => i.id).filter(Boolean)
     if (!productIds.length) return
     fetch('/api/cross-sell', {

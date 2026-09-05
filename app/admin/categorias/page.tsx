@@ -23,7 +23,7 @@ export default function Categorias() {
     setCats(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!novoNome.trim()) return

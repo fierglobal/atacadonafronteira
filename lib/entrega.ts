@@ -4,7 +4,7 @@
 
 export type EntregaTipo = 'retirada_cde' | 'retirada_foz' | 'envio_brasil'
 
-export const FRETE_ELETRONICO_PEDIDO = 150
+export const FRETE_ELETRONICO_APARELHO = 150
 export const SEGURO_ELETRONICO_APARELHO = 150
 export const FRETE_SAUDE_PEDIDO = 50
 export const SEGURO_SAUDE_PEDIDO = 150
@@ -47,7 +47,7 @@ export function calcularEntrega(
     return { frete, seguro: 0, tabelaEletronico, seguroDisponivel: false, unidades }
   }
 
-  const frete = tabelaEletronico ? FRETE_ELETRONICO_PEDIDO : FRETE_SAUDE_PEDIDO
+  const frete = tabelaEletronico ? FRETE_ELETRONICO_APARELHO * unidades : FRETE_SAUDE_PEDIDO
   const seguroCheio = tabelaEletronico
     ? SEGURO_ELETRONICO_APARELHO * unidades
     : SEGURO_SAUDE_PEDIDO

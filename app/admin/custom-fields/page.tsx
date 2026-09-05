@@ -46,7 +46,8 @@ export default function CustomFields() {
     setDefs(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [entity])
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- load fecha sobre entity/loading; incluí-lo re-executaria a cada fetch
+  useEffect(() => { queueMicrotask(() => load()) }, [entity])
 
   const criar = async () => {
     if (!form.field_key || !form.label) { setErr('field_key e label obrigatórios'); return }

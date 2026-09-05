@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import type { User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import Logo from '@/components/Logo'
 
@@ -12,7 +14,7 @@ export default function MinhaContaNav() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) return
       setEmail(user.email || '')
       const { data: p } = await supabase.from('profiles').select('nome').eq('id', user.id).single()
@@ -74,7 +76,7 @@ export default function MinhaContaNav() {
         flexDirection: 'column', flexShrink: 0,
       }}>
         <div className="conta-logo" style={{ padding: '24px 20px 20px', borderBottom: '1px solid #111' }}>
-          <a href="/"><Logo size={28} /></a>
+          <Link href="/"><Logo size={28} /></Link>
         </div>
 
         <div className="conta-user-info" style={{ padding: '20px 20px 16px' }}>

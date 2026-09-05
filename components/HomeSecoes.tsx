@@ -96,6 +96,7 @@ export function Categorias({ cats }: { cats: CatLink[] }) {
               style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, padding: 14, textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', textAlign: 'center' }}>
               <div style={{ width: '100%', aspectRatio: '1 / 1', background: '#fafafa', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {c.img
+                  // eslint-disable-next-line @next/next/no-img-element -- já é lazy; trocar por next/image exigiria position:relative no container e testar visualmente a grade de categorias
                   ? <img src={c.img} alt="" width={110} height={110} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }} />
                   : <span aria-hidden="true" style={{ fontSize: 22, color: '#d4d4d4' }}>▦</span>}
               </div>

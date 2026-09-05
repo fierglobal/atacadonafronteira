@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '@/lib/supabase'
+import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
@@ -72,6 +73,13 @@ function AreaChart({ data, labels }: { data: number[]; labels: string[] }) {
   )
 }
 
+type OrderRow = {
+  id: string; order_num: string | number; status: string
+  total_brl: number; total_usd: number; created_at: string
+  customers: { nome?: string } | null
+  order_items: { product_name: string; quantity: number; subtotal_usd: number }[]
+}
+
 async function getData() {
   const now = new Date()
   const today = new Date(now); today.setHours(0, 0, 0, 0)
@@ -81,12 +89,12 @@ async function getData() {
   const [{ data: allOrders }, { data: customers }] = await Promise.all([
     supabaseAdmin
       .from('orders')
-      .select('id, status, total_brl, total_usd, created_at, customers(nome), order_items(product_name, quantity, subtotal_usd)')
+      .select('id, order_num, status, total_brl, total_usd, created_at, customers(nome), order_items(product_name, quantity, subtotal_usd)')
       .order('created_at', { ascending: false }),
     supabaseAdmin.from('customers').select('id, created_at'),
   ])
 
-  const orders = allOrders || []
+  const orders = (allOrders || []) as unknown as OrderRow[]
   const custs = customers || []
 
   const active = orders.filter(o => o.status !== 'cancelado')
@@ -147,7 +155,7 @@ async function getData() {
     // o totalRevenue (que já vem de total_brl) e um pedido antigo não é reavaliado
     // pelo câmbio de hoje. Era 5.20 fixo, então o ranking ficava abaixo do total.
     const taxa = o.total_usd > 0 ? o.total_brl / o.total_usd : 0
-    ;(o.order_items || []).forEach((item: any) => {
+    ;(o.order_items || []).forEach(item => {
       const k = item.product_name
       if (!prodMap[k]) prodMap[k] = { name: k, brl: 0, qty: 0 }
       prodMap[k].brl += (item.subtotal_usd || 0) * taxa
@@ -162,7 +170,7 @@ async function getData() {
     totalCustomers: custs.length, todayNewCusts,
     totalRevenue: active.reduce((s, o) => s + o.total_brl, 0),
     revenueByDay, sparkline30, revenueSparkline,
-    orderSparkline: spark7(o => true),
+    orderSparkline: spark7(() => true),
     statusCount,
     topProducts,
     recentOrders: orders.slice(0, 6),
@@ -212,10 +220,10 @@ export default async function AdminDashboard() {
           <p style={{ color: 'var(--a-text3)', fontSize: 12, marginTop: 4, textTransform: 'capitalize' }}>{today}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <a href="/admin/pedidos" style={{ padding: '8px 16px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid var(--a-border)', background: 'transparent', color: 'var(--a-text2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Link href="/admin/pedidos" style={{ padding: '8px 16px', fontSize: 12, fontWeight: 700, borderRadius: 8, border: '1px solid var(--a-border)', background: 'transparent', color: 'var(--a-text2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
             Ver Pedidos
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -253,7 +261,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* PIX Pendente */}
-        <div style={{ border: `1px solid ${d.pendingPIX > 0 ? 'rgba(245,158,11,0.4)' : 'var(--a-border)'}`, borderRadius: 12, padding: '18px 20px', background: d.pendingPIX > 0 ? 'rgba(245,158,11,0.04)' : 'var(--a-surface)' } as any}>
+        <div style={{ border: `1px solid ${d.pendingPIX > 0 ? 'rgba(245,158,11,0.4)' : 'var(--a-border)'}`, borderRadius: 12, padding: '18px 20px', background: d.pendingPIX > 0 ? 'rgba(245,158,11,0.04)' : 'var(--a-surface)' }}>
           <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 12px' }}>AGUARDANDO PIX</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <p style={{ fontSize: 32, fontWeight: 900, color: d.pendingPIX > 0 ? '#f59e0b' : 'var(--a-text3)', margin: 0 }}>{d.pendingPIX}</p>
@@ -264,9 +272,9 @@ export default async function AdminDashboard() {
           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: 0 }}>
             {d.pendingPIX > 0 ? `${d.pendingPIX} pedido${d.pendingPIX !== 1 ? 's' : ''} aguardando confirmação` : 'Nenhum pendente'}
           </p>
-          <a href="/admin/pedidos" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#f59e0b', textDecoration: 'none', fontWeight: 700, marginTop: 12 }}>
+          <Link href="/admin/pedidos" style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#f59e0b', textDecoration: 'none', fontWeight: 700, marginTop: 12 }}>
             Ver pedidos →
-          </a>
+          </Link>
         </div>
 
         {/* Clientes */}
@@ -334,7 +342,7 @@ export default async function AdminDashboard() {
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '16px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Top Produtos</p>
-            <a href="/admin/produtos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
+            <Link href="/admin/produtos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</Link>
           </div>
           {d.topProducts.length === 0 ? (
             <p style={{ fontSize: 13, color: 'var(--a-text3)', textAlign: 'center', margin: '20px 0' }}>Sem vendas ainda</p>
@@ -361,7 +369,7 @@ export default async function AdminDashboard() {
         <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--a-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Pedidos Recentes</p>
-            <a href="/admin/pedidos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</a>
+            <Link href="/admin/pedidos" style={{ fontSize: 11, color: '#A965ED', textDecoration: 'none', fontWeight: 700 }}>Ver todos →</Link>
           </div>
           {d.recentOrders.length === 0 ? (
             <p style={{ fontSize: 13, color: 'var(--a-text3)', textAlign: 'center', padding: '32px 20px' }}>Nenhum pedido ainda</p>
@@ -371,8 +379,8 @@ export default async function AdminDashboard() {
                 <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: i < d.recentOrders.length - 1 ? '1px solid var(--a-border)' : 'none' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED' }}>{(o as any).order_num}</span>
-                      <span style={{ fontSize: 11, color: 'var(--a-text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{(o as any).customers?.nome || '—'}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#A965ED' }}>{o.order_num}</span>
+                      <span style={{ fontSize: 11, color: 'var(--a-text3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.customers?.nome || '—'}</span>
                     </div>
                     <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>
                       {new Date(o.created_at).toLocaleDateString('pt-BR')} · {new Date(o.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}

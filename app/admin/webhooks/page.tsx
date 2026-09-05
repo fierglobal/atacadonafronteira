@@ -38,7 +38,7 @@ export default function Webhooks() {
     setHooks(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const criar = async () => {
     if (!form.nome || !form.url) { setErr('Nome e URL obrigatórios'); return }

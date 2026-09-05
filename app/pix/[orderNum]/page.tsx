@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
 import QRCode from 'qrcode'
 import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
@@ -72,6 +73,16 @@ type PixData = {
 
 const fmtBRL = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 
+function Header() {
+  const router = useRouter()
+  return (
+    <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
+      <Link href="/"><Logo size={26} /></Link>
+      <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
+    </header>
+  )
+}
+
 export default function PedidoPix() {
   const router = useRouter()
   const params = useParams()
@@ -127,13 +138,6 @@ export default function PedidoPix() {
     )
     window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank')
   }
-
-  const Header = () => (
-    <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
-      <a href="/"><Logo size={26} /></a>
-      <button onClick={() => router.push('/')} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
-    </header>
-  )
 
   if (loading) {
     return (
@@ -210,6 +214,7 @@ export default function PedidoPix() {
         {qrDataUrl && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginBottom: 20, padding: '20px', background: '#fafafa', border: '1px solid #ececec', borderRadius: 16 }}>
             <div style={{ padding: 12, background: '#fff', border: '1px solid #ececec', borderRadius: 10, display: 'inline-block' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- data URL gerada em runtime (QRCode.toDataURL), não é asset pra otimizar */}
               <img src={qrDataUrl} alt="QR Code PIX" width={180} height={180} />
             </div>
             <p style={{ fontSize: 12, color: '#525252', margin: 0 }}>Escaneie com o app do banco</p>

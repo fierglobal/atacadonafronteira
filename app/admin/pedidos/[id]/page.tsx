@@ -76,7 +76,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
     setLoading(false)
   }, [id])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { queueMicrotask(() => load()) }, [load])
 
   const patch = async (payload: object) => {
     setUpdating(true)

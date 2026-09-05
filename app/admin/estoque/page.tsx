@@ -112,7 +112,7 @@ export default function Estoque() {
           { label: 'Estoque baixo (≤5)', count: baixo, color: '#f59e0b', filter: 'baixo' },
           { label: 'Ilimitado', count: ilimitado, color: 'var(--a-text3)', filter: 'ilimitado' },
         ].map(({ label, count, color, filter }) => (
-          <button key={filter} onClick={() => setFilterStatus(f => f === filter ? 'todos' : filter as any)}
+          <button key={filter} onClick={() => setFilterStatus(f => f === filter ? 'todos' : filter as 'todos' | 'sem_estoque' | 'baixo' | 'ok' | 'ilimitado')}
             style={{ padding: '10px 18px', borderRadius: 10, border: `1px solid ${filterStatus === filter ? color : 'var(--a-border)'}`, background: filterStatus === filter ? `${color}15` : 'var(--a-surface)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 20, fontWeight: 900, color }}>{count}</span>
             <span style={{ fontSize: 12, color: 'var(--a-text2)', fontWeight: 600 }}>{label}</span>

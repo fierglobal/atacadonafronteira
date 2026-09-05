@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import type { User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import Logo from '@/components/Logo'
 
@@ -15,9 +17,9 @@ export default function Login() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    setRedirect(params.get('redirect') || '/')
+    queueMicrotask(() => setRedirect(params.get('redirect') || '/'))
 
-    getSupabaseClient().auth.getUser().then(({ data: { user } }: any) => {
+    getSupabaseClient().auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       if (user) router.replace(params.get('redirect') || '/')
       else setChecking(false)
     })
@@ -57,7 +59,7 @@ export default function Login() {
       `}</style>
       <div style={{ width: '100%', maxWidth: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <a href="/"><Logo size={32} /></a>
+          <Link href="/"><Logo size={32} /></Link>
           <h1 style={{ fontSize: 18, fontWeight: 900, marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Entrar na sua conta</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>Para finalizar sua compra, faça login</p>
         </div>
@@ -105,16 +107,16 @@ export default function Login() {
           <div style={{ borderTop: '1px solid #ececec', marginTop: 24, paddingTop: 20, textAlign: 'center' }}>
             <p style={{ fontSize: 13, color: '#404040' }}>
               Não tem conta?{' '}
-              <a href={`/conta/cadastro?redirect=${encodeURIComponent(redirect)}`}
+              <Link href={`/conta/cadastro?redirect=${encodeURIComponent(redirect)}`}
                 style={{ color: '#420E76', fontWeight: 700, textDecoration: 'none' }}>
                 Criar conta grátis
-              </a>
+              </Link>
             </p>
           </div>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: 20 }}>
-          <a href="/" style={{ color: '#737373', fontSize: 12, textDecoration: 'none' }}>← Voltar ao catálogo</a>
+          <Link href="/" style={{ color: '#737373', fontSize: 12, textDecoration: 'none' }}>← Voltar ao catálogo</Link>
         </p>
       </div>
     </div>

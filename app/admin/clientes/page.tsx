@@ -3,7 +3,46 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 type Order = { id: string; order_num: string; total_brl: number; status: string; created_at: string }
 type Rfm = { recencia_dias: number | null; frequencia: number; monetario: number; score: number; segmento: string }
-type Customer = any
+type Customer = {
+  id: string
+  nome: string
+  cpf: string | null
+  telefone: string | null
+  email: string | null
+  cidade: string | null
+  uf: string | null
+  razao_social: string | null
+  cnpj: string | null
+  ie: string | null
+  tags: string[] | null
+  bloqueado: boolean
+  bloqueio_motivo: string | null
+  bloqueado_em: string | null
+  bloqueado_por: string | null
+  sales_channel_id: string | null
+  origem: string | null
+  aniversario: string | null
+  custom_fields: Record<string, unknown> | null
+  orders: Order[]
+  rfm: Rfm | null
+  created_at: string
+}
+type Channel = { id: string; nome: string; ativo?: boolean }
+type FieldDef = {
+  id: string
+  field_key: string
+  field_type: string
+  label: string
+  required?: boolean
+  ordem?: number
+  options?: string[] | { values?: string[] }
+}
+type Note = { id: string; texto: string; pinned: boolean; autor?: string; created_at: string }
+type Doc = { id: string; nome: string; tamanho: number; created_at: string; uploaded_by?: string; url: string }
+type TimelineEvent = { tipo: string; titulo: string; detalhe?: string; data: string }
+type ImportRowError = { line?: number; row?: number; message?: string; error?: string }
+type ImportPreview = { error?: string; total?: number; valid?: number; errors?: ImportRowError[] }
+type ImportResult = { ok?: boolean; inserted?: number; errors?: ImportRowError[] }
 
 const CUSTOMER_TAGS = ['atacadista', 'vip', 'novo', 'inativo', 'bloqueado']
 const CTAG_COLORS: Record<string, string> = {
@@ -40,7 +79,7 @@ const SEG_FILTERS: { key: string; label: string }[] = [
 const TIMELINE_ICON: Record<string, string> = { pedido: '🛒', nota: '📝', audit: '⚙️', carrinho: '🛍️' }
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
-const fmtTel = (t: string) => t?.replace(/\D/g, '').replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') || t
+const fmtTel = (t: string | null) => t?.replace(/\D/g, '').replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') || t
 const fmtBytes = (b: number) => {
   if (!b) return '—'
   if (b < 1024) return `${b} B`
@@ -109,26 +148,26 @@ export default function Clientes() {
   const [saving, setSaving] = useState(false)
   const [tab, setTab] = useState<'overview' | 'notes' | 'docs' | 'timeline' | 'attrs'>('overview')
 
-  const [channels, setChannels] = useState<any[]>([])
-  const [fieldDefs, setFieldDefs] = useState<any[]>([])
+  const [channels, setChannels] = useState<Channel[]>([])
+  const [fieldDefs, setFieldDefs] = useState<FieldDef[]>([])
 
-  const [notes, setNotes] = useState<any[]>([])
+  const [notes, setNotes] = useState<Note[]>([])
   const [newNote, setNewNote] = useState('')
   const [newNotePin, setNewNotePin] = useState(false)
   const [savingNote, setSavingNote] = useState(false)
 
-  const [docs, setDocs] = useState<any[]>([])
+  const [docs, setDocs] = useState<Doc[]>([])
   const [uploadName, setUploadName] = useState('')
   const fileRef = useRef<HTMLInputElement | null>(null)
   const [uploading, setUploading] = useState(false)
 
-  const [timeline, setTimeline] = useState<any[]>([])
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([])
   const [loadingTimeline, setLoadingTimeline] = useState(false)
 
   const [importOpen, setImportOpen] = useState(false)
   const [importFile, setImportFile] = useState<File | null>(null)
-  const [importPreview, setImportPreview] = useState<any>(null)
-  const [importResult, setImportResult] = useState<any>(null)
+  const [importPreview, setImportPreview] = useState<ImportPreview | null>(null)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [importing, setImporting] = useState(false)
 
   const load = useCallback(async () => {
@@ -139,14 +178,18 @@ export default function Clientes() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { queueMicrotask(() => load()) }, [load])
 
   useEffect(() => {
-    fetch('/api/admin/sales-channels').then(r => r.json()).then((d: any) => setChannels(Array.isArray(d) ? d : (d?.rows || []))).catch(() => setChannels([]))
-    fetch('/api/admin/custom-fields?entity=customers').then(r => r.json()).then((d: any) => setFieldDefs(Array.isArray(d) ? d : (d?.rows || []))).catch(() => setFieldDefs([]))
+    fetch('/api/admin/sales-channels').then(r => r.json()).then((d: unknown) =>
+      setChannels(Array.isArray(d) ? d as Channel[] : ((d as { rows?: Channel[] })?.rows || []))
+    ).catch(() => setChannels([]))
+    fetch('/api/admin/custom-fields?entity=customers').then(r => r.json()).then((d: unknown) =>
+      setFieldDefs(Array.isArray(d) ? d as FieldDef[] : ((d as { rows?: FieldDef[] })?.rows || []))
+    ).catch(() => setFieldDefs([]))
   }, [])
 
-  const patchCustomer = async (id: string, body: any) => {
+  const patchCustomer = async (id: string, body: Record<string, unknown>) => {
     await fetch(`/api/admin/clientes/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -156,8 +199,8 @@ export default function Clientes() {
 
   const toggleTag = async (id: string, tag: string, current: string[]) => {
     const next = current.includes(tag) ? current.filter(t => t !== tag) : [...current, tag]
-    setCustomers((prev: any[]) => prev.map(c => c.id === id ? { ...c, tags: next } : c))
-    setSelected((prev: any) => prev ? { ...prev, tags: next } : null)
+    setCustomers(prev => prev.map(c => c.id === id ? { ...c, tags: next } : c))
+    setSelected(prev => prev ? { ...prev, tags: next } : null)
     await patchCustomer(id, { tags: next })
   }
 
@@ -165,49 +208,49 @@ export default function Clientes() {
     if (!selected || !editing) return
     setSaving(true)
     await patchCustomer(selected.id, editing)
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, ...editing } : c))
-    setSelected((prev: any) => prev ? { ...prev, ...editing } : null)
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, ...editing } : c))
+    setSelected(prev => prev ? { ...prev, ...editing } : null)
     setEditing(null)
     setSaving(false)
   }
 
   const toggleBloqueio = async (val: boolean) => {
     if (!selected) return
-    const body: any = val
+    const body: Record<string, unknown> = val
       ? { bloqueado: true, bloqueio_motivo: selected.bloqueio_motivo || '', bloqueado_em: new Date().toISOString(), bloqueado_por: 'admin' }
       : { bloqueado: false, bloqueio_motivo: null, bloqueado_em: null, bloqueado_por: null }
     await patchCustomer(selected.id, body)
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, ...body } : c))
-    setSelected((prev: any) => prev ? { ...prev, ...body } : null)
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, ...body } : c))
+    setSelected(prev => prev ? { ...prev, ...body } : null)
   }
 
   const saveBloqueioMotivo = async (motivo: string) => {
     if (!selected) return
-    setSelected((prev: any) => prev ? { ...prev, bloqueio_motivo: motivo } : null)
+    setSelected(prev => prev ? { ...prev, bloqueio_motivo: motivo } : null)
     await patchCustomer(selected.id, { bloqueio_motivo: motivo })
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, bloqueio_motivo: motivo } : c))
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, bloqueio_motivo: motivo } : c))
   }
 
   const saveChannel = async (channelId: string | null) => {
     if (!selected) return
     await patchCustomer(selected.id, { sales_channel_id: channelId })
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, sales_channel_id: channelId } : c))
-    setSelected((prev: any) => prev ? { ...prev, sales_channel_id: channelId } : null)
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, sales_channel_id: channelId } : c))
+    setSelected(prev => prev ? { ...prev, sales_channel_id: channelId } : null)
   }
 
-  const saveScalar = async (key: string, value: any) => {
+  const saveScalar = async (key: string, value: unknown) => {
     if (!selected) return
     await patchCustomer(selected.id, { [key]: value })
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, [key]: value } : c))
-    setSelected((prev: any) => prev ? { ...prev, [key]: value } : null)
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, [key]: value } : c))
+    setSelected(prev => prev ? { ...prev, [key]: value } : null)
   }
 
-  const saveCustomField = async (key: string, value: any) => {
+  const saveCustomField = async (key: string, value: unknown) => {
     if (!selected) return
     const next = { ...(selected.custom_fields || {}), [key]: value }
     await patchCustomer(selected.id, { custom_fields: next })
-    setCustomers((prev: any[]) => prev.map(c => c.id === selected.id ? { ...c, custom_fields: next } : c))
-    setSelected((prev: any) => prev ? { ...prev, custom_fields: next } : null)
+    setCustomers(prev => prev.map(c => c.id === selected.id ? { ...c, custom_fields: next } : c))
+    setSelected(prev => prev ? { ...prev, custom_fields: next } : null)
   }
 
   const loadNotes = async (id: string) => {
@@ -284,9 +327,11 @@ export default function Clientes() {
 
   useEffect(() => {
     if (!selected) return
-    if (tab === 'notes') loadNotes(selected.id)
-    if (tab === 'docs') loadDocs(selected.id)
-    if (tab === 'timeline') loadTimeline(selected.id)
+    const id = selected.id
+    if (tab === 'notes') queueMicrotask(() => loadNotes(id))
+    if (tab === 'docs') queueMicrotask(() => loadDocs(id))
+    if (tab === 'timeline') queueMicrotask(() => loadTimeline(id))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- só reage à troca de cliente selecionado (id), não a cada edição de campo em selected
   }, [tab, selected?.id])
 
   const closeModal = () => {
@@ -388,7 +433,7 @@ export default function Clientes() {
               <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum cliente encontrado</td></tr>
-            ) : filtered.map((c: any) => {
+            ) : filtered.map((c) => {
               const color = getAvatarColor(c.id)
               const totalGasto = (c.orders || []).filter((o: Order) => ['pago', 'pronto_retirada', 'retirado'].includes(o.status)).reduce((s: number, o: Order) => s + o.total_brl, 0)
               return (
@@ -446,7 +491,7 @@ export default function Clientes() {
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum cliente encontrado</div>
-        ) : filtered.map((c: any) => {
+        ) : filtered.map((c) => {
           const color = getAvatarColor(c.id)
           const totalGasto = (c.orders || []).filter((o: Order) => ['pago', 'pronto_retirada', 'retirado'].includes(o.status)).reduce((s: number, o: Order) => s + o.total_brl, 0)
           return (
@@ -542,7 +587,7 @@ export default function Clientes() {
                     <button onClick={() => setEditing({
                       nome: selected.nome, cpf: selected.cpf, telefone: selected.telefone, email: selected.email, cidade: selected.cidade, uf: selected.uf,
                       razao_social: selected.razao_social, cnpj: selected.cnpj, ie: selected.ie,
-                    } as any)}
+                    })}
                       style={{ padding: '7px 16px', background: 'transparent', color: 'var(--a-text2)', border: '1px solid var(--a-border)', borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
                       Editar
                     </button>
@@ -580,7 +625,7 @@ export default function Clientes() {
                     ].map(s => (
                       <div key={s.label} style={{ background: 'var(--a-bg)', borderRadius: 8, padding: '12px 14px', border: '1px solid var(--a-border)' }}>
                         <p style={{ fontSize: 9, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 6 }}>{s.label.toUpperCase()}</p>
-                        <p style={{ fontSize: 18, fontWeight: 900, color: s.color, margin: 0 }}>{s.value as any}</p>
+                        <p style={{ fontSize: 18, fontWeight: 900, color: s.color, margin: 0 }}>{s.value}</p>
                         {s.sub && <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: 0, marginTop: 4 }}>{s.sub}</p>}
                       </div>
                     ))}
@@ -644,7 +689,7 @@ export default function Clientes() {
                         {([['nome', 'Nome completo'], ['cpf', 'CPF'], ['telefone', 'WhatsApp'], ['email', 'E-mail'], ['cidade', 'Cidade'], ['uf', 'UF']] as [string, string][]).map(([k, label]) => (
                           <div key={k}>
                             <label style={lbl}>{label.toUpperCase()}</label>
-                            <input value={(editing as any)[k] || ''} onChange={e => setEditing(p => ({ ...p, [k]: e.target.value }))} style={inp} />
+                            <input value={((editing as Record<string, unknown> | null)?.[k] as string) || ''} onChange={e => setEditing(p => ({ ...p, [k]: e.target.value }))} style={inp} />
                           </div>
                         ))}
                       </div>
@@ -668,7 +713,7 @@ export default function Clientes() {
                         {([['razao_social', 'Razão social'], ['cnpj', 'CNPJ'], ['ie', 'IE']] as [string, string][]).map(([k, label]) => (
                           <div key={k}>
                             <label style={lbl}>{label.toUpperCase()}</label>
-                            <input value={(editing as any)[k] || ''} onChange={e => setEditing(p => ({ ...p, [k]: e.target.value }))} style={inp} />
+                            <input value={((editing as Record<string, unknown> | null)?.[k] as string) || ''} onChange={e => setEditing(p => ({ ...p, [k]: e.target.value }))} style={inp} />
                           </div>
                         ))}
                       </div>
@@ -687,9 +732,9 @@ export default function Clientes() {
                   <div className="cli-grid" style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, marginBottom: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
                     <div>
                       <label style={lbl}>SALES CHANNEL</label>
-                      <select value={selected.sales_channel_id || ''} onChange={e => saveChannel(e.target.value || null)} style={inp as any}>
+                      <select value={selected.sales_channel_id || ''} onChange={e => saveChannel(e.target.value || null)} style={inp}>
                         <option value="">Padrão (todos)</option>
-                        {channels.filter((c: any) => c.ativo !== false).map((c: any) => (
+                        {channels.filter(c => c.ativo !== false).map(c => (
                           <option key={c.id} value={c.id}>{c.nome}</option>
                         ))}
                       </select>
@@ -747,7 +792,7 @@ export default function Clientes() {
                   {notes.length === 0 ? (
                     <div style={{ padding: 30, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhuma nota ainda.</div>
                   ) : (
-                    [...notes].sort((a: any, b: any) => (Number(b.pinned) - Number(a.pinned)) || (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())).map((n: any) => (
+                    [...notes].sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (new Date(b.created_at).getTime() - new Date(a.created_at).getTime())).map((n) => (
                       <div key={n.id} style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 14, marginBottom: 10, border: `1px solid ${n.pinned ? '#f59e0b55' : 'var(--a-border)'}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -792,7 +837,7 @@ export default function Clientes() {
                     <div style={{ padding: 30, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum documento ainda.</div>
                   ) : (
                     <div className="cli-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      {docs.map((d: any) => (
+                      {docs.map((d) => (
                         <div key={d.id} style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 14, border: '1px solid var(--a-border)' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
                             <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', margin: 0, wordBreak: 'break-word' }}>{d.nome}</p>
@@ -820,7 +865,7 @@ export default function Clientes() {
                     <div style={{ padding: 30, textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum evento na timeline.</div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      {timeline.map((ev: any, i: number) => (
+                      {timeline.map((ev, i) => (
                         <div key={i} style={{ display: 'flex', gap: 12, background: 'var(--a-bg)', borderRadius: 10, padding: 12, border: '1px solid var(--a-border)' }}>
                           <div style={{ fontSize: 18, lineHeight: 1, paddingTop: 2 }}>{TIMELINE_ICON[ev.tipo] || '•'}</div>
                           <div style={{ flex: 1, minWidth: 0 }}>
@@ -845,8 +890,8 @@ export default function Clientes() {
                     </div>
                   ) : (
                     <div className="cli-grid" style={{ background: 'var(--a-bg)', borderRadius: 10, padding: 16, border: '1px solid var(--a-border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-                      {[...fieldDefs].sort((a: any, b: any) => (a.ordem || 0) - (b.ordem || 0)).map((def: any) => {
-                        const val = selected.custom_fields?.[def.field_key]
+                      {[...fieldDefs].sort((a, b) => (a.ordem || 0) - (b.ordem || 0)).map((def) => {
+                        const val = selected.custom_fields?.[def.field_key] as string | number | boolean | null | undefined
                         const t = def.field_type
                         const labelEl = (
                           <label style={lbl}>
@@ -869,7 +914,7 @@ export default function Clientes() {
                           return (
                             <div key={def.id}>
                               {labelEl}
-                              <select value={val || ''} onChange={e => saveCustomField(def.field_key, e.target.value || null)} style={inp as any}>
+                              <select value={(val as string) || ''} onChange={e => saveCustomField(def.field_key, e.target.value || null)} style={inp}>
                                 <option value="">—</option>
                                 {opts.map((o: string) => <option key={o} value={o}>{o}</option>)}
                               </select>
@@ -880,7 +925,7 @@ export default function Clientes() {
                           return (
                             <div key={def.id}>
                               {labelEl}
-                              <input type="number" defaultValue={val ?? ''} onBlur={e => saveCustomField(def.field_key, e.target.value === '' ? null : Number(e.target.value))} style={inp} />
+                              <input type="number" defaultValue={(val as string | number) ?? ''} onBlur={e => saveCustomField(def.field_key, e.target.value === '' ? null : Number(e.target.value))} style={inp} />
                             </div>
                           )
                         }
@@ -888,14 +933,14 @@ export default function Clientes() {
                           return (
                             <div key={def.id}>
                               {labelEl}
-                              <input type="date" value={val || ''} onChange={e => saveCustomField(def.field_key, e.target.value || null)} style={inp} />
+                              <input type="date" value={(val as string) || ''} onChange={e => saveCustomField(def.field_key, e.target.value || null)} style={inp} />
                             </div>
                           )
                         }
                         return (
                           <div key={def.id}>
                             {labelEl}
-                            <input defaultValue={val ?? ''} onBlur={e => saveCustomField(def.field_key, e.target.value || null)} style={inp} />
+                            <input defaultValue={(val as string | number) ?? ''} onBlur={e => saveCustomField(def.field_key, e.target.value || null)} style={inp} />
                           </div>
                         )
                       })}
@@ -928,7 +973,7 @@ export default function Clientes() {
                 style={{ padding: '8px 16px', background: 'transparent', border: '1px solid var(--a-border)', color: 'var(--a-text)', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: importing ? 'wait' : 'pointer', opacity: !importFile ? 0.5 : 1 }}>
                 Pré-visualizar
               </button>
-              <button onClick={commitImport} disabled={!importPreview || !!importPreview?.error || importing || (importPreview?.errors?.length > 0 && importPreview?.valid === 0)}
+              <button onClick={commitImport} disabled={!importPreview || !!importPreview?.error || importing || ((importPreview?.errors?.length ?? 0) > 0 && importPreview?.valid === 0)}
                 style={{ padding: '8px 16px', background: '#A965ED', border: 'none', color: '#000', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: importing ? 'wait' : 'pointer', opacity: !importPreview ? 0.5 : 1 }}>
                 {importing ? 'Importando...' : 'Importar'}
               </button>
@@ -946,9 +991,9 @@ export default function Clientes() {
                       Válidos: <b style={{ color: '#A965ED' }}>{importPreview.valid}</b> ·
                       Erros: <b style={{ color: importPreview.errors?.length ? '#ef4444' : 'var(--a-text3)' }}>{importPreview.errors?.length || 0}</b>
                     </p>
-                    {importPreview.errors?.length > 0 && (
+                    {importPreview.errors && importPreview.errors.length > 0 && (
                       <div style={{ marginTop: 10, maxHeight: 120, overflow: 'auto' }}>
-                        {importPreview.errors.slice(0, 20).map((er: any, i: number) => (
+                        {importPreview.errors.slice(0, 20).map((er, i) => (
                           <p key={i} style={{ fontSize: 11, color: '#ef4444', margin: '2px 0' }}>
                             Linha {er.line || er.row || '?'}: {er.message || er.error || JSON.stringify(er)}
                           </p>
@@ -970,9 +1015,9 @@ export default function Clientes() {
                 ) : (
                   <p style={{ fontSize: 13, color: '#ef4444', margin: 0 }}>Falha na importação.</p>
                 )}
-                {importResult.errors?.length > 0 && (
+                {importResult.errors && importResult.errors.length > 0 && (
                   <div style={{ marginTop: 8, maxHeight: 120, overflow: 'auto' }}>
-                    {importResult.errors.slice(0, 20).map((er: any, i: number) => (
+                    {importResult.errors.slice(0, 20).map((er, i) => (
                       <p key={i} style={{ fontSize: 11, color: '#ef4444', margin: '2px 0' }}>
                         Linha {er.line || er.row || '?'}: {er.message || er.error || JSON.stringify(er)}
                       </p>

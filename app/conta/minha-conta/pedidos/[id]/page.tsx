@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
 
@@ -57,7 +58,7 @@ export default function PedidoDetalhe() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data } = await supabase
         .from('orders')
@@ -70,15 +71,17 @@ export default function PedidoDetalhe() {
       // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
       // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui
       // (reconstruindo os itens, sem mutar o embed original).
-      const itens: any[] = data.order_items || []
+      type RawItem = Record<string, unknown> & { products: { categoria_id: string | null } | null }
+      const itens = (data.order_items || []) as RawItem[]
       const catIds = [...new Set(itens.map(i => i.products?.categoria_id).filter(Boolean))]
       const catMap = new Map<string, string>()
       if (catIds.length) {
         const { data: cats } = await supabase.from('categorias').select('id, nome').in('id', catIds)
-        ;(cats || []).forEach((cat: any) => catMap.set(cat.id, cat.nome))
+        ;(cats || []).forEach((cat: { id: string; nome: string }) => catMap.set(cat.id, cat.nome))
       }
       data.order_items = itens.map(i => {
-        const nome = i.products && catMap.has(i.products.categoria_id) ? catMap.get(i.products.categoria_id) : null
+        const catId = i.products?.categoria_id
+        const nome = catId && catMap.has(catId) ? catMap.get(catId) : null
         return { ...i, products: i.products ? { ...i.products, categorias: nome ? { nome } : null } : null }
       })
 

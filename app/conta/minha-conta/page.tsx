@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 import { getSupabaseClient } from '@/lib/supabase-client'
 
 type Profile = { nome: string; cpf: string; telefone: string; cep: string; endereco: string; numero: string; complemento: string; bairro: string; cidade: string; uf: string }
@@ -14,7 +15,7 @@ export default function MeuPerfil() {
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(async ({ data: { user } }: any) => {
+    supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data: p } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       setProfile(p || { nome: '', cpf: '', telefone: '', cep: '', endereco: '', numero: '', complemento: '', bairro: '', cidade: '', uf: '' })

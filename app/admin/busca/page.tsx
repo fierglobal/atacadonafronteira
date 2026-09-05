@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import Link from 'next/link'
 
 const STATUS_COLOR: Record<string, string> = {
   pendente_pagamento: '#f59e0b', pago: '#3b82f6',
@@ -12,10 +13,18 @@ const STATUS_LABEL: Record<string, string> = {
   pronto_retirada: 'Pronto', retirado: 'Retirado', cancelado: 'Cancelado',
 }
 
+type BuscaOrder = {
+  id: string; order_num: string | number; customers?: { nome?: string } | null
+  total_brl?: number; status: string; created_at: string
+}
+type BuscaCustomer = { id: string; nome?: string; telefone?: string; email?: string }
+type BuscaProduct = { id: string; name: string; brand?: string; usd_price?: number; estoque: number | null; ativo: boolean }
+type BuscaResults = { orders: BuscaOrder[]; customers: BuscaCustomer[]; products: BuscaProduct[] }
+
 function BuscaConteudo() {
   const params = useSearchParams()
   const q = params.get('q') || ''
-  const [results, setResults] = useState<{ orders: any[]; customers: any[]; products: any[] } | null>(null)
+  const [results, setResults] = useState<BuscaResults | null>(null)
   const [loading, setLoading] = useState(false)
 
   const buscar = useCallback(async (termo: string) => {
@@ -26,7 +35,7 @@ function BuscaConteudo() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { if (q) buscar(q) }, [q, buscar])
+  useEffect(() => { if (q) queueMicrotask(() => buscar(q)) }, [q, buscar])
 
   const total = (results?.orders.length || 0) + (results?.customers.length || 0) + (results?.products.length || 0)
 
@@ -47,8 +56,8 @@ function BuscaConteudo() {
             <div>
               <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--a-text3)', letterSpacing: '0.1em', marginBottom: 10 }}>PEDIDOS ({results.orders.length})</p>
               <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 10, overflow: 'hidden' }}>
-                {results.orders.map((o: any, i: number) => (
-                  <a key={o.id} href="/admin/pedidos"
+                {results.orders.map((o: BuscaOrder, i: number) => (
+                  <Link key={o.id} href="/admin/pedidos"
                     style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, rowGap: 4, padding: '12px 18px', borderBottom: i < results.orders.length - 1 ? '1px solid var(--a-border)' : 'none', textDecoration: 'none', color: 'inherit' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -57,7 +66,7 @@ function BuscaConteudo() {
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--a-text)' }}>R$ {o.total_brl?.toFixed(2).replace('.', ',')}</span>
                     <span style={{ fontSize: 10, fontWeight: 700, color: STATUS_COLOR[o.status], background: `${STATUS_COLOR[o.status]}15`, padding: '2px 8px', borderRadius: 4 }}>{STATUS_LABEL[o.status] || o.status}</span>
                     <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{new Date(o.created_at).toLocaleDateString('pt-BR')}</span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -68,7 +77,7 @@ function BuscaConteudo() {
             <div>
               <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--a-text3)', letterSpacing: '0.1em', marginBottom: 10 }}>CLIENTES ({results.customers.length})</p>
               <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 10, overflow: 'hidden' }}>
-                {results.customers.map((c: any, i: number) => (
+                {results.customers.map((c: BuscaCustomer, i: number) => (
                   <a key={c.id} href="/admin/clientes"
                     style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, rowGap: 4, padding: '12px 18px', borderBottom: i < results.customers.length - 1 ? '1px solid var(--a-border)' : 'none', textDecoration: 'none', color: 'inherit' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
@@ -90,8 +99,8 @@ function BuscaConteudo() {
             <div>
               <p style={{ fontSize: 10, fontWeight: 700, color: 'var(--a-text3)', letterSpacing: '0.1em', marginBottom: 10 }}>PRODUTOS ({results.products.length})</p>
               <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 10, overflow: 'hidden' }}>
-                {results.products.map((p: any, i: number) => (
-                  <a key={p.id} href="/admin/produtos"
+                {results.products.map((p: BuscaProduct, i: number) => (
+                  <Link key={p.id} href="/admin/produtos"
                     style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, rowGap: 4, padding: '12px 18px', borderBottom: i < results.products.length - 1 ? '1px solid var(--a-border)' : 'none', textDecoration: 'none', color: 'inherit' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
@@ -102,7 +111,7 @@ function BuscaConteudo() {
                       <span style={{ fontSize: 10, color: p.estoque === 0 ? '#ef4444' : p.estoque <= 5 ? '#f59e0b' : '#A965ED', fontWeight: 700 }}>{p.estoque} un.</span>
                     )}
                     <span style={{ fontSize: 10, color: p.ativo ? '#A965ED' : '#ef4444' }}>{p.ativo ? 'Ativo' : 'Inativo'}</span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

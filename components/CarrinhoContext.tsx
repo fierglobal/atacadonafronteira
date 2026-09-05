@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef, ReactNode } from 'react'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { BRL_RATE_FALLBACK } from '@/lib/site'
+import type { User, AuthChangeEvent, Session } from '@supabase/supabase-js'
 
 export type Currency = { code: string; label: string; flag: string; rate: number }
 
@@ -90,7 +91,7 @@ export function CarrinhoProvider({ brlRate: brlRateInicial, children }: { brlRat
   useEffect(() => {
     try {
       const saved = localStorage.getItem('apnovo_cart')
-      if (saved) setItens(JSON.parse(saved))
+      if (saved) queueMicrotask(() => setItens(JSON.parse(saved)))
     } catch {}
   }, [])
 
@@ -106,10 +107,10 @@ export function CarrinhoProvider({ brlRate: brlRateInicial, children }: { brlRat
 
   useEffect(() => {
     const supabase = getSupabaseClient()
-    supabase.auth.getUser().then(({ data: { user } }: any) => {
+    supabase.auth.getUser().then(({ data: { user } }: { data: { user: User | null } }) => {
       setUserId(user?.id || null)
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt: any, session: any) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt: AuthChangeEvent, session: Session | null) => {
       setUserId(session?.user?.id || null)
       if (!session?.user) remoteLoadedRef.current = false
     })
