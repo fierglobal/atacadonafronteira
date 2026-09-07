@@ -9,7 +9,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ orderNum
   const { orderNum } = await params
   const { data: order } = await supabaseAdmin
     .from('orders')
-    .select('id, order_num, status, total_brl, total_usd, copy_hash, pix_expira_em, created_at, customer_id')
+    .select('id, order_num, status, total_brl, total_usd, copy_hash, pix_expira_em, created_at, customer_id, comprovante_url')
     .eq('order_num', orderNum)
     .single()
   if (!order) return NextResponse.json({ error: 'Pedido não encontrado' }, { status: 404 })
@@ -24,12 +24,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ orderNum
   ])
 
   return NextResponse.json({
+    orderId: order.id,
     orderNum: order.order_num,
     totalBRL: order.total_brl,
     totalUSD: order.total_usd,
     copyHash: order.copy_hash,
     pixExpiraEm: order.pix_expira_em,
     createdAt: order.created_at,
+    comprovanteUrl: order.comprovante_url,
     customer, items: items || [],
     pixKey: config.pix_key,
     pixHolder: config.pix_holder,

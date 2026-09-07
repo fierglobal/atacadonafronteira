@@ -211,3 +211,6 @@
 
 <!-- session 2026-09-05 15:05 -->
 <!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx,app/admin/estoque/page.tsx -->
+
+<!-- session 2026-09-07 18:01 -->
+<!-- arquivos: app/api/pedido/[orderNum]/pix/route.ts,app/pix/[orderNum]/page.tsx,lib/email.ts -->

@@ -83,17 +83,23 @@ export async function emailConfirmacaoPedido(
     <h2 style="margin:0 0 8px;font-size:20px;color:#fff">Pedido recebido, ${nome.split(' ')[0]}!</h2>
     <p style="color:#888;font-size:15px;line-height:1.6;margin:0 0 24px">
       Seu pedido <strong style="color:#8b5cf6">${orderNum}</strong> foi registrado com sucesso.
-      Realize o PIX para confirmar. Após o pagamento, <strong>aguarde a aprovação</strong> — avisamos por e-mail e WhatsApp quando o pedido estiver liberado para retirada ou entrega.
+      Realize o PIX para confirmar.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;background:#111;border-radius:10px;padding:16px">
       ${linhas}
       <tr><td colspan="2" style="padding-top:12px;font-size:16px;font-weight:900;color:#fff">Total</td></tr>
       <tr><td></td><td style="text-align:right;font-size:20px;font-weight:900;color:#8b5cf6">R$ ${totalBrl.toFixed(2).replace('.', ',')}</td></tr>
     </table>
-    <a href="https://atacadonafronteira.com/checkout"
+    <p style="color:#fbbf24;font-size:14px;line-height:1.6;margin:0 0 20px;background:#1a1a1a;border:1px solid #3a2f0a;border-radius:10px;padding:14px 16px">
+      📎 <strong>Não esqueça de enviar o comprovante do PIX</strong> — é o que agiliza a confirmação do seu pedido. Clique no botão abaixo e anexe a foto ou o PDF.
+    </p>
+    <a href="https://atacadonafronteira.com/pix/${orderNum}"
        style="display:inline-block;background:#8b5cf6;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">
-      Ver detalhes do pedido
-    </a>`)
+      Pagar e enviar comprovante
+    </a>
+    <p style="color:#666;font-size:12px;line-height:1.6;margin:16px 0 0">
+      Após o pagamento e o envio do comprovante, <strong style="color:#888">aguarde a aprovação</strong> — avisamos por e-mail e WhatsApp quando o pedido estiver liberado para retirada ou entrega.
+    </p>`)
   return send(email, `Pedido ${orderNum} confirmado — Atacado na Fronteira`, html)
 }
 

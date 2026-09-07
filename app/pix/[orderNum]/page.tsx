@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import QRCode from 'qrcode'
+import { getSupabaseClient } from '@/lib/supabase-client'
 import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
 import Logo from '@/components/Logo'
 
@@ -59,12 +60,14 @@ function gerarPixPayload(amountBRL: number, orderNum: string, pixKey: string, pi
 
 type PixItem = { product_name: string; quantity: number; unit_usd: number; subtotal_usd: number }
 type PixData = {
+  orderId: string
   orderNum: string
   totalBRL: number
   totalUSD: number
   copyHash: string | null
   pixExpiraEm: string | null
   createdAt: string
+  comprovanteUrl: string | null
   customer: { nome: string; telefone: string } | null
   items: PixItem[]
   pixKey?: string
@@ -94,6 +97,7 @@ export default function PedidoPix() {
   const [qrDataUrl, setQrDataUrl] = useState('')
   const [secsLeft, setSecsLeft] = useState(0)
   const [copied, setCopied] = useState<'key' | 'val' | 'pix' | null>(null)
+  const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
 
   useEffect(() => {
     fetch(`/api/pedido/${orderNum}/pix`).then(async r => {
@@ -125,6 +129,27 @@ export default function PedidoPix() {
     try { await navigator.clipboard.writeText(text) } catch {}
     setCopied(which)
     setTimeout(() => setCopied(null), 2500)
+  }
+
+  const uploadComprovante = async (file: File) => {
+    if (!data) return
+    setComprovante('uploading')
+    try {
+      const supabase = getSupabaseClient()
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `guest/${data.orderId}.${ext}`
+      const { error: upErr } = await supabase.storage.from('comprovantes').upload(path, file, { upsert: true })
+      if (upErr) { setComprovante('error'); return }
+      const { data: { publicUrl } } = supabase.storage.from('comprovantes').getPublicUrl(path)
+      const res = await fetch('/api/notify/comprovante', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: data.orderId, comprovanteUrl: publicUrl }),
+      })
+      if (!res.ok) { setComprovante('error'); return }
+      setData(d => d ? { ...d, comprovanteUrl: publicUrl } : d)
+      setComprovante('done')
+    } catch { setComprovante('error') }
   }
 
   const sendWhatsApp = () => {
@@ -301,6 +326,32 @@ export default function PedidoPix() {
             <span style={{ color: '#0a0a0a' }}>Total</span>
             <span style={{ color: '#420E76' }}>R$ {totalBRLStr}</span>
           </div>
+        </div>
+
+        {/* Comprovante — sempre visível, é o que agiliza a confirmação */}
+        <div style={{ background: '#ffffff', border: `1px solid ${comprovante === 'done' || data.comprovanteUrl ? 'rgba(66, 14, 118,0.4)' : '#ececec'}`, borderRadius: 12, padding: '20px', marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <p style={{ fontSize: 10, fontWeight: 800, color: comprovante === 'done' || data.comprovanteUrl ? '#420E76' : '#525252', letterSpacing: '0.1em', margin: '0 0 10px' }}>ENVIAR COMPROVANTE</p>
+          {(comprovante === 'done' || data.comprovanteUrl) ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#420E76', fontSize: 13, fontWeight: 700 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Comprovante recebido! Aguarde a confirmação.
+            </div>
+          ) : (
+            <>
+              <p style={{ fontSize: 12, color: '#404040', margin: '0 0 14px', lineHeight: 1.5 }}>
+                Após realizar o PIX, envie o comprovante para agilizar a confirmação.
+              </p>
+              <label style={{ display: 'block', border: '1px dashed #d4d4d4', borderRadius: 10, padding: '20px', textAlign: 'center', cursor: comprovante === 'uploading' ? 'wait' : 'pointer', background: '#fafafa' }}>
+                <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
+                  onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprovante(f) }} />
+                {comprovante === 'uploading'
+                  ? <span style={{ fontSize: 13, color: '#404040' }}>Enviando...</span>
+                  : comprovante === 'error'
+                  ? <span style={{ fontSize: 13, color: '#ef4444' }}>Erro. Tente novamente.</span>
+                  : <span style={{ fontSize: 13, color: '#404040' }}><span style={{ display: 'block', fontSize: 24, marginBottom: 6 }}>📎</span>Clique para anexar foto ou PDF</span>}
+              </label>
+            </>
+          )}
         </div>
 
         {WHATSAPP_ENABLED && (
