@@ -2,24 +2,40 @@
 import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
+import QRCode from 'qrcode'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import { gerarPixPayload, PIX_KEY_FALLBACK, PIX_HOLDER_FALLBACK } from '@/lib/pix'
+import { ENTREGA_LABEL, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { isEmBreve } from '@/lib/produto'
+import { SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 
-type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
-type Order = { id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string; notas: string | null; comprovante_url: string | null; nome_retirador: string | null; order_items: OrderItem[] }
-
-const STATUS_STEPS = ['pendente_pagamento', 'pago', 'pronto_retirada', 'retirado']
-const STATUS_LABEL: Record<string, string> = {
-  pendente_pagamento: 'Aguardando PIX',
-  pago: 'Pago',
-  pronto_retirada: 'Pronto p/ Retirada',
-  retirado: 'Retirado',
-  cancelado: 'Cancelado',
+type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null; badges: string[] | null } | null }
+type Order = {
+  id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string
+  notas: string | null; comprovante_url: string | null; nome_retirador: string | null
+  entrega_tipo: string | null; entrega_endereco: string | null
+  frete_brl: number | null; seguro_brl: number | null; seguro_recusado: boolean | null
+  codigo_rastreio: string | null
+  order_items: OrderItem[]
 }
 
-// Fallback se /api/checkout-config não responder: mesmos valores que a config traz hoje.
-const PIX_KEY_FALLBACK = '65078504000170'
-const PIX_HOLDER_FALLBACK = 'ATACADO NA FRONTEIRA'
+// Rótulos por modalidade — "Pronto p/ Retirada"/"Retirado" só fazem sentido pra quem
+// retira; envio_brasil usa o mesmo status internamente (histórico do admin não muda),
+// então o rótulo pro cliente é traduzido aqui, não no banco.
+const STATUS_STEPS = ['pendente_pagamento', 'pago', 'pronto_retirada', 'retirado']
+function statusLabel(status: string, entregaTipo: EntregaTipo): string {
+  const envio = entregaTipo === 'envio_brasil'
+  const base: Record<string, string> = {
+    pendente_pagamento: 'Aguardando PIX',
+    pago: 'Pago',
+    pronto_retirada: envio ? 'Enviado' : 'Pronto p/ Retirada',
+    retirado: envio ? 'Entregue' : 'Retirado',
+    cancelado: 'Cancelado',
+  }
+  return base[status] || status
+}
+
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 const fmtUsd = (n: number) => `$ ${n.toFixed(2)}`
 
@@ -33,6 +49,7 @@ export default function PedidoDetalhe() {
   const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
   const [reordering, setReordering] = useState(false)
   const [config, setConfig] = useState<{ pix_key?: string; pix_holder?: string } | null>(null)
+  const [qrDataUrl, setQrDataUrl] = useState('')
   const pixKey = config?.pix_key || PIX_KEY_FALLBACK
   const pixHolder = config?.pix_holder || PIX_HOLDER_FALLBACK
 
@@ -57,12 +74,19 @@ export default function PedidoDetalhe() {
   }, [])
 
   useEffect(() => {
+    if (!order || order.status !== 'pendente_pagamento') return
+    const payload = gerarPixPayload(order.total_brl, order.order_num, pixKey, pixHolder)
+    QRCode.toDataURL(payload, { width: 180, margin: 2, color: { dark: '#000', light: '#fff' } })
+      .then(setQrDataUrl).catch(() => {})
+  }, [order, pixKey, pixHolder])
+
+  useEffect(() => {
     const supabase = getSupabaseClient()
     supabase.auth.getUser().then(async ({ data: { user } }: { data: { user: User | null } }) => {
       if (!user) { router.replace('/conta/login'); return }
       const { data } = await supabase
         .from('orders')
-        .select('*, order_items(*, products(categoria_id))')
+        .select('*, order_items(*, products(categoria_id, badges))')
         .eq('id', params.id)
         .eq('user_id', user.id)
         .single()
@@ -71,7 +95,7 @@ export default function PedidoDetalhe() {
       // products.categoria_id não tem FK formal para categorias — PostgREST recusa o
       // embed aninhado products(categorias(nome)) com PGRST200, resolvido à mão aqui
       // (reconstruindo os itens, sem mutar o embed original).
-      type RawItem = Record<string, unknown> & { products: { categoria_id: string | null } | null }
+      type RawItem = Record<string, unknown> & { products: { categoria_id: string | null; badges: string[] | null } | null }
       const itens = (data.order_items || []) as RawItem[]
       const catIds = [...new Set(itens.map(i => i.products?.categoria_id).filter(Boolean))]
       const catMap = new Map<string, string>()
@@ -127,6 +151,9 @@ export default function PedidoDetalhe() {
 
   const stepIndex = STATUS_STEPS.indexOf(order.status)
   const isCanceled = order.status === 'cancelado'
+  const entregaTipo: EntregaTipo = ehEntregaTipo(order.entrega_tipo) ? order.entrega_tipo : 'retirada_cde'
+  const envio = entregaTipo === 'envio_brasil'
+  const temSobEncomenda = order.order_items.some(i => isEmBreve({ usd_price: 0, badges: i.products?.badges }))
 
   return (
     <div>
@@ -143,6 +170,17 @@ export default function PedidoDetalhe() {
           {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
         </button>
       </div>
+
+      {/* Sob encomenda — bem visível, logo após o cabeçalho */}
+      {temSobEncomenda && (
+        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.4)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: 16 }}>📦</span>
+            <p style={{ fontSize: 12, fontWeight: 800, color: '#b45309', margin: 0, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Pedido com item sob encomenda</p>
+          </div>
+          <p style={{ fontSize: 12, color: '#92400e', margin: 0, lineHeight: 1.5 }}>{SOB_ENCOMENDA_TEXTO}</p>
+        </div>
+      )}
 
       {/* Status timeline */}
       {!isCanceled ? (
@@ -175,7 +213,7 @@ export default function PedidoDetalhe() {
                     )}
                   </div>
                   <p style={{ fontSize: 9, fontWeight: current ? 800 : 600, color: current ? '#420E76' : done ? '#525252' : '#a3a3a3', marginTop: 8, textAlign: 'center', letterSpacing: '0.03em', lineHeight: 1.3 }}>
-                    {STATUS_LABEL[step]}
+                    {statusLabel(step, entregaTipo)}
                   </p>
                 </div>
               )
@@ -196,6 +234,12 @@ export default function PedidoDetalhe() {
             Transfira o valor exato abaixo para a chave PIX e aguarde a confirmação.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {qrDataUrl && (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: 12, background: '#ffffff', border: '1px solid #ececec', borderRadius: 10 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- data URL gerada em runtime (QRCode.toDataURL), não é asset pra otimizar */}
+                <img src={qrDataUrl} alt="QR Code PIX" width={160} height={160} />
+              </div>
+            )}
             <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, padding: '14px 16px' }}>
               <p style={{ fontSize: 10, color: '#737373', fontWeight: 700, margin: '0 0 8px', letterSpacing: '0.08em' }}>CHAVE PIX (CNPJ)</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -220,17 +264,26 @@ export default function PedidoDetalhe() {
       )}
 
       {/* Comprovante — sempre visível */}
-      <div style={{ background: '#ffffff', border: `1px solid ${comprovante === 'done' || order.comprovante_url ? 'rgba(66, 14, 118,0.3)' : '#ececec'}`, borderRadius: 14, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <p style={{ fontSize: 10, fontWeight: 800, color: comprovante === 'done' || order.comprovante_url ? '#420E76' : '#525252', letterSpacing: '0.1em', margin: '0 0 12px' }}>COMPROVANTE DE PAGAMENTO</p>
-        {(comprovante === 'done' || order.comprovante_url) ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#420E76', fontSize: 13, fontWeight: 700 }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Comprovante enviado
+      {(() => {
+        const enviado = comprovante === 'done' || !!order.comprovante_url
+        const emAnalise = enviado && order.status === 'pendente_pagamento'
+        const cor = emAnalise ? '#f59e0b' : '#420E76'
+        return (
+      <div style={{ background: '#ffffff', border: `1px solid ${enviado ? `${cor}4d` : '#ececec'}`, borderRadius: 14, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <p style={{ fontSize: 10, fontWeight: 800, color: enviado ? cor : '#525252', letterSpacing: '0.1em', margin: '0 0 12px' }}>COMPROVANTE DE PAGAMENTO</p>
+        {enviado ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: cor, fontSize: 13, fontWeight: 700 }}>
+              {emAnalise ? (
+                <span style={{ fontSize: 15 }}>🔍</span>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              )}
+              {emAnalise ? 'Comprovante recebido — em análise da equipe' : 'Comprovante enviado'}
             </div>
             {order.comprovante_url && (
               <a href={order.comprovante_url} target="_blank" rel="noreferrer"
-                style={{ fontSize: 11, color: '#420E76', fontWeight: 700, textDecoration: 'none', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, padding: '4px 10px' }}>
+                style={{ fontSize: 11, color: cor, fontWeight: 700, textDecoration: 'none', border: `1px solid ${cor}66`, borderRadius: 6, padding: '4px 10px' }}>
                 Ver →
               </a>
             )}
@@ -254,6 +307,8 @@ export default function PedidoDetalhe() {
           </>
         )}
       </div>
+        )
+      })()}
 
       {/* Items */}
       <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, overflow: 'hidden', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -309,25 +364,71 @@ export default function PedidoDetalhe() {
         </div>
       </div>
 
-      {/* Pickup note */}
-      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '16px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+      {/* Entrega — endereço/retirada, frete, seguro e rastreio, condicionados à modalidade real do pedido */}
+      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <p style={{ fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 14px' }}>ENTREGA — {ENTREGA_LABEL[entregaTipo].toUpperCase()}</p>
+
+        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: (order.frete_brl || order.seguro_brl) ? 16 : 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          <div>
-            <p style={{ fontSize: 12, fontWeight: 700, margin: '0 0 4px', color: '#420E76' }}>Retirada em loja</p>
-            <p style={{ fontSize: 12, color: '#404040', margin: 0, lineHeight: 1.6 }}>
-              Seu pedido ficará disponível para retirada após a confirmação do pagamento. Você receberá um aviso quando estiver pronto.
-            </p>
-            {order.nome_retirador && (
-              <p style={{ fontSize: 12, color: '#737373', margin: '6px 0 0' }}>
-                Retirador: <strong style={{ color: '#0a0a0a' }}>{order.nome_retirador}</strong>
-              </p>
+          <div style={{ minWidth: 0 }}>
+            {envio ? (
+              <>
+                <p style={{ fontSize: 12, color: '#404040', margin: 0, lineHeight: 1.6 }}>
+                  Seu pedido será enviado para o endereço abaixo após a confirmação do pagamento.
+                </p>
+                {order.entrega_endereco && (
+                  <p style={{ fontSize: 13, color: '#0a0a0a', fontWeight: 600, margin: '8px 0 0', lineHeight: 1.5 }}>
+                    {order.entrega_endereco}
+                  </p>
+                )}
+                {order.codigo_rastreio ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '10px 12px', background: 'rgba(66, 14, 118,0.05)', border: '1px solid rgba(66, 14, 118,0.2)', borderRadius: 8 }}>
+                    <span style={{ fontSize: 14 }}>🚚</span>
+                    <div>
+                      <p style={{ fontSize: 9, color: '#737373', fontWeight: 700, letterSpacing: '0.06em', margin: 0 }}>CÓDIGO DE RASTREIO</p>
+                      <p style={{ fontSize: 13, color: '#420E76', fontWeight: 800, fontFamily: 'monospace', margin: 0 }}>{order.codigo_rastreio}</p>
+                    </div>
+                  </div>
+                ) : (stepIndex >= STATUS_STEPS.indexOf('pronto_retirada')) && (
+                  <p style={{ fontSize: 12, color: '#737373', margin: '10px 0 0' }}>Enviado — o código de rastreio é adicionado em breve.</p>
+                )}
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 12, color: '#404040', margin: 0, lineHeight: 1.6 }}>
+                  Seu pedido ficará disponível para retirada em {ENTREGA_LABEL[entregaTipo].replace('Retirada em ', '')} após a confirmação do pagamento. Você receberá um aviso quando estiver pronto.
+                </p>
+                {order.nome_retirador && (
+                  <p style={{ fontSize: 12, color: '#737373', margin: '6px 0 0' }}>
+                    Retirador: <strong style={{ color: '#0a0a0a' }}>{order.nome_retirador}</strong>
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>
+
+        {(Number(order.frete_brl || 0) > 0 || Number(order.seguro_brl || 0) > 0 || (envio && order.seguro_recusado)) && (
+          <div style={{ borderTop: '1px solid #ececec', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {Number(order.frete_brl || 0) > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#404040' }}>
+                <span>Frete</span><span style={{ fontWeight: 700, color: '#0a0a0a' }}>{fmt(Number(order.frete_brl))}</span>
+              </div>
+            )}
+            {Number(order.seguro_brl || 0) > 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#404040' }}>
+                <span>Seguro de carga</span><span style={{ fontWeight: 700, color: '#0a0a0a' }}>{fmt(Number(order.seguro_brl))}</span>
+              </div>
+            ) : envio && order.seguro_recusado && (
+              <p style={{ fontSize: 11, color: '#ef4444', fontWeight: 700, margin: 0 }}>
+                ⚠ Você optou por não incluir o seguro de carga — em caso de extravio, o reenvio não está incluso.
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

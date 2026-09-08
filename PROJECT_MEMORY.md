@@ -214,3 +214,6 @@
 
 <!-- session 2026-09-07 18:01 -->
 <!-- arquivos: app/api/pedido/[orderNum]/pix/route.ts,app/pix/[orderNum]/page.tsx,lib/email.ts -->
+
+<!-- session 2026-09-07 23:21 -->
+<!-- arquivos: app/admin/pedidos/[id]/page.tsx,app/checkout/page.tsx,app/conta/minha-conta/pedidos/[id]/page.tsx,app/pix/[orderNum]/page.tsx -->

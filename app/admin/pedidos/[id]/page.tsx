@@ -27,6 +27,7 @@ type Order = {
   seguro_brl?: number | null
   seguro_recusado?: boolean | null
   entrega_endereco?: string | null
+  codigo_rastreio?: string | null
   customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
   order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number; products: { img_url: string | null; categorias: { nome: string } | null } | null }[]
 }
@@ -98,6 +99,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
     patch({ tags: next })
   }
   const updateNotas = (notas: string) => patch({ notas })
+  const updateRastreio = (codigo_rastreio: string) => patch({ codigo_rastreio: codigo_rastreio || null })
 
   if (loading) {
     return <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh', color: 'var(--a-text3)' }}>Carregando...</div>
@@ -234,6 +236,17 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               <>
                 <Label>Endereço de entrega</Label>
                 <Value>{order.entrega_endereco}</Value>
+              </>
+            )}
+            {envio && (
+              <>
+                <Label>Código de rastreio</Label>
+                <input
+                  key={order.codigo_rastreio || ''}
+                  defaultValue={order.codigo_rastreio || ''}
+                  onBlur={e => updateRastreio(e.target.value.trim())}
+                  placeholder="Aparece pro cliente na conta dele"
+                  style={{ width: '100%', padding: '7px 10px', background: 'var(--a-bg)', border: '1px solid var(--a-border)', borderRadius: 6, color: 'var(--a-text)', fontSize: 13, fontFamily: 'monospace', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 10 }} />
               </>
             )}
             {semSeguro && (
