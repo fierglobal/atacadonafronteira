@@ -67,7 +67,7 @@ const jsonLdLoja = () => ([
 
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
-const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
+const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, brl_price, brl_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
 const VITRINE_POR_SECAO = 12
 
 // Mesmo shape que o client montaria via /api/facetas + /api/categorias +

@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useCarrinho } from '@/components/CarrinhoContext'
-import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
+import { useCarrinho, type Currency } from '@/components/CarrinhoContext'
+import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF, SOB_ENCOMENDA_BADGE } from '@/lib/site'
 import { isPromo, isEmBreve, ROTULO_EM_BREVE, effectiveBadges } from '@/lib/produto'
 import Logo from '@/components/Logo'
 import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
@@ -13,12 +13,13 @@ import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 const CONTATO_HREF = WHATSAPP_HREF
 
 type Product = {
-  id: string; name: string; brand: string | null; usd_price: number
+  id: string; name: string; brand: string | null; usd_price: number; brl_price: number | null
   img_url: string | null; estoque: number | null
   descricao_curta?: string | null
   badges?: string[] | null
   categoria_id?: string | null
   usd_price_promo?: number | null
+  brl_price_promo?: number | null
   venda_minima?: number
   multiplicador?: number
   rating?: number | null
@@ -45,6 +46,7 @@ const BADGE_COLORS_CARD: Record<string, { bg: string; color: string; border: str
   'promocao': { bg: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: 'rgba(66, 14, 118,0.4)' },
   'lançamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
   'lancamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
+  [SOB_ENCOMENDA_BADGE]: { bg: 'rgba(245,158,11,0.12)', color: '#b45309', border: 'rgba(245,158,11,0.45)' },
 }
 const cardBadge = (txt: string) => BADGE_COLORS_CARD[txt.trim().toLowerCase()] ?? { bg: '#f5f5f5', color: '#737373', border: '#d4d4d4' }
 
@@ -78,6 +80,12 @@ const fmt = (n: number, rate: number, code: string) => {
   // card estreito, e ajuda o número a caber numa linha só.
   return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
+
+// products.brl_price é o preço nativo em reais, cadastrado pelo admin — só cai pro
+// câmbio ao vivo (usd_price * rate) em produto que ainda não foi migrado (brl_price nulo).
+const brlNativo = (usd: number, brl: number | null | undefined, rate: number) => brl ?? usd * rate
+const precoAtual = (usd: number, brl: number | null | undefined, currency: Currency, brlRate: number) =>
+  currency.code === 'BRL' ? fmt(brlNativo(usd, brl, brlRate), 1, 'BRL') : fmt(usd, currency.rate, currency.code)
 
 const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
@@ -137,17 +145,17 @@ function ProductCardCompact({ p }: { p: Product }) {
             ) : <>
             {promo && (
               <div style={{ fontSize: 10.5, color: '#a3a3a3', textDecoration: 'line-through', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as const }}>
-                {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
+                {currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, whiteSpace: 'nowrap' as const }}>
               <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>{currency.code}</span>
               <span style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const }}>
-                {fmt(priceShown, currency.rate, currency.code)}
+                {precoAtual(priceShown, promo ? p.brl_price_promo : p.brl_price, currency, brlRate)}
               </span>
             </div>
             <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
-              {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, brlRate, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
+              {currency.code === 'USD' ? `≈ R$ ${fmt(brlNativo(priceShown, promo ? p.brl_price_promo : p.brl_price, brlRate), 1, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
             </>}
           </div>
@@ -962,7 +970,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                       )}
                       <h4 style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1 }}>
-                        {currency.code} {fmt(priceShown, currency.rate, currency.code)}
+                        {currency.code} {precoAtual(priceShown, promo ? p.brl_price_promo : p.brl_price, currency, brlRate)}
                       </div>
                     </div>
                   </div>
@@ -1117,20 +1125,20 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                         <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
                       ) : promo ? (
                         <>
-                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {fmt(p.usd_price, currency.rate, currency.code)}</div>
+                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}</div>
                           <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                            {currency.code} {fmt(p.usd_price_promo!, currency.rate, currency.code)}
+                            {currency.code} {precoAtual(p.usd_price_promo!, p.brl_price_promo, currency, brlRate)}
                           </div>
                           <div style={{ fontSize: 9, color: '#b45309', fontWeight: 800, marginTop: 2 }}>-{discount}% OFF</div>
                         </>
                       ) : (
                         <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                          {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
+                          {currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}
                         </div>
                       )}
                       {!emBreveLista && (
                         <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
-                          {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, brlRate, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
+                          {currency.code === 'USD' ? `≈ R$ ${fmt(brlNativo(promo ? p.usd_price_promo! : p.usd_price, promo ? p.brl_price_promo : p.brl_price, brlRate), 1, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
                         </div>
                       )}
                     </div>

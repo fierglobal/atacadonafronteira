@@ -3,8 +3,9 @@ import { useState, useEffect, Fragment } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 
-type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null } | null }
+type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null; products: { categorias: { nome: string } | null; badges: string[] | null } | null }
 type Order = { id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string; notas: string | null; comprovante_url: string | null; nome_retirador: string | null; order_items: OrderItem[] }
 
 const STATUS_STEPS = ['pendente_pagamento', 'pago', 'pronto_retirada', 'retirado']
@@ -61,7 +62,7 @@ export default function PedidoDetalhe() {
       if (!user) { router.replace('/conta/login'); return }
       const { data } = await supabase
         .from('orders')
-        .select('*, order_items(*, products(categoria_id))')
+        .select('*, order_items(*, products(categoria_id, badges))')
         .eq('id', params.id)
         .eq('user_id', user.id)
         .single()
@@ -124,6 +125,11 @@ export default function PedidoDetalhe() {
 
   const stepIndex = STATUS_STEPS.indexOf(order.status)
   const isCanceled = order.status === 'cancelado'
+  // Taxa travada neste pedido (não a do câmbio de hoje) — usada só pra preencher
+  // unit_brl/subtotal_brl de pedidos antigos, salvos antes da coluna existir.
+  const taxa = order.total_usd > 0 ? order.total_brl / order.total_usd : 0
+  const temSobEncomenda = order.order_items.some(i =>
+    (i.products?.badges || []).some(b => b.trim().toLowerCase() === SOB_ENCOMENDA_BADGE))
 
   return (
     <div>
@@ -140,6 +146,13 @@ export default function PedidoDetalhe() {
           {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
         </button>
       </div>
+
+      {temSobEncomenda && (
+        <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+          <p style={{ fontSize: 10, fontWeight: 800, color: '#b45309', letterSpacing: '0.1em', margin: '0 0 6px' }}>PEDIDO COM ITEM SOB ENCOMENDA</p>
+          <p style={{ fontSize: 12, color: '#92400e', margin: 0, lineHeight: 1.5 }}>{SOB_ENCOMENDA_TEXTO}</p>
+        </div>
+      )}
 
       {/* Status timeline */}
       {!isCanceled ? (
@@ -288,8 +301,8 @@ export default function PedidoDetalhe() {
                         {item.product_brand && <p style={{ fontSize: 10, color: '#737373', margin: '2px 0 0' }}>{item.product_brand}</p>}
                       </td>
                       <td style={{ padding: '12px 20px', fontSize: 13, color: '#404040' }}>{item.quantity}x</td>
-                      <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmtUsd(item.unit_usd)}</td>
-                      <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmtUsd(item.subtotal_usd)}</td>
+                      <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmt(item.unit_brl ?? item.unit_usd * taxa)}</td>
+                      <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmt(item.subtotal_brl ?? item.subtotal_usd * taxa)}</td>
                     </tr>
                   ))}
                 </Fragment>
