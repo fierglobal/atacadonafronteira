@@ -17,6 +17,7 @@ type CrossSellItem = {
   name: string | null
   brand: string | null
   usd_price: number
+  brl_price?: number | null
   img_url: string | null
 }
 
@@ -178,7 +179,7 @@ export function CarrinhoSidebar() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 11, color: '#0a0a0a', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
                       <p style={{ fontSize: 11, color: '#420E76', fontWeight: 700, margin: '2px 0 0' }}>
-                        {fmtCurrency(p.usd_price, currency.rate, currency.code)}
+                        {currency.code === 'BRL' && p.brl_price != null ? `BRL ${p.brl_price.toFixed(2).replace('.', ',')}` : fmtCurrency(p.usd_price, currency.rate, currency.code)}
                       </p>
                     </div>
                     <button onClick={() => adicionar({ id: p.id, name, usd: p.usd_price, img: p.img_url || '/produto-placeholder.svg', brand: brand || undefined })}

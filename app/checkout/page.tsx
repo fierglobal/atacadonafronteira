@@ -57,7 +57,7 @@ type GuestForm = {
   honeypot: string
 }
 type CupomAplicado = { id: string; codigo: string; desconto_pct: number }
-type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; img_url: string }
+type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; brl_price?: number | null; img_url: string }
 type PageState = 'checking' | 'confirm' | 'form' | 'pix'
 
 const emptyGuest: GuestForm = {
@@ -187,7 +187,7 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
               {p.img_url && <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'cover' }} />}
             </div>
             <p style={{ fontSize: 11, color: '#0a0a0a', margin: 0, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{p.name}</p>
-            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price, brlRate)}</p>
+            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>R$ {(p.brl_price ?? p.usd_price * brlRate).toFixed(2).replace('.', ',')}</p>
             <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, color: '#420E76', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
               + adicionar
             </button>
