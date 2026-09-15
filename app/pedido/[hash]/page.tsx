@@ -6,8 +6,8 @@ import PrintButton from './PrintButton'
 
 export const dynamic = 'force-dynamic'
 
-type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; categoriaNome: string }
-type OrderItemRaw = { product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categoria_id: string | null } | null }
+type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null; categoriaNome: string }
+type OrderItemRaw = { product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null; products: { categoria_id: string | null } | null }
 type Customer = { nome: string; cpf: string; email: string; telefone: string; cidade: string; uf: string }
 
 export default async function PedidoCopia({ params }: { params: Promise<{ hash: string }> }) {
@@ -21,7 +21,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
   const [{ data: customer }, { data: items }, config] = await Promise.all([
     supabaseAdmin.from('customers').select('nome, cpf, email, telefone, cidade, uf').eq('id', order.customer_id).single(),
-    supabaseAdmin.from('order_items').select('product_id, product_name, product_brand, unit_usd, quantity, subtotal_usd, products(categoria_id)').eq('order_id', order.id),
+    supabaseAdmin.from('order_items').select('product_id, product_name, product_brand, unit_usd, unit_brl, quantity, subtotal_usd, subtotal_brl, products(categoria_id)').eq('order_id', order.id),
     getConfig(),
   ])
 
@@ -37,11 +37,14 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
     ;(cats || []).forEach(cat => catMap.set(cat.id, cat.nome))
   }
   const xs: OrderItem[] = raw.map(i => ({
-    product_name: i.product_name, product_brand: i.product_brand, unit_usd: i.unit_usd,
-    quantity: i.quantity, subtotal_usd: i.subtotal_usd,
+    product_name: i.product_name, product_brand: i.product_brand, unit_usd: i.unit_usd, unit_brl: i.unit_brl,
+    quantity: i.quantity, subtotal_usd: i.subtotal_usd, subtotal_brl: i.subtotal_brl,
     categoriaNome: (i.products?.categoria_id && catMap.get(i.products.categoria_id)) || 'Outros',
   }))
   const totalBRL = order.total_brl || order.total_usd * config.brl_rate
+  // Pedidos antigos não têm unit_brl/subtotal_brl por item — taxa do próprio pedido
+  // reconstrói o BRL de cada linha pra elas somarem exatamente o total.
+  const taxaDoPedido = order.total_usd > 0 ? totalBRL / order.total_usd : config.brl_rate
   const dt = new Date(order.created_at).toLocaleString('pt-BR')
 
   return (
@@ -96,8 +99,8 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
             <tr>
               <th>Produto</th>
               <th className="right">Qtd</th>
-              <th className="right">Unit. (USD)</th>
-              <th className="right">Subtotal (USD)</th>
+              <th className="right">Unit. (R$)</th>
+              <th className="right">Subtotal (R$)</th>
             </tr>
           </thead>
           <tbody>
@@ -120,8 +123,8 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                         {it.product_brand && <div className="muted">{it.product_brand}</div>}
                       </td>
                       <td className="right">{it.quantity}</td>
-                      <td className="right">${it.unit_usd.toFixed(2)}</td>
-                      <td className="right">${it.subtotal_usd.toFixed(2)}</td>
+                      <td className="right">R$ {(it.unit_brl ?? it.unit_usd * taxaDoPedido).toFixed(2).replace('.', ',')}</td>
+                      <td className="right">R$ {(it.subtotal_brl ?? it.subtotal_usd * taxaDoPedido).toFixed(2).replace('.', ',')}</td>
                     </tr>
                   ))}
                 </Fragment>

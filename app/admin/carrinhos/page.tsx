@@ -1,13 +1,16 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { BRL_RATE_FALLBACK } from '@/lib/site'
 
 type Session = {
   id: string; nome: string | null; telefone: string | null; email: string | null
   itens: { name: string; qty: number; usd: number }[] | null
-  total_usd: number | null; contatado: boolean; created_at: string
+  total_usd: number | null; total_brl: number | null; contatado: boolean; created_at: string
 }
 
-const fmt = (n: number) => `USD ${n.toFixed(2)}`
+const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
+// Carrinhos antigos não têm total_brl — cai pro total_usd × taxa atual.
+const totalBrlDe = (s: Session, brlRate: number) => s.total_brl ?? (s.total_usd || 0) * brlRate
 const elapsed = (d: string) => {
   const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000)
   if (s < 60) return `${s}s atrás`
@@ -20,6 +23,7 @@ export default function Carrinhos() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'todos' | 'hoje' | '7d'>('hoje')
+  const [brlRate, setBrlRate] = useState(BRL_RATE_FALLBACK)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -29,6 +33,11 @@ export default function Carrinhos() {
   }, [])
 
   useEffect(() => { queueMicrotask(() => load()) }, [load])
+  useEffect(() => {
+    fetch('/api/config/loja').then(r => r.json()).then((d: { brl_rate?: number }) => {
+      if (typeof d?.brl_rate === 'number' && d.brl_rate > 0) setBrlRate(d.brl_rate)
+    }).catch(() => {})
+  }, [])
 
   const marcarContatado = async (id: string, val: boolean) => {
     await fetch(`/api/admin/carrinhos/${id}`, {
@@ -41,7 +50,7 @@ export default function Carrinhos() {
 
   const waLink = (s: Session) => {
     const itensText = (s.itens || []).map(i => `• ${i.name} ×${i.qty}`).join('\n')
-    const msg = `Olá${s.nome ? ` ${s.nome.split(' ')[0]}` : ''}! Vi que você montou um carrinho conosco mas não finalizou.\n\n${itensText}\n\nTotal: ${fmt(s.total_usd || 0)}\n\nPosso ajudar a concluir seu pedido? 😊`
+    const msg = `Olá${s.nome ? ` ${s.nome.split(' ')[0]}` : ''}! Vi que você montou um carrinho conosco mas não finalizou.\n\n${itensText}\n\nTotal: ${fmt(totalBrlDe(s, brlRate))}\n\nPosso ajudar a concluir seu pedido? 😊`
     return `https://wa.me/${(s.telefone || '').replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`
   }
 
@@ -125,7 +134,7 @@ export default function Carrinhos() {
                   </div>
                 </td>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, color: '#A965ED' }}>
-                  {s.total_usd ? fmt(s.total_usd) : '—'}
+                  {(s.total_brl || s.total_usd) ? fmt(totalBrlDe(s, brlRate)) : '—'}
                 </td>
                 <td style={{ padding: '12px 18px', fontSize: 11, color: 'var(--a-text3)', whiteSpace: 'nowrap' }}>
                   {elapsed(s.created_at)}
@@ -184,7 +193,7 @@ export default function Carrinhos() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--a-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#A965ED' }}>{s.total_usd ? fmt(s.total_usd) : '—'}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#A965ED' }}>{(s.total_brl || s.total_usd) ? fmt(totalBrlDe(s, brlRate)) : '—'}</span>
                 {s.contatado
                   ? <span style={{ fontSize: 10, fontWeight: 700, color: '#A965ED', background: 'rgba(169, 101, 237,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(169, 101, 237,0.2)' }}>Contatado</span>
                   : <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(245,158,11,0.2)' }}>Pendente</span>

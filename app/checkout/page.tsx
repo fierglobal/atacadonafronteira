@@ -454,7 +454,7 @@ export default function Checkout() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nome: data.nome, telefone: data.telefone.replace(/\D/g, ''), email: data.email,
-          itens: snapshotItens.map(i => ({ name: i.name, qty: i.quantity, usd: i.usd })),
+          itens: snapshotItens.map(i => ({ id: i.id, name: i.name, qty: i.quantity, usd: i.usd })),
           total_usd: snapshotTotal,
         }),
       })

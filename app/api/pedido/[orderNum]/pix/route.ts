@@ -19,7 +19,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ orderNum
 
   const [{ data: customer }, { data: items }, config] = await Promise.all([
     supabaseAdmin.from('customers').select('nome, telefone').eq('id', order.customer_id).single(),
-    supabaseAdmin.from('order_items').select('product_name, quantity, unit_usd, subtotal_usd').eq('order_id', order.id),
+    supabaseAdmin.from('order_items').select('product_name, quantity, unit_usd, subtotal_usd, unit_brl, subtotal_brl').eq('order_id', order.id),
     getConfig(),
   ])
 

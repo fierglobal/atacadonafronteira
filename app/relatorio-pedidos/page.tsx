@@ -14,7 +14,7 @@ const STATUS_LABEL: Record<string, string> = {
   cancelado: 'Cancelado',
 }
 
-type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number }
+type OrderItem = { product_name: string; product_brand: string | null; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null }
 type OrderRow = {
   id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string
   customers: { nome: string } | null
@@ -28,7 +28,7 @@ export default async function RelatorioPedidos({ searchParams }: { searchParams:
 
   const { data } = await supabaseAdmin
     .from('orders')
-    .select('id, order_num, status, total_brl, total_usd, created_at, customers(nome), order_items(product_name, product_brand, unit_usd, quantity, subtotal_usd)')
+    .select('id, order_num, status, total_brl, total_usd, created_at, customers(nome), order_items(product_name, product_brand, unit_usd, unit_brl, quantity, subtotal_usd, subtotal_brl)')
     .in('id', idList)
     .order('created_at', { ascending: true })
 
@@ -125,8 +125,8 @@ export default async function RelatorioPedidos({ searchParams }: { searchParams:
                         {it.product_brand && <div className="muted">{it.product_brand}</div>}
                       </td>
                       <td style={{ textAlign: 'right' }}>{it.quantity}</td>
-                      <td style={{ textAlign: 'right' }}>{brl(it.unit_usd * taxa)}</td>
-                      <td style={{ textAlign: 'right' }}>{brl(it.subtotal_usd * taxa)}</td>
+                      <td style={{ textAlign: 'right' }}>{brl(it.unit_brl ?? it.unit_usd * taxa)}</td>
+                      <td style={{ textAlign: 'right' }}>{brl(it.subtotal_brl ?? it.subtotal_usd * taxa)}</td>
                     </tr>
                   ))}
                 </Fragment>

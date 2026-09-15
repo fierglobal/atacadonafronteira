@@ -29,7 +29,7 @@ type Order = {
   entrega_endereco?: string | null
   codigo_rastreio?: string | null
   customers: { nome: string; cpf: string; telefone: string; email: string; endereco: string; numero: string; bairro: string; cidade: string; uf: string; cep: string } | null
-  order_items: { product_name: string; product_brand: string; unit_usd: number; quantity: number; subtotal_usd: number; products: { img_url: string | null; categorias: { nome: string } | null } | null }[]
+  order_items: { product_name: string; product_brand: string; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null; products: { img_url: string | null; categorias: { nome: string } | null } | null }[]
 }
 type TimelineItem =
   | { tipo: 'status'; status: string; created_at: string }
@@ -122,6 +122,9 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
   const st = STATUSES.find(s => s.value === order.status)
   const frete = Number(order.frete_brl || 0)
   const seguro = Number(order.seguro_brl || 0)
+  // Pedidos antigos não têm unit_brl/subtotal_brl por item — taxa do próprio
+  // pedido reconstrói o BRL de cada linha pra elas somarem exatamente o total.
+  const taxaDoPedido = order.total_usd > 0 ? order.total_brl / order.total_usd : 0
 
   return (
     <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
@@ -314,9 +317,9 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
                             )}
                             {estoqueLabel && <span style={{ fontSize: 9, fontWeight: 700, color: estoqueColor }}>{estoqueLabel} em estoque</span>}
                           </div>
-                          <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--a-text3)' }}>{item.quantity}x · USD {item.unit_usd.toFixed(2)}/un</p>
+                          <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--a-text3)' }}>{item.quantity}x · {fmt(item.unit_brl ?? item.unit_usd * taxaDoPedido)}/un</p>
                         </div>
-                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>USD {item.subtotal_usd.toFixed(2)}</p>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>{fmt(item.subtotal_brl ?? item.subtotal_usd * taxaDoPedido)}</p>
                       </div>
                     )
                   })}

@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   const { data: abandonos } = await supabaseAdmin
     .from('cart_sessions')
-    .select('id, nome, telefone, email, itens, total_usd, created_at, contatado, convertido')
+    .select('id, nome, telefone, email, itens, total_usd, total_brl, created_at, contatado, convertido')
     .lt('created_at', cutoff)
     .gt('created_at', recentLimit)
     .is('convertido', null)
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     const itensArr = Array.isArray(cart.itens) ? cart.itens : []
     const linhas = itensArr.slice(0, 5).map((i: { name?: string; qty?: number }) =>
       `<tr><td style="padding:6px 0;font-size:13px;color:#555">${i.name || ''} ×${i.qty || 1}</td></tr>`).join('')
-    const totalBrl = (cart.total_usd || 0) * config.brl_rate
+    const totalBrl = cart.total_brl ?? (cart.total_usd || 0) * config.brl_rate
 
     if (cart.email) {
       const html = config.recovery_template || `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#0a0a0a;font-family:Arial,sans-serif">
