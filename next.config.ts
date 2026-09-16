@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "assets.olaclick.app" },
       { protocol: "https", hostname: "xjmapfpfgwoivlsalltb.supabase.co" },
       { protocol: "https", hostname: "flagcdn.com" },
+      { protocol: "https", hostname: "img.expressoparaguai.com" },
     ],
     minimumCacheTTL: 31536000,
     formats: ['image/avif', 'image/webp'],
