@@ -262,16 +262,16 @@ export default function Pedidos() {
                 <div onClick={() => setSelecionados(prev => paginados.length > 0 && paginados.every(p => prev.has(p.id)) ? new Set() : new Set(paginados.map(p => p.id)))}
                   style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
               </th>
-              {['Pedido', 'Cliente', 'Telefone', 'Origem', 'Total', 'Status', 'Data', ''].map(h => (
+              {['Pedido', 'Cliente', 'Telefone', 'Origem', 'Total', 'Status', 'Comprovante', 'Data', ''].map(h => (
                 <th key={h} style={{ padding: '11px 18px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</td></tr>
+              <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)' }}>Carregando...</td></tr>
             ) : paginados.length === 0 ? (
-              <tr><td colSpan={9} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</td></tr>
+              <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</td></tr>
             ) : paginados.map(o => (
               <tr key={o.id} style={{ borderBottom: '1px solid var(--a-surface)', cursor: 'pointer', background: selecionados.has(o.id) ? 'rgba(169, 101, 237,0.05)' : 'transparent', transition: 'background 0.1s' }}
                 onMouseEnter={e => { if (!selecionados.has(o.id)) e.currentTarget.style.background = 'var(--a-border)' }}
@@ -300,6 +300,13 @@ export default function Pedidos() {
                       </div>
                     )}
                   </div>
+                </td>
+                <td style={{ padding: '12px 18px' }}>
+                  {o.comprovante_url ? (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', background: '#16a34a15', padding: '3px 8px', borderRadius: 4, border: '1px solid #16a34a30', whiteSpace: 'nowrap' }}>✓ Anexado</span>
+                  ) : (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', background: '#ef444415', padding: '3px 8px', borderRadius: 4, border: '1px solid #ef444430', whiteSpace: 'nowrap' }}>Sem comprovante</span>
+                  )}
                 </td>
                 <td style={{ padding: '12px 18px', fontSize: 11, color: 'var(--a-text3)' }}>{new Date(o.created_at).toLocaleDateString('pt-BR')} {new Date(o.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</td>
                 <td style={{ padding: '12px 18px' }}>
@@ -342,6 +349,11 @@ export default function Pedidos() {
                 <span style={{ fontSize: 10, fontWeight: 700, color: sc(o.status), background: `${sc(o.status)}15`, padding: '3px 8px', borderRadius: 4, border: `1px solid ${sc(o.status)}30`, whiteSpace: 'nowrap' as const }}>
                   {sl(o.status)}
                 </span>
+                {o.comprovante_url ? (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#16a34a', background: '#16a34a15', padding: '3px 8px', borderRadius: 4, border: '1px solid #16a34a30', whiteSpace: 'nowrap' as const }}>✓ Anexado</span>
+                ) : (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', background: '#ef444415', padding: '3px 8px', borderRadius: 4, border: '1px solid #ef444430', whiteSpace: 'nowrap' as const }}>Sem comprovante</span>
+                )}
                 {(o.tags || []).map(tag => (
                   <span key={tag} style={{ fontSize: 9, fontWeight: 700, color: TAG_COLORS[tag] || '#888', background: `${TAG_COLORS[tag] || '#888'}15`, padding: '2px 6px', borderRadius: 99, border: `1px solid ${TAG_COLORS[tag] || '#888'}30` }}>
                     {tag}
