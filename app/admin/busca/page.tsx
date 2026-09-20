@@ -18,7 +18,7 @@ type BuscaOrder = {
   total_brl?: number; status: string; created_at: string
 }
 type BuscaCustomer = { id: string; nome?: string; telefone?: string; email?: string }
-type BuscaProduct = { id: string; name: string; brand?: string; usd_price?: number; estoque: number | null; ativo: boolean }
+type BuscaProduct = { id: string; name: string; brand?: string; brl_price?: number; estoque: number | null; ativo: boolean }
 type BuscaResults = { orders: BuscaOrder[]; customers: BuscaCustomer[]; products: BuscaProduct[] }
 
 function BuscaConteudo() {
