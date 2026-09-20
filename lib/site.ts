@@ -38,5 +38,13 @@ export const MARCAS_VITRINE = ['APPLE', 'XIAOMI', 'JBL']
 
 // Badge 'sob encomenda' (iPhone 17 EUA, 29/08/2026): mesmo texto na PDP e no
 // checkout, então mora num só lugar em vez de duplicado nos dois arquivos.
+//
+// Sem data fixa aqui de propósito (mudado em 15/09/2026): a migração de moeda
+// expôs que já existem, ao mesmo tempo, produtos "sob encomenda" com datas
+// reais diferentes — iPhone 17 e 17 Pro Max com retirada 10/10, iPhone 18 Pro
+// (todas as variantes) e Watch Ultra 4 ainda em 30/09. Uma data única aqui
+// sempre vai estar errada pra algum desses produtos. A data certa de cada um
+// já está mantida em products.descricao/descricao_curta pelo time de Catálogo
+// — este texto só aponta pra lá em vez de tentar duplicar a data.
 export const SOB_ENCOMENDA_BADGE = 'sob encomenda'
-export const SOB_ENCOMENDA_TEXTO = 'Sob encomenda: retirada em Ciudad del Este ou envio a partir de 30/09.'
+export const SOB_ENCOMENDA_TEXTO = 'Sob encomenda: retirada em Ciudad del Este ou envio para todo o Brasil — prazo varia por remessa, confira a data exata na página do produto.'

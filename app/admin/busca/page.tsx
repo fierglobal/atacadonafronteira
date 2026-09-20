@@ -106,7 +106,9 @@ function BuscaConteudo() {
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--a-text)', flex: 1, minWidth: 160 }}>{p.name}</span>
                     <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>{p.brand}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>USD {p.usd_price?.toFixed(2)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>
+                      {p.brl_price != null ? `R$ ${p.brl_price.toFixed(2).replace('.', ',')}` : '—'}
+                    </span>
                     {p.estoque !== null && (
                       <span style={{ fontSize: 10, color: p.estoque === 0 ? '#ef4444' : p.estoque <= 5 ? '#f59e0b' : '#A965ED', fontWeight: 700 }}>{p.estoque} un.</span>
                     )}
