@@ -29,7 +29,7 @@ export default function FreteZonas() {
     setZonas(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => { queueMicrotask(() => load()) }, [])
 
   const abrirNova = () => {
     setEditId(null)

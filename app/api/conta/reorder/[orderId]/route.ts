@@ -20,11 +20,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ orderId
     .from('orders').select('id, order_num, user_id').eq('id', orderId).single()
   if (!order || order.user_id !== user.id) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
+  type OrderItemRow = {
+    product_name: string; product_brand: string | null; unit_usd: number; quantity: number
+    products: { brl_price: number | null } | null
+  }
   const { data } = await supabaseAdmin
     .from('order_items')
     .select('product_name, product_brand, unit_usd, quantity, products(brl_price)')
     .eq('order_id', orderId)
-  const items = (data || []) as any[]
+    .returns<OrderItemRow[]>()
+  const items = data || []
 
   // Repreça pelo catálogo atual (products.brl_price), não pelo valor histórico do
   // pedido — só cai pro unit_usd salvo se o produto sumiu ou ainda não tem brl_price.

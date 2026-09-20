@@ -48,7 +48,7 @@ export function CarrinhoSidebar() {
   }, [sidebarAberto, itens])
 
   useEffect(() => {
-    if (!sidebarAberto || itens.length === 0) { setTiersByProduct({}); return }
+    if (!sidebarAberto || itens.length === 0) { queueMicrotask(() => setTiersByProduct({})); return }
     const productIds = itens.map(i => i.id).filter(Boolean)
     if (!productIds.length) return
     fetch('/api/cart/tiers', {

@@ -4,7 +4,7 @@ import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
 import { listarCategoriasSeo } from '@/lib/categorias'
-import { SITE_URL, SITE_NAME } from '@/lib/site'
+import { SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
 

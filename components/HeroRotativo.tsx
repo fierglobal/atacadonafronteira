@@ -112,10 +112,10 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <div className="hero-stat-div" />
             <div className="hero-stat"><span className="hero-stat-num">Brasil</span><span className="hero-stat-label">retirada ou envio</span></div>
           </div>
-          <a href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
+          <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
             Ver catálogo completo
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </a>
+          </Link>
         </div>
 
         {eletronico?.img_url && (

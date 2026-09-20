@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
@@ -195,12 +196,12 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       {/* Porta de entrada pro catálogo completo — busca, filtro de categoria/
           marca/preço e paginação vivem em /produtos, não aqui. */}
       <section style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 24px 80px', textAlign: 'center' }}>
-        <a href="/produtos" className="catalogo-cta"
+        <Link href="/produtos" className="catalogo-cta"
           style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 32px', borderRadius: 12, background: '#420E76', color: '#ffffff', fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: '0.02em', boxShadow: '0 6px 18px rgba(66, 14, 118,0.18)', transition: 'transform 0.15s, box-shadow 0.15s' }}>
           Ver catálogo completo
           {initial && <span style={{ opacity: 0.75, fontWeight: 600 }}>({initial.total} produtos)</span>}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        </Link>
       </section>
 
       {/* WhatsApp FAB */}
@@ -250,7 +251,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           <div>
             <h4 style={{ color: '#ffffff', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', marginBottom: 18 }}>NAVEGAÇÃO</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <li><a href="/produtos" className="footer-brand-link" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>Catálogo</a></li>
+              <li><Link href="/produtos" className="footer-brand-link" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>Catálogo</Link></li>
               <li><a href="/conta/login" className="footer-brand-link" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>Minha Conta</a></li>
               <li><a href="/politica-privacidade" className="footer-brand-link" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>Privacidade</a></li>
               <li><a href="/termos" className="footer-brand-link" style={{ color: '#737373', fontSize: 13, textDecoration: 'none' }}>Termos de Uso</a></li>
