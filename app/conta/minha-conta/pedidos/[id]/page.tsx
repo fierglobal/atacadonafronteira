@@ -15,7 +15,7 @@ type Order = {
   notas: string | null; comprovante_url: string | null; nome_retirador: string | null
   entrega_tipo: string | null; entrega_endereco: string | null
   frete_brl: number | null; seguro_brl: number | null; seguro_recusado: boolean | null
-  codigo_rastreio: string | null
+  codigo_rastreio: string | null; copy_hash: string | null
   order_items: OrderItem[]
 }
 
@@ -35,7 +35,7 @@ function statusLabel(status: string, entregaTipo: EntregaTipo): string {
   return base[status] || status
 }
 
-const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
+const fmt = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 export default function PedidoDetalhe() {
   const router = useRouter()
@@ -167,6 +167,12 @@ export default function PedidoDetalhe() {
             {new Date(order.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
           </p>
         </div>
+        {order.copy_hash && (
+          <a href={`/pedido/${order.copy_hash}`} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#404040', padding: '8px 16px', fontSize: 12, fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
+            🖨️ Imprimir Pedido
+          </a>
+        )}
         <button onClick={reorder} disabled={reordering}
           style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 8, color: '#420E76', padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0 }}>
           {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}

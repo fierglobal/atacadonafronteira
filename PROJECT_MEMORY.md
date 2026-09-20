@@ -289,3 +289,6 @@
 
 <!-- session 2026-09-20 17:21 -->
 <!-- arquivos: app/api/checkout/route.ts,app/checkout/page.tsx,app/conta/minha-conta/pedidos/[id]/page.tsx,app/conta/minha-conta/pedidos/page.tsx,app/pedido/[hash]/page.tsx,app/pix/[orderNum]/page.tsx,app/produtos/[id]/page.tsx,components/CarrinhoSidebar.tsx,components/CategoriaProductCard.tsx,components/EntregaSeguro.tsx -->
+
+<!-- session 2026-09-20 19:03 -->
+<!-- arquivos: app/conta/minha-conta/pedidos/[id]/page.tsx -->
