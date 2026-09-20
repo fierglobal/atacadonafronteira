@@ -286,3 +286,6 @@
 
 <!-- session 2026-09-16 10:25 -->
 <!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->
+
+<!-- session 2026-09-20 17:21 -->
+<!-- arquivos: app/api/checkout/route.ts,app/checkout/page.tsx,app/conta/minha-conta/pedidos/[id]/page.tsx,app/conta/minha-conta/pedidos/page.tsx,app/pedido/[hash]/page.tsx,app/pix/[orderNum]/page.tsx,app/produtos/[id]/page.tsx,components/CarrinhoSidebar.tsx,components/CategoriaProductCard.tsx,components/EntregaSeguro.tsx -->

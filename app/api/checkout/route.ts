@@ -6,7 +6,8 @@ import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
 import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
-import { calcularEntrega, ehEntregaTipo, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { priceForQty, type Tier } from '@/lib/tier'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
 type Form = {
@@ -16,7 +17,6 @@ type Form = {
   entrega_tipo?: EntregaTipo
   entrega_endereco?: string
   entrega_cep?: string
-  seguro_recusado?: boolean
   utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
   honeypot?: string
 }
@@ -55,13 +55,21 @@ export async function POST(req: Request) {
   }
 
   const productIds = itens.map(i => i.id).filter(Boolean) as string[]
-  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null }[] = []
+  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null; categoria_id: string | null }[] = []
+  let tiersRows: { product_id: string; qty_min: number; qty_max: number | null; brl_price: number }[] = []
   if (productIds.length) {
-    const { data } = await supabaseAdmin
-      .from('products')
-      .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price')
-      .in('id', productIds)
+    const [{ data }, { data: tData }] = await Promise.all([
+      supabaseAdmin
+        .from('products')
+        .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price, categoria_id')
+        .in('id', productIds),
+      supabaseAdmin
+        .from('product_price_tiers')
+        .select('product_id, qty_min, qty_max, brl_price')
+        .in('product_id', productIds),
+    ])
     prods = data || []
+    tiersRows = (tData || []).map(t => ({ ...t, brl_price: Number(t.brl_price) }))
     const now = new Date()
     const indisponiveis: string[] = []
     for (const it of itens) {
@@ -80,11 +88,19 @@ export async function POST(req: Request) {
   }
 
   // BRL é a fonte principal do preço (products.brl_price); USD é calculado a partir
-  // do BRL só como referência de câmbio, nunca o contrário.
+  // do BRL só como referência de câmbio, nunca o contrário. O preço por unidade
+  // respeita o tier de volume (product_price_tiers) — sem isso, um pedido de 100
+  // caixas pagava o preço cheio mostrado só pra 1 unidade.
   const brlById = new Map(prods.map(p => [p.id, p.brl_price != null ? Number(p.brl_price) : null]))
+  const tiersById = new Map<string, Tier[]>()
+  for (const t of tiersRows) {
+    const arr = tiersById.get(t.product_id) || []
+    arr.push({ qty_min: t.qty_min, qty_max: t.qty_max, brl_price: t.brl_price })
+    tiersById.set(t.product_id, arr)
+  }
   const itensBrl = itens.map(i => {
     const brlPrice = i.id ? brlById.get(i.id) : undefined
-    const unitBrl = brlPrice != null ? brlPrice : +(i.usd * config.brl_rate).toFixed(2)
+    const unitBrl = brlPrice != null ? priceForQty(i.quantity, brlPrice, i.id ? tiersById.get(i.id) : undefined) : +(i.usd * config.brl_rate).toFixed(2)
     return { ...i, unitBrl, subtotalBrl: +(unitBrl * i.quantity).toFixed(2) }
   })
 
@@ -122,45 +138,36 @@ export async function POST(req: Request) {
   }
 
   const entregaTipo: EntregaTipo = ehEntregaTipo(form.entrega_tipo) ? form.entrega_tipo : 'retirada_cde'
-  if (entregaTipo === 'envio_brasil' && !(form.entrega_endereco || '').trim()) {
-    return NextResponse.json({ error: 'Informe o endereço completo para o envio.' }, { status: 400 })
+  if (entregaTipo === 'envio_brasil' && !/\d/.test(form.entrega_endereco || '')) {
+    return NextResponse.json({ error: 'Informe o endereço completo, incluindo o número, para o envio.' }, { status: 400 })
   }
   const entregaCep = onlyDigits(form.entrega_cep)
   if (entregaTipo === 'envio_brasil' && entregaCep.length !== 8) {
     return NextResponse.json({ error: 'Informe um CEP válido (8 dígitos) para o envio.' }, { status: 400 })
   }
 
-  let zonaEnvio: { nome: string; prazoDiasUteis: number } | null = null
-  if (entregaTipo === 'envio_brasil') {
-    const { data: zonas } = await supabaseAdmin
-      .from('frete_zonas')
-      .select('nome, cep_inicio, cep_fim, prazo_dias_uteis, ativo, ordem')
-    zonaEnvio = resolverZonaFrete(entregaCep, (zonas || []).map(z => ({
-      nome: z.nome, cepInicio: z.cep_inicio, cepFim: z.cep_fim, prazoDiasUteis: z.prazo_dias_uteis, ativo: z.ativo, ordem: z.ordem,
-    })))
-  }
-
-  // Frete e seguro NUNCA vêm do navegador. A tela mostra um número; aqui ele é
-  // refeito a partir da categoria real de cada produto no banco. Se divergir, vale
-  // este — é o mesmo motivo de o total do pedido não poder nascer do client.
-  const [eletronicosIds, farmaciaIds, { data: prodsCat }] = await Promise.all([
-    idsEletronicos(),
-    idsFarmacia(),
-    supabaseAdmin.from('products').select('id, categoria_id').in('id', productIds.length ? productIds : ['00000000-0000-0000-0000-000000000000']),
-  ])
-  const catDe = new Map((prodsCat || []).map(p => [p.id as string, p.categoria_id as string | null]))
+  // Frete NUNCA vem do navegador. A tela mostra um número; aqui ele é refeito a
+  // partir da categoria real e do preço com tier já aplicado de cada produto no
+  // banco — é o mesmo motivo de o total do pedido não poder nascer do client.
+  // Envio para o Brasil não depende mais de zona/CEP: despacho único em até 48h
+  // úteis via Shopee, frete = % do valor da compra, seguro sempre incluso — de
+  // qual base (Foz/SP/Recife/Goiânia) o pedido sai é decisão interna, tomada
+  // depois no admin a partir do endereço salvo.
+  const catDe = new Map(prods.map(p => [p.id, p.categoria_id]))
+  const [eletronicosIds, farmaciaIds] = await Promise.all([idsEletronicos(), idsFarmacia()])
   const cotacao = calcularEntrega(
-    itens.map(i => ({
+    itensBrl.map(i => ({
       quantity: i.quantity,
       eletronico: eletronicosIds.has(catDe.get(i.id || '') || ''),
       farmacia: farmaciaIds.has(catDe.get(i.id || '') || ''),
+      subtotalBRL: i.subtotalBrl,
     })),
     entregaTipo,
-    form.seguro_recusado === true,
+    totalBrl,
   )
   const freteBrl = cotacao.frete
-  const seguroBrl = cotacao.seguro
-  totalBrl = +(totalBrl + freteBrl + seguroBrl).toFixed(2)
+  const seguroBrl = 0
+  totalBrl = +(totalBrl + freteBrl).toFixed(2)
   const totalUsd = +(totalBrl / config.brl_rate).toFixed(2)
 
   const orderNum = `AF${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
@@ -190,11 +197,11 @@ export async function POST(req: Request) {
     entrega_tipo: entregaTipo,
     entrega_endereco: entregaTipo === 'envio_brasil' ? form.entrega_endereco!.trim() : null,
     entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : null,
-    frete_zona_nome: zonaEnvio?.nome ?? null,
-    frete_prazo_dias: zonaEnvio?.prazoDiasUteis ?? null,
+    frete_zona_nome: null,
+    frete_prazo_dias: null,
     frete_brl: freteBrl,
     seguro_brl: seguroBrl,
-    seguro_recusado: cotacao.seguroDisponivel ? form.seguro_recusado === true : false,
+    seguro_recusado: false,
     tipo_pessoa: form.tipo_pessoa || 'PF',
     cnpj: form.tipo_pessoa === 'PJ' ? (form.cnpj || null) : null,
     razao_social: form.tipo_pessoa === 'PJ' ? (form.razao_social || null) : null,

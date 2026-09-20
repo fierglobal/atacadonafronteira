@@ -14,7 +14,7 @@ import { gerarPixPayload, PIX_KEY_FALLBACK, PIX_HOLDER_FALLBACK } from '@/lib/pi
 
 const WHATSAPP = WHATSAPP_NUMBER
 
-const fmtBRL = (usd: number, rate: number) => `R$ ${(usd * rate).toFixed(2).replace('.', ',')}`
+const fmtBRL = (usd: number, rate: number) => `R$ ${(usd * rate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 const maskCPF = (v: string) => {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -163,8 +163,8 @@ function AovBar({ totalBRL, pedidoMinimo }: { totalBRL: number; pedidoMinimo: nu
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, fontSize: 12 }}>
         <span style={{ color: cor, fontWeight: 700 }}>
           {atingiu
-            ? `✓ Pedido mínimo atingido (R$ ${pedidoMinimo.toFixed(2).replace('.', ',')})`
-            : `Faltam R$ ${faltam.toFixed(2).replace('.', ',')} pra atingir o pedido mínimo de R$ ${pedidoMinimo.toFixed(2).replace('.', ',')}`}
+            ? `✓ Pedido mínimo atingido (R$ ${pedidoMinimo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
+            : `Faltam R$ ${faltam.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pra atingir o pedido mínimo de R$ ${pedidoMinimo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </span>
       </div>
       <div style={{ width: '100%', height: 4, background: '#ececec', borderRadius: 4, overflow: 'hidden' }}>
@@ -187,12 +187,111 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
               {p.img_url && <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'cover' }} />}
             </div>
             <p style={{ fontSize: 11, color: '#0a0a0a', margin: 0, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{p.name}</p>
-            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>R$ {(p.brl_price ?? p.usd_price * brlRate).toFixed(2).replace('.', ',')}</p>
+            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>R$ {(p.brl_price ?? p.usd_price * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, color: '#420E76', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
               + adicionar
             </button>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function CheckoutSummary({
+  className, itens, brlRate, temSobEncomenda,
+  cupons, cupomCodigo, setCupomCodigo, aplicarCupom, removerCupom, cupomLoading, cupomErr,
+  totalBRLStr, descontoBRL, cupomDescontoPct,
+  cotacoes, entregaTipo, onEntregaTipo, entregaEndereco, onEntregaEndereco, entregaCep, onEntregaCep,
+  totalFinalStr,
+}: {
+  className: string
+  itens: CartItem[]
+  brlRate: number
+  temSobEncomenda: boolean
+  cupons: CupomAplicado[]
+  cupomCodigo: string
+  setCupomCodigo: (v: string) => void
+  aplicarCupom: () => void
+  removerCupom: (id: string) => void
+  cupomLoading: boolean
+  cupomErr: string
+  totalBRLStr: string
+  descontoBRL: number
+  cupomDescontoPct: number
+  cotacoes: Record<EntregaTipo, Cotacao> | null
+  entregaTipo: EntregaTipo
+  onEntregaTipo: (t: EntregaTipo) => void
+  entregaEndereco: string
+  onEntregaEndereco: (v: string) => void
+  entregaCep: string
+  onEntregaCep: (v: string) => void
+  totalFinalStr: string
+}) {
+  // No mobile o resumo vem antes do formulário (order: -1) — mostrar a lista de
+  // itens toda aberta empurrava o formulário 1 tela inteira pra baixo. Fechada
+  // por padrão, ela só expande com toque; total/cupom/entrega ficam sempre à vista.
+  const [itensAbertos, setItensAbertos] = useState(false)
+  const qtdTotal = itens.reduce((s, i) => s + i.quantity, 0)
+  return (
+    <div className={className} style={{ position: 'sticky', top: 80 }}>
+      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <button type="button" className="ck-summary-toggle" onClick={() => setItensAbertos(v => !v)}
+          style={{ width: '100%', padding: '16px 20px', background: '#fafafa', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#525252', letterSpacing: '0.1em' }}>
+            RESUMO DO PEDIDO · {qtdTotal} {qtdTotal === 1 ? 'ITEM' : 'ITENS'}
+          </span>
+          <svg className="ck-summary-chevron" data-open={itensAbertos} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737373" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.2s' }}>
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div className="ck-summary-items" data-open={itensAbertos} style={{ padding: '16px 20px', maxHeight: 380, overflowY: 'auto', borderTop: '1px solid #ececec' }}>
+          {itens.map((item, i) => (
+            <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'flex-start' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 6, overflow: 'hidden', position: 'relative', flexShrink: 0, background: '#fafafa' }}>
+                <Image src={item.img} alt={item.name} fill style={{ objectFit: 'cover' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
+                <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
+            </div>
+          ))}
+          {temSobEncomenda && (
+            <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
+              {SOB_ENCOMENDA_TEXTO}
+            </div>
+          )}
+        </div>
+        <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec' }}>
+          <CuponsList cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
+            aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#404040' }}>
+            <span>Subtotal</span><span>R$ {totalBRLStr}</span>
+          </div>
+          {descontoBRL > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#ef4444' }}>
+              <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+          )}
+          <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={onEntregaTipo}
+            endereco={entregaEndereco} onEndereco={onEntregaEndereco}
+            cep={entregaCep} onCep={onEntregaCep} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
+            <span style={{ color: '#0a0a0a' }}>Total</span>
+            <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
+          </div>
+          <div style={{ marginTop: 14, padding: '12px 14px', background: 'rgba(66, 14, 118,0.06)', border: '1.5px solid rgba(66, 14, 118,0.3)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#420E76', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+            </div>
+            <div>
+              <p style={{ fontSize: 12.5, fontWeight: 800, color: '#420E76', margin: 0 }}>Pagamento via PIX</p>
+              <p style={{ fontSize: 10.5, color: '#737373', margin: 0 }}>Confirmação em até 30 minutos</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -258,8 +357,6 @@ export default function Checkout() {
   const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada_cde')
   const [entregaEndereco, setEntregaEndereco] = useState('')
   const [entregaCep, setEntregaCep] = useState('')
-  const [zonaEnvio, setZonaEnvio] = useState<{ nome: string; prazoDiasUteis: number } | null>(null)
-  const [seguroRecusado, setSeguroRecusado] = useState(false)
   const [cotacoes, setCotacoes] = useState<Record<EntregaTipo, Cotacao> | null>(null)
   const [globalErr, setGlobalErr] = useState('')
   const [mounted, setMounted] = useState(false)
@@ -464,8 +561,8 @@ export default function Checkout() {
       if (cs.id) cartSessionId = cs.id
     } catch {}
 
-    if (entregaTipo === 'envio_brasil' && !entregaEndereco.trim()) {
-      setGlobalErr('Informe o endereço completo para o envio.')
+    if (entregaTipo === 'envio_brasil' && !/\d/.test(entregaEndereco)) {
+      setGlobalErr('Informe o endereço completo, incluindo o número, para o envio.')
       setSubmitting(false)
       return
     }
@@ -480,7 +577,6 @@ export default function Checkout() {
       entrega_tipo: entregaTipo,
       entrega_endereco: entregaTipo === 'envio_brasil' ? entregaEndereco.trim() : '',
       entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : '',
-      seguro_recusado: seguroRecusado,
       tipo_pessoa: form.tipo_pessoa,
       cnpj: form.tipo_pessoa === 'PJ' ? form.cnpj : '',
       razao_social: form.tipo_pessoa === 'PJ' ? form.razao_social : '',
@@ -505,8 +601,8 @@ export default function Checkout() {
         if (res.status === 409 && Array.isArray(d.indisponiveis) && d.indisponiveis.length) {
           setGlobalErr('Itens indisponíveis: ' + d.indisponiveis.join('; '))
         } else if (res.status === 422 && d.pedido_minimo) {
-          const faltam = (Number(d.pedido_minimo) - Number(d.total_atual || 0)).toFixed(2).replace('.', ',')
-          setGlobalErr(`Pedido mínimo R$ ${Number(d.pedido_minimo).toFixed(2).replace('.', ',')}. Faltam R$ ${faltam}.`)
+          const faltam = (Number(d.pedido_minimo) - Number(d.total_atual || 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          setGlobalErr(`Pedido mínimo R$ ${Number(d.pedido_minimo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. Faltam R$ ${faltam}.`)
         } else if (res.status === 403) {
           setGlobalErr('Não foi possível concluir. Tente novamente em instantes.')
         } else {
@@ -575,7 +671,7 @@ export default function Checkout() {
       `Nome: ${pixForm.nome}\nCPF: ${pixForm.cpf}\nTel: ${pixForm.telefone}\nEmail: ${pixForm.email}\n` +
       `Cidade: ${pixForm.cidade}/${pixForm.uf}\n\n` +
       `*PRODUTOS:*\n${linhas}\n\n` +
-      `*TOTAL: R$ ${(pixTotal * brlRate).toFixed(2).replace('.', ',')}*\n\n✅ PIX enviado`
+      `*TOTAL: R$ ${(pixTotal * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}*\n\n✅ PIX enviado`
     )
     window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, '_blank')
   }
@@ -611,39 +707,39 @@ export default function Checkout() {
   const lbl = { display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
-  // A tela não sabe a categoria dos produtos, e preço não se calcula no navegador:
-  // o servidor devolve as três opções já precificadas para este carrinho.
+  // A tela não sabe a categoria nem o preço com tier dos produtos: o servidor
+  // devolve as três opções já precificadas para este carrinho. Não depende mais
+  // do CEP — envio_brasil agora é sempre 48h úteis, frete em % do valor.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
-    if (!linhas.length) { queueMicrotask(() => { setCotacoes(null); setZonaEnvio(null) }); return }
+    if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }
     let vivo = true
     fetch('/api/entrega/cotacao', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itens: linhas, cep: entregaCep }),
+      body: JSON.stringify({ itens: linhas }),
     })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (!vivo) return
         if (d?.opcoes) setCotacoes(d.opcoes)
-        setZonaEnvio(d?.zonaEnvio ?? null)
       })
       .catch(() => {})
     return () => { vivo = false }
-  }, [itens, entregaCep])
+  }, [itens])
 
   const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
-  // Frete e seguro entram DEPOIS do desconto: cupom é sobre mercadoria, não sobre
-  // transporte. O servidor refaz esta mesma conta e o valor dele é o que vale.
+  // Frete entra depois do desconto: cupom é sobre mercadoria, não sobre
+  // transporte. O servidor refaz esta mesma conta (sobre o valor já descontado)
+  // e o valor dele é o que vale. Seguro sempre incluso no % do frete.
   const cotacaoAtual = cotacoes?.[entregaTipo] ?? null
   const freteBRL = cotacaoAtual ? cotacaoAtual.frete : 0
-  const seguroBRL = cotacaoAtual && !seguroRecusado ? cotacaoAtual.seguro : 0
-  const totalFinal = totalBRL - descontoBRL + freteBRL + seguroBRL
-  const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
-  const totalFinalStr = totalFinal.toFixed(2).replace('.', ',')
+  const totalFinal = totalBRL - descontoBRL + freteBRL
+  const totalBRLStr = totalBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const totalFinalStr = totalFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   // Depois do pedido criado, quem manda é o total gravado no banco.
   const pixTotalBRL = pixTotalServidor ?? (pixTotal * brlRate - pixDescontoBRL)
-  const pixTotalBRLStr = pixTotalBRL.toFixed(2).replace('.', ',')
+  const pixTotalBRLStr = pixTotalBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const pixPayloadStr = orderNum ? gerarPixPayload(pixTotalBRL, orderNum, pixKey, pixHolder) : ''
 
   const pedidoMinimo = config?.pedido_minimo_brl ?? null
@@ -852,6 +948,8 @@ export default function Checkout() {
           @media (max-width: 768px) {
             .ck-confirm-grid { grid-template-columns: 1fr !important; }
             .ck-confirm-summary { position: static !important; order: -1; }
+            .ck-summary-items[data-open="false"] { display: none; }
+            .ck-summary-chevron[data-open="true"] { transform: rotate(180deg); }
           }
         `}</style>
         <Header step={1} />
@@ -939,58 +1037,14 @@ export default function Checkout() {
           </div>
 
           {/* summary */}
-          <div className="ck-confirm-summary" style={{ position: 'sticky', top: 80 }}>
-            <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #ececec', background: '#fafafa' }}>
-                <p style={{ fontSize: 11, fontWeight: 800, color: '#525252', letterSpacing: '0.1em', margin: 0 }}>RESUMO DO PEDIDO</p>
-              </div>
-              <div style={{ padding: '16px 20px', maxHeight: 380, overflowY: 'auto' }}>
-                {itens.map((item, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'flex-start' }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 6, overflow: 'hidden', position: 'relative', flexShrink: 0, background: '#fafafa' }}>
-                      <Image src={item.img} alt={item.name} fill style={{ objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', lineHeight: 1.4 }}>{item.name}</p>
-                      <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
-                    </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
-                  </div>
-                ))}
-                {temSobEncomenda && (
-                  <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
-                    {SOB_ENCOMENDA_TEXTO}
-                  </div>
-                )}
-              </div>
-              <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec' }}>
-                <CuponsList cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
-                  aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#404040' }}>
-                  <span>Subtotal</span><span>R$ {totalBRLStr}</span>
-                </div>
-                {descontoBRL > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#ef4444' }}>
-                    <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
-                  </div>
-                )}
-                <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
-                  endereco={entregaEndereco} onEndereco={setEntregaEndereco}
-                  cep={entregaCep} onCep={setEntregaCep} zonaEnvio={zonaEnvio}
-                  seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
-                  <span style={{ color: '#0a0a0a' }}>Total</span>
-                  <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
-                </div>
-                <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                  </svg>
-                  <span style={{ fontSize: 11, color: '#420E76', fontWeight: 700 }}>Pagamento via PIX</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CheckoutSummary className="ck-confirm-summary" itens={itens} brlRate={brlRate} temSobEncomenda={temSobEncomenda}
+            cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
+            aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr}
+            totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
+            cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
+            entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
+            entregaCep={entregaCep} onEntregaCep={setEntregaCep}
+            totalFinalStr={totalFinalStr} />
         </div>
       </div>
     )
@@ -1007,6 +1061,8 @@ export default function Checkout() {
           .ck-two-col { grid-template-columns: 1fr !important; }
           .ck-cid-uf { grid-template-columns: 1fr !important; }
           .ck-guest-summary { position: static !important; order: -1; }
+          .ck-summary-items[data-open="false"] { display: none; }
+          .ck-summary-chevron[data-open="true"] { transform: rotate(180deg); }
         }
       `}</style>
       <Header step={1} />
@@ -1033,9 +1089,14 @@ export default function Checkout() {
 
           {/* trust badges */}
           <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' as const }}>
-            {[['🔒', 'Compra Segura'], ['🛡️', 'Dados Protegidos'], ['⚡', 'PIX Instantâneo']].map(([icon, text]) => (
-              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 20, fontSize: 11, color: '#404040' }}>
-                <span>{icon}</span><span>{text}</span>
+            {[
+              { icon: <><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>, text: 'Compra Segura' },
+              { icon: <><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></>, text: 'Dados Protegidos' },
+              { icon: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>, text: 'PIX Instantâneo' },
+            ].map(({ icon, text }) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 20, fontSize: 11, color: '#404040', fontWeight: 600 }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+                <span>{text}</span>
               </div>
             ))}
           </div>
@@ -1174,58 +1235,14 @@ export default function Checkout() {
         </div>
 
         {/* summary */}
-        <div className="ck-guest-summary" style={{ position: 'sticky', top: 80 }}>
-          <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #ececec', background: '#fafafa' }}>
-              <p style={{ fontSize: 11, fontWeight: 800, color: '#525252', letterSpacing: '0.1em', margin: 0 }}>RESUMO DO PEDIDO</p>
-            </div>
-            <div style={{ padding: '16px 20px', maxHeight: 380, overflowY: 'auto' }}>
-              {itens.map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, marginBottom: 14, alignItems: 'flex-start' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 6, overflow: 'hidden', position: 'relative', flexShrink: 0, background: '#fafafa' }}>
-                    <Image src={item.img} alt={item.name} fill style={{ objectFit: 'cover' }} />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: 11, color: '#0a0a0a', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
-                    <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>×{item.quantity}</p>
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#420E76', whiteSpace: 'nowrap' }}>{fmtBRL(item.usd * item.quantity, brlRate)}</span>
-                </div>
-              ))}
-              {temSobEncomenda && (
-                <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8, fontSize: 12, color: '#b45309', lineHeight: 1.5 }}>
-                  {SOB_ENCOMENDA_TEXTO}
-                </div>
-              )}
-            </div>
-            <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec' }}>
-              <CuponsList cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
-                aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#404040' }}>
-                <span>Subtotal</span><span>R$ {totalBRLStr}</span>
-              </div>
-              {descontoBRL > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: '#ef4444' }}>
-                  <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toFixed(2).replace('.', ',')}</span>
-                </div>
-              )}
-              <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
-                  endereco={entregaEndereco} onEndereco={setEntregaEndereco}
-                  cep={entregaCep} onCep={setEntregaCep} zonaEnvio={zonaEnvio}
-                  seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
-                <span style={{ color: '#0a0a0a' }}>Total</span>
-                <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
-              </div>
-              <div style={{ marginTop: 14, padding: '10px 14px', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.25)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                </svg>
-                <span style={{ fontSize: 11, color: '#420E76', fontWeight: 700 }}>Pagamento via PIX</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CheckoutSummary className="ck-guest-summary" itens={itens} brlRate={brlRate} temSobEncomenda={temSobEncomenda}
+          cupons={cupons} cupomCodigo={cupomCodigo} setCupomCodigo={setCupomCodigo}
+          aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr}
+          totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
+          cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
+          entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
+          entregaCep={entregaCep} onEntregaCep={setEntregaCep}
+          totalFinalStr={totalFinalStr} />
       </div>
     </div>
   )

@@ -4,44 +4,40 @@
 
 export type EntregaTipo = 'retirada_cde' | 'retirada_foz' | 'envio_brasil'
 
-export const FRETE_ELETRONICO_APARELHO = 150
-export const SEGURO_ELETRONICO_APARELHO = 150
-export const FRETE_SAUDE_PEDIDO = 50
-export const SEGURO_SAUDE_PEDIDO = 150
 export const FOZ_POR_UNIDADE = 50
 export const FOZ_GRATIS_A_PARTIR_DE = 20
 
-// Frete de Farmácia é por unidade, com teto fixo a partir de 101 unidades —
-// diferente do resto (FRETE_SAUDE_PEDIDO), que segue fixo por pedido pra
-// Perfumes e qualquer categoria futura sem regra própria.
-export const FRETE_FARMACIA_POR_UNIDADE = 15
-export const FRETE_FARMACIA_TETO = 1000
-export const FRETE_FARMACIA_TETO_A_PARTIR_DE = 100
+// Envio para o Brasil: despacho único em até 48h úteis pela transportadora da
+// Shopee, frete cobrado como % do valor da compra (seguro sempre incluso nesse
+// percentual — não existe mais opção de recusar seguro). De qual base física
+// (Foz/SP/Recife/Goiânia) o pedido realmente sai é decisão operacional interna,
+// tomada depois no admin — não influencia o que o cliente vê nem paga.
+export const FRETE_PCT_ELETRONICO = 0.10
+export const FRETE_PCT_PADRAO = 0.05
+export const PRAZO_ENVIO_BRASIL_HORAS = 48
 
 // Nome do departamento raiz que define a tabela cara. Mora aqui e não como UUID
 // porque o id do banco muda entre ambientes; o nome é o contrato do catálogo.
 export const DEPARTAMENTO_ELETRONICO = 'Eletrônicos'
 export const DEPARTAMENTO_FARMACIA = 'Farmácia'
 
-export type ItemEntrega = { quantity: number; eletronico: boolean; farmacia: boolean }
+export type ItemEntrega = { quantity: number; eletronico: boolean; farmacia: boolean; subtotalBRL: number }
 
 export type Cotacao = {
   frete: number
-  seguro: number
   /** true quando a tabela de eletrônico rege o pedido inteiro */
   tabelaEletronico: boolean
   /** true quando a tabela de farmácia rege o pedido (sem eletrônico junto) */
   tabelaFarmacia: boolean
-  /** seguro só existe em envio; retirada não tem transporte para segurar */
-  seguroDisponivel: boolean
   unidades: number
 }
 
-export function calcularEntrega(
-  itens: ItemEntrega[],
-  tipo: EntregaTipo,
-  seguroRecusado: boolean,
-): Cotacao {
+// subtotalParaFrete é opcional: quando informado (checkout final, depois do
+// cupom aplicado), vale ele — cupom é desconto sobre mercadoria, o frete em %
+// deve incidir sobre o que o cliente realmente paga pela mercadoria, não sobre
+// o preço cheio antes do cupom. Sem ele (cotação de preview, sem cupom ainda),
+// soma o subtotal bruto de cada item.
+export function calcularEntrega(itens: ItemEntrega[], tipo: EntregaTipo, subtotalParaFrete?: number): Cotacao {
   const unidades = itens.reduce((s, i) => s + (i.quantity || 0), 0)
   // Um único eletrônico puxa o pedido inteiro para a tabela cara — decisão do
   // dono, não inferência: eletrônico e medicamento viajam com o mesmo risco de
@@ -51,30 +47,18 @@ export function calcularEntrega(
   const tabelaFarmacia = !tabelaEletronico && itens.some(i => i.farmacia && i.quantity > 0)
 
   if (tipo === 'retirada_cde') {
-    return { frete: 0, seguro: 0, tabelaEletronico, tabelaFarmacia, seguroDisponivel: false, unidades }
+    return { frete: 0, tabelaEletronico, tabelaFarmacia, unidades }
   }
 
   if (tipo === 'retirada_foz') {
     const frete = unidades >= FOZ_GRATIS_A_PARTIR_DE ? 0 : FOZ_POR_UNIDADE * unidades
-    return { frete, seguro: 0, tabelaEletronico, tabelaFarmacia, seguroDisponivel: false, unidades }
+    return { frete, tabelaEletronico, tabelaFarmacia, unidades }
   }
 
-  const frete = tabelaEletronico
-    ? FRETE_ELETRONICO_APARELHO * unidades
-    : tabelaFarmacia
-      ? (unidades >= FRETE_FARMACIA_TETO_A_PARTIR_DE ? FRETE_FARMACIA_TETO : FRETE_FARMACIA_POR_UNIDADE * unidades)
-      : FRETE_SAUDE_PEDIDO
-  const seguroCheio = tabelaEletronico
-    ? SEGURO_ELETRONICO_APARELHO * unidades
-    : SEGURO_SAUDE_PEDIDO
-  return {
-    frete,
-    seguro: seguroRecusado ? 0 : seguroCheio,
-    tabelaEletronico,
-    tabelaFarmacia,
-    seguroDisponivel: true,
-    unidades,
-  }
+  const subtotal = subtotalParaFrete ?? itens.reduce((s, i) => s + (i.subtotalBRL || 0), 0)
+  const pct = tabelaEletronico ? FRETE_PCT_ELETRONICO : FRETE_PCT_PADRAO
+  const frete = +(subtotal * pct).toFixed(2)
+  return { frete, tabelaEletronico, tabelaFarmacia, unidades }
 }
 
 export function ehEntregaTipo(v: unknown): v is EntregaTipo {
@@ -87,9 +71,10 @@ export const ENTREGA_LABEL: Record<EntregaTipo, string> = {
   envio_brasil: 'Envio para o Brasil',
 }
 
-// Zona de frete por faixa de CEP (tabela frete_zonas). Igual ao resto deste
-// arquivo: função pura, sem acesso a banco — quem lê frete_zonas é a API
-// (client e server) e passa a lista pra cá, pra usarem a mesma regra de match.
+// Zona de frete por faixa de CEP (tabela frete_zonas). Não influencia mais o
+// frete nem o prazo mostrado ao cliente (envio_brasil agora é sempre 48h úteis
+// pra qualquer CEP) — fica só como referência interna de qual base física
+// (SP/Recife/Goiânia) está mais perto do destino, pra uso futuro no admin.
 export type ZonaFrete = {
   nome: string
   cepInicio: string | null

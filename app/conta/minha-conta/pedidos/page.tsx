@@ -17,7 +17,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_COLOR: Record<string, string> = {
   pendente_pagamento: '#f59e0b', pago: '#3b82f6', pronto_retirada: '#420E76', retirado: '#737373', cancelado: '#ef4444',
 }
-const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
+const fmt = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 export default function MeusPedidos() {
   const router = useRouter()

@@ -123,8 +123,8 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                         {it.product_brand && <div className="muted">{it.product_brand}</div>}
                       </td>
                       <td className="right">{it.quantity}</td>
-                      <td className="right">R$ {(it.unit_brl ?? it.unit_usd * taxaDoPedido).toFixed(2).replace('.', ',')}</td>
-                      <td className="right">R$ {(it.subtotal_brl ?? it.subtotal_usd * taxaDoPedido).toFixed(2).replace('.', ',')}</td>
+                      <td className="right">R$ {(it.unit_brl ?? it.unit_usd * taxaDoPedido).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="right">R$ {(it.subtotal_brl ?? it.subtotal_usd * taxaDoPedido).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </Fragment>
@@ -135,7 +135,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
         <div style={{ marginTop: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <span className="muted">Total geral</span>
-          <span className="total">R$ {totalBRL.toFixed(2).replace('.', ',')}</span>
+          <span className="total">R$ {totalBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
         <p className="muted" style={{ textAlign: 'right', margin: '4px 0 0' }}>USD ${order.total_usd.toFixed(2)} · taxa {config.brl_rate}</p>
 

@@ -35,7 +35,7 @@ export function MinimoBar() {
 
   const faltam = pedidoMinimo - totalBRL
   const pct = Math.min(100, (totalBRL / pedidoMinimo) * 100)
-  const brl = (n: number) => n.toFixed(2).replace('.', ',')
+  const brl = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
     <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 60, background: '#ffffff', borderTop: '1px solid #ececec', boxShadow: '0 -4px 20px rgba(0,0,0,0.08)' }}>

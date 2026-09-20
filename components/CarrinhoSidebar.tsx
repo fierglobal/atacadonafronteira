@@ -8,7 +8,7 @@ import { progressoTier, type Tier } from '@/lib/tier'
 const fmtCurrency = (usd: number, rate: number, code: string) => {
   const v = usd * rate
   if (code === 'PYG') return `${code} ${v.toLocaleString('es-PY', { maximumFractionDigits: 0 })}`
-  return `${code} ${v.toFixed(2).replace('.', ',')}`
+  return `${code} ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 const dec = (s: string | null) => { try { return s ? atob(s) : null } catch { return s } }
@@ -115,7 +115,7 @@ export function CarrinhoSidebar() {
               <span style={{ fontSize: 11, fontWeight: 700, color: minOk ? '#420E76' : '#b45309', letterSpacing: '0.04em' }}>
                 {minOk
                   ? '✓ Pedido mínimo atingido'
-                  : `Faltam R$ ${faltaBRL.toFixed(2).replace('.', ',')} pra atingir o pedido mínimo`}
+                  : `Faltam R$ ${faltaBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pra atingir o pedido mínimo`}
               </span>
             </div>
             <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
@@ -179,8 +179,8 @@ export function CarrinhoSidebar() {
                       <div style={{ marginTop: 8 }}>
                         <p style={{ fontSize: 10, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#420E76', margin: '0 0 4px' }}>
                           {prog.atingiu
-                            ? `✓ Melhor preço aplicado: R$ ${prog.precoAlvo.toFixed(2).replace('.', ',')}/un`
-                            : `Faltam ${prog.faltam} un. pra R$ ${prog.precoAlvo.toFixed(2).replace('.', ',')}/un`}
+                            ? `✓ Melhor preço aplicado: R$ ${prog.precoAlvo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/un`
+                            : `Faltam ${prog.faltam} un. pra R$ ${prog.precoAlvo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/un`}
                         </p>
                         <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
                           <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#A965ED', transition: 'width 0.3s' }} />
@@ -210,7 +210,7 @@ export function CarrinhoSidebar() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 11, color: '#0a0a0a', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
                       <p style={{ fontSize: 11, color: '#420E76', fontWeight: 700, margin: '2px 0 0' }}>
-                        {currency.code === 'BRL' && p.brl_price != null ? `BRL ${p.brl_price.toFixed(2).replace('.', ',')}` : fmtCurrency(p.usd_price, currency.rate, currency.code)}
+                        {currency.code === 'BRL' && p.brl_price != null ? `BRL ${p.brl_price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : fmtCurrency(p.usd_price, currency.rate, currency.code)}
                       </p>
                     </div>
                     <button onClick={() => adicionar({ id: p.id, name, usd: p.usd_price, img: p.img_url || '/produto-placeholder.svg', brand: brand || undefined })}

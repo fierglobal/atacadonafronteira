@@ -27,7 +27,7 @@ type PixData = {
   pixHolder?: string
 }
 
-const fmtBRL = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
+const fmtBRL = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 function Header() {
   const router = useRouter()
@@ -162,7 +162,7 @@ export default function PedidoPix() {
   const pixKey = data.pixKey || PIX_KEY_FALLBACK
   const pixHolder = data.pixHolder || PIX_HOLDER_FALLBACK
   const pixPayloadStr = gerarPixPayload(totalBRL, data.orderNum, pixKey, pixHolder)
-  const totalBRLStr = totalBRL.toFixed(2).replace('.', ',')
+  const totalBRLStr = totalBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   // Taxa travada quando o pedido foi fechado, não a de hoje: o total já está em
   // total_brl e as linhas precisam somar exatamente ele. Era 5.20 fixo aqui, então
   // as linhas não fechavam com o total que o cliente paga.

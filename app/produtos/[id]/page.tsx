@@ -56,7 +56,7 @@ const dec = (s: string | null) => {
 }
 
 // Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
-const fmtBRL = (n: number) => n.toFixed(2).replace('.', ',')
+const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 function renderInline(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*)/)

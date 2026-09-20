@@ -6,7 +6,7 @@ import { useCarrinho } from '@/components/CarrinhoContext'
 import { isPromo, effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 
 // Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
-const fmtBRL = (n: number) => n.toFixed(2).replace('.', ',')
+const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
   p: { id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number; badges?: string[] | null }
