@@ -69,3 +69,35 @@ export const ENTREGA_LABEL: Record<EntregaTipo, string> = {
   retirada_foz: 'Retirada em Foz do Iguaçu',
   envio_brasil: 'Envio para o Brasil',
 }
+
+// Zona de frete por faixa de CEP (tabela frete_zonas). Igual ao resto deste
+// arquivo: função pura, sem acesso a banco — quem lê frete_zonas é a API
+// (client e server) e passa a lista pra cá, pra usarem a mesma regra de match.
+export type ZonaFrete = {
+  nome: string
+  cepInicio: string | null
+  cepFim: string | null
+  prazoDiasUteis: number
+  ativo: boolean
+  ordem: number
+}
+
+// Nunca usados em produção com a tabela populada — é só rede de segurança caso
+// frete_zonas venha vazia (ambiente novo, falha de leitura etc.).
+export const ZONA_ENVIO_FALLBACK_NOME = 'Restante do Brasil'
+export const PRAZO_ENVIO_FALLBACK_DIAS = 15
+
+export function resolverZonaFrete(cepDigits: string, zonas: ZonaFrete[]): { nome: string; prazoDiasUteis: number } {
+  const cepNum = Number(cepDigits)
+  const ordenadas = [...zonas].filter(z => z.ativo).sort((a, b) => a.ordem - b.ordem)
+  for (const z of ordenadas) {
+    // cep_inicio e cep_fim nulos = zona coringa (é o caso de "Restante do
+    // Brasil"): bate com qualquer CEP, por isso ela precisa ter o maior `ordem`
+    // pra só ser alcançada depois das zonas específicas não baterem.
+    if (!z.cepInicio && !z.cepFim) return { nome: z.nome, prazoDiasUteis: z.prazoDiasUteis }
+    if (z.cepInicio && z.cepFim && cepNum >= Number(z.cepInicio) && cepNum <= Number(z.cepFim)) {
+      return { nome: z.nome, prazoDiasUteis: z.prazoDiasUteis }
+    }
+  }
+  return { nome: ZONA_ENVIO_FALLBACK_NOME, prazoDiasUteis: PRAZO_ENVIO_FALLBACK_DIAS }
+}

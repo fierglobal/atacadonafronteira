@@ -57,7 +57,7 @@ type GuestForm = {
   honeypot: string
 }
 type CupomAplicado = { id: string; codigo: string; desconto_pct: number }
-type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; img_url: string }
+type CrossSellItem = { id: string; name: string; brand: string; usd_price: number; brl_price?: number | null; img_url: string }
 type PageState = 'checking' | 'confirm' | 'form' | 'pix'
 
 const emptyGuest: GuestForm = {
@@ -187,7 +187,7 @@ function CrossSellStrip({ items, onAdd }: { items: CrossSellItem[]; onAdd: (i: C
               {p.img_url && <Image src={p.img_url} alt={p.name} fill style={{ objectFit: 'cover' }} />}
             </div>
             <p style={{ fontSize: 11, color: '#0a0a0a', margin: 0, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{p.name}</p>
-            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>{fmtBRL(p.usd_price, brlRate)}</p>
+            <p style={{ fontSize: 12, color: '#420E76', fontWeight: 800, margin: 0 }}>R$ {(p.brl_price ?? p.usd_price * brlRate).toFixed(2).replace('.', ',')}</p>
             <button onClick={() => onAdd(p)} style={{ padding: '6px 8px', background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 6, color: '#420E76', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
               + adicionar
             </button>
@@ -257,6 +257,8 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false)
   const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada_cde')
   const [entregaEndereco, setEntregaEndereco] = useState('')
+  const [entregaCep, setEntregaCep] = useState('')
+  const [zonaEnvio, setZonaEnvio] = useState<{ nome: string; prazoDiasUteis: number } | null>(null)
   const [seguroRecusado, setSeguroRecusado] = useState(false)
   const [cotacoes, setCotacoes] = useState<Record<EntregaTipo, Cotacao> | null>(null)
   const [globalErr, setGlobalErr] = useState('')
@@ -454,7 +456,7 @@ export default function Checkout() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nome: data.nome, telefone: data.telefone.replace(/\D/g, ''), email: data.email,
-          itens: snapshotItens.map(i => ({ name: i.name, qty: i.quantity, usd: i.usd })),
+          itens: snapshotItens.map(i => ({ id: i.id, name: i.name, qty: i.quantity, usd: i.usd })),
           total_usd: snapshotTotal,
         }),
       })
@@ -467,11 +469,17 @@ export default function Checkout() {
       setSubmitting(false)
       return
     }
+    if (entregaTipo === 'envio_brasil' && entregaCep.length !== 8) {
+      setGlobalErr('Informe um CEP válido para o envio.')
+      setSubmitting(false)
+      return
+    }
     const fullForm = {
       nome: data.nome, cpf: data.cpf, email: data.email, telefone: data.telefone,
       cidade: data.cidade, uf: data.uf,
       entrega_tipo: entregaTipo,
       entrega_endereco: entregaTipo === 'envio_brasil' ? entregaEndereco.trim() : '',
+      entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : '',
       seguro_recusado: seguroRecusado,
       tipo_pessoa: form.tipo_pessoa,
       cnpj: form.tipo_pessoa === 'PJ' ? form.cnpj : '',
@@ -607,17 +615,21 @@ export default function Checkout() {
   // o servidor devolve as três opções já precificadas para este carrinho.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
-    if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }
+    if (!linhas.length) { queueMicrotask(() => { setCotacoes(null); setZonaEnvio(null) }); return }
     let vivo = true
     fetch('/api/entrega/cotacao', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itens: linhas }),
+      body: JSON.stringify({ itens: linhas, cep: entregaCep }),
     })
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (vivo && d?.opcoes) setCotacoes(d.opcoes) })
+      .then(d => {
+        if (!vivo) return
+        if (d?.opcoes) setCotacoes(d.opcoes)
+        setZonaEnvio(d?.zonaEnvio ?? null)
+      })
       .catch(() => {})
     return () => { vivo = false }
-  }, [itens])
+  }, [itens, entregaCep])
 
   const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
@@ -964,6 +976,7 @@ export default function Checkout() {
                 )}
                 <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
                   endereco={entregaEndereco} onEndereco={setEntregaEndereco}
+                  cep={entregaCep} onCep={setEntregaCep} zonaEnvio={zonaEnvio}
                   seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                   <span style={{ color: '#0a0a0a' }}>Total</span>
@@ -1198,6 +1211,7 @@ export default function Checkout() {
               )}
               <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={setEntregaTipo}
                   endereco={entregaEndereco} onEndereco={setEntregaEndereco}
+                  cep={entregaCep} onCep={setEntregaCep} zonaEnvio={zonaEnvio}
                   seguroRecusado={seguroRecusado} onSeguroRecusado={setSeguroRecusado} />
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
                 <span style={{ color: '#0a0a0a' }}>Total</span>

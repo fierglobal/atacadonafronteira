@@ -11,8 +11,8 @@ export type Currency = { code: string; label: string; flag: string; rate: number
 // pagava outro. O guarani segue fixo porque não existe campo no banco para ele.
 export function montarCurrencies(brlRate: number): Currency[] {
   return [
-    { code: 'USD', label: 'Dólar', flag: 'https://flagcdn.com/w40/us.png', rate: 1 },
     { code: 'BRL', label: 'Real', flag: 'https://flagcdn.com/w40/br.png', rate: brlRate },
+    { code: 'USD', label: 'Dólar', flag: 'https://flagcdn.com/w40/us.png', rate: 1 },
     { code: 'PYG', label: 'Guarani', flag: 'https://flagcdn.com/w40/py.png', rate: 7680 },
   ]
 }
@@ -62,7 +62,7 @@ function mergeCarts(local: CartItem[], remote: CartItem[], preferRemote: boolean
 export function CarrinhoProvider({ brlRate: brlRateInicial, children }: { brlRate?: number; children: ReactNode }) {
   const [itens, setItens] = useState<CartItem[]>([])
   const [brlRate, setBrlRate] = useState(brlRateInicial ?? BRL_RATE_FALLBACK)
-  const [currencyCode, setCurrencyCode] = useState('USD')
+  const [currencyCode, setCurrencyCode] = useState('BRL')
   const [sidebarAberto, setSidebarAberto] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)

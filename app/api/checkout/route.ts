@@ -6,7 +6,7 @@ import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
 import { idsEletronicos } from '@/lib/categorias'
-import { calcularEntrega, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, ehEntregaTipo, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
 type Form = {
@@ -15,6 +15,7 @@ type Form = {
   po_number?: string
   entrega_tipo?: EntregaTipo
   entrega_endereco?: string
+  entrega_cep?: string
   seguro_recusado?: boolean
   utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
   honeypot?: string
@@ -54,16 +55,18 @@ export async function POST(req: Request) {
   }
 
   const productIds = itens.map(i => i.id).filter(Boolean) as string[]
+  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null }[] = []
   if (productIds.length) {
-    const { data: prods } = await supabaseAdmin
+    const { data } = await supabaseAdmin
       .from('products')
-      .select('id, name, estoque, ativo, published_at, badges, usd_price')
+      .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price')
       .in('id', productIds)
+    prods = data || []
     const now = new Date()
     const indisponiveis: string[] = []
     for (const it of itens) {
       if (!it.id) continue
-      const p = (prods || []).find(x => x.id === it.id)
+      const p = prods.find(x => x.id === it.id)
       if (!p || !p.ativo) { indisponiveis.push(it.name); continue }
       if (p.published_at && new Date(p.published_at) > now) { indisponiveis.push(it.name); continue }
       // Pré-venda não lançada: a vitrine já esconde preço e botão, mas UI não é barreira —
@@ -76,8 +79,16 @@ export async function POST(req: Request) {
     }
   }
 
-  const totalUsd = +itens.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2)
-  let totalBrl = +(totalUsd * config.brl_rate).toFixed(2)
+  // BRL é a fonte principal do preço (products.brl_price); USD é calculado a partir
+  // do BRL só como referência de câmbio, nunca o contrário.
+  const brlById = new Map(prods.map(p => [p.id, p.brl_price != null ? Number(p.brl_price) : null]))
+  const itensBrl = itens.map(i => {
+    const brlPrice = i.id ? brlById.get(i.id) : undefined
+    const unitBrl = brlPrice != null ? brlPrice : +(i.usd * config.brl_rate).toFixed(2)
+    return { ...i, unitBrl, subtotalBrl: +(unitBrl * i.quantity).toFixed(2) }
+  })
+
+  let totalBrl = +itensBrl.reduce((s, i) => s + i.subtotalBrl, 0).toFixed(2)
 
   const cupomIdsAplicados: string[] = []
   let totalDescontoPct = 0
@@ -114,6 +125,20 @@ export async function POST(req: Request) {
   if (entregaTipo === 'envio_brasil' && !(form.entrega_endereco || '').trim()) {
     return NextResponse.json({ error: 'Informe o endereço completo para o envio.' }, { status: 400 })
   }
+  const entregaCep = onlyDigits(form.entrega_cep)
+  if (entregaTipo === 'envio_brasil' && entregaCep.length !== 8) {
+    return NextResponse.json({ error: 'Informe um CEP válido (8 dígitos) para o envio.' }, { status: 400 })
+  }
+
+  let zonaEnvio: { nome: string; prazoDiasUteis: number } | null = null
+  if (entregaTipo === 'envio_brasil') {
+    const { data: zonas } = await supabaseAdmin
+      .from('frete_zonas')
+      .select('nome, cep_inicio, cep_fim, prazo_dias_uteis, ativo, ordem')
+    zonaEnvio = resolverZonaFrete(entregaCep, (zonas || []).map(z => ({
+      nome: z.nome, cepInicio: z.cep_inicio, cepFim: z.cep_fim, prazoDiasUteis: z.prazo_dias_uteis, ativo: z.ativo, ordem: z.ordem,
+    })))
+  }
 
   // Frete e seguro NUNCA vêm do navegador. A tela mostra um número; aqui ele é
   // refeito a partir da categoria real de cada produto no banco. Se divergir, vale
@@ -131,6 +156,7 @@ export async function POST(req: Request) {
   const freteBrl = cotacao.frete
   const seguroBrl = cotacao.seguro
   totalBrl = +(totalBrl + freteBrl + seguroBrl).toFixed(2)
+  const totalUsd = +(totalBrl / config.brl_rate).toFixed(2)
 
   const orderNum = `AF${Date.now().toString().slice(-8)}${Math.random().toString(36).slice(2, 5).toUpperCase()}`
   const copyHash = (crypto.randomUUID().replace(/-/g, '') + Date.now().toString(36)).slice(0, 16)
@@ -158,6 +184,9 @@ export async function POST(req: Request) {
     po_number: form.po_number || null,
     entrega_tipo: entregaTipo,
     entrega_endereco: entregaTipo === 'envio_brasil' ? form.entrega_endereco!.trim() : null,
+    entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : null,
+    frete_zona_nome: zonaEnvio?.nome ?? null,
+    frete_prazo_dias: zonaEnvio?.prazoDiasUteis ?? null,
     frete_brl: freteBrl,
     seguro_brl: seguroBrl,
     seguro_recusado: cotacao.seguroDisponivel ? form.seguro_recusado === true : false,
@@ -177,10 +206,14 @@ export async function POST(req: Request) {
     .from('orders').insert(orderPayload).select('id').single()
   if (oe) return NextResponse.json({ error: oe.message }, { status: 500 })
 
-  const items = itens.map(i => ({
-    order_id: order.id, product_id: i.id || null, product_name: i.name, product_brand: i.brand || null,
-    unit_usd: i.usd, quantity: i.quantity, subtotal_usd: +(i.usd * i.quantity).toFixed(2),
-  }))
+  const items = itensBrl.map(i => {
+    const unitUsd = +(i.unitBrl / config.brl_rate).toFixed(2)
+    return {
+      order_id: order.id, product_id: i.id || null, product_name: i.name, product_brand: i.brand || null,
+      unit_usd: unitUsd, quantity: i.quantity, subtotal_usd: +(unitUsd * i.quantity).toFixed(2),
+      unit_brl: i.unitBrl, subtotal_brl: i.subtotalBrl,
+    }
+  })
   const { error: ie } = await supabaseAdmin.from('order_items').insert(items)
   if (ie) return NextResponse.json({ error: ie.message }, { status: 500 })
 
@@ -188,7 +221,7 @@ export async function POST(req: Request) {
 
   if (form.email) {
     emailConfirmacaoPedido(form.email, form.nome, orderNum,
-      itens.map(i => ({ name: i.name, usd: i.usd, quantity: i.quantity })), totalBrl,
+      items.map(i => ({ name: i.product_name, usd: i.unit_usd, quantity: i.quantity })), totalBrl,
     ).catch(() => {})
   }
 

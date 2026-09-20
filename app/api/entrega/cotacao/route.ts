@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { idsEletronicos } from '@/lib/categorias'
-import { calcularEntrega, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-type Entrada = { itens?: { id?: string; quantity?: number }[] }
+type Entrada = { itens?: { id?: string; quantity?: number }[]; cep?: string }
 
 // A tela não sabe a categoria dos produtos do carrinho — e mesmo que soubesse,
 // preço não se calcula no navegador. Aqui o servidor lê a categoria real de cada
@@ -37,9 +37,21 @@ export async function POST(req: Request) {
     tipos.map(t => [t, calcularEntrega(paraCalculo, t, false)]),
   )
 
+  const cepDigits = (body.cep || '').replace(/\D/g, '')
+  let zonaEnvio: { nome: string; prazoDiasUteis: number } | null = null
+  if (cepDigits.length === 8) {
+    const { data: zonas } = await supabaseAdmin
+      .from('frete_zonas')
+      .select('nome, cep_inicio, cep_fim, prazo_dias_uteis, ativo, ordem')
+    zonaEnvio = resolverZonaFrete(cepDigits, (zonas || []).map(z => ({
+      nome: z.nome, cepInicio: z.cep_inicio, cepFim: z.cep_fim, prazoDiasUteis: z.prazo_dias_uteis, ativo: z.ativo, ordem: z.ordem,
+    })))
+  }
+
   return NextResponse.json({
     opcoes,
     unidades: paraCalculo.reduce((s, i) => s + i.quantity, 0),
     tabelaEletronico: paraCalculo.some(i => i.eletronico),
+    zonaEnvio,
   })
 }

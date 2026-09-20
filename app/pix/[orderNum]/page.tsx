@@ -11,7 +11,7 @@ import { gerarPixPayload, PIX_KEY_FALLBACK, PIX_HOLDER_FALLBACK } from '@/lib/pi
 export const dynamic = 'force-dynamic'
 const WHATSAPP = WHATSAPP_NUMBER
 
-type PixItem = { product_name: string; quantity: number; unit_usd: number; subtotal_usd: number }
+type PixItem = { product_name: string; quantity: number; unit_usd: number; subtotal_usd: number; unit_brl: number | null; subtotal_brl: number | null }
 type PixData = {
   orderId: string
   orderNum: string
@@ -272,7 +272,7 @@ export default function PedidoPix() {
           {data.items.map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#404040', marginBottom: 8 }}>
               <span style={{ flex: 1, marginRight: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.product_name} × {item.quantity}</span>
-              <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(Number(item.subtotal_usd) * taxaDoPedido)}</span>
+              <span style={{ color: '#0a0a0a', whiteSpace: 'nowrap' }}>{fmtBRL(item.subtotal_brl ?? Number(item.subtotal_usd) * taxaDoPedido)}</span>
             </div>
           ))}
           <div style={{ borderTop: '1px solid #ececec', paddingTop: 12, marginTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 16, fontWeight: 900 }}>

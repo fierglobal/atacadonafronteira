@@ -17,7 +17,25 @@ type CrossSellItem = {
   name: string | null
   brand: string | null
   usd_price: number
+  brl_price?: number | null
   img_url: string | null
+}
+
+type Tier = { qty_min: number; qty_max: number | null; brl_price: number }
+
+// Sem tier cadastrado pro produto, não mostra nada — fallback gracioso.
+function progressoTier(qty: number, tiers: Tier[] | undefined) {
+  if (!tiers || tiers.length === 0) return null
+  const sorted = [...tiers].sort((a, b) => a.qty_min - b.qty_min)
+  const proximo = sorted.find(t => qty < t.qty_min)
+  if (!proximo) {
+    const ultimo = sorted[sorted.length - 1]
+    return { faltam: 0, precoAlvo: ultimo.brl_price, pct: 100, atingiu: true }
+  }
+  const anterior = [...sorted].reverse().find(t => t.qty_min <= qty)
+  const baseQty = anterior ? anterior.qty_min : 0
+  const pct = Math.min(100, ((qty - baseQty) / (proximo.qty_min - baseQty)) * 100)
+  return { faltam: proximo.qty_min - qty, precoAlvo: proximo.brl_price, pct, atingiu: false }
 }
 
 export function CarrinhoSidebar() {
@@ -25,6 +43,7 @@ export function CarrinhoSidebar() {
   const { itens, currency, brlRate, sidebarAberto, fecharSidebar, remover, atualizar, totalUsd, quantidade, adicionar } = useCarrinho()
   const [pedidoMinimo, setPedidoMinimo] = useState<number | null>(null)
   const [crossSell, setCrossSell] = useState<CrossSellItem[]>([])
+  const [tiersByProduct, setTiersByProduct] = useState<Record<string, Tier[]>>({})
 
   useEffect(() => {
     fetch('/api/checkout-config').then(r => r.json()).then(d => {
@@ -41,6 +60,18 @@ export function CarrinhoSidebar() {
       body: JSON.stringify({ productIds }),
     }).then(r => r.json()).then(d => {
       setCrossSell((d.products || []).slice(0, 4))
+    }).catch(() => {})
+  }, [sidebarAberto, itens])
+
+  useEffect(() => {
+    if (!sidebarAberto || itens.length === 0) { setTiersByProduct({}); return }
+    const productIds = itens.map(i => i.id).filter(Boolean)
+    if (!productIds.length) return
+    fetch('/api/cart/tiers', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productIds }),
+    }).then(r => r.json()).then(d => {
+      setTiersByProduct(d.tiers || {})
     }).catch(() => {})
   }, [sidebarAberto, itens])
 
@@ -156,6 +187,23 @@ export function CarrinhoSidebar() {
                       </button>
                     </div>
                   </div>
+
+                  {(() => {
+                    const prog = progressoTier(item.quantity, tiersByProduct[item.id])
+                    if (!prog) return null
+                    return (
+                      <div style={{ marginTop: 8 }}>
+                        <p style={{ fontSize: 10, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#420E76', margin: '0 0 4px' }}>
+                          {prog.atingiu
+                            ? `✓ Melhor preço aplicado: R$ ${prog.precoAlvo.toFixed(2).replace('.', ',')}/un`
+                            : `Faltam ${prog.faltam} un. pra R$ ${prog.precoAlvo.toFixed(2).replace('.', ',')}/un`}
+                        </p>
+                        <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
+                          <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#A965ED', transition: 'width 0.3s' }} />
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             ))
@@ -178,7 +226,7 @@ export function CarrinhoSidebar() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 11, color: '#0a0a0a', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
                       <p style={{ fontSize: 11, color: '#420E76', fontWeight: 700, margin: '2px 0 0' }}>
-                        {fmtCurrency(p.usd_price, currency.rate, currency.code)}
+                        {currency.code === 'BRL' && p.brl_price != null ? `BRL ${p.brl_price.toFixed(2).replace('.', ',')}` : fmtCurrency(p.usd_price, currency.rate, currency.code)}
                       </p>
                     </div>
                     <button onClick={() => adicionar({ id: p.id, name, usd: p.usd_price, img: p.img_url || '/produto-placeholder.svg', brand: brand || undefined })}
