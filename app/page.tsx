@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   // público usa, escrito uma vez, numa frase que faz sentido lida em voz alta.
   description:
     'Atacado na Fronteira (também procurado como Atacados na Fronteira): catálogo direto do ' +
-    'Paraguai com peptídeos, tirzepatida, retatrutida, anabolizantes, celulares, eletrônicos e ' +
-    'perfumaria árabe, importada e de nicho. Preços em dólar, pagamento via PIX e retirada na loja.',
+    'Paraguai com tirzepatida, celulares, eletrônicos Apple e perfumaria árabe, importada e de ' +
+    'nicho. Preços em real, pagamento via PIX e retirada na loja.',
 }
 
 // Organization + WebSite: é o mecanismo padrão para declarar ao Google que a marca
@@ -38,8 +38,8 @@ const jsonLdLoja = () => ([
     logo: `${SITE_URL}/icon.png`,
     image: `${SITE_URL}/og-image.png`,
     description:
-      'Loja de atacado com produtos importados direto do Paraguai: peptídeos, tirzepatida, ' +
-      'retatrutida, anabolizantes, celulares, eletrônicos e perfumaria árabe, importada e de nicho.',
+      'Loja de atacado com produtos importados direto do Paraguai: tirzepatida, celulares, ' +
+      'eletrônicos Apple e perfumaria árabe, importada e de nicho.',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'sales',
@@ -66,7 +66,7 @@ const jsonLdLoja = () => ([
 
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
-const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
+const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, brl_price, brl_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
 const VITRINE_POR_SECAO = 12
 
 // Mesmo shape que o client montaria via /api/facetas + /api/categorias +
@@ -110,8 +110,8 @@ async function getInitial(): Promise<HomeInitial | null> {
       marcasDe[raiz][p.brand] = (marcasDe[raiz][p.brand] ?? 0) + 1
     }
     const DESC_DEPT: Record<string, string> = {
-      'Eletrônicos': 'Celulares Xiaomi e Apple, notebooks, caixas JBL, robôs aspiradores e smartwatches.',
-      'Farmácia': 'Peptídeos, tirzepatida, retatrutida, anabolizantes e linha estética.',
+      'Eletrônicos': 'Linha Apple: iPhone, Mac, iPad, Apple Watch e AirPods, direto do Paraguai.',
+      'Farmácia': 'Tirzepatida (GLP-1) das principais marcas, direto do Paraguai.',
       'Perfumes': 'Perfumaria árabe, importados e de nicho, direto do Paraguai.',
     }
     const departamentos = raizes
@@ -166,14 +166,14 @@ async function getInitial(): Promise<HomeInitial | null> {
             .eq('categoria_id', celularCat.id as string).in('brand', ['APPLE', 'XIAOMI'])
             .gt('estoque', 0).not('img_url', 'is', null)
             .order('usd_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
       eletronicosIds.length
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
             .in('categoria_id', eletronicosIds).in('brand', ['APPLE', 'XIAOMI'])
             .gt('estoque', 0).not('img_url', 'is', null)
             .order('usd_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
       supabaseAdmin.from('products').select(CAMPOS)
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
         .not('usd_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),

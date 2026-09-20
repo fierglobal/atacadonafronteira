@@ -7,10 +7,9 @@ import { getSupabaseClient } from '@/lib/supabase-client'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { gerarPixPayload, PIX_KEY_FALLBACK, PIX_HOLDER_FALLBACK } from '@/lib/pix'
 import { ENTREGA_LABEL, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
-import { isEmBreve } from '@/lib/produto'
-import { SOB_ENCOMENDA_TEXTO } from '@/lib/site'
+import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 
-type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; quantity: number; subtotal_usd: number; products: { categorias: { nome: string } | null; badges: string[] | null } | null }
+type OrderItem = { id: string; product_id: string | null; product_name: string; product_brand: string | null; unit_usd: number; unit_brl: number | null; quantity: number; subtotal_usd: number; subtotal_brl: number | null; products: { categorias: { nome: string } | null; badges: string[] | null } | null }
 type Order = {
   id: string; order_num: string; status: string; total_brl: number; total_usd: number; created_at: string
   notas: string | null; comprovante_url: string | null; nome_retirador: string | null
@@ -37,7 +36,6 @@ function statusLabel(status: string, entregaTipo: EntregaTipo): string {
 }
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
-const fmtUsd = (n: number) => `$ ${n.toFixed(2)}`
 
 export default function PedidoDetalhe() {
   const router = useRouter()
@@ -153,7 +151,11 @@ export default function PedidoDetalhe() {
   const isCanceled = order.status === 'cancelado'
   const entregaTipo: EntregaTipo = ehEntregaTipo(order.entrega_tipo) ? order.entrega_tipo : 'retirada_cde'
   const envio = entregaTipo === 'envio_brasil'
-  const temSobEncomenda = order.order_items.some(i => isEmBreve({ usd_price: 0, badges: i.products?.badges }))
+  // Taxa travada neste pedido (não a do câmbio de hoje) — usada só pra preencher
+  // unit_brl/subtotal_brl de pedidos antigos, salvos antes da coluna existir.
+  const taxa = order.total_usd > 0 ? order.total_brl / order.total_usd : 0
+  const temSobEncomenda = order.order_items.some(i =>
+    (i.products?.badges || []).some(b => b.trim().toLowerCase() === SOB_ENCOMENDA_BADGE))
 
   return (
     <div>
@@ -346,8 +348,8 @@ export default function PedidoDetalhe() {
                         {item.product_brand && <p style={{ fontSize: 10, color: '#737373', margin: '2px 0 0' }}>{item.product_brand}</p>}
                       </td>
                       <td style={{ padding: '12px 20px', fontSize: 13, color: '#404040' }}>{item.quantity}x</td>
-                      <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmtUsd(item.unit_usd)}</td>
-                      <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmtUsd(item.subtotal_usd)}</td>
+                      <td style={{ padding: '12px 20px', fontSize: 12, color: '#404040' }}>{fmt(item.unit_brl ?? item.unit_usd * taxa)}</td>
+                      <td style={{ padding: '12px 20px', fontSize: 13, fontWeight: 700, color: '#0a0a0a' }}>{fmt(item.subtotal_brl ?? item.subtotal_usd * taxa)}</td>
                     </tr>
                   ))}
                 </Fragment>
@@ -358,7 +360,6 @@ export default function PedidoDetalhe() {
         <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
           <span style={{ fontSize: 11, color: '#525252', fontWeight: 700, letterSpacing: '0.06em' }}>TOTAL</span>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>{fmtUsd(order.total_usd)}</p>
             <p style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#0a0a0a' }}>{fmt(order.total_brl)}</p>
           </div>
         </div>
