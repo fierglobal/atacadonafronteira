@@ -709,7 +709,7 @@ export default function Checkout() {
 
   // A tela não sabe a categoria nem o preço com tier dos produtos: o servidor
   // devolve as três opções já precificadas para este carrinho. Não depende mais
-  // do CEP — envio_brasil agora é sempre 48h úteis, frete em % do valor.
+  // do CEP — envio_brasil agora é sempre 3 dias úteis, frete em % do valor.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
     if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }

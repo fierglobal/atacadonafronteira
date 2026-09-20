@@ -86,7 +86,7 @@ export default function EntregaSeguro({
         const c = cotacoes?.[valor]
         const preco = c ? c.frete : null
         const subTexto = valor === 'envio_brasil'
-          ? `${eletronico ? '10%' : '5%'} do valor da compra · seguro incluso · chega em até 48h úteis`
+          ? `${eletronico ? '10%' : '5%'} do valor da compra · seguro incluso · chega em até 3 dias úteis`
           : sub
         return (
           <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${tipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: tipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
@@ -143,7 +143,7 @@ export default function EntregaSeguro({
             </p>
           )}
           <p style={{ margin: '0 0 10px', fontSize: 11.5, fontWeight: 700, color: cep.length === 8 ? '#0f7a3d' : '#737373' }}>
-            {cep.length === 8 ? '📦 Despacho em até 48 horas úteis' : 'Informe o CEP para confirmar o endereço de entrega.'}
+            {cep.length === 8 ? '📦 Despacho em até 3 dias úteis' : 'Informe o CEP para confirmar o endereço de entrega.'}
           </p>
           <style>{`@keyframes cep-spin { to { transform: translateY(-50%) rotate(360deg) } }`}</style>
         </>

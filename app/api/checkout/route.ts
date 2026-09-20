@@ -149,7 +149,7 @@ export async function POST(req: Request) {
   // Frete NUNCA vem do navegador. A tela mostra um número; aqui ele é refeito a
   // partir da categoria real e do preço com tier já aplicado de cada produto no
   // banco — é o mesmo motivo de o total do pedido não poder nascer do client.
-  // Envio para o Brasil não depende mais de zona/CEP: despacho único em até 48h
+  // Envio para o Brasil não depende mais de zona/CEP: despacho único em até 3 dias
   // úteis via Shopee, frete = % do valor da compra, seguro sempre incluso — de
   // qual base (Foz/SP/Recife/Goiânia) o pedido sai é decisão interna, tomada
   // depois no admin a partir do endereço salvo.

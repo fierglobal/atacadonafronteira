@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
-import { calcularEntrega, PRAZO_ENVIO_BRASIL_HORAS, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, PRAZO_ENVIO_BRASIL_DIAS_UTEIS, type EntregaTipo } from '@/lib/entrega'
 import { priceForQty, type Tier } from '@/lib/tier'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
@@ -60,6 +60,6 @@ export async function POST(req: Request) {
     unidades: paraCalculo.reduce((s, i) => s + i.quantity, 0),
     tabelaEletronico: paraCalculo.some(i => i.eletronico),
     tabelaFarmacia: !paraCalculo.some(i => i.eletronico) && paraCalculo.some(i => i.farmacia),
-    prazoHoras: PRAZO_ENVIO_BRASIL_HORAS,
+    prazoDiasUteis: PRAZO_ENVIO_BRASIL_DIAS_UTEIS,
   })
 }

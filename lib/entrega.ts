@@ -7,14 +7,14 @@ export type EntregaTipo = 'retirada_cde' | 'retirada_foz' | 'envio_brasil'
 export const FOZ_POR_UNIDADE = 50
 export const FOZ_GRATIS_A_PARTIR_DE = 20
 
-// Envio para o Brasil: despacho único em até 48h úteis pela transportadora da
-// Shopee, frete cobrado como % do valor da compra (seguro sempre incluso nesse
-// percentual — não existe mais opção de recusar seguro). De qual base física
-// (Foz/SP/Recife/Goiânia) o pedido realmente sai é decisão operacional interna,
-// tomada depois no admin — não influencia o que o cliente vê nem paga.
+// Envio para o Brasil: despacho único em até 3 dias úteis pela transportadora
+// da Shopee, frete cobrado como % do valor da compra (seguro sempre incluso
+// nesse percentual — não existe mais opção de recusar seguro). De qual base
+// física (Foz/SP/Recife/Goiânia) o pedido realmente sai é decisão operacional
+// interna, tomada depois no admin — não influencia o que o cliente vê nem paga.
 export const FRETE_PCT_ELETRONICO = 0.10
 export const FRETE_PCT_PADRAO = 0.05
-export const PRAZO_ENVIO_BRASIL_HORAS = 48
+export const PRAZO_ENVIO_BRASIL_DIAS_UTEIS = 3
 
 // Nome do departamento raiz que define a tabela cara. Mora aqui e não como UUID
 // porque o id do banco muda entre ambientes; o nome é o contrato do catálogo.
@@ -72,9 +72,9 @@ export const ENTREGA_LABEL: Record<EntregaTipo, string> = {
 }
 
 // Zona de frete por faixa de CEP (tabela frete_zonas). Não influencia mais o
-// frete nem o prazo mostrado ao cliente (envio_brasil agora é sempre 48h úteis
-// pra qualquer CEP) — fica só como referência interna de qual base física
-// (SP/Recife/Goiânia) está mais perto do destino, pra uso futuro no admin.
+// frete nem o prazo mostrado ao cliente (envio_brasil agora é sempre 3 dias
+// úteis pra qualquer CEP) — fica só como referência interna de qual base
+// física (SP/Recife/Goiânia) está mais perto do destino, pra uso futuro no admin.
 export type ZonaFrete = {
   nome: string
   cepInicio: string | null
