@@ -35,7 +35,7 @@ type CarrinhoCtx = {
   sidebarAberto: boolean
   abrirSidebar: () => void
   fecharSidebar: () => void
-  adicionar: (item: Omit<CartItem, 'quantity'>) => void
+  adicionar: (item: Omit<CartItem, 'quantity'>, qty?: number) => void
   remover: (id: string) => void
   atualizar: (id: string, qty: number) => void
   limpar: () => void
@@ -149,15 +149,15 @@ export function CarrinhoProvider({ brlRate: brlRateInicial, children }: { brlRat
     return () => { if (saveTimerRef.current) clearTimeout(saveTimerRef.current) }
   }, [itens, userId])
 
-  const adicionar = (item: Omit<CartItem, 'quantity'>) => {
+  const adicionar = (item: Omit<CartItem, 'quantity'>, qty: number = 1) => {
     setItens(prev => {
       const exists = prev.find(i => i.id === item.id)
       if (exists) {
         setToast('Quantidade atualizada')
-        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i)
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + qty } : i)
       }
       setToast('Produto adicionado ao carrinho')
-      return [...prev, { ...item, quantity: 1 }]
+      return [...prev, { ...item, quantity: qty }]
     })
     setSidebarAberto(true)
     import('@vercel/analytics').then(({ track }) => {

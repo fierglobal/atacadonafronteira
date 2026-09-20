@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
+import { progressoTier } from '@/lib/tier'
 
 type Tier = { qty_min: number; qty_max: number | null; brl_price: number; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: unknown; ordem: number }
@@ -308,9 +309,7 @@ export default function ProdutoPage() {
   const handleAdd = () => {
     if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
-    for (let i = 0; i < qty; i++) {
-      adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
-    }
+    adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined }, qty)
     setAdded(true)
     setTimeout(() => setAdded(false), 3000)
   }
@@ -318,7 +317,7 @@ export default function ProdutoPage() {
   const handleBuyNow = () => {
     if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
-    adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
+    adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined }, qty)
     router.push('/checkout')
   }
 
@@ -351,23 +350,18 @@ export default function ProdutoPage() {
         .add-btn:hover { background: #0fdc00 !important; }
         .add-btn { transition: background 0.15s ease; }
         @media (max-width: 768px) {
-          .product-grid { flex-direction: column !important; gap: 32px !important; }
+          .product-grid { flex-direction: column !important; gap: 28px !important; }
           .product-image-col { width: 100% !important; max-width: 100% !important; }
           .product-info-col { width: 100% !important; }
           .product-name { font-size: 24px !important; }
           .price-usd { font-size: 36px !important; }
           .related-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .info-grid { grid-template-columns: 1fr !important; }
-          /* Botão de comprar ficava a 1231px do topo — 1,5 tela de rolagem —
-             porque estoque/descrição/SKU vinham antes do preço. Preço +
-             quantidade + CTA sobem pra logo depois do título; o resto desce.
-             Desktop nem entra aqui (flex-direction:row, order não se aplica
-             visualmente do mesmo jeito) — zero mudança lá. */
-          .product-info-col { display: flex; flex-direction: column; }
-          .pdp-title { order: 1; }
-          .pdp-buybox { order: 2; }
-          .pdp-secondary { order: 3; }
-          .pdp-infogrid { order: 4; }
+          /* A imagem era sticky mesmo no mobile: ao rolar, ela grudava no topo
+             e passava a flutuar por cima do título, empurrando o resto pra
+             baixo e confundindo a leitura da página. Sticky só faz sentido
+             ao lado de uma coluna de texto mais alta (desktop). */
+          .pdp-sticky-media { position: static !important; top: auto !important; }
+          .pdp-image-frame { max-width: 300px; margin: 0 auto; }
         }
         @media (max-width: 640px) {
           .prod-nav-onde { display: none !important; }
@@ -380,11 +374,11 @@ export default function ProdutoPage() {
 
       {loading ? (
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '60px 24px', display: 'flex', gap: 56 }}>
-          <div style={{ width: 480, height: 480, background: '#fafafa', border: '1px solid #ececec', borderRadius: 16, flexShrink: 0 }} />
+          <div style={{ width: 460, height: 460, background: '#fafafa', border: '1px solid #ececec', borderRadius: 16, flexShrink: 0 }} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[60, 32, 24, 80, 56, 100].map((h, i) => (
-              <div key={i} style={{ height: h, background: '#fafafa', border: '1px solid #ececec', borderRadius: 8, width: i === 0 ? '40%' : i === 5 ? '100%' : '70%' }} />
-            ))}
+            <div style={{ height: 22, background: '#fafafa', border: '1px solid #ececec', borderRadius: 8, width: '30%' }} />
+            <div style={{ height: 36, background: '#fafafa', border: '1px solid #ececec', borderRadius: 8, width: '70%' }} />
+            <div style={{ height: 320, background: '#fafafa', border: '1px solid #ececec', borderRadius: 16, width: '100%', marginTop: 8 }} />
           </div>
         </div>
       ) : product ? (
@@ -417,8 +411,8 @@ export default function ProdutoPage() {
 
               {/* IMAGE COL */}
               <div className="product-image-col" style={{ width: 460, flexShrink: 0 }}>
-                <div style={{ position: 'sticky', top: 84 }}>
-                  <div style={{
+                <div className="pdp-sticky-media" style={{ position: 'sticky', top: 84 }}>
+                  <div className="pdp-image-frame" style={{
                     position: 'relative',
                     background: '#fafafa',
                     borderRadius: 16,
@@ -448,33 +442,16 @@ export default function ProdutoPage() {
                       ))}
                     </div>
                   )}
-
-                  {/* trust badges */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 16 }}>
-                    {[
-                      { icon: '■', label: 'Original' },
-                      { icon: '▶', label: 'Pronta entrega' },
-                      { icon: '◆', label: 'Autenticado' },
-                    ].map(b => (
-                      <div key={b.label} style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 10, padding: '12px 8px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                        <div style={{ fontSize: 14, marginBottom: 4, color: '#420E76', opacity: 0.8 }}>{b.icon}</div>
-                        <div style={{ fontSize: 10, color: '#737373', fontWeight: 700, letterSpacing: '0.05em' }}>{b.label.toUpperCase()}</div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              {/* INFO COL */}
+              {/* INFO COL — ordem única (desktop e mobile): identidade → card
+                  de compra (preço, degraus, quantidade, CTA) → confiança →
+                  descrição → condições da loja. Antes eram 14 blocos soltos
+                  reordenados só via CSS no mobile; agora a mesma ordem lógica
+                  vale em qualquer tela e o CTA chega bem mais cedo. */}
               <div className="product-info-col" style={{ flex: 1, minWidth: 0 }}>
 
-                {/* No mobile o comprador tinha que rolar 1,5 tela pra chegar no
-                    botão: a coluna inteira da imagem some por baixo, e ainda
-                    tinha estoque/descrição/SKU antes do preço. pdp-title/
-                    pdp-buybox/pdp-secondary/pdp-infogrid reordenam só no
-                    mobile (globals.css) — no desktop viram flex column na
-                    mesma ordem de sempre, zero mudança visual. */}
-                <div className="pdp-title">
                 {/* brand label */}
                 {product.brand && (
                   <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#420E76', marginBottom: 10, textTransform: 'uppercase' }}>
@@ -486,11 +463,9 @@ export default function ProdutoPage() {
                 <h1 className="product-name" style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.01em', margin: '0 0 14px', color: '#0a0a0a' }}>
                   {product.name}
                 </h1>
-                </div>
 
-                <div className="pdp-secondary">
-                {/* badges manuais + stock */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18, alignItems: 'center' }}>
+                {/* badges manuais + stock + SKU real, numa linha só */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 24, alignItems: 'center' }}>
                   {(() => {
                     const s = stockStatus(product)
                     return (
@@ -512,6 +487,200 @@ export default function ProdutoPage() {
                       }}>{b}</span>
                     )
                   })}
+                  <span style={{ fontSize: 10, color: '#a3a3a3', fontWeight: 700, letterSpacing: '0.06em', marginLeft: 'auto' }}>
+                    SKU {(product.sku || product.id.slice(0, 8)).toUpperCase()}
+                  </span>
+                </div>
+
+                {/* BUY CARD — preço, degraus de volume, quantidade e CTA num
+                    card só: é a informação que decide a compra, o resto pode
+                    vir depois. */}
+                <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+
+                  {/* PRICE */}
+                  <div style={{ marginBottom: emBreve ? 0 : 20 }}>
+                    {emBreve ? (
+                      <div style={{ background: '#faf7ff', border: '1px solid #d9c7f0', borderRadius: 12, padding: '18px 20px' }}>
+                        <div style={{ fontSize: 26, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em', lineHeight: 1.1 }}>{ROTULO_EM_BREVE}</div>
+                        <p style={{ fontSize: 13, color: '#5b4a6b', margin: '8px 0 0', lineHeight: 1.55 }}>
+                          Ainda não estamos vendendo este modelo. Assim que ele chegar, anunciamos preço e disponibilidade aqui.
+                        </p>
+                      </div>
+                    ) : (<>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
+                    <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                      R$ {fmtBRL(unitPrice)}
+                    </div>
+                    {unitPrice < product.brl_price && (
+                      <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
+                        <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>R$ {fmtBRL(product.brl_price)}</span>
+                        <span style={{ color: '#420E76', fontWeight: 700 }}>
+                          −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
+                        </span>
+                      </div>
+                    )}
+                    </>)}
+                  </div>
+
+                  {!emBreve && product.badges?.some(b => b.trim().toLowerCase() === SOB_ENCOMENDA_BADGE) && (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', marginBottom: 20, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+                        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                      </svg>
+                      <span style={{ fontSize: 13, color: '#b45309', lineHeight: 1.5 }}>{SOB_ENCOMENDA_TEXTO}</span>
+                    </div>
+                  )}
+
+                  {/* DEGRAUS DE VOLUME — chip por ponto de partida (sem "até
+                      X": é "a partir de", não faixa fechada). Clicar num chip
+                      já leva a quantidade pra lá. */}
+                  {!emBreve && tiers.length > 0 && (
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO POR VOLUME</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                        {tiers.map((t, i) => {
+                          const active = qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max)
+                          return (
+                            <button key={i} onClick={() => adjustQty(t.qty_min)}
+                              style={{
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                                padding: '8px 14px', borderRadius: 10, cursor: 'pointer',
+                                border: `1.5px solid ${active ? '#420E76' : '#ececec'}`,
+                                background: active ? 'rgba(66, 14, 118,0.06)' : '#ffffff',
+                                transition: 'all 0.15s',
+                              }}>
+                              <span style={{ fontSize: 10.5, fontWeight: 800, color: active ? '#420E76' : '#737373' }}>{t.qty_min}+ un.</span>
+                              <span style={{ fontSize: 13, fontWeight: 900, color: active ? '#420E76' : '#0a0a0a', fontVariantNumeric: 'tabular-nums' }}>R$ {fmtBRL(Number(t.brl_price))}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      {(() => {
+                        const prog = progressoTier(qty, tiers)
+                        if (!prog) return null
+                        return (
+                          <div>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#420E76', margin: '0 0 5px' }}>
+                              {prog.atingiu
+                                ? `✓ Melhor preço aplicado: R$ ${fmtBRL(prog.precoAlvo)}/un`
+                                : `Faltam ${prog.faltam} un. pra R$ ${fmtBRL(prog.precoAlvo)}/un`}
+                            </p>
+                            <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
+                              <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#A965ED', transition: 'width 0.3s' }} />
+                            </div>
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  )}
+
+                  {/* QUANTITY + TOTAL */}
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: 'fit-content', border: '1px solid #d4d4d4', borderRadius: 10, overflow: 'hidden', background: '#ffffff' }}>
+                        <button className="qty-btn" onClick={() => adjustQty(qty - multiplicador)}
+                          style={{ width: 44, height: 44, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+                          −
+                        </button>
+                        <div style={{ width: 58, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#0a0a0a', background: '#fafafa', borderLeft: '1px solid #ececec', borderRight: '1px solid #ececec' }}>
+                          {qty}
+                        </div>
+                        <button className="qty-btn" onClick={() => adjustQty(qty + multiplicador)}
+                          style={{ width: 44, height: 44, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                          disabled={product.estoque !== null && product.estoque !== undefined && qty >= product.estoque}>
+                          +
+                        </button>
+                      </div>
+                      {!emBreve && (
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: 9.5, color: '#737373', fontWeight: 800, letterSpacing: '0.1em' }}>TOTAL</div>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: '#420E76', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
+                            R$ {fmtBRL(unitPrice * qty)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {(multiplicador > 1 || vendaMinima > 1 || product.unidade_venda) && (
+                      <div style={{ fontSize: 11, color: '#737373', marginTop: 10, lineHeight: 1.5 }}>
+                        {product.unidade_venda && <span>Unidade: <span style={{ color: '#404040' }}>{product.unidade_venda}</span> · </span>}
+                        {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#420E76', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
+                        {multiplicador > 1 && vendaMinima > 1 && <span> · </span>}
+                        {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  {product.estoque === 0 ? (
+                    <div style={{ padding: '18px 0', textAlign: 'center', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, color: '#dc2626', fontSize: 14, fontWeight: 700 }}>
+                      Produto sem estoque no momento
+                    </div>
+                  ) : (
+                    <button onClick={handleAdd} className="add-btn"
+                      style={{
+                        width: '100%', padding: '18px 0', borderRadius: 12, border: 'none',
+                        background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
+                        color: added ? '#420E76' : '#ffffff',
+                        fontSize: 14, fontWeight: 800, letterSpacing: '0.1em',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                        boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
+                      }}>
+                      {emBreve ? ROTULO_EM_BREVE : added ? (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          ADICIONADO
+                        </>
+                      ) : (
+                        <>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                          ADICIONAR AO CARRINHO
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {product.estoque !== 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 12, flexWrap: 'wrap' }}>
+                      <button onClick={handleBuyNow}
+                        style={{ background: 'none', border: 'none', padding: 0, color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                        COMPRAR AGORA
+                      </button>
+                      {whatsapp && (
+                        <a href={waLink(product.name)!} target="_blank" rel="noopener noreferrer"
+                          className="wa-btn"
+                          style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#25d366', fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', textDecoration: 'none' }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                          WhatsApp
+                        </a>
+                      )}
+                    </div>
+                  )}
+
+                  {added && (
+                    <button onClick={abrirSidebar}
+                      style={{ width: '100%', padding: '12px 0', marginTop: 12, borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
+                      VER CARRINHO →
+                    </button>
+                  )}
+                </div>
+
+                {/* SELOS DE CONFIANÇA — faixa única com ícones SVG. Os glifos
+                    unicode ■▶◆ de antes tinham métricas diferentes por fonte
+                    e nunca alinhavam entre si. */}
+                <div style={{ display: 'flex', border: '1px solid #ececec', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
+                  {[
+                    { label: 'Original', icon: <><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></> },
+                    { label: 'Pronta entrega', icon: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/> },
+                    { label: 'Autenticado', icon: <><path d="M20 13c0 5-3.5 7.5-7.65 8.95a1 1 0 0 1-.7-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></> },
+                  ].map((b, i) => (
+                    <div key={b.label} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 6px', borderLeft: i > 0 ? '1px solid #ececec' : 'none' }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>{b.icon}</svg>
+                      <span style={{ fontSize: 9.5, color: '#737373', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{b.label.toUpperCase()}</span>
+                    </div>
+                  ))}
                 </div>
 
                 {/* short description */}
@@ -521,217 +690,23 @@ export default function ProdutoPage() {
                   </p>
                 )}
 
-                {product.badges?.some(b => b.trim().toLowerCase() === SOB_ENCOMENDA_BADGE) && (
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', marginTop: -12, marginBottom: 24, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8 }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
-                      <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-                    </svg>
-                    <span style={{ fontSize: 13, color: '#b45309', lineHeight: 1.5 }}>{SOB_ENCOMENDA_TEXTO}</span>
+                {/* CONDIÇÕES DA LOJA — eram 4 cards num grid 2x2; viram lista
+                    compacta porque são fatos do site, não do produto. */}
+                <div style={{ paddingTop: 20, borderTop: '1px solid #ececec' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.12em', marginBottom: 12 }}>COMO FUNCIONA A COMPRA</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                    {[
+                      { label: 'Pagamento', value: 'PIX à vista' },
+                      { label: 'Retirada', value: 'Em loja' },
+                      { label: 'Procedência', value: 'Importado · Paraguai' },
+                      { label: 'Disponibilidade', value: product.estoque === null ? 'Imediata' : product.estoque > 0 ? 'Imediata' : 'Indisponível' },
+                    ].map(item => (
+                      <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12.5 }}>
+                        <span style={{ color: '#737373', fontWeight: 600 }}>{item.label}</span>
+                        <span style={{ color: '#0a0a0a', fontWeight: 700 }}>{item.value}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-
-                {/* SKU + Marca */}
-                <div style={{ display: 'flex', gap: 24, marginBottom: 28, fontSize: 11, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <span style={{ color: '#737373', fontWeight: 700, letterSpacing: '0.1em' }}>SKU</span>
-                    <span style={{ color: '#404040', fontFamily: 'monospace', background: '#fafafa', padding: '2px 8px', borderRadius: 4, border: '1px solid #ececec', letterSpacing: '0.05em' }}>
-                      {product.id.slice(0, 8).toUpperCase()}
-                    </span>
-                  </div>
-                  {product.brand && (
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      <span style={{ color: '#737373', fontWeight: 700, letterSpacing: '0.1em' }}>MARCA</span>
-                      <span style={{ color: '#404040' }}>{product.brand}</span>
-                    </div>
-                  )}
-                </div>
-                </div>
-
-                <div className="pdp-buybox">
-                {/* divider */}
-                <div style={{ height: 1, background: '#ececec', marginBottom: 28 }} />
-
-                {/* PRICE */}
-                <div style={{ marginBottom: 28 }}>
-                  {emBreve ? (
-                    <div style={{ background: '#faf7ff', border: '1px solid #d9c7f0', borderRadius: 12, padding: '18px 20px' }}>
-                      <div style={{ fontSize: 26, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em', lineHeight: 1.1 }}>{ROTULO_EM_BREVE}</div>
-                      <p style={{ fontSize: 13, color: '#5b4a6b', margin: '8px 0 0', lineHeight: 1.55 }}>
-                        Ainda não estamos vendendo este modelo. Assim que ele chegar, anunciamos preço e disponibilidade aqui.
-                      </p>
-                    </div>
-                  ) : (<>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
-                  <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                    R$ {fmtBRL(unitPrice)}
-                  </div>
-                  {unitPrice < product.brl_price && (
-                    <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
-                      <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>R$ {fmtBRL(product.brl_price)}</span>
-                      <span style={{ color: '#420E76', fontWeight: 700 }}>
-                        −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
-                      </span>
-                    </div>
-                  )}
-                  </>)}
-                </div>
-
-                {/* TIER TABLE — só com !emBreve: pré-venda não anuncia preço em
-                    lugar nenhum da página, tabela de tier não é exceção. */}
-                {!emBreve && tiers.length > 0 && (
-                  <div style={{ marginBottom: 28, background: '#fafafa', border: '1px solid #ececec', borderRadius: 12, padding: '16px 18px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: '#525252', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Preço por volume</span>
-                    </div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-                      <thead>
-                        <tr>
-                          <th style={{ textAlign: 'left', color: '#525252', fontWeight: 700, padding: '6px 8px', letterSpacing: '0.1em', fontSize: 10, textTransform: 'uppercase' }}>Quantidade</th>
-                          <th style={{ textAlign: 'right', color: '#525252', fontWeight: 700, padding: '6px 8px', letterSpacing: '0.1em', fontSize: 10, textTransform: 'uppercase' }}>Preço por un.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tiers.map((t, i) => {
-                          const active = qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max)
-                          const label = t.qty_max == null
-                            ? (<span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                                <span style={{ fontSize: 10, background: 'rgba(66, 14, 118,0.08)', color: '#420E76', padding: '2px 6px', borderRadius: 4, fontWeight: 800 }}>{t.qty_min}+</span>
-                                <span style={{ opacity: 0.7 }}>un.</span>
-                              </span>)
-                            : (<>{t.qty_min}–{t.qty_max} un.</>)
-                          return (
-                            <tr key={i} style={{ background: active ? 'rgba(66, 14, 118,0.06)' : 'transparent', borderTop: '1px solid #ececec' }}>
-                              <td style={{ padding: '10px 8px', color: active ? '#420E76' : '#404040', fontWeight: active ? 800 : 600 }}>{label}</td>
-                              <td style={{ padding: '10px 8px', textAlign: 'right', color: active ? '#420E76' : '#0a0a0a', fontWeight: active ? 900 : 700, fontVariantNumeric: 'tabular-nums' }}>
-                                R$ {fmtBRL(Number(t.brl_price))}
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* QUANTITY */}
-                <div style={{ marginBottom: 28 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 12 }}>QUANTIDADE</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: 'fit-content', border: '1px solid #d4d4d4', borderRadius: 10, overflow: 'hidden', background: '#ffffff' }}>
-                    <button className="qty-btn" onClick={() => adjustQty(qty - multiplicador)}
-                      style={{ width: 50, height: 50, background: '#ffffff', border: 'none', color: '#404040', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
-                      −
-                    </button>
-                    <div style={{ width: 64, height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: '#0a0a0a', background: '#fafafa', borderLeft: '1px solid #ececec', borderRight: '1px solid #ececec' }}>
-                      {qty}
-                    </div>
-                    <button className="qty-btn" onClick={() => adjustQty(qty + multiplicador)}
-                      style={{ width: 50, height: 50, background: '#ffffff', border: 'none', color: '#404040', fontSize: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
-                      disabled={product.estoque !== null && product.estoque !== undefined && qty >= product.estoque}>
-                      +
-                    </button>
-                  </div>
-                  {(multiplicador > 1 || vendaMinima > 1 || product.unidade_venda) && (
-                    <div style={{ fontSize: 11, color: '#737373', marginTop: 10, lineHeight: 1.5 }}>
-                      {product.unidade_venda && <span>Unidade: <span style={{ color: '#404040' }}>{product.unidade_venda}</span> · </span>}
-                      {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#420E76', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
-                      {multiplicador > 1 && vendaMinima > 1 && <span> · </span>}
-                      {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
-                    </div>
-                  )}
-                  {!emBreve && (
-                    <div style={{ fontSize: 13, color: '#404040', marginTop: 10 }}>
-                      Total: <span style={{ color: '#420E76', fontWeight: 800 }}>R$ {fmtBRL(unitPrice * qty)}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* CTA */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {product.estoque === 0 ? (
-                    <div style={{ padding: '18px 0', textAlign: 'center', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, color: '#dc2626', fontSize: 14, fontWeight: 700 }}>
-                      Produto sem estoque no momento
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <button onClick={handleAdd} className="add-btn"
-                        style={{
-                          flex: 1, padding: '18px 0', borderRadius: 12, border: 'none',
-                          background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
-                          color: added ? '#420E76' : '#ffffff',
-                          fontSize: 14, fontWeight: 800, letterSpacing: '0.1em',
-                          cursor: 'pointer',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                          boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
-                        }}>
-                        {emBreve ? ROTULO_EM_BREVE : added ? (
-                          <>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            ADICIONADO
-                          </>
-                        ) : (
-                          <>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                            ADICIONAR AO CARRINHO
-                          </>
-                        )}
-                      </button>
-                      <button onClick={handleBuyNow}
-                        style={{ flex: '0 0 auto', padding: '18px 22px', borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 13, fontWeight: 800, letterSpacing: '0.08em', cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
-                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
-                        COMPRAR AGORA
-                      </button>
-                    </div>
-                  )}
-
-                  {added && (
-                    <button onClick={abrirSidebar}
-                      style={{ width: '100%', padding: '14px 0', borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
-                      VER CARRINHO →
-                    </button>
-                  )}
-
-                  {/* WhatsApp */}
-                  {whatsapp && (
-                    <a href={waLink(product.name)!} target="_blank" rel="noopener noreferrer"
-                      className="wa-btn"
-                      style={{
-                        width: '100%', padding: '13px 0', borderRadius: 12,
-                        border: '1px solid rgba(37,211,102,0.4)',
-                        background: '#ffffff',
-                        color: '#25d366', fontSize: 12, fontWeight: 700,
-                        letterSpacing: '0.08em', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        textDecoration: 'none',
-                        boxSizing: 'border-box' as const,
-                      }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                      FALAR NO WHATSAPP
-                    </a>
-                  )}
-                </div>
-                </div>
-
-                <div className="pdp-infogrid">
-                {/* divider */}
-                <div style={{ height: 1, background: '#ececec', margin: '32px 0' }} />
-
-                {/* info grid */}
-                <div className="info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  {[
-                    { label: 'PAGAMENTO', value: 'PIX à vista' },
-                    { label: 'RETIRADA', value: 'Em loja' },
-                    { label: 'PROCEDÊNCIA', value: 'Atacado B2B' },
-                    { label: 'DISPONIBILIDADE', value: product.estoque === null ? 'Imediata' : product.estoque > 0 ? 'Imediata' : 'Indisponível' },
-                  ].map(item => (
-                    <div key={item.label} style={{ background: '#fafafa', border: '1px solid #ececec', borderRadius: 10, padding: '14px 16px' }}>
-                      <div style={{ fontSize: 9, color: '#737373', fontWeight: 800, letterSpacing: '0.12em', marginBottom: 6 }}>{item.label}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a' }}>{item.value}</div>
-                    </div>
-                  ))}
-                </div>
                 </div>
               </div>
             </div>
@@ -948,23 +923,31 @@ export default function ProdutoPage() {
               alignItems: 'center', gap: 12,
               boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
             }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {emBreve ? (
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
-                ) : (<>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.12em' }}>PREÇO ATACADO</div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
-                    R$ {fmtBRL(unitPrice)}
+              {emBreve ? (
+                <div style={{ flex: 1, fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
+              ) : (<>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1px solid #d4d4d4', borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
+                  <button onClick={() => adjustQty(qty - multiplicador)}
+                    style={{ width: 32, height: 40, background: '#ffffff', border: 'none', color: '#404040', fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                  <div style={{ width: 30, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#0a0a0a', background: '#fafafa' }}>{qty}</div>
+                  <button onClick={() => adjustQty(qty + multiplicador)}
+                    disabled={product.estoque !== null && product.estoque !== undefined && qty >= product.estoque}
+                    style={{ width: 32, height: 40, background: '#ffffff', border: 'none', color: '#404040', fontSize: 17, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.1em' }}>TOTAL</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+                    R$ {fmtBRL(unitPrice * qty)}
                   </div>
-                </>)}
-              </div>
+                </div>
+              </>)}
               <button onClick={handleAdd} disabled={emBreve}
                 style={{
-                  padding: '14px 22px', borderRadius: 10, border: 'none',
+                  padding: '14px 18px', borderRadius: 10, border: 'none',
                   background: added ? 'rgba(66, 14, 118,0.12)' : '#A965ED',
                   color: added ? '#420E76' : '#000',
                   fontSize: 12, fontWeight: 800, letterSpacing: '0.08em',
-                  cursor: 'pointer', whiteSpace: 'nowrap',
+                  cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                   boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
                 }}>
                 {emBreve ? ROTULO_EM_BREVE : added ? 'ADICIONADO' : 'ADICIONAR'}
