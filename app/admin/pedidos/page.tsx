@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 
 type ManualItem = { id: string; name: string; brand: string; usd: number; quantity: number }
-type Product = { id: string; name: string; brand: string; usd_price: number }
+type Product = { id: string; name: string; brand: string; brl_price: number }
 
 const STATUSES = [
   { value: 'pendente_pagamento', label: 'Pendente PIX', color: '#f59e0b' },
@@ -101,7 +101,7 @@ export default function Pedidos() {
     if (allProducts.length === 0) {
       const data = await fetch('/api/admin/produtos-list?perPage=5000').then(r => r.json()).catch(() => ({ rows: [] }))
       const list = Array.isArray(data) ? data : (data.rows || [])
-      setAllProducts(list.filter((p: Product) => p.usd_price > 0))
+      setAllProducts(list.filter((p: Product) => p.brl_price > 0))
     }
   }
 
@@ -109,7 +109,7 @@ export default function Pedidos() {
     setManualItems(prev => {
       const ex = prev.find(i => i.id === p.id)
       if (ex) return prev.map(i => i.id === p.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { id: p.id, name: p.name, brand: p.brand, usd: p.usd_price, quantity: 1 }]
+      return [...prev, { id: p.id, name: p.name, brand: p.brand, usd: p.brl_price, quantity: 1 }]
     })
   }
 
@@ -419,7 +419,7 @@ export default function Pedidos() {
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         <span style={{ color: 'var(--a-text2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+  USD {p.usd_price.toFixed(2)}</span>
+                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+  R$ {p.brl_price.toFixed(2).replace('.', ',')}</span>
                       </div>
                     ))}
                   </div>
@@ -438,8 +438,8 @@ export default function Pedidos() {
                         </div>
                       ))}
                       <div style={{ borderTop: '1px solid var(--a-border)', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
-                        <span style={{ color: 'var(--a-text2)' }}>Total USD</span>
-                        <span style={{ color: '#A965ED' }}>{manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2)}</span>
+                        <span style={{ color: 'var(--a-text2)' }}>Total</span>
+                        <span style={{ color: '#A965ED' }}>R$ {manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2).replace('.', ',')}</span>
                       </div>
                     </div>
                   )}

@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = `${cat.nome} no Atacado — Direto do Paraguai | ${SITE_NAME}`
   const description =
     `${cat.total} produtos de ${cat.nome.toLowerCase()} em atacado, direto do Paraguai. ` +
-    `Preços em dólar, pagamento via PIX e retirada na loja. Estoque imediato no Atacado na Fronteira.`
+    `Preços em R$, pagamento via PIX e retirada na loja. Estoque imediato no Atacado na Fronteira.`
 
   return {
     title,
@@ -248,7 +248,7 @@ export default async function CategoriaPage({
             nem com o grid pela primeira tela. */}
         <p style={{ fontSize: 14, color: '#737373', margin: '48px 0 0', paddingTop: 24, borderTop: '1px solid #ececec', maxWidth: 720, lineHeight: 1.6 }}>
           {cat.total} {cat.total === 1 ? 'produto disponível' : 'produtos disponíveis'} de {cat.nome.toLowerCase()},
-          direto do Paraguai. Preços de atacado em dólar, pagamento via PIX e retirada na loja.
+          direto do Paraguai. Preços de atacado em R$, pagamento via PIX e retirada na loja.
         </p>
       </main>
     </>

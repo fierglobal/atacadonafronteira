@@ -23,7 +23,7 @@ const h2: React.CSSProperties = { margin: 0, fontSize: 22, fontWeight: 800, lett
 const sub: React.CSSProperties = { margin: '6px 0 0', color: '#737373', fontSize: 14 }
 
 const PASSOS = [
-  ['Monte seu pedido', 'Preços em dólar, com o total em real na cotação do dia. Pedido mínimo de R$ 1.000.'],
+  ['Monte seu pedido', 'Preços em R$. Pedido mínimo de R$ 3.000.'],
   ['Pague via PIX', 'Pagamento à vista. Confirmamos em menos de 30 minutos e seu pedido entra na fila de separação.'],
   ['Separação em até 24h úteis', 'Seu pedido é conferido e embalado na fronteira. Avisamos quando estiver pronto.'],
   ['Retire ou receba', 'Grátis em Ciudad del Este, R$ 50 por unidade em Foz do Iguaçu (grátis acima de 20) ou envio para todo o Brasil.'],

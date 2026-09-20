@@ -12,7 +12,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 const TITLE = "Atacado na Fronteira — Suplementos e produtos premium";
-const DESCRIPTION = "Catálogo direto do Paraguai com as melhores marcas. Atacado e varejo, preços em USD, PIX e retirada na loja. Estoque imediato.";
+const DESCRIPTION = "Catálogo direto do Paraguai com as melhores marcas. Atacado e varejo, preços em R$, PIX e retirada na loja. Estoque imediato.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
