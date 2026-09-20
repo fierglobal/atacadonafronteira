@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 type Product = {
-  id: string; name: string; brand: string; usd_price: number; usd_price_promo: number | null
+  id: string; name: string; brand: string; brl_price: number; brl_price_promo: number | null
   custo: number | null; categoria_id: string | null
   img_url: string; ativo: boolean; sort_order: number; estoque: number | null
 }
@@ -72,9 +72,11 @@ export default function Produtos() {
     if (!editingPrice || editingPrice.id !== id) return
     const price = parseFloat(editingPrice.price.replace(',', '.'))
     if (isNaN(price) || price <= 0) return
-    setProducts(prev => prev.map(x => x.id === id ? { ...x, usd_price: price } : x))
+    setProducts(prev => prev.map(x => x.id === id ? { ...x, brl_price: price } : x))
     setEditingPrice(null)
-    await patch(id, { usd_price: price })
+    // usd_price segue calculado só por compatibilidade com código legado.
+    const usd_price = brlRate > 0 ? Math.round((price / brlRate) * 100) / 100 : price
+    await patch(id, { brl_price: price, usd_price })
   }
 
   const saveEstoque = async (id: string) => {
@@ -109,10 +111,10 @@ export default function Produtos() {
     if (filterStatus === 'inativos' && p.ativo) return false
     return true
   }).sort((a, b) => {
-    if (ordenacao === 'preco') return b.usd_price - a.usd_price
+    if (ordenacao === 'preco') return b.brl_price - a.brl_price
     if (ordenacao === 'margem') {
-      const ma = a.custo ? (a.usd_price - a.custo) / a.usd_price : -1
-      const mb = b.custo ? (b.usd_price - b.custo) / b.usd_price : -1
+      const ma = a.custo && brlRate > 0 ? (a.brl_price - a.custo * brlRate) / a.brl_price : -1
+      const mb = b.custo && brlRate > 0 ? (b.brl_price - b.custo * brlRate) / b.brl_price : -1
       return mb - ma
     }
     return a.name.localeCompare(b.name, 'pt-BR')
@@ -276,7 +278,7 @@ export default function Produtos() {
             <button onClick={() => { const n = parseFloat(ajustePercent); if (!isNaN(n)) aplicarLote({ ajustePercent: n }) }}
               disabled={aplicandoLote || !ajustePercent || isNaN(parseFloat(ajustePercent))}
               style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: '#A965ED', color: '#000', border: 'none', cursor: 'pointer', opacity: (aplicandoLote || !ajustePercent) ? 0.6 : 1, whiteSpace: 'nowrap' }}>
-              % no preço USD
+              % no preço
             </button>
           </div>
           <button onClick={() => setSelecionados(new Set())} style={{ fontSize: 12, color: 'var(--a-text3)', background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -295,7 +297,7 @@ export default function Produtos() {
                 <div onClick={toggleTodosVisiveis}
                   style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
               </th>
-              {['Produto', 'Categoria', 'Marca', 'Preço (USD / BRL)', 'Margem', 'Estoque', 'Status', ''].map(h => (
+              {['Produto', 'Categoria', 'Marca', 'Preço (R$)', 'Margem', 'Estoque', 'Status', ''].map(h => (
                 <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
               ))}
             </tr>
@@ -363,15 +365,14 @@ export default function Produtos() {
                       <button onClick={() => setEditingPrice(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
                     </div>
                   ) : (
-                    <button onClick={() => setEditingPrice({ id: p.id, price: p.usd_price.toString() })}
+                    <button onClick={() => setEditingPrice({ id: p.id, price: p.brl_price.toString() })}
                       style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 14, fontWeight: 900, color: '#A965ED' }}>USD {p.usd_price.toFixed(2)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#A965ED' }}>{fmtBRL(p.brl_price)}</span>
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--a-text3)" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </span>
-                      {brlRate > 0 && <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{fmtBRL(p.usd_price * brlRate)}</span>}
-                      {p.usd_price_promo != null && (
-                        <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>Promo USD {p.usd_price_promo.toFixed(2)}</span>
+                      {p.brl_price_promo != null && (
+                        <span style={{ fontSize: 10, color: '#f59e0b', fontWeight: 700 }}>Promo {fmtBRL(p.brl_price_promo)}</span>
                       )}
                     </button>
                   )}
@@ -379,7 +380,7 @@ export default function Produtos() {
 
                 {/* Margem */}
                 <td style={{ padding: '10px 16px' }}>
-                  <MargemBadge preco={p.usd_price} custo={p.custo} />
+                  <MargemBadge preco={p.brl_price} custo={p.custo != null && brlRate > 0 ? p.custo * brlRate : null} />
                 </td>
 
                 {/* Estoque */}
@@ -458,7 +459,7 @@ export default function Produtos() {
                 {p.brand && (
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#f59e0b', background: 'rgba(245,158,11,0.1)', borderRadius: 4, padding: '1px 6px' }}>{p.brand.toUpperCase()}</span>
                 )}
-                <MargemBadge preco={p.usd_price} custo={p.custo} />
+                <MargemBadge preco={p.brl_price} custo={p.custo != null && brlRate > 0 ? p.custo * brlRate : null} />
                 {!p.ativo && <span style={{ fontSize: 10, fontWeight: 700, background: 'rgba(239,68,68,0.12)', color: '#ef4444', borderRadius: 4, padding: '1px 6px' }}>INATIVO</span>}
               </div>
 
@@ -471,17 +472,16 @@ export default function Produtos() {
                   <button onClick={() => setEditingPrice(null)} style={{ padding: '4px 7px', background: 'var(--a-border)', color: 'var(--a-text2)', border: 'none', borderRadius: 5, cursor: 'pointer', fontSize: 13 }}>×</button>
                 </div>
               ) : (
-                <button onClick={() => setEditingPrice({ id: p.id, price: p.usd_price.toString() })}
+                <button onClick={() => setEditingPrice({ id: p.id, price: p.brl_price.toString() })}
                   style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const, marginBottom: 6, background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' as const }}>
                   <div>
                     <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--a-text3)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 1px' }}>Preço</p>
-                    <p style={{ fontSize: 14, fontWeight: 900, color: '#A965ED', margin: 0 }}>USD {p.usd_price.toFixed(2)}</p>
-                    {brlRate > 0 && <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: 0 }}>{fmtBRL(p.usd_price * brlRate)}</p>}
+                    <p style={{ fontSize: 14, fontWeight: 900, color: '#A965ED', margin: 0 }}>{fmtBRL(p.brl_price)}</p>
                   </div>
-                  {p.usd_price_promo != null && (
+                  {p.brl_price_promo != null && (
                     <div>
                       <p style={{ fontSize: 9, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.04em', margin: '0 0 1px' }}>Promo</p>
-                      <p style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b', margin: 0 }}>USD {p.usd_price_promo.toFixed(2)}</p>
+                      <p style={{ fontSize: 14, fontWeight: 900, color: '#f59e0b', margin: 0 }}>{fmtBRL(p.brl_price_promo)}</p>
                     </div>
                   )}
                 </button>

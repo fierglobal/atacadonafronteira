@@ -6,11 +6,12 @@ import { useCarrinho } from '@/components/CarrinhoContext'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 
-type Tier = { qty_min: number; qty_max: number | null; usd_price: number }
+type Tier = { qty_min: number; qty_max: number | null; brl_price: number; usd_price: number }
 type CFD = { field_key: string; label: string; field_type: string; options: any; ordem: number }
-type RelacionadoMin = { id: string; name: string; img_url: string | null; usd_price: number }
+type RelacionadoMin = { id: string; name: string; img_url: string | null; brl_price: number; usd_price: number }
 type Product = {
-  id: string; name: string; brand: string | null; usd_price: number; usd_price_promo?: number | null
+  id: string; name: string; brand: string | null; brl_price: number; brl_price_promo?: number | null
+  usd_price: number; usd_price_promo?: number | null
   img_url: string | null; imagens?: string[] | null; estoque: number | null; categoria_id: string | null; descricao: string | null
   descricao_curta?: string | null
   badges?: string[] | null
@@ -36,11 +37,11 @@ const BADGE_COLORS: Record<string, { bg: string; color: string; border: string }
 const DEFAULT_BADGE = { bg: '#fafafa', color: '#737373', border: '#d4d4d4' }
 const badgeStyle = (txt: string) => BADGE_COLORS[txt.trim().toLowerCase()] ?? DEFAULT_BADGE
 
-function priceFor(qty: number, base: number, tiers: Tier[]): number {
+function priceFor(qty: number, base: number, tiers: Tier[], field: 'brl_price' | 'usd_price'): number {
   if (!tiers || tiers.length === 0) return base
   const sorted = [...tiers].sort((a, b) => b.qty_min - a.qty_min)
   const t = sorted.find(x => qty >= x.qty_min && (x.qty_max == null || qty <= x.qty_max))
-  return t ? Number(t.usd_price) : base
+  return t ? Number(t[field]) : base
 }
 
 const PLACEHOLDER = '/produto-placeholder.svg'
@@ -53,10 +54,8 @@ const dec = (s: string | null) => {
   } catch { return s }
 }
 
-const fmt = (n: number, rate: number, code: string) => {
-  if (code === 'PYG') return n > 0 ? (n * rate).toLocaleString('es-PY', { maximumFractionDigits: 0 }) : '0'
-  return (n * rate).toFixed(2).replace('.', ',')
-}
+// Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
+const fmtBRL = (n: number) => n.toFixed(2).replace('.', ',')
 
 function renderInline(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*)/)
@@ -180,7 +179,7 @@ function ProductImage({ src, alt }: { src: string | null; alt: string }) {
 export default function ProdutoPage() {
   const router = useRouter()
   const params = useParams()
-  const { adicionar, abrirSidebar, quantidade, currency, brlRate, setCurrency } = useCarrinho()
+  const { adicionar, abrirSidebar, quantidade } = useCarrinho()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
@@ -282,11 +281,15 @@ export default function ProdutoPage() {
   // preço cheio de novo. basePrice é o "preço de tabela" já com a promoção
   // aplicada quando ela é melhor que o preço cheio; tier de volume continua
   // podendo bater um preço ainda menor por cima.
-  const promoAtiva = product?.usd_price_promo != null && Number(product.usd_price_promo) < Number(product?.usd_price)
-  const basePrice = product ? (promoAtiva ? Number(product.usd_price_promo) : product.usd_price) : 0
+  // basePriceBRL alimenta a exibição (fixo, sem recalcular pela taxa do dia);
+  // basePriceUSD segue existindo só pro carrinho, que ainda soma tudo em USD.
+  const promoAtiva = product?.brl_price_promo != null && Number(product.brl_price_promo) < Number(product?.brl_price)
+  const basePriceBRL = product ? (promoAtiva ? Number(product.brl_price_promo) : product.brl_price) : 0
+  const basePriceUSD = product ? (promoAtiva ? Number(product.usd_price_promo) : product.usd_price) : 0
   // Pré-venda não lançada: sem preço e sem compra em nenhum ponto desta página.
   const emBreve = product ? isEmBreve(product) : false
-  const unitPrice = product ? priceFor(qty, basePrice, tiers) : 0
+  const unitPrice = product ? priceFor(qty, basePriceBRL, tiers, 'brl_price') : 0
+  const unitPriceUSD = product ? priceFor(qty, basePriceUSD, tiers, 'usd_price') : 0
   const tierAtivo = tiers.some(t => qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max))
   const multiplicador = Math.max(1, product?.multiplicador || 1)
   const vendaMinima = Math.max(1, product?.venda_minima || 1)
@@ -306,9 +309,8 @@ export default function ProdutoPage() {
   const handleAdd = () => {
     if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
-    const u = priceFor(qty, basePrice, tiers)
     for (let i = 0; i < qty; i++) {
-      adicionar({ id: product.id, name: product.name, usd: u, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
+      adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
     }
     setAdded(true)
     setTimeout(() => setAdded(false), 3000)
@@ -317,8 +319,7 @@ export default function ProdutoPage() {
   const handleBuyNow = () => {
     if (emBreve) return   // pré-venda não vendável — a UI esconde, mas o handler também barra
     if (!product) return
-    const u = priceFor(qty, basePrice, tiers)
-    adicionar({ id: product.id, name: product.name, usd: u, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
+    adicionar({ id: product.id, name: product.name, usd: unitPriceUSD, img: product.img_url ?? PLACEHOLDER, brand: product.brand ?? undefined })
     router.push('/checkout')
   }
 
@@ -563,31 +564,22 @@ export default function ProdutoPage() {
                   ) : (<>
                   <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
                   <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                    {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
+                    R$ {fmtBRL(unitPrice)}
                   </div>
-                  {unitPrice < product.usd_price && (
+                  {unitPrice < product.brl_price && (
                     <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
-                      <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>{currency.code} {fmt(product.usd_price, currency.rate, currency.code)}</span>
+                      <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>R$ {fmtBRL(product.brl_price)}</span>
                       <span style={{ color: '#420E76', fontWeight: 700 }}>
-                        −{Math.round((1 - unitPrice / product.usd_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
+                        −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
                       </span>
-                    </div>
-                  )}
-                  {currency.code !== 'USD' && (
-                    <div style={{ fontSize: 11, color: '#737373', marginTop: 6, fontWeight: 500 }}>
-                      USD {unitPrice.toFixed(2)} · por unidade
-                    </div>
-                  )}
-                  {currency.code === 'USD' && (
-                    <div style={{ fontSize: 11, color: '#737373', marginTop: 6, fontWeight: 500 }}>
-                      ≈ R$ {fmt(unitPrice, brlRate, 'BRL')} · por unidade
                     </div>
                   )}
                   </>)}
                 </div>
 
-                {/* TIER TABLE */}
-                {tiers.length > 0 && (
+                {/* TIER TABLE — só com !emBreve: pré-venda não anuncia preço em
+                    lugar nenhum da página, tabela de tier não é exceção. */}
+                {!emBreve && tiers.length > 0 && (
                   <div style={{ marginBottom: 28, background: '#fafafa', border: '1px solid #ececec', borderRadius: 12, padding: '16px 18px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                       <span style={{ fontSize: 10, fontWeight: 800, color: '#525252', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Preço por volume</span>
@@ -612,7 +604,7 @@ export default function ProdutoPage() {
                             <tr key={i} style={{ background: active ? 'rgba(66, 14, 118,0.06)' : 'transparent', borderTop: '1px solid #ececec' }}>
                               <td style={{ padding: '10px 8px', color: active ? '#420E76' : '#404040', fontWeight: active ? 800 : 600 }}>{label}</td>
                               <td style={{ padding: '10px 8px', textAlign: 'right', color: active ? '#420E76' : '#0a0a0a', fontWeight: active ? 900 : 700, fontVariantNumeric: 'tabular-nums' }}>
-                                {currency.code} {fmt(Number(t.usd_price), currency.rate, currency.code)}
+                                R$ {fmtBRL(Number(t.brl_price))}
                               </td>
                             </tr>
                           )
@@ -649,7 +641,7 @@ export default function ProdutoPage() {
                   )}
                   {!emBreve && (
                     <div style={{ fontSize: 13, color: '#404040', marginTop: 10 }}>
-                      Total: <span style={{ color: '#420E76', fontWeight: 800 }}>{currency.code} {fmt(unitPrice * qty, currency.rate, currency.code)}</span>
+                      Total: <span style={{ color: '#420E76', fontWeight: 800 }}>R$ {fmtBRL(unitPrice * qty)}</span>
                     </div>
                   )}
                 </div>
@@ -818,7 +810,7 @@ export default function ProdutoPage() {
                           {p.name}
                         </p>
                         <div style={{ fontSize: 15, fontWeight: 900, color: '#420E76' }}>
-                          {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
+                          R$ {fmtBRL(p.brl_price)}
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
@@ -857,7 +849,7 @@ export default function ProdutoPage() {
                           {cj.name}
                         </p>
                         <div style={{ fontSize: 13, fontWeight: 900, color: '#420E76' }}>
-                          {currency.code} {fmt(cj.usd_price, currency.rate, currency.code)}
+                          R$ {fmtBRL(cj.brl_price)}
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: cj.id, name: cj.name, usd: cj.usd_price, img: cj.img_url ?? PLACEHOLDER }) }}
@@ -963,7 +955,7 @@ export default function ProdutoPage() {
                 ) : (<>
                   <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.12em' }}>PREÇO ATACADO</div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
-                    {currency.code} {fmt(unitPrice, currency.rate, currency.code)}
+                    R$ {fmtBRL(unitPrice)}
                   </div>
                 </>)}
               </div>

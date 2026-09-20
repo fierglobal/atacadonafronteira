@@ -67,7 +67,7 @@ const jsonLdLoja = () => ([
 
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
-const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
+const CAMPOS = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
 const VITRINE_POR_SECAO = 12
 
 // Mesmo shape que o client montaria via /api/facetas + /api/categorias +
@@ -166,18 +166,18 @@ async function getInitial(): Promise<HomeInitial | null> {
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
             .eq('categoria_id', celularCat.id as string).in('brand', ['APPLE', 'XIAOMI'])
             .gt('estoque', 0).not('img_url', 'is', null)
-            .order('usd_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+            .order('brl_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; brl_price: number; brl_price_promo: number | null; img_url: string | null }[] }),
       eletronicosIds.length
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
             .in('categoria_id', eletronicosIds).in('brand', ['APPLE', 'XIAOMI'])
             .gt('estoque', 0).not('img_url', 'is', null)
-            .order('usd_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
+            .order('brl_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; brl_price: number; brl_price_promo: number | null; img_url: string | null }[] }),
       supabaseAdmin.from('products').select(CAMPOS)
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .not('usd_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
+        .not('brl_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
     ])
     // Produto de pré-venda não pode liderar o hero: o hero anuncia preço, e ele não tem preço
     // a anunciar. Filtrar aqui evita ter que tratar o caso dentro do HeroRotativo, que nem
@@ -194,9 +194,9 @@ async function getInitial(): Promise<HomeInitial | null> {
       // brand GENÉRICO é insumo (água bacteriostática etc.), não o produto que
       // vende a categoria — mesmo com desconto real, não é o que deve liderar
       // o hero. Todo produto de verdade tem marca de fabricante.
-      .filter(p => p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price) && p.brand !== 'GENÉRICO')
+      .filter(p => p.brl_price_promo != null && Number(p.brl_price_promo) < Number(p.brl_price) && p.brand !== 'GENÉRICO')
       .sort((a, b) =>
-        (1 - Number(b.usd_price_promo) / Number(b.usd_price)) - (1 - Number(a.usd_price_promo) / Number(a.usd_price)))[0]
+        (1 - Number(b.brl_price_promo) / Number(b.brl_price)) - (1 - Number(a.brl_price_promo) / Number(a.brl_price)))[0]
 
     // Só categorias-folha: os departamentos já têm card próprio logo acima, e
     // "Eletrônicos" aparecendo no grid ao lado de Celular e Notebook confunde

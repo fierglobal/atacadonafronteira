@@ -28,9 +28,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Registrar log de alterações (ignora campos técnicos)
+  // Registrar log de alterações (ignora campos técnicos). usd_price* é
+  // recalculado a partir de brl_price em todo save — sem isso, o histórico
+  // logaria "USD X → USD Y" a cada edição de preço, e o site só mostra R$.
   if (antes) {
-    const ignorar = new Set(['updated_at', 'created_at', 'id'])
+    const ignorar = new Set(['updated_at', 'created_at', 'id', 'usd_price', 'usd_price_promo', 'usd_price_qty'])
     const campos_alterados: Record<string, { antes: unknown; depois: unknown }> = {}
     for (const [k, v] of Object.entries(body)) {
       if (ignorar.has(k)) continue

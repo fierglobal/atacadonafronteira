@@ -8,7 +8,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
   const { data } = await supabaseAdmin
     .from('product_relations')
-    .select('id, related_product_id, tipo, ordem, products!product_relations_related_product_id_fkey(id, name, titulo, img_url, usd_price, ativo)')
+    .select('id, related_product_id, tipo, ordem, products!product_relations_related_product_id_fkey(id, name, titulo, img_url, brl_price, ativo)')
     .eq('product_id', id)
     .order('ordem', { ascending: true })
   return NextResponse.json(data || [])

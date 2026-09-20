@@ -27,7 +27,7 @@ export async function GET(req: Request) {
   // paginar sem trazer o catálogo inteiro só para saber quantos são.
   let qb = supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador', { count: 'exact' })
+    .select('id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
 
@@ -52,14 +52,14 @@ export async function GET(req: Request) {
       if (tsq) qb = qb.textSearch('search_tsv', tsq, { config: 'portuguese' })
     }
   }
-  if (minPrice > 0) qb = qb.gte('usd_price', minPrice)
-  if (maxPrice > 0) qb = qb.lte('usd_price', maxPrice)
+  if (minPrice > 0) qb = qb.gte('brl_price', minPrice)
+  if (maxPrice > 0) qb = qb.lte('brl_price', maxPrice)
 
   switch (sort) {
-    case 'price_asc':  qb = qb.order('usd_price', { ascending: true }); break
-    case 'price_desc': qb = qb.order('usd_price', { ascending: false }); break
+    case 'price_asc':  qb = qb.order('brl_price', { ascending: true }); break
+    case 'price_desc': qb = qb.order('brl_price', { ascending: false }); break
     case 'newest':     qb = qb.order('created_at', { ascending: false }); break
-    case 'promo':      qb = qb.not('usd_price_promo', 'is', null).order('usd_price_promo', { ascending: true }); break
+    case 'promo':      qb = qb.not('brl_price_promo', 'is', null).order('brl_price_promo', { ascending: true }); break
     case 'name':       qb = qb.order('name', { ascending: true }); break
     default:           qb = qb.order('sort_order', { ascending: true })
   }

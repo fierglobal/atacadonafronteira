@@ -13,12 +13,13 @@ import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 const CONTATO_HREF = WHATSAPP_HREF
 
 type Product = {
-  id: string; name: string; brand: string | null; usd_price: number
+  id: string; name: string; brand: string | null; usd_price: number; brl_price: number
   img_url: string | null; estoque: number | null
   descricao_curta?: string | null
   badges?: string[] | null
   categoria_id?: string | null
   usd_price_promo?: number | null
+  brl_price_promo?: number | null
   venda_minima?: number
   multiplicador?: number
   rating?: number | null
@@ -71,13 +72,8 @@ const dec = (s: string | null) => {
   } catch { return s }
 }
 
-const fmt = (n: number, rate: number, code: string) => {
-  const v = n * rate
-  if (code === 'PYG') return v.toLocaleString('es-PY', { maximumFractionDigits: 0 })
-  // pt-BR com separador de milhar — "1.000,54" lê melhor que "1000,54" no
-  // card estreito, e ajuda o número a caber numa linha só.
-  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
+// Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
+const fmtBRL = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
@@ -104,10 +100,11 @@ const decodeProd = (p: Product): Product => ({ ...p, name: dec(p.name) ?? p.name
 
 function ProductCardCompact({ p }: { p: Product }) {
   const router = useRouter()
-  const { currency, brlRate, adicionar } = useCarrinho()
+  const { adicionar } = useCarrinho()
   const promo = isPromo(p)
   const emBreve = isEmBreve(p)
-  const priceShown = promo ? p.usd_price_promo! : p.usd_price
+  const priceShownBRL = promo ? p.brl_price_promo! : p.brl_price
+  const priceShownUSD = promo ? p.usd_price_promo! : p.usd_price
   const semCompra = p.estoque === 0 || emBreve
   const badges = effectiveBadges(p)
   const badge = badges[0] ? cardBadge(badges[0]) : null
@@ -137,22 +134,19 @@ function ProductCardCompact({ p }: { p: Product }) {
             ) : <>
             {promo && (
               <div style={{ fontSize: 10.5, color: '#a3a3a3', textDecoration: 'line-through', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as const }}>
-                {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
+                R$ {fmtBRL(p.brl_price)}
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, whiteSpace: 'nowrap' as const }}>
-              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>{currency.code}</span>
+              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>R$</span>
               <span style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const }}>
-                {fmt(priceShown, currency.rate, currency.code)}
+                {fmtBRL(priceShownBRL)}
               </span>
-            </div>
-            <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
-              {currency.code === 'USD' ? `≈ R$ ${fmt(priceShown, brlRate, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
             </>}
           </div>
           <button disabled={semCompra} aria-label="Adicionar ao carrinho"
-            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShown, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
+            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShownUSD, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
             style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: semCompra ? '#fafafa' : '#420E76', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: semCompra ? 'not-allowed' : 'pointer', transition: 'background 0.15s, transform 0.15s' }}
             onMouseEnter={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#5a1798' }}
             onMouseLeave={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#420E76' }}>
@@ -263,7 +257,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [refetching, setRefetching] = useState(false)
   const [destaques, setDestaques] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
-  const { currency, brlRate, setCurrency, adicionar, abrirSidebar, quantidade } = useCarrinho()
+  const { adicionar, abrirSidebar, quantidade } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
@@ -795,7 +789,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               {loadingProducts ? 'carregando…' : `${totalFiltrado} produtos disponíveis`}
             </span>
           </div>
-          <p style={{ color: '#737373', fontSize: 13, margin: 0, lineHeight: 1.5 }}>Importação oficial · Estoque imediato · Pagamento em PIX, USD ou BRL</p>
+          <p style={{ color: '#737373', fontSize: 13, margin: 0, lineHeight: 1.5 }}>Importação oficial · Estoque imediato · Pagamento via PIX</p>
         </div>
 
         {/* CHIPS DE CATEGORIA */}
@@ -945,7 +939,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
             <div className="destaques-scroll">
               {destaquesProdutos.map(p => {
                 const promo = isPromo(p)
-                const priceShown = promo ? p.usd_price_promo! : p.usd_price
+                const priceShownBRL = promo ? p.brl_price_promo! : p.brl_price
                 return (
                   <div key={p.id} className="product-card"
                     onClick={() => router.push(`/produtos/${p.id}`)}
@@ -962,7 +956,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                       )}
                       <h4 style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1 }}>
-                        {currency.code} {fmt(priceShown, currency.rate, currency.code)}
+                        R$ {fmtBRL(priceShownBRL)}
                       </div>
                     </div>
                   </div>
@@ -988,7 +982,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               const badges = effectiveBadges(p)
               const emBreveLista = isEmBreve(p)
               const semCompraLista = p.estoque === 0 || emBreveLista
-              const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
+              const discount = promo ? Math.round((1 - p.brl_price_promo! / p.brl_price) * 100) : 0
               return (
                 <Fragment key={p.id}>
                 {pIdx === PROMO_BANNER_AFTER && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
@@ -1117,20 +1111,15 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                         <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
                       ) : promo ? (
                         <>
-                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {fmt(p.usd_price, currency.rate, currency.code)}</div>
+                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>R$ {fmtBRL(p.brl_price)}</div>
                           <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                            {currency.code} {fmt(p.usd_price_promo!, currency.rate, currency.code)}
+                            R$ {fmtBRL(p.brl_price_promo!)}
                           </div>
                           <div style={{ fontSize: 9, color: '#b45309', fontWeight: 800, marginTop: 2 }}>-{discount}% OFF</div>
                         </>
                       ) : (
                         <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                          {currency.code} {fmt(p.usd_price, currency.rate, currency.code)}
-                        </div>
-                      )}
-                      {!emBreveLista && (
-                        <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
-                          {currency.code === 'USD' ? `≈ R$ ${fmt(promo ? p.usd_price_promo! : p.usd_price, brlRate, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
+                          R$ {fmtBRL(p.brl_price)}
                         </div>
                       )}
                     </div>
@@ -1263,7 +1252,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ fontSize: 10, color: '#404040', letterSpacing: '0.08em' }}>PAGAMENTO</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(169, 101, 237,0.12)', border: '1px solid rgba(169, 101, 237,0.2)', color: '#A965ED', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
-            <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>USD</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>BRL</span>
           </div>
         </div>

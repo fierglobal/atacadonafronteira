@@ -5,7 +5,7 @@ import Image from 'next/image'
 
 type Product = {
   id: string; name: string; titulo: string; descricao: string; brand: string; categoria_id: string
-  usd_price: number; usd_price_promo: number | null; usd_price_qty: number | null; qty_min: number | null; custo: number | null
+  brl_price: number; brl_price_promo: number | null; brl_price_qty: number | null; qty_min: number | null; custo: number | null
   img_url: string; imagens: string[]; video_url: string
   ativo: boolean; sort_order: number; estoque: number | null; sku: string
   peso: number | null; largura: number | null; altura: number | null; comprimento: number | null
@@ -20,13 +20,13 @@ type Variant = { id: string; atributos: { nome: string; valor: string }[]; preco
 type Log = { id: string; admin_email: string; campos_alterados: Record<string, { antes: unknown; depois: unknown }>; created_at: string }
 type SalesChannel = { id: string; slug: string; nome: string; ativo: boolean }
 type CustomFieldDef = { id: string; field_key: string; label: string; field_type: 'text' | 'number' | 'boolean' | 'date' | 'select'; options: string[] | null; required: boolean; ordem: number; categoria_id: string | null }
-type Tier = { qty_min: string; qty_max: string; usd_price: string }
+type Tier = { qty_min: string; qty_max: string; brl_price: string }
 type RelTipo = 'compre_junto' | 'similares' | 'acessorios' | 'upsell'
 type Relacionado = {
   related_product_id: string; tipo: RelTipo; ordem: number
-  products?: { id: string; name: string; titulo: string | null; img_url: string | null; usd_price: number | null; ativo: boolean }
+  products?: { id: string; name: string; titulo: string | null; img_url: string | null; brl_price: number | null; ativo: boolean }
 }
-type ProdutoLista = { id: string; name: string; titulo: string | null; img_url: string | null; usd_price: number | null; ativo: boolean }
+type ProdutoLista = { id: string; name: string; titulo: string | null; img_url: string | null; brl_price: number | null; ativo: boolean }
 
 const TABS = [
   { key: 'basico', label: 'Básico' },
@@ -58,7 +58,8 @@ const sec = (color = 'var(--a-text2)'): React.CSSProperties => ({ fontSize: 10, 
 
 const FIELD_LABELS: Record<string, string> = {
   name: 'Nome interno', titulo: 'Título', descricao: 'Descrição', brand: 'Marca', categoria_id: 'Categoria',
-  usd_price: 'Preço', usd_price_promo: 'Preço Promo', usd_price_qty: 'Preço por Qtd',
+  brl_price: 'Preço', brl_price_promo: 'Preço Promo', brl_price_qty: 'Preço por Qtd',
+  usd_price: 'Preço (USD legado)', usd_price_promo: 'Preço Promo (USD legado)', usd_price_qty: 'Preço por Qtd (USD legado)',
   qty_min: 'Qtd Mínima', custo: 'Custo', estoque: 'Estoque', sku: 'SKU',
   peso: 'Peso', largura: 'Largura', altura: 'Altura', comprimento: 'Comprimento',
   slug: 'Slug', meta_titulo: 'Meta Título', meta_descricao: 'Meta Descrição',
@@ -76,6 +77,7 @@ function slugify(s: string) {
 function fmtLogVal(campo: string, v: unknown): string {
   if (v === null || v === undefined) return '—'
   if (campo === 'ativo') return v ? 'Ativo' : 'Inativo'
+  if (campo.startsWith('brl_')) return `R$ ${Number(v).toFixed(2)}`
   if (campo.startsWith('usd_') || campo === 'custo') return `USD ${Number(v).toFixed(2)}`
   if (Array.isArray(v)) return `${v.length} item(ns)`
   if (campo === 'custom_fields' && typeof v === 'object') return `${Object.keys(v as object).length} campo(s)`
@@ -146,7 +148,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
 
   const [form, setForm] = useState({
     name: '', titulo: '', descricao: '', brand: '', categoria_id: '', ativo: true,
-    usd_price: '', usd_price_promo: '', usd_price_qty: '', qty_min: '', custo: '',
+    brl_price: '', brl_price_promo: '', brl_price_qty: '', qty_min: '', custo: '',
     estoque: '', sku: '', sort_order: '',
     peso: '', largura: '', altura: '', comprimento: '',
     slug: '', meta_titulo: '', meta_descricao: '',
@@ -174,10 +176,10 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     fetch(`/api/admin/produtos/${id}/variantes`).then(r => r.json()).then(d => setVariantes(Array.isArray(d) ? d : []))
     fetch(`/api/admin/produtos/${id}/tiers`).then(r => r.json()).then(d => {
       if (Array.isArray(d)) {
-        setTiers(d.map((t: { qty_min: number; qty_max: number | null; usd_price: number }) => ({
+        setTiers(d.map((t: { qty_min: number; qty_max: number | null; brl_price: number }) => ({
           qty_min: String(t.qty_min ?? ''),
           qty_max: t.qty_max != null ? String(t.qty_max) : '',
-          usd_price: String(t.usd_price ?? ''),
+          brl_price: String(t.brl_price ?? ''),
         })))
       }
     })
@@ -195,8 +197,8 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
       setForm({
         name: data.name || '', titulo: data.titulo || '', descricao: data.descricao || '',
         brand: data.brand || '', categoria_id: data.categoria_id || '', ativo: data.ativo ?? true,
-        usd_price: data.usd_price?.toString() || '', usd_price_promo: data.usd_price_promo?.toString() || '',
-        usd_price_qty: data.usd_price_qty?.toString() || '', qty_min: data.qty_min?.toString() || '',
+        brl_price: data.brl_price?.toString() || '', brl_price_promo: data.brl_price_promo?.toString() || '',
+        brl_price_qty: data.brl_price_qty?.toString() || '', qty_min: data.qty_min?.toString() || '',
         custo: data.custo?.toString() || '',
         estoque: data.estoque?.toString() || '', sku: data.sku || '', sort_order: data.sort_order?.toString() || '0',
         peso: data.peso?.toString() || '', largura: data.largura?.toString() || '',
@@ -267,13 +269,13 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     setForm(f => ({ ...f, custom_fields: { ...f.custom_fields, [key]: val } }))
   }
 
-  const addTier = () => setTiers(ts => [...ts, { qty_min: '', qty_max: '', usd_price: '' }])
+  const addTier = () => setTiers(ts => [...ts, { qty_min: '', qty_max: '', brl_price: '' }])
   const removeTier = (i: number) => setTiers(ts => ts.filter((_, j) => j !== i))
   const updateTier = (i: number, k: keyof Tier, v: string) =>
     setTiers(ts => ts.map((t, j) => j === i ? { ...t, [k]: v } : t))
 
   const tiersValidacao = (() => {
-    const limpos = tiers.filter(t => t.qty_min !== '' && t.usd_price !== '')
+    const limpos = tiers.filter(t => t.qty_min !== '' && t.brl_price !== '')
     if (limpos.length === 0) return null
     let prev = 0
     for (const t of limpos) {
@@ -293,7 +295,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     const ordem = relacionados.filter(r => r.tipo === relTipoAtivo).length
     setRelacionados(rs => [...rs, {
       related_product_id: prodId, tipo: relTipoAtivo, ordem,
-      products: prod ? { id: prod.id, name: prod.name, titulo: prod.titulo, img_url: prod.img_url, usd_price: prod.usd_price, ativo: prod.ativo } : undefined,
+      products: prod ? { id: prod.id, name: prod.name, titulo: prod.titulo, img_url: prod.img_url, brl_price: prod.brl_price, ativo: prod.ativo } : undefined,
     }])
     setRelSearchOpen(false)
     setRelSearchQuery('')
@@ -313,12 +315,19 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     if (tiersValidacao) { setError(tiersValidacao); return }
     setSaving(true); setError('')
     const publishedISO = form.published_at ? new Date(form.published_at).toISOString() : null
+    // brl_price é o campo de digitação; usd_price segue calculado só por
+    // compatibilidade com código legado que ainda lê essa coluna, nunca o contrário.
+    const rate = brlRate > 0 ? brlRate : 1
+    const toUsd = (v: number) => Math.round((v / rate) * 100) / 100
+    const brl_price = parseFloat(form.brl_price) || 0
+    const brl_price_promo = form.brl_price_promo ? parseFloat(form.brl_price_promo) : null
+    const brl_price_qty = form.brl_price_qty ? parseFloat(form.brl_price_qty) : null
     const body = {
       name: form.name, titulo: form.titulo || null, descricao: form.descricao || null,
       brand: form.brand || null, categoria_id: form.categoria_id || null, ativo: form.ativo,
-      usd_price: parseFloat(form.usd_price) || 0,
-      usd_price_promo: form.usd_price_promo ? parseFloat(form.usd_price_promo) : null,
-      usd_price_qty: form.usd_price_qty ? parseFloat(form.usd_price_qty) : null,
+      brl_price, usd_price: toUsd(brl_price),
+      brl_price_promo, usd_price_promo: brl_price_promo != null ? toUsd(brl_price_promo) : null,
+      brl_price_qty, usd_price_qty: brl_price_qty != null ? toUsd(brl_price_qty) : null,
       qty_min: form.qty_min ? parseInt(form.qty_min) : null,
       custo: form.custo ? parseFloat(form.custo) : null,
       estoque: form.estoque === '' ? null : parseInt(form.estoque),
@@ -339,11 +348,11 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
       custom_fields: Object.keys(form.custom_fields).length ? form.custom_fields : null,
     }
     const tiersPayload = tiers
-      .filter(t => t.qty_min !== '' && t.usd_price !== '')
+      .filter(t => t.qty_min !== '' && t.brl_price !== '')
       .map(t => ({
         qty_min: parseInt(t.qty_min) || 0,
         qty_max: t.qty_max ? parseInt(t.qty_max) : null,
-        usd_price: parseFloat(t.usd_price) || 0,
+        brl_price: parseFloat(t.brl_price) || 0,
       }))
     const relPayload = relacionados.map((r, i) => ({
       related_product_id: r.related_product_id,
@@ -421,10 +430,12 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
     setVariantes(v => v.filter(x => x.id !== vid))
   }
 
-  // Calcular margem
+  // Calcular margem — custo segue em USD (não migrado), converte pra BRL na
+  // taxa atual só pra comparar com o preço de venda, que agora é nativo em BRL.
   const custo = parseFloat(form.custo) || 0
-  const preco = parseFloat(form.usd_price_promo || form.usd_price) || 0
-  const margem = preco > 0 && custo > 0 ? ((preco - custo) / preco * 100) : null
+  const custoBRL = custo > 0 && brlRate > 0 ? custo * brlRate : 0
+  const preco = parseFloat(form.brl_price_promo || form.brl_price) || 0
+  const margem = preco > 0 && custoBRL > 0 ? ((preco - custoBRL) / preco * 100) : null
 
   // Categorias em árvore (pais + filhos)
   const catPais = categorias.filter(c => !c.parent_id)
@@ -610,18 +621,12 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               <p style={sec('#f59e0b')}>PRECIFICAÇÃO</p>
               <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
                 <div>
-                  <label style={lbl}>PREÇO DE VENDA (USD)</label>
-                  <input type="number" step="0.01" value={form.usd_price} onChange={set('usd_price')} placeholder="0.00" style={IS} />
-                  {brlRate > 0 && parseFloat(form.usd_price) > 0 && (
-                    <p style={{ fontSize: 11, color: 'var(--a-text3)', marginTop: 4 }}>≈ R$ {(parseFloat(form.usd_price) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  )}
+                  <label style={lbl}>PREÇO DE VENDA (R$)</label>
+                  <input type="number" step="0.01" value={form.brl_price} onChange={set('brl_price')} placeholder="0.00" style={IS} />
                 </div>
                 <div>
-                  <label style={lbl}>PREÇO &quot;DE&quot; PROMOCIONAL (USD)</label>
-                  <input type="number" step="0.01" value={form.usd_price_promo} onChange={set('usd_price_promo')} placeholder="Vazio = sem promoção" style={IS} />
-                  {brlRate > 0 && parseFloat(form.usd_price_promo) > 0 && (
-                    <p style={{ fontSize: 11, color: 'var(--a-text3)', marginTop: 4 }}>≈ R$ {(parseFloat(form.usd_price_promo) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  )}
+                  <label style={lbl}>PREÇO &quot;DE&quot; PROMOCIONAL (R$)</label>
+                  <input type="number" step="0.01" value={form.brl_price_promo} onChange={set('brl_price_promo')} placeholder="Vazio = sem promoção" style={IS} />
                 </div>
                 <div>
                   <label style={lbl}>CUSTO DO PRODUTO (USD)</label>
@@ -635,7 +640,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                     Margem: {margem.toFixed(1)}%
                   </span>
                   <span style={{ fontSize: 12, color: 'var(--a-text3)' }}>
-                    Lucro: USD {(preco - custo).toFixed(2)} por venda
+                    Lucro: R$ {(preco - custoBRL).toFixed(2)} por venda
                   </span>
                   {margem < 20 && <span style={{ fontSize: 12, color: '#ef4444' }}>⚠ Margem abaixo de 20%</span>}
                 </div>
@@ -646,8 +651,8 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               <p style={sec('#f59e0b')}>PREÇO POR QUANTIDADE</p>
               <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                 <div>
-                  <label style={lbl}>PREÇO ESPECIAL (USD)</label>
-                  <input type="number" step="0.01" value={form.usd_price_qty} onChange={set('usd_price_qty')} placeholder="Vazio = não usar" style={IS} />
+                  <label style={lbl}>PREÇO ESPECIAL (R$)</label>
+                  <input type="number" step="0.01" value={form.brl_price_qty} onChange={set('brl_price_qty')} placeholder="Vazio = não usar" style={IS} />
                 </div>
                 <div>
                   <label style={lbl}>QUANTIDADE MÍNIMA</label>
@@ -680,8 +685,8 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                     <input type="number" min="1" value={t.qty_max} onChange={e => updateTier(i, 'qty_max', e.target.value)} placeholder={i === tiers.length - 1 ? '+ acima (vazio)' : 'ex: 10'} style={IS} />
                   </div>
                   <div>
-                    {i === 0 && <label style={lbl}>PREÇO USD</label>}
-                    <input type="number" step="0.01" value={t.usd_price} onChange={e => updateTier(i, 'usd_price', e.target.value)} placeholder="0.00" style={IS} />
+                    {i === 0 && <label style={lbl}>PREÇO R$</label>}
+                    <input type="number" step="0.01" value={t.brl_price} onChange={e => updateTier(i, 'brl_price', e.target.value)} placeholder="0.00" style={IS} />
                   </div>
                   <button type="button" onClick={() => removeTier(i)}
                     style={{ padding: '10px 12px', background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', height: 'fit-content' }}>
@@ -700,10 +705,9 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
               </button>
             </div>
 
-            {form.usd_price_promo && parseFloat(form.usd_price_promo) > 0 && parseFloat(form.usd_price) > 0 && (
+            {form.brl_price_promo && parseFloat(form.brl_price_promo) > 0 && parseFloat(form.brl_price) > 0 && (
               <div style={{ padding: '12px 16px', background: 'rgba(169, 101, 237,0.06)', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 9, fontSize: 13, color: '#A965ED', fontWeight: 600 }}>
-                Desconto de {((parseFloat(form.usd_price) - parseFloat(form.usd_price_promo)) / parseFloat(form.usd_price) * 100).toFixed(1)}% — de USD {parseFloat(form.usd_price).toFixed(2)} por USD {parseFloat(form.usd_price_promo).toFixed(2)}
-                {brlRate > 0 && ` (R$ ${(parseFloat(form.usd_price) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} por R$ ${(parseFloat(form.usd_price_promo) * brlRate).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`}
+                Desconto de {((parseFloat(form.brl_price) - parseFloat(form.brl_price_promo)) / parseFloat(form.brl_price) * 100).toFixed(1)}% — de R$ {parseFloat(form.brl_price).toFixed(2)} por R$ {parseFloat(form.brl_price_promo).toFixed(2)}
               </div>
             )}
           </div>
@@ -1047,7 +1051,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                             {r.products?.titulo || r.products?.name || r.related_product_id}
                           </p>
                           <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '2px 0 0' }}>
-                            {r.products?.usd_price != null ? `USD ${r.products.usd_price.toFixed(2)}` : '—'}
+                            {r.products?.brl_price != null ? `R$ ${r.products.brl_price.toFixed(2)}` : '—'}
                             {r.products && !r.products.ativo && <span style={{ color: '#ef4444', marginLeft: 8 }}>· inativo</span>}
                           </p>
                         </div>
@@ -1092,7 +1096,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
                             {p.titulo || p.name}
                           </p>
                           <p style={{ fontSize: 10, color: 'var(--a-text3)', margin: '1px 0 0' }}>
-                            {p.usd_price != null ? `USD ${p.usd_price.toFixed(2)}` : '—'}
+                            {p.brl_price != null ? `R$ ${p.brl_price.toFixed(2)}` : '—'}
                           </p>
                         </div>
                       </button>

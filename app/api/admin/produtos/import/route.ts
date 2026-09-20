@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin, logAudit } from '@/lib/admin-auth'
+import { getConfig } from '@/lib/config'
 import Papa from 'papaparse'
 
 type Row = Record<string, string>
 
-const REQUIRED = ['name', 'usd_price']
+// brl_price é o campo de digitação do CSV; usd_price é calculado depois (nunca
+// o contrário) só por compatibilidade com código legado que ainda lê essa coluna.
+const REQUIRED = ['name', 'brl_price']
 const ALLOWED = [
   'name', 'titulo', 'descricao', 'brand', 'categoria_id',
-  'usd_price', 'usd_price_promo', 'usd_price_qty', 'qty_min', 'custo',
+  'brl_price', 'brl_price_promo', 'brl_price_qty', 'qty_min', 'custo',
   'img_url', 'video_url', 'ativo', 'sort_order', 'estoque', 'sku',
   'peso', 'largura', 'altura', 'comprimento', 'slug', 'meta_titulo', 'meta_descricao',
 ]
 
-const NUM = new Set(['usd_price', 'usd_price_promo', 'usd_price_qty', 'qty_min', 'custo', 'sort_order', 'estoque', 'peso', 'largura', 'altura', 'comprimento'])
+const NUM = new Set(['brl_price', 'brl_price_promo', 'brl_price_qty', 'qty_min', 'custo', 'sort_order', 'estoque', 'peso', 'largura', 'altura', 'comprimento'])
 const BOOL = new Set(['ativo'])
 
 function coerce(row: Row): Record<string, unknown> {
@@ -77,10 +80,20 @@ export async function POST(req: Request) {
 
   if (!valid.length) return NextResponse.json({ error: 'Nenhuma linha válida', errors }, { status: 400 })
 
+  const { brl_rate } = await getConfig()
+  const toUsd = (v: unknown) => brl_rate > 0 ? Math.round((Number(v) / brl_rate) * 100) / 100 : Number(v)
+  const withUsdCompat = valid.map(row => {
+    const out = { ...row }
+    if (typeof out.brl_price === 'number') out.usd_price = toUsd(out.brl_price)
+    if (typeof out.brl_price_promo === 'number') out.usd_price_promo = toUsd(out.brl_price_promo)
+    if (typeof out.brl_price_qty === 'number') out.usd_price_qty = toUsd(out.brl_price_qty)
+    return out
+  })
+
   const chunkSize = 200
   let inserted = 0
-  for (let i = 0; i < valid.length; i += chunkSize) {
-    const chunk = valid.slice(i, i + chunkSize)
+  for (let i = 0; i < withUsdCompat.length; i += chunkSize) {
+    const chunk = withUsdCompat.slice(i, i + chunkSize)
     const { error } = await supabaseAdmin.from('products').upsert(chunk, { onConflict: 'slug' })
     if (error) return NextResponse.json({ error: error.message, inserted, errors }, { status: 500 })
     inserted += chunk.length

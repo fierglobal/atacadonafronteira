@@ -190,3 +190,18 @@
 
 <!-- session 2026-08-23 18:28 -->
 <!-- arquivos: components/HomeSecoes.tsx -->
+
+<!-- session 2026-09-15 13:36 -->
+<!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->
+
+<!-- session 2026-09-15 13:40 -->
+<!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->
+
+<!-- session 2026-09-16 07:35 -->
+<!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->
+
+<!-- session 2026-09-16 07:42 -->
+<!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->
+
+<!-- session 2026-09-16 10:25 -->
+<!-- arquivos: app/admin/importar/page.tsx,app/admin/produtos/[id]/page.tsx,app/admin/produtos/page.tsx,app/api/admin/produtos/[id]/relacionados/route.ts,app/api/admin/produtos/[id]/tiers/route.ts,app/api/admin/produtos/bulk/route.ts,app/api/admin/produtos/import/route.ts,app/api/cross-sell/route.ts,app/api/produtos/[id]/route.ts,app/api/produtos/route.ts -->

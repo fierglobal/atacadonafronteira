@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export type HeroProduct = {
-  name: string | null; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null
+  name: string | null; brand: string | null; brl_price: number; brl_price_promo: number | null; img_url: string | null
 }
 
 const dec = (s: string | null) => {
@@ -17,7 +17,7 @@ const dec = (s: string | null) => {
 }
 
 const shorten = (s: string, max: number) => (s.length > max ? s.slice(0, max - 1).trimEnd() + '…' : s)
-const fmtUsd = (n: number) => n.toFixed(2).replace(/\.00$/, '')
+const fmtBrl = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 type Props = {
   eletronicos: number
@@ -29,10 +29,10 @@ type Props = {
 
 export default function HeroRotativo({ eletronicos, farmacia, total, heroEletronico, heroPromo }: Props) {
   const eletronico = heroEletronico ? { ...heroEletronico, name: dec(heroEletronico.name) ?? '', brand: dec(heroEletronico.brand) } : null
-  const promo = heroPromo && heroPromo.usd_price_promo != null
+  const promo = heroPromo && heroPromo.brl_price_promo != null
     ? { ...heroPromo, name: dec(heroPromo.name) ?? '', brand: dec(heroPromo.brand) }
     : null
-  const discountPct = promo ? Math.round((1 - Number(promo.usd_price_promo) / Number(promo.usd_price)) * 100) : 0
+  const discountPct = promo ? Math.round((1 - Number(promo.brl_price_promo) / Number(promo.brl_price)) * 100) : 0
 
   const slides: Array<'identidade' | 'eletronicos' | 'farmacia'> = [
     'identidade',
@@ -130,7 +130,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, heroEletron
             <span className="hero-kicker">Eletrônicos no atacado</span>
             <h1 className="hero-h1">Apple, Xiaomi<br />e JBL</h1>
             <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
-            <div className="hero-price"><span className="hero-price-num">USD {fmtUsd(eletronico.usd_price)}</span></div>
+            <div className="hero-price"><span className="hero-price-num">R$ {fmtBrl(eletronico.brl_price)}</span></div>
             <Link href="/categoria/eletronicos" className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
               Ver eletrônicos ({eletronicos})
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -142,7 +142,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, heroEletron
                 <Image src={eletronico.img_url} alt={eletronico.name} fill sizes="(max-width: 767px) 220px, 340px" style={{ objectFit: 'contain', padding: '12%' }} loading="eager" />
               </div>
               <div className="hero-badge hero-badge-price">
-                <span className="hero-badge-big">USD {fmtUsd(eletronico.usd_price)}</span>
+                <span className="hero-badge-big">R$ {fmtBrl(eletronico.brl_price)}</span>
                 <span className="hero-badge-small">preço de fronteira</span>
               </div>
             </>
@@ -163,8 +163,8 @@ export default function HeroRotativo({ eletronicos, farmacia, total, heroEletron
             <h1 className="hero-h1">{shorten(promo.name, 34)}</h1>
             <p className="hero-sub">Peptídeos e linha de estética &middot; {farmacia} produtos, preço de fronteira.</p>
             <div className="hero-price">
-              <span className="hero-price-strike">USD {fmtUsd(promo.usd_price)}</span>
-              <span className="hero-price-num">USD {fmtUsd(Number(promo.usd_price_promo))}</span>
+              <span className="hero-price-strike">R$ {fmtBrl(promo.brl_price)}</span>
+              <span className="hero-price-num">R$ {fmtBrl(Number(promo.brl_price_promo))}</span>
             </div>
             <Link href="/categoria/farmacia" className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
               Ver farmácia ({farmacia})
