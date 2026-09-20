@@ -217,3 +217,57 @@
 
 <!-- session 2026-09-07 23:21 -->
 <!-- arquivos: app/admin/pedidos/[id]/page.tsx,app/checkout/page.tsx,app/conta/minha-conta/pedidos/[id]/page.tsx,app/pix/[orderNum]/page.tsx -->
+
+<!-- session 2026-09-09 17:31 -->
+<!-- arquivos: app/HomeClient.tsx -->
+
+<!-- session 2026-09-09 19:42 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-10 08:07 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-10 11:14 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-10 11:16 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-10 13:43 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-10 14:41 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-15 09:03 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-15 09:44 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-15 12:47 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-15 13:20 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-16 10:32 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-16 10:50 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-19 11:57 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-19 22:13 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-19 22:42 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-19 23:05 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->
+
+<!-- session 2026-09-19 23:13 -->
+<!-- arquivos: app/HomeClient.tsx,PROJECT_MEMORY.md -->

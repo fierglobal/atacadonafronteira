@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import { isPromo, isEmBreve, ROTULO_EM_BREVE, effectiveBadges } from '@/lib/produto'
+import { SOB_ENCOMENDA_BADGE } from '@/lib/site'
 import Logo from '@/components/Logo'
 import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
@@ -45,6 +46,7 @@ const BADGE_COLORS_CARD: Record<string, { bg: string; color: string; border: str
   'promocao': { bg: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: 'rgba(66, 14, 118,0.4)' },
   'lançamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
   'lancamento': { bg: 'rgba(190,40,180,0.10)', color: '#a21caf', border: 'rgba(190,40,180,0.4)' },
+  [SOB_ENCOMENDA_BADGE]: { bg: 'rgba(245,158,11,0.12)', color: '#b45309', border: 'rgba(245,158,11,0.45)' },
 }
 const cardBadge = (txt: string) => BADGE_COLORS_CARD[txt.trim().toLowerCase()] ?? { bg: '#f5f5f5', color: '#737373', border: '#d4d4d4' }
 
