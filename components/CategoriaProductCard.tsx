@@ -8,8 +8,10 @@ import { isPromo, effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/prod
 // Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
 const fmtBRL = (n: number) => n.toFixed(2).replace('.', ',')
 
-export default function CategoriaProductCard({ p }: {
+export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
   p: { id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number; badges?: string[] | null }
+  /** menor brl_price entre os tiers de quantidade do produto, quando existem */
+  menorPrecoAtacado?: number | null
 }) {
   const { adicionar } = useCarrinho()
   const promo = isPromo(p)
@@ -40,7 +42,12 @@ export default function CategoriaProductCard({ p }: {
             {emBreve ? (
               <div style={{ fontSize: 13, fontWeight: 900, color: '#420E76', letterSpacing: '0.04em' }}>{ROTULO_EM_BREVE}</div>
             ) : (
-              <div style={{ fontSize: 15, fontWeight: 900, color: '#420E76' }}>R$ {fmtBRL(precoBRL)}</div>
+              <>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#420E76' }}>R$ {fmtBRL(precoBRL)}</div>
+                {menorPrecoAtacado != null && menorPrecoAtacado < precoBRL && (
+                  <div style={{ fontSize: 9.5, fontWeight: 700, color: '#16a34a' }}>a partir de R$ {fmtBRL(menorPrecoAtacado)}/un no atacado</div>
+                )}
+              </>
             )}
           </div>
           <button disabled={semCompra} aria-label="Adicionar ao carrinho"

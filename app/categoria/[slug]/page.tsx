@@ -9,7 +9,7 @@ import { SITE_URL, SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
 
-type Busca = { marca?: string; ordem?: string; pagina?: string }
+type Busca = { marca?: string; ordem?: string; pagina?: string; precoMin?: string; precoMax?: string }
 
 const ORDENS = [
   { chave: '', rotulo: 'Relevância' },
@@ -35,6 +35,10 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
     .in('categoria_id', ids)
 
   if (b.marca) q = q.eq('brand', b.marca)
+  const precoMin = b.precoMin ? Number(b.precoMin) : null
+  const precoMax = b.precoMax ? Number(b.precoMax) : null
+  if (precoMin != null && !Number.isNaN(precoMin)) q = q.gte('brl_price', precoMin)
+  if (precoMax != null && !Number.isNaN(precoMax)) q = q.lte('brl_price', precoMax)
 
   if (b.ordem === 'menor') q = q.order('brl_price', { ascending: true })
   else if (b.ordem === 'maior') q = q.order('brl_price', { ascending: false })
@@ -60,6 +64,23 @@ async function getMarcas(cat: CategoriaSeo) {
   const cont: Record<string, number> = {}
   for (const p of data) if (p.brand) cont[p.brand] = (cont[p.brand] || 0) + 1
   return Object.entries(cont).sort((a, b) => b[1] - a[1])
+}
+
+// Menor brl_price entre os tiers de quantidade de cada produto — vira o selo
+// "a partir de RX/un no atacado" no card, o principal gatilho de decisão do
+// comprador B2B (só a PDP mostrava a tabela completa até aqui).
+async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
+  if (!produtoIds.length) return {}
+  const { data } = await supabaseAdmin
+    .from('product_price_tiers')
+    .select('product_id, brl_price')
+    .in('product_id', produtoIds)
+    .order('brl_price', { ascending: true })
+  const menor: Record<string, number> = {}
+  for (const t of data || []) {
+    if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
+  }
+  return menor
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -95,15 +116,20 @@ export default async function CategoriaPage({
   if (!cat) notFound()
 
   const [{ itens, total, pagina }, marcas] = await Promise.all([getProdutos(cat, b), getMarcas(cat)])
+  const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id))
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA))
 
   const url = (extra: Partial<Busca>) => {
     const p = new URLSearchParams()
     const m = extra.marca !== undefined ? extra.marca : b.marca
     const o = extra.ordem !== undefined ? extra.ordem : b.ordem
+    const pMin = extra.precoMin !== undefined ? extra.precoMin : b.precoMin
+    const pMax = extra.precoMax !== undefined ? extra.precoMax : b.precoMax
     const pg = extra.pagina
     if (m) p.set('marca', m)
     if (o) p.set('ordem', o)
+    if (pMin) p.set('precoMin', pMin)
+    if (pMax) p.set('precoMax', pMax)
     if (pg && pg !== '1') p.set('pagina', pg)
     const qs = p.toString()
     return `/categoria/${cat.slug}${qs ? '?' + qs : ''}`
@@ -168,6 +194,7 @@ export default async function CategoriaPage({
           <span style={{ fontSize: 12.5, color: '#737373' }}>
             {total === 0 ? 'Nenhum produto' : `${total} produto${total > 1 ? 's' : ''}`}
             {b.marca ? ` · ${b.marca}` : ''}
+            {(b.precoMin || b.precoMax) ? ` · R$${b.precoMin || '0'}–${b.precoMax || '∞'}` : ''}
           </span>
         </div>
 
@@ -202,6 +229,29 @@ export default async function CategoriaPage({
             )}
             <details className="cat-filter-group" open>
               <summary className="cat-filter-title">
+                <span>PREÇO{b.precoMin || b.precoMax ? `: R$${b.precoMin || '0'}–${b.precoMax || '∞'}` : ''}</span>
+                <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
+              <form method="get" action={`/categoria/${cat.slug}`} className="cat-filter-list" style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 10px 8px' }}>
+                {b.marca && <input type="hidden" name="marca" value={b.marca} />}
+                {b.ordem && <input type="hidden" name="ordem" value={b.ordem} />}
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input type="number" name="precoMin" defaultValue={b.precoMin || ''} placeholder="Mín" min={0}
+                    style={{ width: 0, flex: 1, padding: '7px 8px', borderRadius: 6, border: '1px solid #ececec', fontSize: 12.5 }} />
+                  <span style={{ color: '#a3a3a3', fontSize: 12 }}>–</span>
+                  <input type="number" name="precoMax" defaultValue={b.precoMax || ''} placeholder="Máx" min={0}
+                    style={{ width: 0, flex: 1, padding: '7px 8px', borderRadius: 6, border: '1px solid #ececec', fontSize: 12.5 }} />
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button type="submit" style={{ flex: 1, padding: '7px 0', borderRadius: 6, border: 'none', background: '#420E76', color: '#fff', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>Aplicar</button>
+                  {(b.precoMin || b.precoMax) && (
+                    <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={{ display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 12.5, color: '#737373', textDecoration: 'none' }}>Limpar</Link>
+                  )}
+                </div>
+              </form>
+            </details>
+            <details className="cat-filter-group" open>
+              <summary className="cat-filter-title">
                 <span>ORDENAR: {ORDENS.find(o => o.chave === (b.ordem || ''))?.rotulo}</span>
                 <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </summary>
@@ -219,11 +269,11 @@ export default async function CategoriaPage({
           <div className="cat-main">
             {itens.length === 0 ? (
               <p style={{ padding: '40px 0', color: '#737373' }}>
-                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
+                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
               </p>
             ) : (
               <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-                {itens.map(p => <CategoriaProductCard key={p.id} p={p} />)}
+                {itens.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={menorTierPorProduto[p.id] ?? null} />)}
               </div>
             )}
 
