@@ -6,7 +6,7 @@ import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
 import { idsEletronicos } from '@/lib/categorias'
-import { calcularEntrega, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, ehEntregaTipo, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
 type Form = {
@@ -15,6 +15,7 @@ type Form = {
   po_number?: string
   entrega_tipo?: EntregaTipo
   entrega_endereco?: string
+  entrega_cep?: string
   seguro_recusado?: boolean
   utm?: { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
   honeypot?: string
@@ -124,6 +125,20 @@ export async function POST(req: Request) {
   if (entregaTipo === 'envio_brasil' && !(form.entrega_endereco || '').trim()) {
     return NextResponse.json({ error: 'Informe o endereço completo para o envio.' }, { status: 400 })
   }
+  const entregaCep = onlyDigits(form.entrega_cep)
+  if (entregaTipo === 'envio_brasil' && entregaCep.length !== 8) {
+    return NextResponse.json({ error: 'Informe um CEP válido (8 dígitos) para o envio.' }, { status: 400 })
+  }
+
+  let zonaEnvio: { nome: string; prazoDiasUteis: number } | null = null
+  if (entregaTipo === 'envio_brasil') {
+    const { data: zonas } = await supabaseAdmin
+      .from('frete_zonas')
+      .select('nome, cep_inicio, cep_fim, prazo_dias_uteis, ativo, ordem')
+    zonaEnvio = resolverZonaFrete(entregaCep, (zonas || []).map(z => ({
+      nome: z.nome, cepInicio: z.cep_inicio, cepFim: z.cep_fim, prazoDiasUteis: z.prazo_dias_uteis, ativo: z.ativo, ordem: z.ordem,
+    })))
+  }
 
   // Frete e seguro NUNCA vêm do navegador. A tela mostra um número; aqui ele é
   // refeito a partir da categoria real de cada produto no banco. Se divergir, vale
@@ -169,6 +184,9 @@ export async function POST(req: Request) {
     po_number: form.po_number || null,
     entrega_tipo: entregaTipo,
     entrega_endereco: entregaTipo === 'envio_brasil' ? form.entrega_endereco!.trim() : null,
+    entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : null,
+    frete_zona_nome: zonaEnvio?.nome ?? null,
+    frete_prazo_dias: zonaEnvio?.prazoDiasUteis ?? null,
     frete_brl: freteBrl,
     seguro_brl: seguroBrl,
     seguro_recusado: cotacao.seguroDisponivel ? form.seguro_recusado === true : false,

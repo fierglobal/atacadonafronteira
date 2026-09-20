@@ -9,9 +9,14 @@ type Props = {
   onTipo: (t: EntregaTipo) => void
   endereco: string
   onEndereco: (v: string) => void
+  cep: string
+  onCep: (v: string) => void
+  zonaEnvio: { nome: string; prazoDiasUteis: number } | null
   seguroRecusado: boolean
   onSeguroRecusado: (v: boolean) => void
 }
+
+const fmtCep = (digits: string) => digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits
 
 const OPCOES: { valor: EntregaTipo; titulo: string; sub: string }[] = [
   { valor: 'retirada_cde', titulo: 'Retirar em Ciudad del Este', sub: 'Na nossa loja, no Paraguai. Leve documento com foto.' },
@@ -20,7 +25,7 @@ const OPCOES: { valor: EntregaTipo; titulo: string; sub: string }[] = [
 ]
 
 export default function EntregaSeguro({
-  cotacoes, tipo, onTipo, endereco, onEndereco, seguroRecusado, onSeguroRecusado,
+  cotacoes, tipo, onTipo, endereco, onEndereco, cep, onCep, zonaEnvio, seguroRecusado, onSeguroRecusado,
 }: Props) {
   const atual = cotacoes?.[tipo]
   const mostraSeguro = tipo === 'envio_brasil'
@@ -53,9 +58,18 @@ export default function EntregaSeguro({
       })}
 
       {tipo === 'envio_brasil' && (
-        <input value={endereco} onChange={e => onEndereco(e.target.value)}
-          placeholder="Endereço completo com CEP (rua, número, bairro, cidade/UF)"
-          style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
+        <>
+          <input value={fmtCep(cep)} onChange={e => onCep(e.target.value.replace(/\D/g, '').slice(0, 8))}
+            placeholder="CEP" inputMode="numeric" maxLength={9}
+            style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }} />
+          <input value={endereco} onChange={e => onEndereco(e.target.value)}
+            placeholder="Endereço completo (rua, número, bairro, cidade/UF)"
+            style={{ width: '100%', padding: '11px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 13, outline: 'none', boxSizing: 'border-box', marginBottom: 6 }} />
+          <p style={{ margin: '0 0 10px', fontSize: 11.5, fontWeight: 700, color: zonaEnvio ? '#0f7a3d' : '#737373' }}>
+            {cep.length < 8 ? 'Informe o CEP pra ver o prazo de entrega.'
+              : zonaEnvio ? `📦 Chega em até ${zonaEnvio.prazoDiasUteis} dias úteis` : 'Calculando prazo...'}
+          </p>
+        </>
       )}
 
       {mostraSeguro && (
