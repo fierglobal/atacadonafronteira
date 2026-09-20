@@ -178,7 +178,7 @@ export default async function CategoriaPage({
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <SiteHeader />
-      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '20px 20px 60px' }}>
+      <main style={{ width: '100%', maxWidth: 1280, margin: '0 auto', padding: '20px 20px 60px', boxSizing: 'border-box' }}>
         <nav aria-label="Trilha de navegação" style={{ fontSize: 12, color: '#737373', marginBottom: 14 }}>
           <Link href="/" style={{ color: '#737373', textDecoration: 'none' }}>Início</Link>
           {cat.paiNome && cat.paiSlug && (

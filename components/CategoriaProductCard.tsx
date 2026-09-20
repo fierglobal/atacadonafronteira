@@ -25,7 +25,7 @@ export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
 
   return (
     <Link href={`/produtos/${p.id}`}
-      style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1 }}>
+      style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', display: 'flex', flexDirection: 'column', minWidth: 0, opacity: p.estoque === 0 ? 0.55 : 1 }}>
       <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#fafafa' }}>
         {temBadgePromo && (
           <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, background: 'rgba(66, 14, 118,0.10)', color: '#420E76', border: '1px solid rgba(66, 14, 118,0.4)', fontSize: 8, fontWeight: 900, padding: '3px 8px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase' }}>PROMOÇÃO</span>
