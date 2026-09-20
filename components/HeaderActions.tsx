@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
@@ -13,8 +12,7 @@ type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[]; ma
 
 export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]; contatoHref: string }) {
   const pathname = usePathname()
-  const { currency, currencies, brlRate, setCurrency, abrirSidebar, quantidade } = useCarrinho()
-  const [currencyOpen, setCurrencyOpen] = useState(false)
+  const { abrirSidebar, quantidade } = useCarrinho()
   const [mobileMenu, setMobileMenu] = useState(false)
   const router = useRouter()
   const [busca, setBusca] = useState('')
@@ -51,35 +49,6 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
         </form>
       </div>
       <div className="nav-actions">
-        <span className="nav-rate">USD/BRL = {brlRate.toFixed(2).replace('.', ',')}</span>
-        <div style={{ position: 'relative' }}>
-          <button onClick={() => setCurrencyOpen(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', borderRadius: 6, background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', color: '#420E76', fontSize: 11, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>
-            <div style={{ position: 'relative', width: 20, height: 14, overflow: 'hidden', borderRadius: 2 }}>
-              <Image src={currency.flag} alt={currency.label} fill style={{ objectFit: 'cover' }} unoptimized />
-            </div>
-            <span className="nav-cur-code">{currency.code}</span>
-            <svg className="nav-cur-caret" style={{ width: 10, height: 10, transform: currencyOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {currencyOpen && (
-            <>
-              <div onClick={() => setCurrencyOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 10 }} />
-              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 6, background: '#fff', border: '1px solid #ececec', borderRadius: 8, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', zIndex: 20, minWidth: 130, overflow: 'hidden' }}>
-                {currencies.map(c => (
-                  <button key={c.code} onClick={() => { setCurrency(c); setCurrencyOpen(false) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', padding: '9px 14px', background: currency.code === c.code ? 'rgba(66, 14, 118,0.06)' : 'transparent', border: 'none', color: currency.code === c.code ? '#420E76' : '#404040', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
-                    <div style={{ position: 'relative', width: 20, height: 14, overflow: 'hidden', borderRadius: 2, flexShrink: 0 }}>
-                      <Image src={c.flag} alt={c.label} fill style={{ objectFit: 'cover' }} unoptimized />
-                    </div>
-                    {c.code} — {c.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
         <a href={userName ? '/conta/minha-conta' : '/conta/login'} className="header-account"
           style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(0,0,0,0.02)', border: '1px solid #ececec', borderRadius: 8, padding: '7px 12px', color: '#404040', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textDecoration: 'none' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
