@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 
   const productsP = tsq
     ? supabaseAdmin.from('products')
-        .select('id, name, brand, brl_price, usd_price, estoque, ativo')
+        .select('id, name, brand, brl_price, estoque, ativo')
         .textSearch('search_tsv', tsq, { config: 'portuguese' })
         .limit(8)
     : Promise.resolve({ data: [] })

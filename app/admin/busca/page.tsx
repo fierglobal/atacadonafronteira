@@ -100,9 +100,6 @@ function BuscaConteudo() {
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>
                       {p.brl_price != null ? `R$ ${p.brl_price.toFixed(2).replace('.', ',')}` : '—'}
                     </span>
-                    {p.usd_price != null && (
-                      <span style={{ fontSize: 10, color: 'var(--a-text3)' }}>USD {p.usd_price.toFixed(2)}</span>
-                    )}
                     {p.estoque !== null && (
                       <span style={{ fontSize: 10, color: p.estoque === 0 ? '#ef4444' : p.estoque <= 5 ? '#f59e0b' : '#A965ED', fontWeight: 700 }}>{p.estoque} un.</span>
                     )}

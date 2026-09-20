@@ -2,12 +2,11 @@ import { supabaseAdmin } from '@/lib/supabase'
 export const dynamic = 'force-dynamic'
 
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
-const fmtUSD = (n: number) => `USD ${n.toFixed(2)}`
 
 async function getData() {
   const { data: orders } = await supabaseAdmin
     .from('orders')
-    .select('status, total_brl, total_usd, created_at')
+    .select('status, total_brl, created_at')
     .order('created_at', { ascending: false })
   return orders || []
 }
@@ -31,13 +30,12 @@ export default async function Financeiro() {
   const cancelados = (list: typeof orders) => list.filter(o => o.status === 'cancelado')
 
   const sumBRL = (list: typeof orders) => list.reduce((s, o) => s + o.total_brl, 0)
-  const sumUSD = (list: typeof orders) => list.reduce((s, o) => s + o.total_usd, 0)
 
   const cards = [
-    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), usd: sumUSD(confirmados(mesAtual)), color: '#A965ED' },
-    { label: 'Pendente PIX — Mês Atual', brl: sumBRL(pendentes(mesAtual)), usd: sumUSD(pendentes(mesAtual)), color: '#f59e0b' },
-    { label: 'Confirmado — Mês Anterior', brl: sumBRL(confirmados(mesAnterior)), usd: sumUSD(confirmados(mesAnterior)), color: '#A965ED' },
-    { label: 'Cancelado — Mês Atual', brl: sumBRL(cancelados(mesAtual)), usd: sumUSD(cancelados(mesAtual)), color: '#ef4444' },
+    { label: 'Confirmado — Mês Atual', brl: sumBRL(confirmados(mesAtual)), color: '#A965ED' },
+    { label: 'Pendente PIX — Mês Atual', brl: sumBRL(pendentes(mesAtual)), color: '#f59e0b' },
+    { label: 'Confirmado — Mês Anterior', brl: sumBRL(confirmados(mesAnterior)), color: '#A965ED' },
+    { label: 'Cancelado — Mês Atual', brl: sumBRL(cancelados(mesAtual)), color: '#ef4444' },
   ]
 
   // Daily breakdown (last 14 days)
@@ -67,8 +65,7 @@ export default async function Financeiro() {
         {cards.map(c => (
           <div key={c.label} style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: '20px 24px' }}>
             <p style={{ fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 12 }}>{c.label.toUpperCase()}</p>
-            <p style={{ fontSize: 28, fontWeight: 900, color: c.color, margin: '0 0 4px' }}>{fmt(c.brl)}</p>
-            <p style={{ fontSize: 12, color: 'var(--a-text3)', margin: 0 }}>{fmtUSD(c.usd)}</p>
+            <p style={{ fontSize: 28, fontWeight: 900, color: c.color, margin: 0 }}>{fmt(c.brl)}</p>
           </div>
         ))}
       </div>
