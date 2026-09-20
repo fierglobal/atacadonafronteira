@@ -29,15 +29,15 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
 
   let q = supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
+    .select('id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
     .in('categoria_id', ids)
 
   if (b.marca) q = q.eq('brand', b.marca)
 
-  if (b.ordem === 'menor') q = q.order('usd_price', { ascending: true })
-  else if (b.ordem === 'maior') q = q.order('usd_price', { ascending: false })
+  if (b.ordem === 'menor') q = q.order('brl_price', { ascending: true })
+  else if (b.ordem === 'maior') q = q.order('brl_price', { ascending: false })
   else if (b.ordem === 'nome') q = q.order('name', { ascending: true })
   else q = q.order('sort_order', { ascending: true })
 

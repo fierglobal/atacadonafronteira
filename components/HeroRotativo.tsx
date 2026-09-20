@@ -22,7 +22,7 @@ const shorten = (s: string, max: number) => (s.length > max ? s.slice(0, max - 1
 // ainda não migrado (brl_price nulo). Preço no hero é sempre em R$, usd_price
 // é legado de banco.
 const brlNativo = (usd: number, brl: number | null | undefined, rate: number) => brl ?? usd * rate
-const fmtBrl = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+const fmtBrl = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 type Props = {
   eletronicos: number
@@ -35,10 +35,10 @@ type Props = {
 
 export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, heroEletronico, heroPromo }: Props) {
   const eletronico = heroEletronico ? { ...heroEletronico, name: dec(heroEletronico.name) ?? '', brand: dec(heroEletronico.brand) } : null
-  const promo = heroPromo && heroPromo.usd_price_promo != null
+  const promo = heroPromo && heroPromo.brl_price_promo != null
     ? { ...heroPromo, name: dec(heroPromo.name) ?? '', brand: dec(heroPromo.brand) }
     : null
-  const discountPct = promo ? Math.round((1 - Number(promo.usd_price_promo) / Number(promo.usd_price)) * 100) : 0
+  const discountPct = promo ? Math.round((1 - Number(promo.brl_price_promo) / Number(promo.brl_price)) * 100) : 0
 
   const slides: Array<'identidade' | 'eletronicos' | 'farmacia'> = [
     'identidade',
@@ -136,7 +136,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <span className="hero-kicker">Eletrônicos no atacado</span>
             <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
             <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
-            <div className="hero-price"><span className="hero-price-num">{fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span></div>
+            <div className="hero-price"><span className="hero-price-num">R$ {fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span></div>
             <Link href="/categoria/eletronicos" className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
               Ver eletrônicos ({eletronicos})
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -148,7 +148,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
                 <Image src={eletronico.img_url} alt={eletronico.name} fill sizes="(max-width: 767px) 220px, 340px" style={{ objectFit: 'contain', padding: '12%' }} loading="eager" />
               </div>
               <div className="hero-badge hero-badge-price">
-                <span className="hero-badge-big">{fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span>
+                <span className="hero-badge-big">R$ {fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span>
                 <span className="hero-badge-small">preço de fronteira</span>
               </div>
             </>
@@ -169,8 +169,8 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <h1 className="hero-h1">{shorten(promo.name, 34)}</h1>
             <p className="hero-sub">Tirzepatida (GLP-1) &middot; {farmacia} produtos, preço de fronteira.</p>
             <div className="hero-price">
-              <span className="hero-price-strike">{fmtBrl(brlNativo(promo.usd_price, promo.brl_price, brlRate))}</span>
-              <span className="hero-price-num">{fmtBrl(brlNativo(Number(promo.usd_price_promo), promo.brl_price_promo, brlRate))}</span>
+              <span className="hero-price-strike">R$ {fmtBrl(brlNativo(promo.usd_price, promo.brl_price, brlRate))}</span>
+              <span className="hero-price-num">R$ {fmtBrl(brlNativo(Number(promo.usd_price_promo), promo.brl_price_promo, brlRate))}</span>
             </div>
             <Link href="/categoria/farmacia" className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
               Ver farmácia ({farmacia})

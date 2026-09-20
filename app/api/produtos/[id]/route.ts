@@ -9,7 +9,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const { data } = await supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, usd_price_promo, img_url, imagens, estoque, categoria_id, descricao, descricao_curta, badges, published_at, multiplicador, venda_minima, unidade_venda, custom_fields, sku')
+    .select('id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, imagens, estoque, categoria_id, descricao, descricao_curta, badges, published_at, multiplicador, venda_minima, unidade_venda, custom_fields, sku')
     .eq('id', id)
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${nowIso}`)
@@ -21,7 +21,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
     tipo: string
     products: {
       id: string; name: string; titulo: string | null; img_url: string | null
-      usd_price: number; ativo: boolean; published_at: string | null
+      brl_price: number; usd_price: number; ativo: boolean; published_at: string | null
     } | null
   }
   type CustomFieldDef = { field_key: string; label: string; field_type: string; options: unknown; ordem: number }
@@ -29,12 +29,12 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
   const [tiersRes, relRes, cfdRes] = await Promise.all([
     supabaseAdmin
       .from('product_price_tiers')
-      .select('qty_min, qty_max, usd_price')
+      .select('qty_min, qty_max, brl_price, usd_price')
       .eq('product_id', id)
       .order('qty_min'),
     supabaseAdmin
       .from('product_relations')
-      .select('tipo, ordem, products!product_relations_related_product_id_fkey(id, name, titulo, img_url, usd_price, ativo, published_at)')
+      .select('tipo, ordem, products!product_relations_related_product_id_fkey(id, name, titulo, img_url, brl_price, usd_price, ativo, published_at)')
       .eq('product_id', id)
       .order('ordem'),
     data.categoria_id
@@ -49,7 +49,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const tiers = tiersRes.data || []
 
-  const grouped: Record<string, { id: string; name: string | null; img_url: string | null; usd_price: number }[]> = { compre_junto: [], similar: [], acessorio: [], upsell: [] }
+  const grouped: Record<string, { id: string; name: string | null; img_url: string | null; brl_price: number; usd_price: number }[]> = { compre_junto: [], similar: [], acessorio: [], upsell: [] }
   for (const r of (relRes.data || []) as unknown as RelRow[]) {
     const p = r.products
     if (!p || !p.ativo) continue
@@ -60,6 +60,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
       id: p.id,
       name: enc(p.titulo || p.name),
       img_url: p.img_url,
+      brl_price: p.brl_price,
       usd_price: p.usd_price,
     })
   }

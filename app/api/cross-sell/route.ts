@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const now = new Date().toISOString()
   const { data: prods } = await supabaseAdmin
     .from('products')
-    .select('id, name, brand, usd_price, img_url, estoque, descricao_curta')
+    .select('id, name, brand, brl_price, usd_price, img_url, estoque, descricao_curta')
     .in('id', relatedIds)
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)

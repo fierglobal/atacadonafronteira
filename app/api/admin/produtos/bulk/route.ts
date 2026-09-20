@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { requireAdmin, logAudit } from '@/lib/admin-auth'
+import { getConfig } from '@/lib/config'
 
 export async function PATCH(req: Request) {
   const auth = await requireAdmin('produtos', 'rw')
@@ -19,15 +20,18 @@ export async function PATCH(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Ajuste percentual não dá pra fazer num único UPDATE (precisa do usd_price
+  // Ajuste percentual não dá pra fazer num único UPDATE (precisa do brl_price
   // atual de cada linha pra calcular o novo) — busca e recalcula por produto.
+  // usd_price segue recalculado junto só por compatibilidade com código legado.
   if (typeof ajustePercent === 'number' && ajustePercent !== 0) {
     const { data: atuais, error: fetchError } = await supabaseAdmin
-      .from('products').select('id, usd_price').in('id', ids)
+      .from('products').select('id, brl_price').in('id', ids)
     if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
+    const { brl_rate } = await getConfig()
     await Promise.all((atuais || []).map(p => {
-      const novoPreco = Math.round(Number(p.usd_price) * (1 + ajustePercent / 100) * 100) / 100
-      return supabaseAdmin.from('products').update({ usd_price: novoPreco, updated_at: new Date().toISOString() }).eq('id', p.id)
+      const novoPreco = Math.round(Number(p.brl_price) * (1 + ajustePercent / 100) * 100) / 100
+      const novoUsd = brl_rate > 0 ? Math.round((novoPreco / brl_rate) * 100) / 100 : novoPreco
+      return supabaseAdmin.from('products').update({ brl_price: novoPreco, usd_price: novoUsd, updated_at: new Date().toISOString() }).eq('id', p.id)
     }))
   }
 

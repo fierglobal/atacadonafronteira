@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, Fragment, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { useCarrinho, type Currency } from '@/components/CarrinhoContext'
+import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF, SOB_ENCOMENDA_BADGE } from '@/lib/site'
 import { isPromo, isEmBreve, ROTULO_EM_BREVE, effectiveBadges } from '@/lib/produto'
 import Logo from '@/components/Logo'
@@ -73,19 +73,8 @@ const dec = (s: string | null) => {
   } catch { return s }
 }
 
-const fmt = (n: number, rate: number, code: string) => {
-  const v = n * rate
-  if (code === 'PYG') return v.toLocaleString('es-PY', { maximumFractionDigits: 0 })
-  // pt-BR com separador de milhar — "1.000,54" lê melhor que "1000,54" no
-  // card estreito, e ajuda o número a caber numa linha só.
-  return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-// products.brl_price é o preço nativo em reais, cadastrado pelo admin — só cai pro
-// câmbio ao vivo (usd_price * rate) em produto que ainda não foi migrado (brl_price nulo).
-const brlNativo = (usd: number, brl: number | null | undefined, rate: number) => brl ?? usd * rate
-const precoAtual = (usd: number, brl: number | null | undefined, currency: Currency, brlRate: number) =>
-  currency.code === 'BRL' ? fmt(brlNativo(usd, brl, brlRate), 1, 'BRL') : fmt(usd, currency.rate, currency.code)
+// Site trabalha só em R$ — sem seletor de moeda, sem "≈ USD" em canto nenhum.
+const fmtBRL = (n: number | null | undefined) => (n ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
@@ -111,10 +100,11 @@ const decodeProd = (p: Product): Product => ({ ...p, name: dec(p.name) ?? p.name
 
 function ProductCardCompact({ p }: { p: Product }) {
   const router = useRouter()
-  const { currency, brlRate, adicionar } = useCarrinho()
+  const { adicionar } = useCarrinho()
   const promo = isPromo(p)
   const emBreve = isEmBreve(p)
-  const priceShown = promo ? p.usd_price_promo! : p.usd_price
+  const priceShownBRL = promo ? p.brl_price_promo! : p.brl_price
+  const priceShownUSD = promo ? p.usd_price_promo! : p.usd_price
   const semCompra = p.estoque === 0 || emBreve
   const badges = effectiveBadges(p)
   const badge = badges[0] ? cardBadge(badges[0]) : null
@@ -144,19 +134,19 @@ function ProductCardCompact({ p }: { p: Product }) {
             ) : <>
             {promo && (
               <div style={{ fontSize: 10.5, color: '#a3a3a3', textDecoration: 'line-through', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' as const }}>
-                {currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}
+                R$ {fmtBRL(p.brl_price)}
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, whiteSpace: 'nowrap' as const }}>
-              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>{currency.code}</span>
+              <span style={{ fontSize: 9.5, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.02em' }}>R$</span>
               <span style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const }}>
-                {precoAtual(priceShown, promo ? p.brl_price_promo : p.brl_price, currency, brlRate)}
+                {fmtBRL(priceShownBRL)}
               </span>
             </div>
             </>}
           </div>
           <button disabled={semCompra} aria-label="Adicionar ao carrinho"
-            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShown, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
+            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: priceShownUSD, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
             style={{ flexShrink: 0, width: 30, height: 30, borderRadius: 8, background: semCompra ? '#fafafa' : '#420E76', border: 'none', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: semCompra ? 'not-allowed' : 'pointer', transition: 'background 0.15s, transform 0.15s' }}
             onMouseEnter={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#5a1798' }}
             onMouseLeave={e => { if (!semCompra) (e.currentTarget as HTMLButtonElement).style.background = '#420E76' }}>
@@ -267,7 +257,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   const [refetching, setRefetching] = useState(false)
   const [destaques, setDestaques] = useState<string[]>([])
   const [aviso, setAviso] = useState('')
-  const { currency, brlRate, adicionar } = useCarrinho()
+  const { brlRate, adicionar } = useCarrinho()
   const [filterOpen, setFilterOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(false)
   const firstLoad = useRef(true)
@@ -778,7 +768,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               {loadingProducts ? 'carregando…' : `${totalFiltrado} produtos disponíveis`}
             </span>
           </div>
-          <p style={{ color: '#737373', fontSize: 13, margin: 0, lineHeight: 1.5 }}>Importação oficial · Estoque imediato · Pagamento em PIX, USD ou BRL</p>
+          <p style={{ color: '#737373', fontSize: 13, margin: 0, lineHeight: 1.5 }}>Importação oficial · Estoque imediato · Pagamento via PIX</p>
         </div>
 
         {/* CHIPS DE CATEGORIA */}
@@ -928,7 +918,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
             <div className="destaques-scroll">
               {destaquesProdutos.map(p => {
                 const promo = isPromo(p)
-                const priceShown = promo ? p.usd_price_promo! : p.usd_price
+                const priceShownBRL = promo ? p.brl_price_promo! : p.brl_price
                 return (
                   <div key={p.id} className="product-card"
                     onClick={() => router.push(`/produtos/${p.id}`)}
@@ -945,7 +935,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                       )}
                       <h4 style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{p.name}</h4>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1 }}>
-                        {currency.code} {precoAtual(priceShown, promo ? p.brl_price_promo : p.brl_price, currency, brlRate)}
+                        R$ {fmtBRL(priceShownBRL)}
                       </div>
                     </div>
                   </div>
@@ -972,7 +962,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               const badges = effectiveBadges(p)
               const emBreveLista = isEmBreve(p)
               const semCompraLista = p.estoque === 0 || emBreveLista
-              const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
+              const discount = promo ? Math.round((1 - p.brl_price_promo! / p.brl_price!) * 100) : 0
               return (
                 <Fragment key={p.id}>
                 <div data-card-id={p.id} className={`product-card${revealedCards.current.has(p.id) ? '' : ' card-pre-reveal'}`}
@@ -1030,15 +1020,15 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                         <div style={{ fontSize: 18, fontWeight: 900, color: '#420E76', lineHeight: 1.1, letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
                       ) : promo ? (
                         <>
-                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>{currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}</div>
+                          <div style={{ fontSize: 11, color: '#a3a3a3', textDecoration: 'line-through' }}>R$ {fmtBRL(p.brl_price)}</div>
                           <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                            {currency.code} {precoAtual(p.usd_price_promo!, p.brl_price_promo, currency, brlRate)}
+                            R$ {fmtBRL(p.brl_price_promo!)}
                           </div>
                           <div style={{ fontSize: 9, color: '#b45309', fontWeight: 800, marginTop: 2 }}>-{discount}% OFF</div>
                         </>
                       ) : (
                         <div style={{ fontSize: 22, fontWeight: 800, color: '#420E76', lineHeight: 1, letterSpacing: '-0.02em' }}>
-                          {currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}
+                          R$ {fmtBRL(p.brl_price)}
                         </div>
                       )}
                     </div>
@@ -1171,7 +1161,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <span style={{ fontSize: 10, color: '#404040', letterSpacing: '0.08em' }}>PAGAMENTO</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(169, 101, 237,0.12)', border: '1px solid rgba(169, 101, 237,0.2)', color: '#A965ED', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
-            <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>USD</span>
             <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>BRL</span>
           </div>
         </div>
