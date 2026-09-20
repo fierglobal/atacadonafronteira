@@ -21,14 +21,9 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
     const q = busca.trim()
     if (!q) return
     setMobileMenu(false)
-    // Já na home, router.push('/?q=...') não remonta o HomeClient — a busca
-    // ficava sem efeito nenhum (só a URL mudava). O evento deixa o próprio
-    // HomeClient aplicar o filtro no estado que já tem.
-    if (isHome) {
-      window.dispatchEvent(new CustomEvent('anf:busca-header', { detail: q }))
-    } else {
-      router.push(`/?q=${encodeURIComponent(q)}#catalogo`)
-    }
+    // Busca sempre manda pro catálogo (/produtos) — a home é só institucional,
+    // não tem mais grid de produto pra filtrar.
+    router.push(`/produtos?q=${encodeURIComponent(q)}`)
   }
   const [userName, setUserName] = useState<string | null>(null)
 
@@ -78,13 +73,13 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
               style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 14, outline: 'none' }} />
             <button type="submit" style={{ padding: '10px 16px', borderRadius: 8, background: '#420E76', color: '#ffffff', border: 'none', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>IR</button>
           </form>
-          <Link href="/" onClick={() => setMobileMenu(false)}
+          <Link href="/produtos" onClick={() => setMobileMenu(false)}
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#420E76' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             TODOS
           </Link>
           {topCats.map(c => (
             <div key={c.id}>
-              <a href={c.marca ? `/?marca=${encodeURIComponent(c.marca)}#catalogo` : `/categoria/${slugify(c.nome)}`} onClick={() => setMobileMenu(false)}
+              <a href={c.marca ? `/produtos?marca=${encodeURIComponent(c.marca)}` : `/categoria/${slugify(c.nome)}`} onClick={() => setMobileMenu(false)}
                 style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
                 {c.nome.toUpperCase()}
               </a>

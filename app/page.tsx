@@ -67,11 +67,10 @@ const jsonLdLoja = () => ([
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
 const CAMPOS = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador'
-const VITRINE_POR_SECAO = 12
 
-// Mesmo shape que o client montaria via /api/facetas + /api/categorias +
-// /api/produtos — mas resolvido no servidor, para a primeira tela sair do HTML
-// em vez de nascer skeleton.
+// Mesmo shape que o client montaria via /api/facetas + /api/categorias —
+// mas resolvido no servidor, para a primeira tela sair do HTML em vez de
+// nascer skeleton. A vitrine de produtos em si mora em /produtos.
 async function getInitial(): Promise<HomeInitial | null> {
   try {
     const now = new Date().toISOString()
@@ -127,26 +126,19 @@ async function getInitial(): Promise<HomeInitial | null> {
       .filter(d => d.total > 0)
       .sort((a, b) => b.total - a.total)
 
-    // Uma fileira por categoria-FOLHA (produto ligado direto a ela), não por
-    // departamento agregando os filhos — é o padrão "Smartphones", "Informática"
-    // como carrosséis separados, não um "Eletrônicos" só que junta tudo.
+    // Categorias-FOLHA (produto ligado direto a ela) viram os cards de
+    // "Categorias" da home — cada um só precisa de 1 foto de capa, não mais a
+    // vitrine inteira (isso agora é o catálogo em /produtos).
     const leafRows = categorias.filter(c => c.produtos > 0)
-
-    const secoesImg: Record<string, string | null> = {}
-    const secoes = await Promise.all(leafRows.map(async c => {
-      const { data } = await supabaseAdmin.from('products').select(CAMPOS)
+    const capasPorCategoria = await Promise.all(leafRows.map(async c => {
+      const { data } = await supabaseAdmin.from('products').select('img_url')
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .eq('categoria_id', c.id)
+        .eq('categoria_id', c.id).not('img_url', 'is', null)
         .order('sort_order', { ascending: true }).order('id', { ascending: true })
-        .range(0, VITRINE_POR_SECAO - 1)
-      secoesImg[c.id] = (data || [])[0]?.img_url ?? null
-      return {
-        id: c.id, nome: c.nome, total: c.produtos,
-        // nomes em base64, o mesmo contrato da API pública — o client decodifica tudo igual
-        items: (data || []).map(p => ({ ...p, name: enc(p.name), brand: enc(p.brand), rating: null, rating_total: 0 })),
-      }
+        .limit(1)
+      return [c.id, (data || [])[0]?.img_url ?? null] as const
     }))
-    secoes.sort((a, b) => b.total - a.total)
+    const secoesImg: Record<string, string | null> = Object.fromEntries(capasPorCategoria)
 
     // Hero rotativo: o slide de Eletrônicos mostra o Apple/Xiaomi mais caro em
     // Celular (foto de aparelho na mão cabe melhor no card quadrado do que um
@@ -211,7 +203,6 @@ async function getInitial(): Promise<HomeInitial | null> {
       }))
 
     return {
-      categorias,
       total: ativos.length,
       deptEletronicos: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
       deptFarmacia: departamentos.find(d => d.nome === 'Farmácia')?.total ?? 0,
@@ -224,8 +215,6 @@ async function getInitial(): Promise<HomeInitial | null> {
         ? { ...heroPromo, name: enc(heroPromo.name), brand: enc(heroPromo.brand) }
         : null,
       brands: Object.entries(marcas).sort((a, b) => b[1] - a[1]).map(([nome, total]) => ({ nome: enc(nome)!, total })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      secoes: secoes as any,
     }
   } catch (e) {
     // Este catch já escondeu um erro meu: uma variável usada antes de ser

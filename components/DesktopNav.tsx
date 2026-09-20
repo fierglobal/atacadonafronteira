@@ -39,13 +39,13 @@ export default function DesktopNav({ items }: { items: NavItem[] }) {
 
   return (
     <nav className="nav-desktop" aria-label="Categorias">
-      <Link href="/" className="nav-cat-btn" onMouseEnter={() => setHovered('todos')} onMouseLeave={() => setHovered(null)}>
+      <Link href="/produtos" className="nav-cat-btn" onMouseEnter={() => setHovered('todos')} onMouseLeave={() => setHovered(null)}>
         <span style={{ position: 'relative', zIndex: 1 }}>TODOS OS PRODUTOS</span>
         {hovered === 'todos' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
       </Link>
 
       {items.map(item => {
-        const href = item.marca ? `/?marca=${encodeURIComponent(item.marca)}#catalogo` : catHref(item.nome)
+        const href = item.marca ? `/produtos?marca=${encodeURIComponent(item.marca)}` : catHref(item.nome)
         return (
           <div
             key={item.id}

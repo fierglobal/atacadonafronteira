@@ -66,7 +66,7 @@ export function Departamentos({ cards }: { cards: DeptCard[] }) {
                 chips aqui dentro, cada um filtrando de verdade. */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
               {d.marcas.map(m => (
-                <a key={m.nome} href={`/?marca=${encodeURIComponent(m.nome)}#catalogo`}
+                <a key={m.nome} href={`/produtos?marca=${encodeURIComponent(m.nome)}`}
                   style={{ fontSize: 12, fontWeight: 700, color: '#404040', background: '#fafafa', border: '1px solid #ececec', borderRadius: 99, padding: '5px 11px', textDecoration: 'none' }}>
                   {m.nome} <span style={{ color: '#a3a3a3', fontWeight: 600 }}>{m.qtd}</span>
                 </a>
