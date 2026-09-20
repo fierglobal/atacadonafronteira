@@ -11,17 +11,27 @@ export const SEGURO_SAUDE_PEDIDO = 150
 export const FOZ_POR_UNIDADE = 50
 export const FOZ_GRATIS_A_PARTIR_DE = 20
 
+// Frete de Farmácia é por unidade, com teto fixo a partir de 101 unidades —
+// diferente do resto (FRETE_SAUDE_PEDIDO), que segue fixo por pedido pra
+// Perfumes e qualquer categoria futura sem regra própria.
+export const FRETE_FARMACIA_POR_UNIDADE = 15
+export const FRETE_FARMACIA_TETO = 1000
+export const FRETE_FARMACIA_TETO_A_PARTIR_DE = 100
+
 // Nome do departamento raiz que define a tabela cara. Mora aqui e não como UUID
 // porque o id do banco muda entre ambientes; o nome é o contrato do catálogo.
 export const DEPARTAMENTO_ELETRONICO = 'Eletrônicos'
+export const DEPARTAMENTO_FARMACIA = 'Farmácia'
 
-export type ItemEntrega = { quantity: number; eletronico: boolean }
+export type ItemEntrega = { quantity: number; eletronico: boolean; farmacia: boolean }
 
 export type Cotacao = {
   frete: number
   seguro: number
   /** true quando a tabela de eletrônico rege o pedido inteiro */
   tabelaEletronico: boolean
+  /** true quando a tabela de farmácia rege o pedido (sem eletrônico junto) */
+  tabelaFarmacia: boolean
   /** seguro só existe em envio; retirada não tem transporte para segurar */
   seguroDisponivel: boolean
   unidades: number
@@ -37,17 +47,23 @@ export function calcularEntrega(
   // dono, não inferência: eletrônico e medicamento viajam com o mesmo risco de
   // apreensão, e separar por item deixaria o pedido misto barato demais.
   const tabelaEletronico = itens.some(i => i.eletronico && i.quantity > 0)
+  // Farmácia só rege quando não há eletrônico junto — eletrônico sempre vence.
+  const tabelaFarmacia = !tabelaEletronico && itens.some(i => i.farmacia && i.quantity > 0)
 
   if (tipo === 'retirada_cde') {
-    return { frete: 0, seguro: 0, tabelaEletronico, seguroDisponivel: false, unidades }
+    return { frete: 0, seguro: 0, tabelaEletronico, tabelaFarmacia, seguroDisponivel: false, unidades }
   }
 
   if (tipo === 'retirada_foz') {
     const frete = unidades >= FOZ_GRATIS_A_PARTIR_DE ? 0 : FOZ_POR_UNIDADE * unidades
-    return { frete, seguro: 0, tabelaEletronico, seguroDisponivel: false, unidades }
+    return { frete, seguro: 0, tabelaEletronico, tabelaFarmacia, seguroDisponivel: false, unidades }
   }
 
-  const frete = tabelaEletronico ? FRETE_ELETRONICO_APARELHO * unidades : FRETE_SAUDE_PEDIDO
+  const frete = tabelaEletronico
+    ? FRETE_ELETRONICO_APARELHO * unidades
+    : tabelaFarmacia
+      ? (unidades >= FRETE_FARMACIA_TETO_A_PARTIR_DE ? FRETE_FARMACIA_TETO : FRETE_FARMACIA_POR_UNIDADE * unidades)
+      : FRETE_SAUDE_PEDIDO
   const seguroCheio = tabelaEletronico
     ? SEGURO_ELETRONICO_APARELHO * unidades
     : SEGURO_SAUDE_PEDIDO
@@ -55,6 +71,7 @@ export function calcularEntrega(
     frete,
     seguro: seguroRecusado ? 0 : seguroCheio,
     tabelaEletronico,
+    tabelaFarmacia,
     seguroDisponivel: true,
     unidades,
   }

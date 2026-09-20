@@ -5,7 +5,7 @@ import { getConfig } from '@/lib/config'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
-import { idsEletronicos } from '@/lib/categorias'
+import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
 import { calcularEntrega, ehEntregaTipo, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
@@ -143,13 +143,18 @@ export async function POST(req: Request) {
   // Frete e seguro NUNCA vêm do navegador. A tela mostra um número; aqui ele é
   // refeito a partir da categoria real de cada produto no banco. Se divergir, vale
   // este — é o mesmo motivo de o total do pedido não poder nascer do client.
-  const [eletronicosIds, { data: prodsCat }] = await Promise.all([
+  const [eletronicosIds, farmaciaIds, { data: prodsCat }] = await Promise.all([
     idsEletronicos(),
+    idsFarmacia(),
     supabaseAdmin.from('products').select('id, categoria_id').in('id', productIds.length ? productIds : ['00000000-0000-0000-0000-000000000000']),
   ])
   const catDe = new Map((prodsCat || []).map(p => [p.id as string, p.categoria_id as string | null]))
   const cotacao = calcularEntrega(
-    itens.map(i => ({ quantity: i.quantity, eletronico: eletronicosIds.has(catDe.get(i.id || '') || '') })),
+    itens.map(i => ({
+      quantity: i.quantity,
+      eletronico: eletronicosIds.has(catDe.get(i.id || '') || ''),
+      farmacia: farmaciaIds.has(catDe.get(i.id || '') || ''),
+    })),
     entregaTipo,
     form.seguro_recusado === true,
   )

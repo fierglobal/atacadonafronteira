@@ -1,6 +1,6 @@
 import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import { slugify } from '@/lib/slug'
-import { DEPARTAMENTO_ELETRONICO } from '@/lib/entrega'
+import { DEPARTAMENTO_ELETRONICO, DEPARTAMENTO_FARMACIA } from '@/lib/entrega'
 
 export { slugify }
 
@@ -67,12 +67,20 @@ export async function acharCategoriaPorSlug(slug: string): Promise<CategoriaSeo 
 // Resolvido pelo NOME do departamento raiz, não por UUID chumbado — o id muda
 // entre ambientes e um id errado faria o pedido inteiro cair na tabela barata
 // sem ninguém perceber.
-export async function idsEletronicos(): Promise<Set<string>> {
+async function idsDepartamento(nomeRaiz: string): Promise<Set<string>> {
   const { data: cats } = await supabaseAdmin.from('categorias').select('id, nome, parent_id')
   if (!cats) return new Set()
-  const raiz = cats.find(c => !c.parent_id && c.nome === DEPARTAMENTO_ELETRONICO)
+  const raiz = cats.find(c => !c.parent_id && c.nome === nomeRaiz)
   if (!raiz) return new Set()
   const ids = new Set<string>([raiz.id as string])
   for (const c of cats) if (c.parent_id === raiz.id) ids.add(c.id as string)
   return ids
+}
+
+export function idsEletronicos(): Promise<Set<string>> {
+  return idsDepartamento(DEPARTAMENTO_ELETRONICO)
+}
+
+export function idsFarmacia(): Promise<Set<string>> {
+  return idsDepartamento(DEPARTAMENTO_FARMACIA)
 }
