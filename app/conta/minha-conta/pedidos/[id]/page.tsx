@@ -21,7 +21,6 @@ const STATUS_LABEL: Record<string, string> = {
 const PIX_KEY_FALLBACK = '65078504000170'
 const PIX_HOLDER_FALLBACK = 'ATACADO NA FRONTEIRA'
 const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
-const fmtUsd = (n: number) => `$ ${n.toFixed(2)}`
 
 export default function PedidoDetalhe() {
   const router = useRouter()
@@ -313,7 +312,6 @@ export default function PedidoDetalhe() {
         <div style={{ padding: '16px 20px', borderTop: '1px solid #ececec', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fafafa' }}>
           <span style={{ fontSize: 11, color: '#525252', fontWeight: 700, letterSpacing: '0.06em' }}>TOTAL</span>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>{fmtUsd(order.total_usd)}</p>
             <p style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#0a0a0a' }}>{fmt(order.total_brl)}</p>
           </div>
         </div>

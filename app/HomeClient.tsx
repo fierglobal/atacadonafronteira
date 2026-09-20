@@ -89,7 +89,6 @@ const precoAtual = (usd: number, brl: number | null | undefined, currency: Curre
 
 const PAGE_SIZE = 12
 const INITIAL_PAGE = 20
-const PROMO_BANNER_AFTER = 10
 const VITRINE_POR_SECAO = 12
 
 
@@ -153,9 +152,6 @@ function ProductCardCompact({ p }: { p: Product }) {
               <span style={{ fontSize: 14.5, fontWeight: 900, color: '#420E76', lineHeight: 1, letterSpacing: '-0.01em', fontVariantNumeric: 'tabular-nums' as const }}>
                 {precoAtual(priceShown, promo ? p.brl_price_promo : p.brl_price, currency, brlRate)}
               </span>
-            </div>
-            <div style={{ fontSize: 9, color: '#a3a3a3', marginTop: 3, fontWeight: 500, whiteSpace: 'nowrap' as const }}>
-              {currency.code === 'USD' ? `≈ R$ ${fmt(brlNativo(priceShown, promo ? p.brl_price_promo : p.brl_price, brlRate), 1, 'BRL')}` : `USD ${priceShown.toFixed(2)}`}
             </div>
             </>}
           </div>
@@ -576,14 +572,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           0% { transform: rotateY(0deg); }
           100% { transform: rotateY(360deg); }
         }
-        @keyframes floatDot {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        @keyframes pulseDot {
-          0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-          50% { transform: scale(1.15); opacity: 0.85; box-shadow: 0 0 0 4px transparent; }
-        }
         @keyframes glassFadeIn {
           from { opacity: 0; transform: translateY(14px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
@@ -701,7 +689,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         .footer-brand-link:hover { color: #420E76 !important; }
         @media (max-width: 640px) {
           /* nav */
-          .promo-banners-row { grid-template-columns: 1fr !important; }
           .nav-rate { display: none !important; }
           .nav-cart-txt { display: none !important; }
           .nav-acct-txt { display: none !important; }
@@ -750,7 +737,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           Asset pré-otimizado em /public (sem custo de /_next/image). */}
       {isHome && initial && (
         <HeroRotativo
-          eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total}
+          eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total} brlRate={brlRate}
           heroEletronico={initial.heroEletronico} heroPromo={initial.heroPromo}
         />
       )}
@@ -999,77 +986,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
               const discount = promo ? Math.round((1 - p.usd_price_promo! / p.usd_price) * 100) : 0
               return (
                 <Fragment key={p.id}>
-                {pIdx === PROMO_BANNER_AFTER && !debouncedSearch && activeBrand === 'Todos' && !activeCategoria && (
-                  <div className="promo-banners-row" style={{ gridColumn: '1 / -1', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, margin: '8px 0' }}>
-                    {/* ZPHC Banner */}
-                    <div onClick={() => { setActiveBrand('ZPHC'); setActiveCategoria('') }}
-                      onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(72,144,255,0.5)'; el.style.boxShadow = '0 12px 40px rgba(8,30,100,0.7), 0 0 40px rgba(72,144,255,0.15), inset 0 1px 0 rgba(255,255,255,0.08)' }}
-                      onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(72,144,255,0.2)'; el.style.boxShadow = '0 8px 32px rgba(8,30,100,0.5), inset 0 1px 0 rgba(255,255,255,0.05)' }}
-                      style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '28px 32px', background: 'linear-gradient(135deg, #050d1f 0%, #081835 40%, #0d2252 70%, #102b6a 100%)', border: '1px solid rgba(72,144,255,0.2)', boxShadow: '0 8px 32px rgba(8,30,100,0.5), inset 0 1px 0 rgba(255,255,255,0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, transition: 'box-shadow 0.2s, border-color 0.2s', minHeight: 160 }}>
-                      <div aria-hidden="true" style={{ position: 'absolute', right: -30, top: -30, width: 220, height: 220, background: 'radial-gradient(circle, rgba(72,144,255,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                      <div aria-hidden="true" style={{ position: 'absolute', left: 0, bottom: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(72,144,255,0.05), transparent)', pointerEvents: 'none' }} />
-                      <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(72,144,255,0.1)', border: '1px solid rgba(72,144,255,0.28)', marginBottom: 12 }}>
-                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#F6BD0C" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#F6BD0C' }}>DISTRIBUIDOR OFICIAL</span>
-                        </div>
-                        <div style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.08, marginBottom: 8 }}>
-                          LINHA<br/><span style={{ color: '#F6BD0C', textShadow: '0 0 20px rgba(72,144,255,0.55)' }}>ZPHC</span>
-                        </div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 18 }}>Farmacêuticos certificados.<br/>Alta pureza. Estoque imediato.</div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: '#F6BD0C', color: '#fff', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(72,144,255,0.4)' }}>
-                          VER LINHA ZPHC
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </div>
-                      </div>
-                      <div aria-hidden="true" style={{ position: 'relative', flexShrink: 0, width: 88, height: 88, opacity: 0.9 }}>
-                        {[{t:'10%',l:'15%',s:3,d:'0s'},{t:'65%',l:'75%',s:2,d:'0.8s'},{t:'75%',l:'5%',s:2,d:'1.4s'},{t:'20%',l:'82%',s:3,d:'0.4s'}].map((d,i)=>(
-                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#F6BD0C', boxShadow:'0 0 5px #F6BD0C', animation:`floatDot ${3+i*0.6}s ease-in-out infinite`, animationDelay:d.d }}/>
-                        ))}
-                        <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-                          <path d="M44 8 L74 20 L74 46 C74 60 62 72 44 80 C26 72 14 60 14 46 L14 20 Z" stroke="#F6BD0C" strokeWidth="1.8" fill="rgba(72,144,255,0.06)" opacity="0.75"/>
-                          <polyline points="30 44 41 55 58 34" stroke="#F6BD0C" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" opacity="0.95"/>
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Biogenises Banner */}
-                    <div onClick={() => { setActiveBrand('BIOGENESIS'); setActiveCategoria('') }}
-                      onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(169, 101, 237,0.38)'; el.style.boxShadow = '0 12px 40px rgba(0,30,0,0.8), 0 0 40px rgba(169, 101, 237,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' }}
-                      onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'rgba(169, 101, 237,0.14)'; el.style.boxShadow = '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)' }}
-                      style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, padding: '28px 32px', background: 'linear-gradient(135deg, #030a03 0%, #051405 40%, #071d07 70%, #0a2408 100%)', border: '1px solid rgba(169, 101, 237,0.14)', boxShadow: '0 8px 32px rgba(0,30,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, transition: 'box-shadow 0.2s, border-color 0.2s', minHeight: 160 }}>
-                      <div aria-hidden="true" style={{ position: 'absolute', right: -20, top: -20, width: 200, height: 200, background: 'radial-gradient(circle, rgba(169, 101, 237,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                      <div aria-hidden="true" style={{ position: 'absolute', left: 0, bottom: 0, right: 0, height: 60, background: 'linear-gradient(to top, rgba(169, 101, 237,0.04), transparent)', pointerEvents: 'none' }} />
-                      <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99, background: 'rgba(169, 101, 237,0.07)', border: '1px solid rgba(169, 101, 237,0.22)', marginBottom: 12 }}>
-                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#A965ED', boxShadow: '0 0 5px #A965ED', animation: 'pulseDot 3s ease-in-out infinite' }} />
-                          <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: '0.15em', color: '#A965ED' }}>BIOTECNOLOGIA</span>
-                        </div>
-                        <div style={{ fontSize: 28, fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.08, marginBottom: 8 }}>
-                          LINHA<br/><span style={{ color: '#A965ED', textShadow: '0 0 20px rgba(169, 101, 237,0.55)' }}>BIOGENISES</span>
-                        </div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, marginBottom: 18 }}>Peptídeos de alta pureza.<br/>Qualidade laboratório certificado.</div>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 8, background: 'rgba(169, 101, 237,0.1)', border: '1px solid rgba(169, 101, 237,0.35)', color: '#A965ED', fontSize: 10, fontWeight: 900, letterSpacing: '0.1em', boxShadow: '0 4px 16px rgba(169, 101, 237,0.18)' }}>
-                          VER LINHA BIOGENISES
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </div>
-                      </div>
-                      <div aria-hidden="true" style={{ position: 'relative', flexShrink: 0, width: 88, height: 88, opacity: 0.9 }}>
-                        {[{t:'12%',l:'48%',s:3,d:'0s'},{t:'58%',l:'8%',s:2,d:'0.7s'},{t:'78%',l:'68%',s:3,d:'1.3s'},{t:'30%',l:'82%',s:2,d:'0.3s'}].map((d,i)=>(
-                          <div key={i} style={{ position:'absolute', top:d.t, left:d.l, width:d.s, height:d.s, borderRadius:'50%', background:'#A965ED', boxShadow:'0 0 5px #A965ED', animation:`floatDot ${3+i*0.5}s ease-in-out infinite`, animationDelay:d.d }}/>
-                        ))}
-                        <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-                          <circle cx="44" cy="18" r="10" stroke="#A965ED" strokeWidth="1.8" fill="rgba(169, 101, 237,0.07)" opacity="0.85"/>
-                          <circle cx="18" cy="64" r="8" stroke="#A965ED" strokeWidth="1.5" fill="rgba(169, 101, 237,0.05)" opacity="0.7"/>
-                          <circle cx="70" cy="64" r="8" stroke="#A965ED" strokeWidth="1.5" fill="rgba(169, 101, 237,0.05)" opacity="0.7"/>
-                          <line x1="44" y1="28" x2="18" y2="56" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
-                          <line x1="44" y1="28" x2="70" y2="56" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
-                          <line x1="26" y1="64" x2="62" y2="64" stroke="#A965ED" strokeWidth="1.4" opacity="0.5"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                )}
                 <div data-card-id={p.id} className={`product-card${revealedCards.current.has(p.id) ? '' : ' card-pre-reveal'}`}
                   style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column', opacity: p.estoque === 0 ? 0.55 : 1, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div onClick={() => router.push(`/produtos/${p.id}`)} className="card-img-wrap"
@@ -1136,11 +1052,6 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
                           {currency.code} {precoAtual(p.usd_price, p.brl_price, currency, brlRate)}
                         </div>
                       )}
-                      {!emBreveLista && (
-                        <div style={{ fontSize: 10, color: '#a3a3a3', marginTop: 4, fontWeight: 500 }}>
-                          {currency.code === 'USD' ? `≈ R$ ${fmt(brlNativo(promo ? p.usd_price_promo! : p.usd_price, promo ? p.brl_price_promo : p.brl_price, brlRate), 1, 'BRL')}` : `USD ${(promo ? p.usd_price_promo! : p.usd_price).toFixed(2)}`}
-                        </div>
-                      )}
                     </div>
                     <button disabled={semCompraLista} className="card-add-btn"
                       onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: promo ? p.usd_price_promo! : p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
@@ -1205,7 +1116,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           <div>
             <span style={{ display: 'inline-block', marginBottom: 16 }}><Logo size={30} dark /></span>
             <p style={{ color: '#737373', fontSize: 13, lineHeight: 1.7, margin: '0 0 20px', maxWidth: 280 }}>
-              Distribuidor atacadista na fronteira do Paraguai: farmácia, Apple, Xiaomi e JBL. Estoque imediato, pagamento via PIX, retirada em loja.
+              Distribuidor atacadista na fronteira do Paraguai: perfumaria árabe e importada, Apple e farmácia. Estoque imediato, pagamento via PIX, retirada em loja.
             </p>
             {WHATSAPP_ENABLED && (
               <a href={CONTATO_HREF} target="_blank" rel="noopener"
