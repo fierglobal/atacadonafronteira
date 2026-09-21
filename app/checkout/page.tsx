@@ -202,7 +202,7 @@ function CheckoutSummary({
   className, itens, brlRate, temSobEncomenda,
   cupons, cupomCodigo, setCupomCodigo, aplicarCupom, removerCupom, cupomLoading, cupomErr,
   totalBRLStr, descontoBRL, cupomDescontoPct,
-  cotacoes, entregaTipo, onEntregaTipo, entregaEndereco, onEntregaEndereco, entregaCep, onEntregaCep,
+  cotacoes, entregaTipo, onEntregaTipo, entregaEndereco, onEntregaEndereco, entregaCep, onEntregaCep, zonaEnvio,
   totalFinalStr,
 }: {
   className: string
@@ -226,6 +226,7 @@ function CheckoutSummary({
   onEntregaEndereco: (v: string) => void
   entregaCep: string
   onEntregaCep: (v: string) => void
+  zonaEnvio: { nome: string; prazoDiasUteis: number } | null
   totalFinalStr: string
 }) {
   // No mobile o resumo vem antes do formulário (order: -1) — mostrar a lista de
@@ -277,7 +278,7 @@ function CheckoutSummary({
           )}
           <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={onEntregaTipo}
             endereco={entregaEndereco} onEndereco={onEntregaEndereco}
-            cep={entregaCep} onCep={onEntregaCep} />
+            cep={entregaCep} onCep={onEntregaCep} zonaEnvio={zonaEnvio} />
           <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
             <span style={{ color: '#0a0a0a' }}>Total</span>
             <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
@@ -357,6 +358,7 @@ export default function Checkout() {
   const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada_cde')
   const [entregaEndereco, setEntregaEndereco] = useState('')
   const [entregaCep, setEntregaCep] = useState('')
+  const [zonaEnvio, setZonaEnvio] = useState<{ nome: string; prazoDiasUteis: number } | null>(null)
   const [cotacoes, setCotacoes] = useState<Record<EntregaTipo, Cotacao> | null>(null)
   const [globalErr, setGlobalErr] = useState('')
   const [mounted, setMounted] = useState(false)
@@ -708,24 +710,26 @@ export default function Checkout() {
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
   // A tela não sabe a categoria nem o preço com tier dos produtos: o servidor
-  // devolve as três opções já precificadas para este carrinho. Não depende mais
-  // do CEP — envio_brasil agora é sempre 3 dias úteis, frete em % do valor.
+  // devolve as três opções já precificadas para este carrinho. O frete não
+  // depende do CEP (sempre % do valor), mas o PRAZO sim — só São Paulo tem
+  // despacho rápido, por isso o CEP ainda entra na chamada.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
-    if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }
+    if (!linhas.length) { queueMicrotask(() => { setCotacoes(null); setZonaEnvio(null) }); return }
     let vivo = true
     fetch('/api/entrega/cotacao', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itens: linhas }),
+      body: JSON.stringify({ itens: linhas, cep: entregaCep }),
     })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (!vivo) return
         if (d?.opcoes) setCotacoes(d.opcoes)
+        setZonaEnvio(d?.zonaEnvio ?? null)
       })
       .catch(() => {})
     return () => { vivo = false }
-  }, [itens])
+  }, [itens, entregaCep])
 
   const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
@@ -1043,7 +1047,7 @@ export default function Checkout() {
             totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
             cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
             entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
-            entregaCep={entregaCep} onEntregaCep={setEntregaCep}
+            entregaCep={entregaCep} onEntregaCep={setEntregaCep} zonaEnvio={zonaEnvio}
             totalFinalStr={totalFinalStr} />
         </div>
       </div>
@@ -1241,7 +1245,7 @@ export default function Checkout() {
           totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
           cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
           entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
-          entregaCep={entregaCep} onEntregaCep={setEntregaCep}
+          entregaCep={entregaCep} onEntregaCep={setEntregaCep} zonaEnvio={zonaEnvio}
           totalFinalStr={totalFinalStr} />
       </div>
     </div>

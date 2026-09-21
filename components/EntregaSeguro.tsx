@@ -12,6 +12,7 @@ type Props = {
   onEndereco: (v: string) => void
   cep: string
   onCep: (v: string) => void
+  zonaEnvio: { nome: string; prazoDiasUteis: number } | null
 }
 
 const fmtCep = (digits: string) => digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits
@@ -39,7 +40,7 @@ const OPCOES: { valor: EntregaTipo; titulo: string; sub: string }[] = [
 ]
 
 export default function EntregaSeguro({
-  cotacoes, tipo, onTipo, onEndereco, cep, onCep,
+  cotacoes, tipo, onTipo, onEndereco, cep, onCep, zonaEnvio,
 }: Props) {
   const mostraSeguro = tipo === 'envio_brasil'
   const eletronico = cotacoes?.envio_brasil.tabelaEletronico ?? false
@@ -86,7 +87,7 @@ export default function EntregaSeguro({
         const c = cotacoes?.[valor]
         const preco = c ? c.frete : null
         const subTexto = valor === 'envio_brasil'
-          ? `${eletronico ? '10%' : '5%'} do valor da compra · seguro incluso · chega em até 3 dias úteis`
+          ? `${eletronico ? '10%' : '5%'} do valor da compra · seguro incluso`
           : sub
         return (
           <label key={valor} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderRadius: 10, border: `1px solid ${tipo === valor ? 'rgba(66,14,118,0.5)' : '#ececec'}`, background: tipo === valor ? 'rgba(66,14,118,0.04)' : '#ffffff', cursor: 'pointer', marginBottom: 8 }}>
@@ -142,8 +143,9 @@ export default function EntregaSeguro({
               <span style={{ fontWeight: 700, color: '#0a0a0a' }}>{end.cidadeUf}</span>
             </p>
           )}
-          <p style={{ margin: '0 0 10px', fontSize: 11.5, fontWeight: 700, color: cep.length === 8 ? '#0f7a3d' : '#737373' }}>
-            {cep.length === 8 ? '📦 Despacho em até 3 dias úteis' : 'Informe o CEP para confirmar o endereço de entrega.'}
+          <p style={{ margin: '0 0 10px', fontSize: 11.5, fontWeight: 700, color: zonaEnvio ? '#0f7a3d' : '#737373' }}>
+            {cep.length < 8 ? 'Informe o CEP pra ver o prazo de entrega.'
+              : zonaEnvio ? `📦 Despacho em até ${zonaEnvio.prazoDiasUteis} dias úteis` : 'Calculando prazo...'}
           </p>
           <style>{`@keyframes cep-spin { to { transform: translateY(-50%) rotate(360deg) } }`}</style>
         </>

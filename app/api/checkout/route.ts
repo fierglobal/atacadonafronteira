@@ -6,7 +6,7 @@ import { rateLimit, getIp } from '@/lib/rate-limit'
 import { dispatchWebhook } from '@/lib/webhooks'
 import { emailConfirmacaoPedido } from '@/lib/email'
 import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
-import { calcularEntrega, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, ehEntregaTipo, resolverZonaFrete, type EntregaTipo } from '@/lib/entrega'
 import { priceForQty, type Tier } from '@/lib/tier'
 
 type Item = { id?: string; name: string; brand?: string; usd: number; quantity: number }
@@ -149,10 +149,18 @@ export async function POST(req: Request) {
   // Frete NUNCA vem do navegador. A tela mostra um número; aqui ele é refeito a
   // partir da categoria real e do preço com tier já aplicado de cada produto no
   // banco — é o mesmo motivo de o total do pedido não poder nascer do client.
-  // Envio para o Brasil não depende mais de zona/CEP: despacho único em até 3 dias
-  // úteis via Shopee, frete = % do valor da compra, seguro sempre incluso — de
-  // qual base (Foz/SP/Recife/Goiânia) o pedido sai é decisão interna, tomada
-  // depois no admin a partir do endereço salvo.
+  // Frete = % do valor da compra pra qualquer CEP, seguro sempre incluso. O
+  // prazo prometido ainda depende da zona (só SP despacha em 3 dias úteis) —
+  // resolvido aqui pra ficar gravado no pedido.
+  let zonaEnvio: { nome: string; prazoDiasUteis: number } | null = null
+  if (entregaTipo === 'envio_brasil') {
+    const { data: zonas } = await supabaseAdmin
+      .from('frete_zonas')
+      .select('nome, cep_inicio, cep_fim, prazo_dias_uteis, ativo, ordem')
+    zonaEnvio = resolverZonaFrete(entregaCep, (zonas || []).map(z => ({
+      nome: z.nome, cepInicio: z.cep_inicio, cepFim: z.cep_fim, prazoDiasUteis: z.prazo_dias_uteis, ativo: z.ativo, ordem: z.ordem,
+    })))
+  }
   const catDe = new Map(prods.map(p => [p.id, p.categoria_id]))
   const [eletronicosIds, farmaciaIds] = await Promise.all([idsEletronicos(), idsFarmacia()])
   const cotacao = calcularEntrega(
@@ -197,8 +205,8 @@ export async function POST(req: Request) {
     entrega_tipo: entregaTipo,
     entrega_endereco: entregaTipo === 'envio_brasil' ? form.entrega_endereco!.trim() : null,
     entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : null,
-    frete_zona_nome: null,
-    frete_prazo_dias: null,
+    frete_zona_nome: zonaEnvio?.nome ?? null,
+    frete_prazo_dias: zonaEnvio?.prazoDiasUteis ?? null,
     frete_brl: freteBrl,
     seguro_brl: seguroBrl,
     seguro_recusado: false,
