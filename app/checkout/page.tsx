@@ -202,7 +202,7 @@ function CheckoutSummary({
   className, itens, brlRate, temSobEncomenda,
   cupons, cupomCodigo, setCupomCodigo, aplicarCupom, removerCupom, cupomLoading, cupomErr,
   totalBRLStr, descontoBRL, cupomDescontoPct,
-  cotacoes, entregaTipo, onEntregaTipo, entregaEndereco, onEntregaEndereco, entregaCep, onEntregaCep, zonaEnvio,
+  cotacoes, entregaTipo, onEntregaTipo,
   totalFinalStr,
 }: {
   className: string
@@ -222,11 +222,6 @@ function CheckoutSummary({
   cotacoes: Record<EntregaTipo, Cotacao> | null
   entregaTipo: EntregaTipo
   onEntregaTipo: (t: EntregaTipo) => void
-  entregaEndereco: string
-  onEntregaEndereco: (v: string) => void
-  entregaCep: string
-  onEntregaCep: (v: string) => void
-  zonaEnvio: { nome: string; prazoDiasUteis: number } | null
   totalFinalStr: string
 }) {
   // No mobile o resumo vem antes do formulário (order: -1) — mostrar a lista de
@@ -276,9 +271,7 @@ function CheckoutSummary({
               <span>Desconto ({cupomDescontoPct}%)</span><span>-R$ {descontoBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           )}
-          <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={onEntregaTipo}
-            endereco={entregaEndereco} onEndereco={onEntregaEndereco}
-            cep={entregaCep} onCep={onEntregaCep} zonaEnvio={zonaEnvio} />
+          <EntregaSeguro cotacoes={cotacoes} tipo={entregaTipo} onTipo={onEntregaTipo} />
           <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 14, borderTop: '1px solid #ececec', fontSize: 20, fontWeight: 900 }}>
             <span style={{ color: '#0a0a0a' }}>Total</span>
             <span style={{ color: '#420E76' }}>R$ {totalFinalStr}</span>
@@ -356,9 +349,6 @@ export default function Checkout() {
   const [comprovante, setComprovante] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle')
   const [submitting, setSubmitting] = useState(false)
   const [entregaTipo, setEntregaTipo] = useState<EntregaTipo>('retirada_cde')
-  const [entregaEndereco, setEntregaEndereco] = useState('')
-  const [entregaCep, setEntregaCep] = useState('')
-  const [zonaEnvio, setZonaEnvio] = useState<{ nome: string; prazoDiasUteis: number } | null>(null)
   const [cotacoes, setCotacoes] = useState<Record<EntregaTipo, Cotacao> | null>(null)
   const [globalErr, setGlobalErr] = useState('')
   const [mounted, setMounted] = useState(false)
@@ -563,22 +553,10 @@ export default function Checkout() {
       if (cs.id) cartSessionId = cs.id
     } catch {}
 
-    if (entregaTipo === 'envio_brasil' && !/\d/.test(entregaEndereco)) {
-      setGlobalErr('Informe o endereço completo, incluindo o número, para o envio.')
-      setSubmitting(false)
-      return
-    }
-    if (entregaTipo === 'envio_brasil' && entregaCep.length !== 8) {
-      setGlobalErr('Informe um CEP válido para o envio.')
-      setSubmitting(false)
-      return
-    }
     const fullForm = {
       nome: data.nome, cpf: data.cpf, email: data.email, telefone: data.telefone,
       cidade: data.cidade, uf: data.uf,
       entrega_tipo: entregaTipo,
-      entrega_endereco: entregaTipo === 'envio_brasil' ? entregaEndereco.trim() : '',
-      entrega_cep: entregaTipo === 'envio_brasil' ? entregaCep : '',
       tipo_pessoa: form.tipo_pessoa,
       cnpj: form.tipo_pessoa === 'PJ' ? form.cnpj : '',
       razao_social: form.tipo_pessoa === 'PJ' ? form.razao_social : '',
@@ -710,26 +688,23 @@ export default function Checkout() {
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
   // A tela não sabe a categoria nem o preço com tier dos produtos: o servidor
-  // devolve as três opções já precificadas para este carrinho. O frete não
-  // depende do CEP (sempre % do valor), mas o PRAZO sim — só São Paulo tem
-  // despacho rápido, por isso o CEP ainda entra na chamada.
+  // devolve as opções de retirada já precificadas para este carrinho.
   useEffect(() => {
     const linhas = itens.filter(i => i.id).map(i => ({ id: i.id, quantity: i.quantity }))
-    if (!linhas.length) { queueMicrotask(() => { setCotacoes(null); setZonaEnvio(null) }); return }
+    if (!linhas.length) { queueMicrotask(() => setCotacoes(null)); return }
     let vivo = true
     fetch('/api/entrega/cotacao', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itens: linhas, cep: entregaCep }),
+      body: JSON.stringify({ itens: linhas }),
     })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (!vivo) return
         if (d?.opcoes) setCotacoes(d.opcoes)
-        setZonaEnvio(d?.zonaEnvio ?? null)
       })
       .catch(() => {})
     return () => { vivo = false }
-  }, [itens, entregaCep])
+  }, [itens])
 
   const totalBRL = totalUsd * brlRate
   const descontoBRL = cupomDescontoPct > 0 ? totalBRL * cupomDescontoPct / 100 : 0
@@ -1046,8 +1021,6 @@ export default function Checkout() {
             aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr}
             totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
             cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
-            entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
-            entregaCep={entregaCep} onEntregaCep={setEntregaCep} zonaEnvio={zonaEnvio}
             totalFinalStr={totalFinalStr} />
         </div>
       </div>
@@ -1244,8 +1217,6 @@ export default function Checkout() {
           aplicarCupom={aplicarCupom} removerCupom={removerCupom} cupomLoading={cupomLoading} cupomErr={cupomErr}
           totalBRLStr={totalBRLStr} descontoBRL={descontoBRL} cupomDescontoPct={cupomDescontoPct}
           cotacoes={cotacoes} entregaTipo={entregaTipo} onEntregaTipo={setEntregaTipo}
-          entregaEndereco={entregaEndereco} onEntregaEndereco={setEntregaEndereco}
-          entregaCep={entregaCep} onEntregaCep={setEntregaCep} zonaEnvio={zonaEnvio}
           totalFinalStr={totalFinalStr} />
       </div>
     </div>
