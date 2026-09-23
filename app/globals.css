@@ -329,3 +329,21 @@ body { overflow-x: clip; }
   .cat-filter-group[open] .cat-filter-title { margin-bottom: 10px; }
   .cat-filter-list { max-height: 260px; overflow-y: auto; }
 }
+
+/* Toolbar de ordenação: fora da sidebar de propósito — ordenar não filtra,
+   muda a visão do mesmo conjunto, então mora ao lado da contagem. */
+.cat-order { position: relative; }
+.cat-order-summary { display: flex; align-items: center; gap: 6px; list-style: none; cursor: pointer; font-size: 12.5px; font-weight: 700; color: #404040; padding: 7px 12px; border: 1px solid #ececec; border-radius: 8px; background: #fff; }
+.cat-order-summary::-webkit-details-marker { display: none; }
+.cat-order-chevron { transition: transform 0.15s; }
+.cat-order[open] .cat-order-chevron { transform: rotate(180deg); }
+.cat-order-menu { position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #ececec; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 6px; min-width: 168px; z-index: 10; display: flex; flex-direction: column; gap: 1px; }
+.cat-order-menu a { padding: 8px 10px; border-radius: 6px; font-size: 13px; text-decoration: none; }
+.cat-order-menu a:hover { background: #fafafa; }
+
+/* Botão de adicionar ao carrinho no card de categoria: 32px no desktop, mas
+   abaixo do alvo de toque recomendado no celular — sobe pra 38px só lá. */
+.cat-add-btn { width: 32px; height: 32px; }
+@media (max-width: 640px) {
+  .cat-add-btn { width: 38px; height: 38px; }
+}

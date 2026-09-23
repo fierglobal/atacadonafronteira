@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
+import CategoriaProductCardGrupo from '@/components/CategoriaProductCardGrupo'
 import { acharCategoriaPorSlug, type CategoriaSeo } from '@/lib/categorias'
+import { nomeSemMarca, nomeSemSufixoStatus } from '@/lib/produto'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
@@ -81,6 +83,70 @@ async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<stri
     if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
   }
   return menor
+}
+
+type ProdutoItem = Awaited<ReturnType<typeof getProdutos>>['itens'][number]
+type LinhaGrid =
+  | { tipo: 'unico'; produto: ProdutoItem }
+  | { tipo: 'grupo'; brand: string; base: string; img: string; membros: (ProdutoItem & { capacidade: string })[] }
+
+const CAPACIDADE_RE = /^\d+\s?(GB|TB)$/i
+const capacidadeEmGB = (token: string) => {
+  const m = token.match(/^(\d+)\s?(GB|TB)$/i)
+  if (!m) return 0
+  return m[2].toUpperCase() === 'TB' ? Number(m[1]) * 1024 : Number(m[1])
+}
+
+// Variações de capacidade do mesmo modelo (iPhone 18 Pro 256GB/512GB/1TB/2TB...)
+// compartilham a MESMA foto no banco — product_price_tiers existe, mas
+// product_variants (a feature pensada pra isso) nunca foi populada (0 linhas).
+// Em vez de esperar uma migração de dado, a foto idêntica + marca + "nome sem a
+// capacidade" já são, juntos, uma chave segura: se qualquer parte não bater, o
+// produto cai como card avulso — nunca agrupa errado. Só roda em Relevância/A–Z,
+// porque nas ordenações por preço os "irmãos" ficam espalhados no ranking e um
+// card com faixa de preço quebraria a intenção de quem pediu esse filtro.
+function agruparPorFoto(itens: ProdutoItem[], podeAgrupar: boolean): LinhaGrid[] {
+  if (!podeAgrupar) return itens.map(produto => ({ tipo: 'unico', produto }))
+
+  type Grupo = { key: string; brand: string; base: string; img: string; membros: (ProdutoItem & { capacidade: string })[] }
+  const grupos = new Map<string, Grupo>()
+  const chavePorId = new Map<string, string>()
+
+  for (const p of itens) {
+    if (!p.img_url || !p.brand) continue
+    const nomeLimpo = nomeSemSufixoStatus(nomeSemMarca(p.name, p.brand))
+    const tokens = nomeLimpo.trim().split(/\s+/)
+    const ultimo = tokens[tokens.length - 1] || ''
+    if (!CAPACIDADE_RE.test(ultimo)) continue
+    const base = tokens.slice(0, -1).join(' ')
+    if (!base) continue
+    const key = `${p.img_url}::${p.brand}::${base}`
+    if (!grupos.has(key)) grupos.set(key, { key, brand: p.brand, base, img: p.img_url, membros: [] })
+    grupos.get(key)!.membros.push({ ...p, capacidade: ultimo.toUpperCase().replace(/\s+/, '') })
+    chavePorId.set(p.id, key)
+  }
+
+  const emGrupoValido = new Set<string>()
+  for (const g of grupos.values()) {
+    if (g.membros.length < 2) continue
+    g.membros.sort((a, b) => capacidadeEmGB(a.capacidade) - capacidadeEmGB(b.capacidade))
+    for (const m of g.membros) emGrupoValido.add(m.id)
+  }
+
+  const grupoJaEmitido = new Set<string>()
+  const linhas: LinhaGrid[] = []
+  for (const p of itens) {
+    if (emGrupoValido.has(p.id)) {
+      const key = chavePorId.get(p.id)!
+      if (grupoJaEmitido.has(key)) continue
+      grupoJaEmitido.add(key)
+      const g = grupos.get(key)!
+      linhas.push({ tipo: 'grupo', brand: g.brand, base: g.base, img: g.img, membros: g.membros })
+    } else {
+      linhas.push({ tipo: 'unico', produto: p })
+    }
+  }
+  return linhas
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -174,6 +240,20 @@ export default async function CategoriaPage({
     color: ativo ? '#420E76' : '#404040',
   })
 
+  const pill = {
+    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 99,
+    fontSize: 12, fontWeight: 700, color: '#420E76', background: 'rgba(66, 14, 118,0.06)',
+    border: '1px solid rgba(66, 14, 118,0.25)', textDecoration: 'none',
+  }
+  const temFiltrosAtivos = !!(b.marca || b.precoMin || b.precoMax)
+
+  // Agrupamento por foto só faz sentido quando a ordem preserva os "irmãos"
+  // próximos (Relevância/A–Z) — nas ordenações por preço eles se espalham pelo
+  // ranking e o card teria que mostrar uma faixa em vez de um preço, que é
+  // justamente o que o cliente NÃO pediu ao escolher ordenar por preço.
+  const podeAgrupar = !b.ordem || b.ordem === 'nome'
+  const linhas = agruparPorFoto(itens, podeAgrupar)
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -184,19 +264,42 @@ export default async function CategoriaPage({
           {cat.paiNome && cat.paiSlug && (
             <>{' / '}<Link href={`/categoria/${cat.paiSlug}`} style={{ color: '#737373', textDecoration: 'none' }}>{cat.paiNome}</Link></>
           )}
-          {' / '}<span style={{ color: '#420E76', fontWeight: 700 }}>{cat.nome}</span>
+          {' / '}<span style={{ color: '#420E76', fontWeight: 700 }} aria-current="page">{cat.nome}</span>
         </nav>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: temFiltrosAtivos ? 12 : 20 }}>
           <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: '#0a0a0a', letterSpacing: '-0.02em' }}>
             {cat.nome} no atacado
           </h1>
-          <span style={{ fontSize: 12.5, color: '#737373' }}>
-            {total === 0 ? 'Nenhum produto' : `${total} produto${total > 1 ? 's' : ''}`}
-            {b.marca ? ` · ${b.marca}` : ''}
-            {(b.precoMin || b.precoMax) ? ` · R$${b.precoMin || '0'}–${b.precoMax || '∞'}` : ''}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ fontSize: 12.5, color: '#737373' }}>
+              {total === 0 ? 'Nenhum produto' : `${total} produto${total > 1 ? 's' : ''}`}
+            </span>
+            <details className="cat-order">
+              <summary className="cat-order-summary">
+                Ordenar: {ORDENS.find(o => o.chave === (b.ordem || ''))?.rotulo}
+                <svg className="cat-order-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </summary>
+              <div className="cat-order-menu">
+                {ORDENS.map(o => (
+                  <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })}
+                    style={{ fontWeight: (b.ordem || '') === o.chave ? 800 : 600, color: (b.ordem || '') === o.chave ? '#420E76' : '#404040' }}>
+                    {o.rotulo}
+                  </Link>
+                ))}
+              </div>
+            </details>
+          </div>
         </div>
+
+        {temFiltrosAtivos && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+            {b.marca && <Link href={url({ marca: '', pagina: '1' })} style={pill}>Marca: {b.marca} <span aria-hidden="true">×</span></Link>}
+            {(b.precoMin || b.precoMax) && (
+              <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={pill}>R$ {b.precoMin || '0'}–{b.precoMax || '∞'} <span aria-hidden="true">×</span></Link>
+            )}
+          </div>
+        )}
 
         {/* Sidebar + grid: no celular vira 1 coluna, os filtros ficam empilhados
             em cima do grid (globals.css). Filtros como LINK, não estado de
@@ -250,17 +353,6 @@ export default async function CategoriaPage({
                 </div>
               </form>
             </details>
-            <details className="cat-filter-group" open>
-              <summary className="cat-filter-title">
-                <span>ORDENAR: {ORDENS.find(o => o.chave === (b.ordem || ''))?.rotulo}</span>
-                <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-              </summary>
-              <div className="cat-filter-list">
-                {ORDENS.map(o => (
-                  <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })} style={sidebarLink((b.ordem || '') === o.chave)}>{o.rotulo}</Link>
-                ))}
-              </div>
-            </details>
           </aside>
           <script dangerouslySetInnerHTML={{ __html:
             `if(window.innerWidth<=900)document.querySelectorAll('.cat-filter-group').forEach(function(d){d.removeAttribute('open')})`
@@ -272,9 +364,18 @@ export default async function CategoriaPage({
                 Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
               </p>
             ) : (
-              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 16 }}>
-                {itens.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={menorTierPorProduto[p.id] ?? null} />)}
+              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>
+                {linhas.map(l => l.tipo === 'grupo'
+                  ? <CategoriaProductCardGrupo key={l.membros.map(m => m.id).join('-')} brand={l.brand} base={l.base} img={l.img} membros={l.membros} />
+                  : <CategoriaProductCard key={l.produto.id} p={l.produto} menorPrecoAtacado={menorTierPorProduto[l.produto.id] ?? null} />
+                )}
               </div>
+            )}
+
+            {itens.length > 0 && (
+              <p style={{ fontSize: 12, color: '#a3a3a3', margin: '20px 0 0' }}>
+                Mostrando {(pagina - 1) * POR_PAGINA + 1}–{Math.min(pagina * POR_PAGINA, total)} de {total}
+              </p>
             )}
 
             {totalPaginas > 1 && (
