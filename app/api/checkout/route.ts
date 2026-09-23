@@ -55,13 +55,13 @@ export async function POST(req: Request) {
   }
 
   const productIds = itens.map(i => i.id).filter(Boolean) as string[]
-  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null; categoria_id: string | null }[] = []
+  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null; categoria_id: string | null; limite_por_cpf: number | null }[] = []
   let tiersRows: { product_id: string; qty_min: number; qty_max: number | null; brl_price: number }[] = []
   if (productIds.length) {
     const [{ data }, { data: tData }] = await Promise.all([
       supabaseAdmin
         .from('products')
-        .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price, categoria_id')
+        .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price, categoria_id, limite_por_cpf')
         .in('id', productIds),
       supabaseAdmin
         .from('product_price_tiers')
@@ -84,6 +84,52 @@ export async function POST(req: Request) {
     }
     if (indisponiveis.length) {
       return NextResponse.json({ error: 'Itens indisponíveis: ' + indisponiveis.join('; '), indisponiveis }, { status: 409 })
+    }
+
+    // Limite de unidades por CPF (drops/pré-vendas com estoque restrito): soma
+    // tudo que esse CPF já tem em pedidos não cancelados (mesmo pedidos
+    // separados) + o que está neste pedido, e recusa se passar do limite. Não
+    // dá pra confiar só na tela — um POST direto ou vários pedidos burlariam.
+    const produtosComLimite = prods.filter(p => p.limite_por_cpf != null)
+    if (produtosComLimite.length && cpfDigits) {
+      const { data: customersDoCpf } = await supabaseAdmin
+        .from('customers')
+        .select('id')
+        .or(`cpf.eq.${form.cpf},cpf.eq.${cpfDigits}`)
+      const customerIds = (customersDoCpf || []).map(c => c.id)
+      const quantidadesAnteriores = new Map<string, number>()
+      if (customerIds.length) {
+        const { data: ordersDoCliente } = await supabaseAdmin
+          .from('orders')
+          .select('id')
+          .in('customer_id', customerIds)
+          .neq('status', 'cancelado')
+        const orderIds = (ordersDoCliente || []).map(o => o.id)
+        if (orderIds.length) {
+          const { data: itensAnteriores } = await supabaseAdmin
+            .from('order_items')
+            .select('product_id, quantity')
+            .in('order_id', orderIds)
+            .in('product_id', produtosComLimite.map(p => p.id))
+          for (const i of (itensAnteriores || [])) {
+            if (!i.product_id) continue
+            quantidadesAnteriores.set(i.product_id, (quantidadesAnteriores.get(i.product_id) || 0) + i.quantity)
+          }
+        }
+      }
+      const excedeLimite: string[] = []
+      for (const p of produtosComLimite) {
+        const it = itens.find(i => i.id === p.id)
+        if (!it) continue
+        const jaTem = quantidadesAnteriores.get(p.id) || 0
+        if (jaTem + it.quantity > p.limite_por_cpf!) {
+          const restam = Math.max(0, p.limite_por_cpf! - jaTem)
+          excedeLimite.push(`${it.name} (limite de ${p.limite_por_cpf} por cliente — você ainda pode levar ${restam})`)
+        }
+      }
+      if (excedeLimite.length) {
+        return NextResponse.json({ error: 'Limite por cliente excedido: ' + excedeLimite.join('; ') }, { status: 409 })
+      }
     }
   }
 

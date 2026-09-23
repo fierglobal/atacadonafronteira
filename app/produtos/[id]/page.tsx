@@ -18,6 +18,7 @@ type Product = {
   badges?: string[] | null
   multiplicador?: number | null
   venda_minima?: number | null
+  limite_por_cpf?: number | null
   unidade_venda?: string | null
   custom_fields?: Record<string, unknown> | null
   sku?: string | null
@@ -299,6 +300,9 @@ export default function ProdutoPage() {
     let v = Math.max(vendaMinima, next)
     if (multiplicador > 1) v = Math.ceil(v / multiplicador) * multiplicador
     if (product.estoque !== null && product.estoque !== undefined && product.estoque > 0) v = Math.min(v, product.estoque)
+    // Teto só na tela — quem garante de verdade (somando pedidos anteriores do
+    // mesmo CPF) é a validação no /api/checkout.
+    if (product.limite_por_cpf) v = Math.min(v, product.limite_por_cpf)
     setQty(v)
   }
 
@@ -606,6 +610,12 @@ export default function ProdutoPage() {
                         {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#420E76', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
                         {multiplicador > 1 && vendaMinima > 1 && <span> · </span>}
                         {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
+                      </div>
+                    )}
+                    {!!product.limite_por_cpf && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '8px 12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 8 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span style={{ fontSize: 12, color: '#b45309', fontWeight: 700 }}>Limitado a {product.limite_por_cpf} unidades por cliente (CPF)</span>
                       </div>
                     )}
                   </div>

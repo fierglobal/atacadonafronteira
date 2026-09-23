@@ -26,7 +26,7 @@ const PASSOS = [
   ['Monte seu pedido', 'Preços em R$. Pedido mínimo de R$ 3.000.'],
   ['Pague via PIX', 'Pagamento à vista. Confirmamos em menos de 30 minutos e seu pedido entra na fila de separação.'],
   ['Separação em até 24h úteis', 'Seu pedido é conferido e embalado na fronteira. Avisamos quando estiver pronto.'],
-  ['Retire ou receba', 'Grátis em Ciudad del Este, R$ 50 por unidade em Foz do Iguaçu (grátis acima de 20) ou envio para todo o Brasil.'],
+  ['Retire seu pedido', 'Grátis em Ciudad del Este, ou R$ 50 por unidade em Foz do Iguaçu (grátis acima de 20).'],
 ]
 
 export function ComoComprar() {
@@ -113,7 +113,6 @@ export function Categorias({ cats }: { cats: CatLink[] }) {
 const ENTREGAS = [
   ['Retirada em Ciudad del Este', 'Grátis', 'Retire direto na nossa loja, no Paraguai. Leve documento com foto.'],
   ['Retirada em Foz do Iguaçu', 'R$ 50 por unidade', 'Grátis para pedidos acima de 20 unidades.'],
-  ['Envio para todo o Brasil', 'Frete calculado no pedido', 'Com seguro opcional: se extraviar no caminho, enviamos outro sem custo.'],
 ]
 
 export function Entrega() {

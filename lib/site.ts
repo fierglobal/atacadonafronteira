@@ -47,4 +47,4 @@ export const MARCAS_VITRINE = ['APPLE', 'XIAOMI', 'JBL']
 // já está mantida em products.descricao/descricao_curta pelo time de Catálogo
 // — este texto só aponta pra lá em vez de tentar duplicar a data.
 export const SOB_ENCOMENDA_BADGE = 'sob encomenda'
-export const SOB_ENCOMENDA_TEXTO = 'Sob encomenda: retirada em Ciudad del Este ou envio para todo o Brasil — prazo varia por remessa, confira a data exata na página do produto.'
+export const SOB_ENCOMENDA_TEXTO = 'Sob encomenda: retirada em Ciudad del Este ou Foz do Iguaçu — prazo varia por remessa, confira a data exata na página do produto.'

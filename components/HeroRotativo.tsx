@@ -5,8 +5,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 export type HeroProduct = {
-  name: string | null; brand: string | null; usd_price: number; usd_price_promo: number | null
+  id?: string; name: string | null; brand: string | null; usd_price: number; usd_price_promo: number | null
   brl_price: number | null; brl_price_promo?: number | null; img_url: string | null
+  badges?: string[] | null; limite_por_cpf?: number | null
 }
 
 const dec = (s: string | null) => {
@@ -35,6 +36,10 @@ type Props = {
 
 export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, heroEletronico, heroPromo }: Props) {
   const eletronico = heroEletronico ? { ...heroEletronico, name: dec(heroEletronico.name) ?? '', brand: dec(heroEletronico.brand) } : null
+  // Pré-venda com unidades limitadas merece uma chamada própria — o slide
+  // padrão ("iPhone, Mac e mais Apple") esconderia justamente o que faz
+  // alguém clicar agora: é lançamento e é limitado.
+  const limitePorCpf = eletronico?.limite_por_cpf ?? null
   const promo = heroPromo && heroPromo.brl_price_promo != null
     ? { ...heroPromo, name: dec(heroPromo.name) ?? '', brand: dec(heroPromo.brand) }
     : null
@@ -110,7 +115,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <div className="hero-stat-div" />
             <div className="hero-stat"><span className="hero-stat-num">30 min</span><span className="hero-stat-label">PIX confirmado</span></div>
             <div className="hero-stat-div" />
-            <div className="hero-stat"><span className="hero-stat-num">Brasil</span><span className="hero-stat-label">retirada ou envio</span></div>
+            <div className="hero-stat"><span className="hero-stat-num">CDE + Foz</span><span className="hero-stat-label">pontos de retirada</span></div>
           </div>
           <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
             Ver catálogo completo
@@ -133,12 +138,22 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <svg className="hero-grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#heroNoise)" /></svg>
           </div>
           <div className="hero-content">
-            <span className="hero-kicker">Eletrônicos no atacado</span>
-            <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
-            <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
+            {limitePorCpf ? (
+              <>
+                <span className="hero-kicker">🔥 Pré-venda · unidades limitadas</span>
+                <h1 className="hero-h1">{shorten(eletronico.name, 24)}</h1>
+                <p className="hero-sub">Estoque de lançamento — limitado a {limitePorCpf} unidades por cliente.</p>
+              </>
+            ) : (
+              <>
+                <span className="hero-kicker">Eletrônicos no atacado</span>
+                <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
+                <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
+              </>
+            )}
             <div className="hero-price"><span className="hero-price-num">R$ {fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span></div>
-            <Link href="/categoria/eletronicos" className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
-              Ver eletrônicos ({eletronicos})
+            <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/eletronicos'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
+              {limitePorCpf ? 'Garantir o meu' : `Ver eletrônicos (${eletronicos})`}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </Link>
           </div>

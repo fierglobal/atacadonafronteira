@@ -28,6 +28,7 @@ export function CarrinhoSidebar() {
   const [pedidoMinimo, setPedidoMinimo] = useState<number | null>(null)
   const [crossSell, setCrossSell] = useState<CrossSellItem[]>([])
   const [tiersByProduct, setTiersByProduct] = useState<Record<string, Tier[]>>({})
+  const [limitesByProduct, setLimitesByProduct] = useState<Record<string, number>>({})
 
   useEffect(() => {
     fetch('/api/checkout-config').then(r => r.json()).then(d => {
@@ -48,7 +49,7 @@ export function CarrinhoSidebar() {
   }, [sidebarAberto, itens])
 
   useEffect(() => {
-    if (!sidebarAberto || itens.length === 0) { queueMicrotask(() => setTiersByProduct({})); return }
+    if (!sidebarAberto || itens.length === 0) { queueMicrotask(() => { setTiersByProduct({}); setLimitesByProduct({}) }); return }
     const productIds = itens.map(i => i.id).filter(Boolean)
     if (!productIds.length) return
     fetch('/api/cart/tiers', {
@@ -56,6 +57,7 @@ export function CarrinhoSidebar() {
       body: JSON.stringify({ productIds }),
     }).then(r => r.json()).then(d => {
       setTiersByProduct(d.tiers || {})
+      setLimitesByProduct(d.limites || {})
     }).catch(() => {})
   }, [sidebarAberto, itens])
 
@@ -158,7 +160,8 @@ export function CarrinhoSidebar() {
                         style={{ width: 30, height: 30, background: 'none', border: 'none', color: '#404040', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                       <span style={{ width: 34, textAlign: 'center', fontWeight: 700, fontSize: 13, color: '#0a0a0a' }}>{item.quantity}</span>
                       <button onClick={() => atualizar(item.id, item.quantity + 1)}
-                        style={{ width: 30, height: 30, background: 'none', border: 'none', color: '#404040', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                        disabled={!!limitesByProduct[item.id] && item.quantity >= limitesByProduct[item.id]}
+                        style={{ width: 30, height: 30, background: 'none', border: 'none', color: limitesByProduct[item.id] && item.quantity >= limitesByProduct[item.id] ? '#d4d4d4' : '#404040', fontSize: 16, cursor: limitesByProduct[item.id] && item.quantity >= limitesByProduct[item.id] ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -188,6 +191,11 @@ export function CarrinhoSidebar() {
                       </div>
                     )
                   })()}
+                  {!!limitesByProduct[item.id] && (
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#b45309', margin: '8px 0 0' }}>
+                      Limitado a {limitesByProduct[item.id]} un. por cliente
+                    </p>
+                  )}
                 </div>
               </div>
             ))

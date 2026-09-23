@@ -86,7 +86,7 @@ export default async function SiteHeader() {
           {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
           <span>Pagamento via PIX à vista</span>
           <span>Separação em até 24h úteis</span>
-          <span>Retirada na fronteira ou envio para todo o Brasil</span>
+          <span>Retirada em Ciudad del Este ou Foz do Iguaçu</span>
         </div>
       </div>
 
