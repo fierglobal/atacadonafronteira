@@ -203,7 +203,6 @@ export async function POST(req: Request) {
       subtotalBRL: i.subtotalBrl,
     })),
     entregaTipo,
-    totalBrl,
   )
   const freteBrl = cotacao.frete
   const seguroBrl = 0

@@ -1,7 +1,7 @@
 export type Tier = { qty_min: number; qty_max: number | null; brl_price: number }
 
 // Mesma regra usada na PDP para escolher o preço unitário pela quantidade —
-// vive aqui para o servidor (checkout, cotação de frete) usar exatamente a
+// vive aqui para o servidor (checkout, cotação de retirada) usar exatamente a
 // mesma lógica que a tela mostrou, em vez de confiar no preço que veio do
 // carrinho do navegador.
 export function priceForQty(qty: number, basePrice: number, tiers: Tier[] | undefined): number {

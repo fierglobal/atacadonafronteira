@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
-import { calcularEntrega, type EntregaTipo } from '@/lib/entrega'
+import { calcularEntrega, type TipoRetirada } from '@/lib/entrega'
 import { priceForQty, type Tier } from '@/lib/tier'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
 
   // Compra no site é só retirada — sem opção de envio, não há por que calcular
   // nem cotar 'envio_brasil' aqui.
-  const tipos: EntregaTipo[] = ['retirada_cde', 'retirada_foz']
+  const tipos: TipoRetirada[] = ['retirada_cde', 'retirada_foz']
   const opcoes = Object.fromEntries(
     tipos.map(t => [t, calcularEntrega(paraCalculo, t)]),
   )

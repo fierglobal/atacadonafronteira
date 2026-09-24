@@ -84,7 +84,7 @@ export default function AdminHome() {
       <div style={{ background: 'var(--a-surface)', border: '1px solid var(--a-border)', borderRadius: 12, padding: 22, marginBottom: 24 }}>
         <p style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b', letterSpacing: '0.1em', margin: '0 0 14px' }}>BARRA DE AVISO (topo da home)</p>
         <input value={aviso} onChange={e => setAviso(e.target.value)}
-          placeholder="Ex: 🚀 Frete grátis acima de R$ 1.500 · Novos peptídeos em estoque"
+          placeholder="Ex: 🚀 Pré-venda iPhone 18 aberta · Retirada em CDE e Foz do Iguaçu"
           style={inp} />
         <p style={{ fontSize: 11, color: 'var(--a-text3)', margin: '6px 0 0' }}>Deixe vazio para ocultar</p>
       </div>

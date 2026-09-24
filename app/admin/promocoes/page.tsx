@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 type Promo = {
   id: string
   nome: string
-  tipo: 'desconto_pct' | 'desconto_fixo' | 'brinde' | 'frete_gratis'
+  tipo: 'desconto_pct' | 'desconto_fixo' | 'brinde'
   valor: number | null
   brinde_product_id: string | null
   condicoes: Record<string, unknown> | null
@@ -20,7 +20,7 @@ type Promo = {
 type FormState = {
   id?: string
   nome: string
-  tipo: 'desconto_pct' | 'desconto_fixo' | 'brinde' | 'frete_gratis'
+  tipo: 'desconto_pct' | 'desconto_fixo' | 'brinde'
   valor: string
   brinde_product_id: string
   condicoes: string
@@ -40,7 +40,6 @@ const TIPOS: { v: FormState['tipo']; label: string }[] = [
   { v: 'desconto_pct', label: 'Desconto %' },
   { v: 'desconto_fixo', label: 'Desconto Fixo (R$)' },
   { v: 'brinde', label: 'Brinde' },
-  { v: 'frete_gratis', label: 'Frete Grátis' },
 ]
 
 export default function Promocoes() {
@@ -143,7 +142,6 @@ export default function Promocoes() {
     if (p.tipo === 'desconto_pct') return p.valor != null ? `${p.valor}%` : '—'
     if (p.tipo === 'desconto_fixo') return p.valor != null ? `R$ ${Number(p.valor).toFixed(2)}` : '—'
     if (p.tipo === 'brinde') return p.brinde_product_id || 'Brinde'
-    if (p.tipo === 'frete_gratis') return 'Frete Grátis'
     return '—'
   }
 
@@ -290,8 +288,8 @@ export default function Promocoes() {
                   <label style={lbl}>VALOR</label>
                   <input value={form.valor} onChange={e => setForm(f => ({ ...f, valor: e.target.value }))}
                     type="number" step="0.01" placeholder={form.tipo === 'desconto_pct' ? '%' : 'R$'}
-                    disabled={form.tipo === 'frete_gratis' || form.tipo === 'brinde'}
-                    style={{ ...inp, opacity: (form.tipo === 'frete_gratis' || form.tipo === 'brinde') ? 0.5 : 1 }} />
+                    disabled={form.tipo === 'brinde'}
+                    style={{ ...inp, opacity: form.tipo === 'brinde' ? 0.5 : 1 }} />
                 </div>
               </div>
 

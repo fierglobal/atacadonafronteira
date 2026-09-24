@@ -836,7 +836,7 @@ export default function EditarProduto({ params }: { params: Promise<{ id: string
             </div>
 
             <div style={card}>
-              <p style={sec()}>DIMENSÕES E PESO <span style={{ fontSize: 9, fontWeight: 400, color: 'var(--a-text3)' }}>(para cálculo de frete)</span></p>
+              <p style={sec()}>DIMENSÕES E PESO</p>
               <div className="pd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 14 }}>
                 {[
                   { k: 'peso', label: 'PESO (kg)', ph: '0.5' },

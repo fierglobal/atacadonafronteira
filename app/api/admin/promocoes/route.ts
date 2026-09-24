@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { nome, tipo, valor, brinde_product_id, condicoes, prioridade, ativo, inicio, fim, usos_max } = body
   if (!nome || !tipo) return NextResponse.json({ error: 'Nome e tipo são obrigatórios' }, { status: 400 })
-  const tipos = ['desconto_pct', 'desconto_fixo', 'brinde', 'frete_gratis']
+  const tipos = ['desconto_pct', 'desconto_fixo', 'brinde']
   if (!tipos.includes(tipo)) return NextResponse.json({ error: 'Tipo inválido' }, { status: 400 })
   const { data, error } = await supabaseAdmin
     .from('promocoes')
