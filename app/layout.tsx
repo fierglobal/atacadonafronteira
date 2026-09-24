@@ -11,8 +11,8 @@ import { getConfig } from "@/lib/config";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const TITLE = "Atacado na Fronteira — Suplementos e produtos premium";
-const DESCRIPTION = "Catálogo direto do Paraguai com as melhores marcas. Atacado e varejo, preços em R$, PIX e retirada na loja. Estoque imediato.";
+const TITLE = "Atacado na Fronteira — Direto do Paraguai";
+const DESCRIPTION = "Catálogo direto do Paraguai com eletrônicos Apple, farmácia (tirzepatida) e perfumaria árabe. Preços em R$, PIX à vista, retirada em Ciudad del Este ou Foz do Iguaçu.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
