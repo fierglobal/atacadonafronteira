@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_HREF, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import Logo from '@/components/Logo'
-import { ComoComprar, Departamentos, Categorias, Entrega, Contato, type DeptCard, type CatLink } from '@/components/HomeSecoes'
+import { Destaques, Catalogo, ComoFunciona, BandaFinal, type DeptCard, type DestaqueProduto } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 
 const CONTATO_HREF = WHATSAPP_HREF
@@ -26,7 +26,7 @@ export type HomeInitial = {
   deptEletronicos: number
   deptFarmacia: number
   departamentos: DeptCard[]
-  catLinks: CatLink[]
+  destaques: DestaqueProduto[]
   total: number
   brands: { nome: string; total: number }[]  // nomes em base64, como a API
   heroEletronico: HeroProduct | null          // idem — decodificado dentro do HeroRotativo
@@ -55,115 +55,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
 
   return (
     <div className="min-h-screen font-sans home-root" style={{ background: '#ffffff', color: '#0a0a0a' }}>
+      {/* Motion e hover reais deste componente — o resto (nav mobile, header
+          hover, reduced-motion) já mora em globals.css, compartilhado por
+          todo o site; duplicar aqui não mudava nada, só juntava keyframe
+          órfã (o arquivo chegou a ter 13, e só shimmer/fadeUp tinham uso
+          de verdade — nenhuma delas neste componente). */}
       <style>{`
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glowPulse {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-        @keyframes shimmer {
-          0% { background-position: -400px 0; }
-          100% { background-position: 400px 0; }
-        }
-        @keyframes ticker {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        @keyframes dnaRotate {
-          0% { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
-        }
-        @keyframes glassFadeIn {
-          from { opacity: 0; transform: translateY(14px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes moleculeSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes laserRay {
-          0%, 100% { opacity: 0.1; }
-          40% { opacity: 0.8; }
-          60% { opacity: 0.5; }
-        }
-        @keyframes heroScanline {
-          0% { top: -3px; opacity: 0; }
-          5% { opacity: 1; }
-          95% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-        @keyframes verifiedPop {
-          0% { transform: scale(0) rotate(-15deg); opacity: 0; }
-          70% { transform: scale(1.1) rotate(2deg); opacity: 1; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes glassBorderGlow {
-          0%, 100% { box-shadow-opacity: 0.6; filter: brightness(1); }
-          50% { filter: brightness(1.08); }
-        }
-        .hero-glass-card { perspective: 1000px; }
-        .hero-particle { position: absolute; border-radius: 50%; pointer-events: none; }
-        .hero-stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); backdrop-filter: blur(8px); color: #d4d4d4; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; }
-        .hero-stat-chip svg { color: currentColor; opacity: 0.85; }
-        .hero-cta-secondary:hover { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.25) !important; }
-        .hero-cta-primary:hover { transform: translateY(-1px); }
-        .hero-arrow-btn:hover { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.3) !important; }
-        .nav-link { position: relative; }
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: -4px; left: 50%; right: 50%;
-          height: 1px; background: #A965ED;
-          box-shadow: 0 0 6px rgba(66, 14, 118,0.4);
-          transition: left 0.25s, right 0.25s;
-        }
-        .nav-link:hover::after { left: 0; right: 0; }
-        .skeleton { background: linear-gradient(90deg, #f5f5f5 25%, #ececec 50%, #f5f5f5 75%); background-size: 400px 100%; animation: shimmer 1.4s ease-in-out infinite; }
-        .header-account:hover { color: #0a0a0a !important; border-color: #d4d4d4 !important; }
-        .header-cart:hover { box-shadow: 0 4px 12px rgba(66, 14, 118,0.18) !important; border-color: rgba(66, 14, 118,0.5) !important; }
-        .trust-ticker { overflow: hidden; white-space: nowrap; }
-        .trust-track { display: inline-flex; gap: 0; animation: ticker 28s linear infinite; }
-        @media (max-width: 900px) {
-          .nav-desktop { display: none !important; }
-        }
-        .brand-card { transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s; cursor: pointer; }
-        .brand-card:hover { border-color: rgba(66, 14, 118,0.4) !important; box-shadow: 0 8px 24px rgba(66, 14, 118,0.08) !important; transform: translateY(-2px); }
         .footer-brand-link { transition: color 0.15s; }
         .footer-brand-link:hover { color: #420E76 !important; }
-        .catalogo-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(66, 14, 118,0.22) !important; }
         @media (max-width: 640px) {
-          /* nav */
-          .nav-rate { display: none !important; }
-          .nav-cart-txt { display: none !important; }
-          .nav-acct-txt { display: none !important; }
-          .nav-mobile-btn { display: flex !important; align-items: center; justify-content: center; width: 36px; height: 36px; background: #fafafa; border: 1px solid #ececec; border-radius: 8px; color: #404040; cursor: pointer; font-size: 18px; }
-          .nav-mobile-drawer.open { display: flex !important; }
-          /* hero — banner sozinho no mobile, sem o widget de vídeo */
-          .hero-row { padding: 8px !important; }
-          .hero-video-col { display: none !important; }
-          .hero-banner-col { flex: 1 1 100% !important; }
-          /* como funciona — scroll horizontal */
-          .como-grid { display: flex !important; overflow-x: auto !important; gap: 12px !important; scrollbar-width: none !important; padding-bottom: 4px !important; }
-          .como-grid::-webkit-scrollbar { display: none !important; }
-          /* marcas — scroll horizontal */
-          .brand-grid { display: flex !important; overflow-x: auto !important; gap: 8px !important; scrollbar-width: none !important; padding-bottom: 4px !important; flex-wrap: nowrap !important; }
-          .brand-grid::-webkit-scrollbar { display: none !important; }
-          .brand-card { min-width: 100px !important; flex-shrink: 0 !important; }
-          /* footer */
           .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
       `}</style>
 
@@ -181,28 +82,16 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         />
       )}
 
-      {/* Ordem no desktop: logo após o hero, quem entra quer ver PRODUTO — não
-          instrução operacional. Categorias tem foto real por categoria;
-          Departamentos é card de texto+chips. */}
+      {/* Ordem no desktop: logo após o hero, quem entra quer ver PREÇO — antes
+          disso a home não tinha nenhum fora do hero. Catálogo (departamentos
+          fundidos) e Como funciona (passos+retirada fundidos) vêm depois. */}
       {initial && (
         <>
-          <Categorias cats={initial.catLinks} />
-          <Departamentos cards={initial.departamentos} />
-          <ComoComprar />
-          <Entrega />
+          <Destaques produtos={initial.destaques} />
+          <Catalogo cards={initial.departamentos} />
+          <ComoFunciona />
         </>
       )}
-
-      {/* Porta de entrada pro catálogo completo — busca, filtro de categoria/
-          marca/preço e paginação vivem em /produtos, não aqui. */}
-      <section style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 24px 80px', textAlign: 'center' }}>
-        <Link href="/produtos" className="catalogo-cta"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 32px', borderRadius: 12, background: '#420E76', color: '#ffffff', fontSize: 15, fontWeight: 800, textDecoration: 'none', letterSpacing: '0.02em', boxShadow: '0 6px 18px rgba(66, 14, 118,0.18)', transition: 'transform 0.15s, box-shadow 0.15s' }}>
-          Ver catálogo completo
-          {initial && <span style={{ opacity: 0.75, fontWeight: 600 }}>({initial.total} produtos)</span>}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </Link>
-      </section>
 
       {/* WhatsApp FAB */}
       {WHATSAPP_ENABLED && (
@@ -216,7 +105,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
         </a>
       )}
 
-      <Contato />
+      <BandaFinal total={initial?.total} />
 
       <footer style={{ background: '#0A0710', color: '#a3a3a3', padding: '56px 24px 24px' }}>
         <div className="footer-grid" style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.4fr', gap: 48 }}>

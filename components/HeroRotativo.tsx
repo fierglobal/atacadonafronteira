@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -32,6 +32,31 @@ type Props = {
   brlRate: number
   heroEletronico: HeroProduct | null
   heroPromo: HeroProduct | null
+}
+
+// A "ficha de produto" é o único objeto visual do hero, e é IDÊNTICA nos 3
+// slides possíveis — só o conteúdo muda. Antes cada slide tinha sua própria
+// fórmula (card rotacionado sem preço / card grande com selo circular / card
+// médio com outro selo circular), o que lia como "gerado 3 vezes". Um
+// componente só, reaproveitado, é o que devolve consistência.
+function Ficha({ img, alt, brand, name, priceNode, tag, href, linkLabel }: {
+  img: string; alt: string; brand: string | null; name: string
+  priceNode: ReactNode; tag?: ReactNode; href: string; linkLabel: string
+}) {
+  return (
+    <div className="hero-ficha">
+      <div className="hero-ficha-photo">
+        {tag}
+        <Image src={img} alt={alt} fill sizes="(max-width: 767px) 120px, 380px" style={{ objectFit: 'contain', padding: '10%' }} priority />
+      </div>
+      <div className="hero-ficha-body">
+        {brand && <span className="hero-ficha-brand">{brand}</span>}
+        <p className="hero-ficha-name">{name}</p>
+        {priceNode}
+        <Link href={href} className="hero-ficha-link">{linkLabel} →</Link>
+      </div>
+    </div>
+  )
 }
 
 export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, heroEletronico, heroPromo }: Props) {
@@ -74,12 +99,22 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const id = setInterval(() => {
       if (!hoverRef.current) setActive(a => (a + 1) % slideCount)
-    }, 5000)
+    }, 7000)
     return () => clearInterval(id)
   }, [slideCount, mountExtra])
 
   const idxEletronicos = slides.indexOf('eletronicos')
   const idxFarmacia = slides.indexOf('farmacia')
+
+  const precoNormal = (p: { usd_price: number; brl_price: number | null }) => (
+    <div className="hero-ficha-price">R$ {fmtBrl(brlNativo(p.usd_price, p.brl_price, brlRate))}</div>
+  )
+  const precoPromo = (p: { usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo?: number | null }) => (
+    <div>
+      <div className="hero-ficha-price-strike">R$ {fmtBrl(brlNativo(p.usd_price, p.brl_price, brlRate))}</div>
+      <div className="hero-ficha-price">R$ {fmtBrl(brlNativo(Number(p.usd_price_promo), p.brl_price_promo, brlRate))}</div>
+    </div>
+  )
 
   return (
     <section
@@ -89,183 +124,165 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
       onFocus={() => { hoverRef.current = true }}
       onBlur={() => { hoverRef.current = false }}
     >
-      <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-        <filter id="heroNoise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" /></filter>
-      </svg>
-
       {/* Slide 1 · Identidade — sempre montado, NO FLUXO: é ele que define a
           altura do hero e a imagem prioritária de LCP. */}
-      <div className="hero-slide hero-slide-base" style={{ opacity: active === 0 ? 1 : 0 }} aria-hidden={active !== 0}>
-        <div className="hero-bg" style={{ background: 'linear-gradient(120deg, #2b0a4e 0%, #420E76 58%, #A965ED 130%)' }}>
-          <div className="hero-glow" style={{ left: -120, top: -160, width: 520, height: 520, background: 'radial-gradient(circle, rgba(169,101,237,0.35), transparent 70%)' }} />
-          <div className="hero-glow" style={{ right: -80, bottom: -200, width: 620, height: 620, background: 'radial-gradient(circle, rgba(246,189,12,0.14), transparent 70%)' }} />
-          <svg className="hero-bridge" viewBox="0 0 1280 220" preserveAspectRatio="none" aria-hidden="true">
-            <path d="M -40,190 C 260,20 1020,20 1320,190" fill="none" stroke="#F6BD0C" strokeWidth="2.5" />
-            <path d="M -40,210 C 260,70 1020,70 1320,210" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity="0.6" />
-          </svg>
-          <svg className="hero-grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#heroNoise)" /></svg>
-        </div>
-
+      <div className="hero-slide hero-slide-base" style={{ opacity: active === 0 ? 1 : 0, transform: active === 0 ? 'translateY(0)' : 'translateY(8px)' }} aria-hidden={active !== 0}>
         <div className="hero-content">
-          <span className="hero-kicker">Atacado na Fronteira</span>
-          <h1 className="hero-h1">Direto do Paraguai<br />pra revenda</h1>
-          <p className="hero-sub">Eletrônicos, farmácia e perfumaria com preço de fronteira, para lojistas e profissionais da saúde.</p>
-          <div className="hero-stats">
-            <div className="hero-stat"><span className="hero-stat-num">{total}</span><span className="hero-stat-label">produtos em estoque</span></div>
-            <div className="hero-stat-div" />
-            <div className="hero-stat"><span className="hero-stat-num">30 min</span><span className="hero-stat-label">PIX confirmado</span></div>
-            <div className="hero-stat-div" />
-            <div className="hero-stat"><span className="hero-stat-num">CDE + Foz</span><span className="hero-stat-label">pontos de retirada</span></div>
+          <div className="hero-fade-in hero-col-text">
+            <h1 className="hero-h1">Direto do Paraguai<br />pra revenda</h1>
+            <p className="hero-sub">Eletrônicos, farmácia e perfumaria com preço de fronteira, para lojistas e profissionais da saúde.</p>
+            <p className="hero-facts">
+              <span className="hero-mono">{total}</span> produtos <span className="hero-facts-dot">·</span> PIX confirmado em <span className="hero-mono">30 min</span> <span className="hero-facts-dot">·</span> retirada CDE + Foz
+            </p>
+            <div className="hero-cta-row">
+              <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
+                Ver catálogo completo
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </Link>
+              <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === 0 ? 0 : -1}>Como comprar →</Link>
+            </div>
           </div>
-          <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
-            Ver catálogo completo
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </Link>
+          {eletronico?.img_url && (
+            <Ficha img={eletronico.img_url} alt={eletronico.name} brand={eletronico.brand} name={eletronico.name}
+              priceNode={precoNormal(eletronico)} href={`/produtos/${eletronico.id}`} linkLabel="Ver produto" />
+          )}
         </div>
-
-        {eletronico?.img_url && (
-          <div className="hero-card hero-card-solo">
-            <Image src={eletronico.img_url} alt={eletronico.name} fill sizes="(max-width: 767px) 180px, 300px" style={{ objectFit: 'contain', padding: '12%' }} priority />
-          </div>
-        )}
       </div>
 
       {/* Slide 2 · Eletrônicos — só existe se houver um destaque real em estoque. */}
       {mountExtra && eletronico && (
-        <div className="hero-slide hero-slide-abs" style={{ opacity: active === idxEletronicos ? 1 : 0, pointerEvents: active === idxEletronicos ? 'auto' : 'none' }} aria-hidden={active !== idxEletronicos}>
-          <div className="hero-bg" style={{ background: 'radial-gradient(120% 140% at 78% 30%, #5a1798 0%, #2b0a4e 62%, #1a0733 100%)' }}>
-            <div className="hero-glow" style={{ right: -60, top: -140, width: 520, height: 520, background: 'radial-gradient(circle, rgba(169,101,237,0.4), transparent 70%)' }} />
-            <svg className="hero-grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#heroNoise)" /></svg>
-          </div>
+        <div className="hero-slide hero-slide-abs" style={{ opacity: active === idxEletronicos ? 1 : 0, transform: active === idxEletronicos ? 'translateY(0)' : 'translateY(8px)', pointerEvents: active === idxEletronicos ? 'auto' : 'none' }} aria-hidden={active !== idxEletronicos}>
           <div className="hero-content">
-            {limitePorCpf ? (
-              <>
-                <span className="hero-kicker">🔥 Pré-venda · unidades limitadas</span>
-                <h1 className="hero-h1">{shorten(eletronico.name, 24)}</h1>
-                <p className="hero-sub">Estoque de lançamento — limitado a {limitePorCpf} unidades por cliente.</p>
-              </>
-            ) : (
-              <>
-                <span className="hero-kicker">Eletrônicos no atacado</span>
-                <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
-                <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
-              </>
+            <div className="hero-col-text">
+              {limitePorCpf ? (
+                <>
+                  <span className="hero-tag hero-tag-amber"><i />Pré-venda</span>
+                  <h1 className="hero-h1">{shorten(eletronico.name, 28)}</h1>
+                  <p className="hero-sub">Estoque de lançamento — limitado a {limitePorCpf} unidades por cliente.</p>
+                </>
+              ) : (
+                <>
+                  <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
+                  <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
+                </>
+              )}
+              <div className="hero-cta-row">
+                <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/eletronicos'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
+                  {limitePorCpf ? 'Garantir o meu' : `Ver eletrônicos (${eletronicos})`}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                </Link>
+                <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxEletronicos ? 0 : -1}>Como comprar →</Link>
+              </div>
+            </div>
+            {eletronico.img_url && (
+              <Ficha img={eletronico.img_url} alt={eletronico.name} brand={eletronico.brand} name={eletronico.name}
+                priceNode={precoNormal(eletronico)} href={`/produtos/${eletronico.id}`} linkLabel="Ver produto" />
             )}
-            <div className="hero-price"><span className="hero-price-num">R$ {fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span></div>
-            <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/eletronicos'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
-              {limitePorCpf ? 'Garantir o meu' : `Ver eletrônicos (${eletronicos})`}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </Link>
           </div>
-          {eletronico.img_url && (
-            <>
-              <div className="hero-card hero-card-big">
-                <Image src={eletronico.img_url} alt={eletronico.name} fill sizes="(max-width: 767px) 220px, 340px" style={{ objectFit: 'contain', padding: '12%' }} loading="eager" />
-              </div>
-              <div className="hero-badge hero-badge-price">
-                <span className="hero-badge-big">R$ {fmtBrl(brlNativo(eletronico.usd_price, eletronico.brl_price, brlRate))}</span>
-                <span className="hero-badge-small">preço de fronteira</span>
-              </div>
-            </>
-          )}
         </div>
       )}
 
       {/* Slide 3 · Farmácia — só existe se houver desconto real ativo hoje. */}
       {mountExtra && promo && (
-        <div className="hero-slide hero-slide-abs" style={{ opacity: active === idxFarmacia ? 1 : 0, pointerEvents: active === idxFarmacia ? 'auto' : 'none' }} aria-hidden={active !== idxFarmacia}>
-          <div className="hero-bg" style={{ background: 'radial-gradient(120% 140% at 80% 70%, #421a7a 0%, #2b0a4e 60%, #1a0733 100%)' }}>
-            <div className="hero-glow" style={{ right: 20, bottom: -160, width: 520, height: 520, background: 'radial-gradient(circle, rgba(120,190,235,0.16), transparent 70%)' }} />
-            <div className="hero-glow" style={{ left: -100, top: -140, width: 420, height: 420, background: 'radial-gradient(circle, rgba(169,101,237,0.28), transparent 70%)' }} />
-            <svg className="hero-grain" aria-hidden="true"><rect width="100%" height="100%" filter="url(#heroNoise)" /></svg>
-          </div>
+        <div className="hero-slide hero-slide-abs" style={{ opacity: active === idxFarmacia ? 1 : 0, transform: active === idxFarmacia ? 'translateY(0)' : 'translateY(8px)', pointerEvents: active === idxFarmacia ? 'auto' : 'none' }} aria-hidden={active !== idxFarmacia}>
           <div className="hero-content">
-            <span className="hero-kicker">Farmácia · oferta real</span>
-            <h1 className="hero-h1">{shorten(promo.name, 34)}</h1>
-            <p className="hero-sub">Tirzepatida (GLP-1) &middot; {farmacia} produtos, preço de fronteira.</p>
-            <div className="hero-price">
-              <span className="hero-price-strike">R$ {fmtBrl(brlNativo(promo.usd_price, promo.brl_price, brlRate))}</span>
-              <span className="hero-price-num">R$ {fmtBrl(brlNativo(Number(promo.usd_price_promo), promo.brl_price_promo, brlRate))}</span>
+            <div className="hero-col-text">
+              <span className="hero-tag hero-tag-green"><i />Oferta ativa hoje</span>
+              <h1 className="hero-h1">{shorten(promo.name, 34)}</h1>
+              <p className="hero-sub">Tirzepatida (GLP-1) &middot; {farmacia} produtos, preço de fronteira.</p>
+              <div className="hero-cta-row">
+                <Link href="/categoria/farmacia" className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
+                  Ver farmácia ({farmacia})
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                </Link>
+                <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxFarmacia ? 0 : -1}>Como comprar →</Link>
+              </div>
             </div>
-            <Link href="/categoria/farmacia" className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
-              Ver farmácia ({farmacia})
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-            </Link>
+            {promo.img_url && (
+              <Ficha img={promo.img_url} alt={promo.name} brand={promo.brand} name={promo.name}
+                priceNode={precoPromo(promo)}
+                tag={<span className="hero-ficha-tag">-{discountPct}%</span>}
+                href={`/produtos/${promo.id}`} linkLabel="Ver produto" />
+            )}
           </div>
-          {promo.img_url && (
-            <>
-              <div className="hero-card hero-card-med">
-                <Image src={promo.img_url} alt={promo.name} fill sizes="(max-width: 767px) 170px, 230px" style={{ objectFit: 'contain', padding: '12%' }} loading="eager" />
-              </div>
-              <div className="hero-badge hero-badge-discount">
-                <span className="hero-badge-pct">-{discountPct}%</span>
-                <span className="hero-badge-small">HOJE</span>
-              </div>
-            </>
-          )}
         </div>
       )}
 
       {slideCount > 1 && (
-        <div className="hero-dots">
-          {slides.map((s, i) => <span key={s} className={i === active ? 'on' : ''} />)}
+        <div className="hero-indicator">
+          <span className="hero-mono hero-indicator-count">{active + 1}/{slideCount}</span>
+          <div className="hero-indicator-ticks">
+            {slides.map((s, i) => <span key={s} className={i === active ? 'on' : ''} />)}
+          </div>
         </div>
       )}
 
       <style>{`
-        .hero-rot { position: relative; overflow: hidden; font-family: inherit; }
+        .hero-rot { position: relative; overflow: hidden; font-family: inherit; background: #420E76; }
         .hero-slide-base { position: relative; }
-        .hero-slide-abs { position: absolute; inset: 0; transition: opacity 0.6s ease; }
-        .hero-slide-base { transition: opacity 0.6s ease; }
-        .hero-bg { position: absolute; inset: 0; overflow: hidden; }
-        .hero-glow { position: absolute; border-radius: 50%; }
-        .hero-bridge { position: absolute; left: 0; bottom: 0; width: 100%; height: 190px; opacity: 0.16; }
-        .hero-grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.05; mix-blend-mode: overlay; }
+        .hero-slide-abs { position: absolute; inset: 0; }
+        .hero-slide-base, .hero-slide-abs { transition: opacity 0.35s ease, transform 0.35s ease; }
 
-        .hero-content { position: relative; padding: 64px 24px 56px; max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
-        .hero-kicker { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; color: #F6BD0C; text-transform: uppercase; }
-        .hero-h1 { margin: 0; font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; font-size: 50px; line-height: 0.98; font-weight: 900; letter-spacing: -0.02em; color: #ffffff; text-wrap: balance; max-width: 640px; }
-        .hero-sub { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.55; color: #E8D9F7; max-width: 460px; }
-        .hero-stats { display: flex; gap: 22px; align-items: center; }
-        .hero-stat { display: flex; flex-direction: column; gap: 2px; }
-        .hero-stat-num { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 19px; font-weight: 700; color: #ffffff; }
-        .hero-stat-label { font-size: 11.5px; font-weight: 600; color: #C293F2; }
-        .hero-stat-div { width: 1px; height: 26px; background: rgba(255,255,255,0.18); }
-        .hero-price { display: flex; align-items: baseline; gap: 12px; }
-        .hero-price-strike { position: relative; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 16px; font-weight: 600; color: #C293F2; }
-        .hero-price-strike::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; background: #C293F2; transform: rotate(-4deg); }
-        .hero-price-num { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 30px; font-weight: 800; color: #ffffff; }
-        .hero-cta { display: inline-flex; align-items: center; gap: 8px; padding: 15px 28px; border-radius: 10px; background: #F6BD0C; color: #2b0a4e; font-weight: 800; font-size: 15px; text-decoration: none; box-shadow: 0 10px 26px rgba(246,189,12,0.35); }
+        .hero-content { position: relative; padding: 72px 24px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 48px; align-items: center; }
+        .hero-col-text { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+        .hero-h1 { margin: 0; font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #ffffff; text-wrap: balance; max-width: 560px; }
+        .hero-sub { margin: 0; font-size: 16px; font-weight: 400; line-height: 1.55; color: #E8DAF8; max-width: 460px; }
+        .hero-facts { margin: 0; font-size: 13.5px; font-weight: 500; line-height: 1.5; color: rgba(255,255,255,0.72); }
+        .hero-facts-dot { margin: 0 8px; opacity: 0.6; }
+        .hero-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-weight: 600; color: #ffffff; }
+        .hero-cta-row { display: flex; align-items: center; gap: 20px; margin-top: 4px; flex-wrap: wrap; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; background: #F6BD0C; color: #2b0a4e; font-weight: 800; font-size: 15px; text-decoration: none; transition: transform 0.1s; }
+        .hero-cta:active { transform: scale(0.98); }
+        .hero-cta-secondary { font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; }
+        .hero-cta-secondary:hover { text-decoration: underline; }
 
-        .hero-card { position: absolute; background: #ffffff; border-radius: 26px; box-shadow: 0 30px 60px rgba(20,4,40,0.45); overflow: hidden; }
-        .hero-card-solo { right: 96px; top: 60px; width: 260px; height: 260px; transform: rotate(5deg); }
-        .hero-card-big { right: 120px; top: 56px; width: 300px; height: 300px; transform: rotate(4deg); }
-        .hero-card-med { right: 150px; top: 70px; width: 220px; height: 220px; transform: rotate(-5deg); }
+        .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 4px; }
+        .hero-tag i { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+        .hero-tag-amber { background: rgba(245,158,11,0.16); color: #fbbf6a; }
+        .hero-tag-amber i { background: #fbbf6a; }
+        .hero-tag-green { background: rgba(22,163,74,0.16); color: #6ee7a0; }
+        .hero-tag-green i { background: #6ee7a0; }
 
-        .hero-badge { position: absolute; border-radius: 50%; background: #F6BD0C; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; line-height: 1.1; box-shadow: 0 14px 30px rgba(0,0,0,0.35), 0 0 0 6px rgba(246,189,12,0.18); }
-        .hero-badge-price { right: 96px; top: 36px; width: 96px; height: 96px; transform: rotate(-8deg); }
-        .hero-badge-discount { right: 400px; top: 44px; width: 84px; height: 84px; transform: rotate(-10deg); }
-        .hero-badge-big { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 800; color: #2b0a4e; }
-        .hero-badge-pct { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 21px; font-weight: 800; color: #2b0a4e; }
-        .hero-badge-small { font-size: 8px; font-weight: 800; color: #2b0a4e; letter-spacing: 0.05em; margin-top: 2px; }
+        .hero-ficha { background: #ffffff; border: 1px solid #ececec; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .hero-ficha-photo { position: relative; aspect-ratio: 4 / 3; background: #fafafa; }
+        .hero-ficha-tag { position: absolute; top: 10px; left: 10px; z-index: 2; background: #F6BD0C; color: #2b0a4e; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+        .hero-ficha-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+        .hero-ficha-brand { font-size: 11px; font-weight: 800; color: #420E76; }
+        .hero-ficha-name { margin: 0; font-size: 15px; font-weight: 600; color: #0a0a0a; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; }
+        .hero-ficha-price { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 24px; font-weight: 600; color: #420E76; }
+        .hero-ficha-price-strike { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 500; color: #a3a3a3; text-decoration: line-through; }
+        .hero-ficha-link { margin-top: 4px; font-size: 13px; font-weight: 700; color: #420E76; text-decoration: none; }
+        .hero-ficha-link:hover { text-decoration: underline; }
 
-        .hero-dots { position: absolute; left: 24px; bottom: 22px; z-index: 2; display: flex; gap: 7px; }
-        .hero-dots span { width: 8px; height: 5px; border-radius: 99px; background: rgba(255,255,255,0.35); transition: width 0.3s, background 0.3s; }
-        .hero-dots span.on { width: 22px; background: #F6BD0C; }
+        @keyframes heroFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hero-fade-in > * { animation: heroFadeUp 0.5s ease-out both; }
+        .hero-fade-in > *:nth-child(1) { animation-delay: 0ms; }
+        .hero-fade-in > *:nth-child(2) { animation-delay: 80ms; }
+        .hero-fade-in > *:nth-child(3) { animation-delay: 160ms; }
+        .hero-fade-in > *:nth-child(4) { animation-delay: 240ms; }
+
+        .hero-indicator { position: absolute; left: 24px; bottom: 20px; z-index: 2; display: flex; align-items: center; gap: 10px; }
+        .hero-indicator-count { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .hero-indicator-ticks { display: flex; gap: 6px; }
+        .hero-indicator-ticks span { width: 16px; height: 3px; border-radius: 1px; background: rgba(255,255,255,0.25); transition: background 0.3s; }
+        .hero-indicator-ticks span.on { background: #F6BD0C; }
 
         @media (prefers-reduced-motion: reduce) {
           .hero-slide-abs, .hero-slide-base { transition: none; }
         }
 
         @media (max-width: 767px) {
-          .hero-content { padding: 32px 20px 26px; gap: 12px; align-items: center; text-align: center; }
+          .hero-content { grid-template-columns: 1fr; gap: 24px; padding: 40px 20px; }
           .hero-h1 { font-size: 32px; }
-          .hero-sub { font-size: 13.5px; max-width: 320px; }
-          .hero-stats { gap: 16px; }
-          .hero-stat-num { font-size: 16px; }
-          .hero-cta { width: 100%; box-sizing: border-box; justify-content: center; padding: 14px 20px; }
-          .hero-card, .hero-badge { display: none; }
-          .hero-bridge { height: 90px; }
+          .hero-sub { font-size: 14px; max-width: 320px; }
+          .hero-cta { width: 100%; box-sizing: border-box; justify-content: center; }
+          .hero-cta-row { width: 100%; }
+          .hero-ficha { flex-direction: row; }
+          .hero-ficha-photo { width: 120px; flex-shrink: 0; aspect-ratio: 1 / 1; }
+          .hero-ficha-body { padding: 12px; }
+          .hero-ficha-name { font-size: 13px; }
+          .hero-ficha-price { font-size: 19px; }
+          .hero-indicator { display: none; }
         }
       `}</style>
     </section>

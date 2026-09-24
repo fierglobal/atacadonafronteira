@@ -67,6 +67,40 @@ const jsonLdLoja = () => ([
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
 const CAMPOS = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador, limite_por_cpf'
+const CAMPOS_DESTAQUE = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges'
+
+type Categoria = { id: string; nome: string; parent_id: string | null }
+type ProdutoDestaque = { id: string; name: string; brand: string | null; brl_price: number; brl_price_promo: number | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number; badges: string[] | null }
+
+// 4 produtos reais por departamento raiz — com promoção ativa primeiro (sinal
+// de destaque genuíno, o mesmo critério do heroPromo), o resto por sort_order
+// (a curadoria manual que já existe hoje via "Relevância" na categoria). Sem
+// isso a home não tinha NENHUM preço visível fora do hero.
+async function getDestaquesPorDepartamento(raizes: Categoria[], cats: Categoria[]): Promise<Record<string, ProdutoDestaque[]>> {
+  const now = new Date().toISOString()
+  const pares = await Promise.all(raizes.map(async r => {
+    const ids = [r.id, ...cats.filter(c => c.parent_id === r.id).map(c => c.id)]
+    const { data } = await supabaseAdmin.from('products').select(CAMPOS_DESTAQUE)
+      .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+      .in('categoria_id', ids).gt('estoque', 0).not('img_url', 'is', null)
+      .order('brl_price_promo', { ascending: true, nullsFirst: false })
+      .order('sort_order', { ascending: true }).order('id', { ascending: true })
+      .limit(4)
+    return [r.id, (data || []) as ProdutoDestaque[]] as const
+  }))
+  return Object.fromEntries(pares)
+}
+
+// Menor brl_price entre os tiers de quantidade — mesmo campo que já alimenta
+// o selo "a partir de RX/un no atacado" na página de categoria.
+async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
+  if (!produtoIds.length) return {}
+  const { data } = await supabaseAdmin.from('product_price_tiers')
+    .select('product_id, brl_price').in('product_id', produtoIds).order('brl_price', { ascending: true })
+  const menor: Record<string, number> = {}
+  for (const t of data || []) if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
+  return menor
+}
 
 // Mesmo shape que o client montaria via /api/facetas + /api/categorias —
 // mas resolvido no servidor, para a primeira tela sair do HTML em vez de
@@ -91,8 +125,6 @@ async function getInitial(): Promise<HomeInitial | null> {
       if (p.brand) marcas[p.brand] = (marcas[p.brand] ?? 0) + 1
     }
 
-    const categorias = cats.map(c => ({ ...c, produtos: counts[c.id] ?? 0 }))
-
     // Números por departamento e as marcas de cada um: alimentam o hero e os
     // cards que substituíram a seção "Marcas disponíveis". Contados aqui, do
     // banco, para nenhum número da copy ser escrito à mão e envelhecer.
@@ -113,6 +145,13 @@ async function getInitial(): Promise<HomeInitial | null> {
       'Farmácia': 'Tirzepatida (GLP-1) das principais marcas, direto do Paraguai.',
       'Perfumes': 'Perfumaria árabe, importados e de nicho, direto do Paraguai.',
     }
+    // Destaques (Catálogo fundido): 4 produtos reais por departamento —
+    // reaproveitados também como miniaturas da linha do departamento, então
+    // é UMA busca só, não uma pra cada seção.
+    const destaquesPorDept = await getDestaquesPorDepartamento(raizes as Categoria[], cats as Categoria[])
+    const idsDestaque = Object.values(destaquesPorDept).flat().map(p => p.id)
+    const menorTierDestaque = await getMenorTierPorProduto(idsDestaque)
+
     const departamentos = raizes
       .map(r => ({
         nome: r.nome as string,
@@ -122,23 +161,17 @@ async function getInitial(): Promise<HomeInitial | null> {
         marcas: Object.entries(marcasDe[r.id as string] || {})
           .sort((a, b) => b[1] - a[1]).slice(0, 6)
           .map(([nome, qtd]) => ({ nome, qtd })),
+        miniaturas: (destaquesPorDept[r.id as string] || []).map(p => ({ id: p.id, img: p.img_url })),
       }))
       .filter(d => d.total > 0)
       .sort((a, b) => b.total - a.total)
 
-    // Categorias-FOLHA (produto ligado direto a ela) viram os cards de
-    // "Categorias" da home — cada um só precisa de 1 foto de capa, não mais a
-    // vitrine inteira (isso agora é o catálogo em /produtos).
-    const leafRows = categorias.filter(c => c.produtos > 0)
-    const capasPorCategoria = await Promise.all(leafRows.map(async c => {
-      const { data } = await supabaseAdmin.from('products').select('img_url')
-        .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .eq('categoria_id', c.id).not('img_url', 'is', null)
-        .order('sort_order', { ascending: true }).order('id', { ascending: true })
-        .limit(1)
-      return [c.id, (data || [])[0]?.img_url ?? null] as const
-    }))
-    const secoesImg: Record<string, string | null> = Object.fromEntries(capasPorCategoria)
+    // Achatado na MESMA ordem dos departamentos (maior estoque real primeiro)
+    // — Perfumes lidera porque é o maior de longe, não porque foi escrito à mão.
+    const destaques = raizes
+      .filter(r => departamentos.some(d => d.nome === r.nome))
+      .sort((a, b) => (departamentos.findIndex(d => d.nome === a.nome)) - (departamentos.findIndex(d => d.nome === b.nome)))
+      .flatMap(r => (destaquesPorDept[r.id as string] || []).map(p => ({ ...p, menorPrecoAtacado: menorTierDestaque[p.id] ?? null })))
 
     // Hero rotativo: o slide de Eletrônicos mostra o Apple/Xiaomi mais caro em
     // Celular (foto de aparelho na mão cabe melhor no card quadrado do que um
@@ -189,25 +222,12 @@ async function getInitial(): Promise<HomeInitial | null> {
       .sort((a, b) =>
         (1 - Number(b.brl_price_promo) / Number(b.brl_price)) - (1 - Number(a.brl_price_promo) / Number(a.brl_price)))[0]
 
-    // Só categorias-folha: os departamentos já têm card próprio logo acima, e
-    // "Eletrônicos" aparecendo no grid ao lado de Celular e Notebook confunde
-    // quem está escolhendo por nicho.
-    const catLinks = categorias
-      .filter(c => c.produtos > 0 && c.parent_id)
-      .sort((a, b) => b.produtos - a.produtos)
-      .map(c => ({
-        nome: c.nome as string,
-        slug: slugify(c.nome as string),
-        total: c.produtos,
-        img: (secoesImg[c.id as string] ?? null) as string | null,
-      }))
-
     return {
       total: ativos.length,
       deptEletronicos: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
       deptFarmacia: departamentos.find(d => d.nome === 'Farmácia')?.total ?? 0,
       departamentos,
-      catLinks,
+      destaques,
       heroEletronico: heroEletronico
         ? { ...heroEletronico, name: enc(heroEletronico.name), brand: enc(heroEletronico.brand) }
         : null,

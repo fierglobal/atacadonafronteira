@@ -233,48 +233,29 @@ body { overflow-x: clip; }
      ser dimensionado pelo conteúdo (carrossel de 1248px) até o max-width de
      1280. Só min-width:0 não segura. */
   .home-root > * { min-width: 0; width: 100%; }
-  .sec-hero     { order: 1; }
-  .sec-cats     { order: 2; }
-  .catalogo-section { order: 3; }
-  .sec-dept     { order: 4; }
-  .sec-como     { order: 5; }
-  .sec-entrega  { order: 6; }
-  .sec-contato  { order: 7; }
-  footer        { order: 8; }
+  .sec-hero            { order: 1; }
+  .sec-destaques       { order: 2; }
+  .sec-catalogo        { order: 3; }
+  .sec-como-funciona   { order: 4; }
+  .sec-banda-final     { order: 5; }
+  footer               { order: 6; }
 
   /* O hero rotativo (HeroRotativo.tsx) monta o próprio layout mobile via
      <style> interno — essas overrides eram do hero de texto puro anterior. */
 
-  .sec-como, .sec-dept, .sec-cats, .sec-entrega, .sec-contato { padding: 32px 0 !important; }
+  .sec-destaques, .sec-catalogo, .sec-como-funciona { padding: 48px 0 !important; }
+  .sec-banda-final { padding: 40px 0 !important; }
+  .como-final-grid { display: flex !important; flex-direction: column !important; gap: 24px !important; }
 }
 
 @media (max-width: 767px) {
-  /* O grid de 13 categorias empilhava em 2 colunas e virava uma parede de
-     ~1400px antes do catálogo. Vira tira horizontal: as categorias continuam
-     todas ali, indexáveis e clicáveis, sem empurrar o produto para baixo. */
-  .cats-grid {
-    display: flex !important;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    gap: 10px !important;
-    padding-bottom: 6px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .cats-grid::-webkit-scrollbar { display: none; }
-  .cat-card { flex: 0 0 128px; scroll-snap-align: start; }
-
   /* O carrossel de produto precisa poder encolher, senão o card de 152px
      estoura a página em vez de rolar dentro da própria tira. */
   .carousel-track, .category-strip { min-width: 0; max-width: 100%; }
-  .catalogo-section { padding-left: 16px !important; padding-right: 16px !important; }
 
-  /* .category-strip (filtro client-side, herdado do clone atacadoconnect,
-     PR #26) e .cats-grid (grid "Compre por categoria" acima, que já virou
-     tira horizontal aqui) mostram as MESMAS 13 categorias com a mesma foto,
-     uma logo abaixo da outra na ordem mobile. .cats-grid navega para a
-     página /categoria/<slug> indexável; a strip só filtra em memória. Some a
-     redundante, mantém a que serve SEO. */
+  /* .category-strip é filtro client-side herdado do clone atacadoconnect
+     (PR #26) — nenhum elemento da home o usa hoje, mas continua escondido
+     por segurança caso alguma outra página ainda dependa da classe. */
   .category-strip-wrapper { display: none !important; }
 }
 

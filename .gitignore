@@ -49,3 +49,9 @@ next-env.d.ts
 !.dev.vars.example
 
 .vercel-last-deploy-hash
+
+# Claude Code / superdesign — ferramenta de workflow, não código do produto
+/.agents/
+/.claude/skills/
+/.superdesign/
+/skills-lock.json
