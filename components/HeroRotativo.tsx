@@ -132,7 +132,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
             <h1 className="hero-h1">Direto do Paraguai<br />pra revenda</h1>
             <p className="hero-sub">Eletrônicos, farmácia e perfumaria com preço de fronteira, para lojistas e profissionais da saúde.</p>
             <p className="hero-facts">
-              <span className="hero-mono">{total}</span> produtos <span className="hero-facts-dot">·</span> PIX confirmado em <span className="hero-mono">30 min</span> <span className="hero-facts-dot">·</span> retirada CDE + Foz
+              <span className="hero-mono">{total}</span> produtos <span className="hero-facts-dot">·</span> PIX confirmado em <span className="hero-mono">30 min</span> <span className="hero-facts-dot">·</span> retirada em Ciudad del Este
             </p>
             <div className="hero-cta-row">
               <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>

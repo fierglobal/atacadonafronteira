@@ -50,9 +50,9 @@ export async function POST(req: Request) {
     }
   })
 
-  // Compra no site é só retirada — sem opção de envio, não há por que calcular
-  // nem cotar 'envio_brasil' aqui.
-  const tipos: TipoRetirada[] = ['retirada_cde', 'retirada_foz']
+  // Compra no site é só retirada em Ciudad del Este — sem opção de envio nem
+  // de entrega em Foz, não há por que calcular nem cotar outro tipo aqui.
+  const tipos: TipoRetirada[] = ['retirada_cde']
   const opcoes = Object.fromEntries(
     tipos.map(t => [t, calcularEntrega(paraCalculo, t)]),
   )

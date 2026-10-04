@@ -184,10 +184,11 @@ export async function POST(req: Request) {
   }
 
   const entregaTipo: EntregaTipo = ehEntregaTipo(form.entrega_tipo) ? form.entrega_tipo : 'retirada_cde'
-  // Compra no site é só retirada — envio para o Brasil não é uma opção que a UI
-  // oferece, mas um POST direto ainda poderia tentar; barrado aqui também.
-  if (entregaTipo === 'envio_brasil') {
-    return NextResponse.json({ error: 'No momento só aceitamos retirada em Ciudad del Este ou Foz do Iguaçu.' }, { status: 400 })
+  // Compra no site é só retirada em Ciudad del Este — envio para o Brasil e
+  // entrega em Foz não são opções que a UI oferece, mas um POST direto ainda
+  // poderia tentar; barrado aqui também.
+  if (entregaTipo !== 'retirada_cde') {
+    return NextResponse.json({ error: 'No momento só aceitamos retirada em Ciudad del Este.' }, { status: 400 })
   }
 
   // Frete NUNCA vem do navegador. A tela mostra um número; aqui ele é refeito a

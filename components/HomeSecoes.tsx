@@ -132,8 +132,7 @@ export function ComoFunciona() {
           <div>
             <span style={{ ...mono, fontSize: 26, fontWeight: 600, color: ROXO }}>04</span>
             <h3 style={{ margin: '10px 0 6px', fontSize: 15, fontWeight: 600, color: '#0a0a0a' }}>Retire seu pedido</h3>
-            <p style={{ margin: '0 0 3px', fontSize: 13.5, lineHeight: 1.5, color: '#0f7a3d', fontWeight: 700 }}>Ciudad del Este — grátis</p>
-            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: '#525252' }}>Foz do Iguaçu — R$ 50/un (grátis acima de 20 un).</p>
+            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: '#525252' }}>Retire na nossa loja, em Ciudad del Este — sem custo.</p>
           </div>
         </div>
       </div>

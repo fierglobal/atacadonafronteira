@@ -763,9 +763,7 @@ export default function Checkout() {
 
   /* ─── PIX SCREEN ─── */
   if (pageState === 'pix') {
-    const readyTimeFallback = entregaTipo !== 'retirada_cde'
-      ? 'Após a confirmação do PIX, aguarde a aprovação do pedido — nossa equipe entrega em Foz do Iguaçu e combina o horário pelo WhatsApp.'
-      : 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (em até 24 horas úteis).'
+    const readyTimeFallback = 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (em até 24 horas úteis).'
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }`}</style>

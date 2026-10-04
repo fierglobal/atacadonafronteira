@@ -2,17 +2,15 @@
 // tela e a API usarem exatamente o mesmo cálculo — o servidor recalcula por cima
 // do que a tela mostrou, e só bate se a fonte for a mesma.
 //
-// 'envio_brasil' continua no tipo só porque pedidos reais feitos antes da loja
-// virar retirada-only têm esse valor gravado em orders.entrega_tipo — as telas
-// de detalhe de pedido (admin, conta do cliente, /pedido/[hash]) ainda precisam
-// rotular esse histórico corretamente. Não é mais um valor que calcularEntrega
-// aceita, nem que o checkout deixa alguém escolher (bloqueado em
-// app/api/checkout/route.ts antes de chegar aqui).
+// 'envio_brasil' e 'retirada_foz' continuam no tipo só porque pedidos reais
+// feitos antes da loja virar retirada-CDE-only têm esses valores gravados em
+// orders.entrega_tipo — as telas de detalhe de pedido (admin, conta do
+// cliente, /pedido/[hash]) ainda precisam rotular esse histórico
+// corretamente. Não são mais valores que calcularEntrega aceita, nem que o
+// checkout deixa alguém escolher (bloqueado em app/api/checkout/route.ts
+// antes de chegar aqui).
 export type EntregaTipo = 'retirada_cde' | 'retirada_foz' | 'envio_brasil'
-export type TipoRetirada = 'retirada_cde' | 'retirada_foz'
-
-export const FOZ_POR_UNIDADE = 50
-export const FOZ_GRATIS_A_PARTIR_DE = 20
+export type TipoRetirada = 'retirada_cde'
 
 // Nome do departamento raiz que define a tabela cara. Mora aqui e não como UUID
 // porque o id do banco muda entre ambientes; o nome é o contrato do catálogo.
@@ -31,6 +29,7 @@ export type Cotacao = {
 }
 
 export function calcularEntrega(itens: ItemEntrega[], tipo: TipoRetirada): Cotacao {
+  void tipo // único valor possível hoje; mantido na assinatura pelo histórico em orders.entrega_tipo
   const unidades = itens.reduce((s, i) => s + (i.quantity || 0), 0)
   // Um único eletrônico puxa o pedido inteiro para a tabela cara — decisão do
   // dono, não inferência: eletrônico e medicamento viajam com o mesmo risco de
@@ -39,12 +38,7 @@ export function calcularEntrega(itens: ItemEntrega[], tipo: TipoRetirada): Cotac
   // Farmácia só rege quando não há eletrônico junto — eletrônico sempre vence.
   const tabelaFarmacia = !tabelaEletronico && itens.some(i => i.farmacia && i.quantity > 0)
 
-  if (tipo === 'retirada_cde') {
-    return { frete: 0, tabelaEletronico, tabelaFarmacia, unidades }
-  }
-
-  const frete = unidades >= FOZ_GRATIS_A_PARTIR_DE ? 0 : FOZ_POR_UNIDADE * unidades
-  return { frete, tabelaEletronico, tabelaFarmacia, unidades }
+  return { frete: 0, tabelaEletronico, tabelaFarmacia, unidades }
 }
 
 export function ehEntregaTipo(v: unknown): v is EntregaTipo {

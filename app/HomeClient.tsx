@@ -152,7 +152,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                <span style={{ fontSize: 13, lineHeight: 1.6 }}>Retirada em loja ou entrega em<br />Foz do Iguaçu por equipe própria.</span>
+                <span style={{ fontSize: 13, lineHeight: 1.6 }}>Retirada em loja, em<br />Ciudad del Este.</span>
               </li>
               <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

@@ -9,9 +9,11 @@ type Props = {
   onTipo: (t: EntregaTipo) => void
 }
 
+// Só existe retirada em Ciudad del Este — Foz do Iguaçu e envio para o
+// Brasil foram descontinuados. A lista fica com 1 item só por simetria com o
+// histórico de pedidos antigos (ver lib/entrega.ts).
 const OPCOES: { valor: EntregaTipo; titulo: string; sub: string }[] = [
   { valor: 'retirada_cde', titulo: 'Retirar em Ciudad del Este', sub: 'Na nossa loja, no Paraguai. Leve documento com foto.' },
-  { valor: 'retirada_foz', titulo: 'Retirar em Foz do Iguaçu', sub: 'R$ 50 por unidade. Acima de 20 unidades, sai de graça.' },
 ]
 
 export default function EntregaSeguro({ cotacoes, tipo, onTipo }: Props) {

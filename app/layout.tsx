@@ -12,7 +12,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 const TITLE = "Atacado na Fronteira — Direto do Paraguai";
-const DESCRIPTION = "Catálogo direto do Paraguai com eletrônicos Apple, farmácia (tirzepatida) e perfumaria árabe. Preços em R$, PIX à vista, retirada em Ciudad del Este ou Foz do Iguaçu.";
+const DESCRIPTION = "Catálogo direto do Paraguai com eletrônicos Apple, farmácia (tirzepatida) e perfumaria árabe. Preços em R$, PIX à vista, retirada em Ciudad del Este.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
