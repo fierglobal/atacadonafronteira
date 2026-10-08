@@ -328,3 +328,22 @@ body { overflow-x: clip; }
 @media (max-width: 640px) {
   .cat-add-btn { width: 38px; height: 38px; }
 }
+
+/* BottomTabBar (redesign Ponte de Fronteira, 07/10/2026): só mobile — no
+   desktop a navegação já vive no mega-menu do header. */
+@media (min-width: 901px) {
+  .bottom-tab-bar { display: none !important; }
+}
+/* MinimoBar sobe pra não ficar escondida atrás da tab bar — só nas rotas onde
+   as duas coexistem (ver BottomTabBar.tsx:mostrarEm). No desktop a tab bar nem
+   existe, então fica no rodapé normal. */
+.minimo-bar-acima-tabbar { bottom: 0; }
+@media (max-width: 900px) {
+  .minimo-bar-acima-tabbar { bottom: 64px !important; }
+}
+
+/* Reserva o espaço da tab bar no fim da página pra ela não cobrir o footer —
+   BottomTabBar.tsx seta --tabbar-h via JS só quando está de fato visível. */
+@media (max-width: 900px) {
+  body { padding-bottom: var(--tabbar-h, 0px); }
+}

@@ -29,12 +29,22 @@ export const WHATSAPP_DISPLAY = '+595 992 636618'
 export const WHATSAPP_GRUPO_HREF =
   'https://chat.whatsapp.com/JJjvBIV0E1WIO05tNjhiSA?s=cl&p=i&ilr=2'
 
-// Vitrines de marca no menu. Marca não é categoria: um iPhone fica em
-// Eletrônicos > Celular e aparece na vitrine Apple ao mesmo tempo, coisa que
-// categoria_id (que é um só por produto) não resolve. Cada nome precisa bater
-// exatamente com products.brand, que é gravado em UPPERCASE.
-// A vitrine só aparece no menu se houver produto ativo daquela marca.
-export const MARCAS_VITRINE = ['APPLE', 'XIAOMI', 'JBL']
+// Vitrines de marca no menu. Existia pra mostrar uma marca específica (Apple,
+// Xiaomi, JBL) ao lado de departamentos com nome diferente (Eletrônicos,
+// Farmácia). Desde 07/10/2026 a categoria raiz "Apple" JÁ É a marca — manter
+// 'APPLE' aqui duplicava o item no menu (categoria raiz + vitrine, lado a
+// lado, mesmo conteúdo). Vazio até existir marca que não bata com nome de
+// categoria de novo.
+export const MARCAS_VITRINE: string[] = []
+
+// Tokens do redesign "Ponte de Fronteira" (07/10/2026). Cores da marca já
+// usadas cruas em todo o código antigo — isso NÃO migra essas centenas de
+// ocorrências, só dá um nome pros componentes novos/reestilizados usarem daqui
+// pra frente (ver docs/redesign-ponte-de-fronteira-spec.md, seção 2).
+export const COR_ROXO = '#420E76'
+export const COR_ROXO_ESCURO = '#2b0a4e'
+export const COR_LILAS = '#A965ED'
+export const COR_AMARELO = '#F6BD0C'
 
 // Badge 'sob encomenda' (iPhone 17 EUA, 29/08/2026): mesmo texto na PDP e no
 // checkout, então mora num só lugar em vez de duplicado nos dois arquivos.

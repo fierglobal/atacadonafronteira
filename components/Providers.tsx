@@ -2,6 +2,7 @@
 import { CarrinhoProvider } from './CarrinhoContext'
 import { CarrinhoSidebar } from './CarrinhoSidebar'
 import { MinimoBar } from './MinimoBar'
+import BottomTabBar from './BottomTabBar'
 import { ReactNode } from 'react'
 
 export function Providers({ brlRate, children }: { brlRate?: number; children: ReactNode }) {
@@ -10,6 +11,7 @@ export function Providers({ brlRate, children }: { brlRate?: number; children: R
       {children}
       <CarrinhoSidebar />
       <MinimoBar />
+      <BottomTabBar />
     </CarrinhoProvider>
   )
 }

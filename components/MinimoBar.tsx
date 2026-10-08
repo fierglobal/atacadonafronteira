@@ -2,6 +2,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCarrinho } from './CarrinhoContext'
+import { mostrarEm as tabBarVisivelEm } from './BottomTabBar'
 
 // Barra fixa de progresso até o pedido mínimo. O sidebar do carrinho já mostra
 // a mesma informação, mas só quando está aberto — quem navega o catálogo com o
@@ -36,9 +37,13 @@ export function MinimoBar() {
   const faltam = pedidoMinimo - totalBRL
   const pct = Math.min(100, (totalBRL / pedidoMinimo) * 100)
   const brl = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  // No mobile, nas rotas que também mostram a BottomTabBar, sobe pra não ficar
+  // escondida atrás dela (altura real da tab bar: 64px + folga).
+  const subirPraNaoCobrirTabBar = tabBarVisivelEm(pathname)
 
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 60, background: '#ffffff', borderTop: '1px solid #ececec', boxShadow: '0 -4px 20px rgba(0,0,0,0.08)' }}>
+    <div className={subirPraNaoCobrirTabBar ? 'minimo-bar-acima-tabbar' : undefined}
+      style={{ position: 'fixed', bottom: subirPraNaoCobrirTabBar ? undefined : 0, left: 0, right: 0, zIndex: 60, background: '#ffffff', borderTop: '1px solid #ececec', boxShadow: '0 -4px 20px rgba(0,0,0,0.08)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
         <div style={{ flex: '1 1 240px', minWidth: 0 }}>
           <p style={{ margin: '0 0 7px', fontSize: 12, fontWeight: 700, color: '#b45309' }}>
