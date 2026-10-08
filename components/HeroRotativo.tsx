@@ -26,11 +26,10 @@ const brlNativo = (usd: number, brl: number | null | undefined, rate: number) =>
 const fmtBrl = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 type Props = {
-  eletronicos: number
-  farmacia: number
+  apple: number
   total: number
   brlRate: number
-  heroEletronico: HeroProduct | null
+  heroApple: HeroProduct | null
   heroPromo: HeroProduct | null
 }
 
@@ -59,8 +58,8 @@ function Ficha({ img, alt, brand, name, priceNode, tag, href, linkLabel }: {
   )
 }
 
-export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, heroEletronico, heroPromo }: Props) {
-  const eletronico = heroEletronico ? { ...heroEletronico, name: dec(heroEletronico.name) ?? '', brand: dec(heroEletronico.brand) } : null
+export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPromo }: Props) {
+  const eletronico = heroApple ? { ...heroApple, name: dec(heroApple.name) ?? '', brand: dec(heroApple.brand) } : null
   // Pré-venda com unidades limitadas merece uma chamada própria — o slide
   // padrão ("iPhone, Mac e mais Apple") esconderia justamente o que faz
   // alguém clicar agora: é lançamento e é limitado.
@@ -130,7 +129,7 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
         <div className="hero-content">
           <div className="hero-fade-in hero-col-text">
             <h1 className="hero-h1">Direto do Paraguai<br />pra revenda</h1>
-            <p className="hero-sub">Eletrônicos, farmácia e perfumaria com preço de fronteira, para lojistas e profissionais da saúde.</p>
+            <p className="hero-sub">Apple e perfumaria árabe e de nicho com preço de fronteira, para lojistas e revendedores.</p>
             <p className="hero-facts">
               <span className="hero-mono">{total}</span> produtos <span className="hero-facts-dot">·</span> PIX confirmado em <span className="hero-mono">30 min</span> <span className="hero-facts-dot">·</span> retirada em Ciudad del Este
             </p>
@@ -163,12 +162,12 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
               ) : (
                 <>
                   <h1 className="hero-h1">iPhone, Mac<br />e mais Apple</h1>
-                  <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {eletronicos} produtos.</p>
+                  <p className="hero-sub">{shorten(`${eletronico.brand ?? ''} ${eletronico.name}`.trim(), 60)} e mais {apple} produtos.</p>
                 </>
               )}
               <div className="hero-cta-row">
-                <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/eletronicos'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
-                  {limitePorCpf ? 'Garantir o meu' : `Ver eletrônicos (${eletronicos})`}
+                <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/apple'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
+                  {limitePorCpf ? 'Garantir o meu' : `Ver Apple (${apple})`}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Link>
                 <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxEletronicos ? 0 : -1}>Como comprar →</Link>
@@ -182,17 +181,20 @@ export default function HeroRotativo({ eletronicos, farmacia, total, brlRate, he
         </div>
       )}
 
-      {/* Slide 3 · Farmácia — só existe se houver desconto real ativo hoje. */}
+      {/* Slide 3 · Oferta — o maior desconto real ativo hoje, de QUALQUER painel
+          (Apple, Perfumes de Nicho ou Perfumes Árabes) — não é fixo numa
+          categoria, por isso o CTA vai pro produto em si, não pra uma
+          categoria específica. Só existe se houver desconto real ativo hoje. */}
       {mountExtra && promo && (
         <div className="hero-slide hero-slide-abs" style={{ opacity: active === idxFarmacia ? 1 : 0, transform: active === idxFarmacia ? 'translateY(0)' : 'translateY(8px)', pointerEvents: active === idxFarmacia ? 'auto' : 'none' }} aria-hidden={active !== idxFarmacia}>
           <div className="hero-content">
             <div className="hero-col-text">
               <span className="hero-tag hero-tag-green"><i />Oferta ativa hoje</span>
               <h1 className="hero-h1">{shorten(promo.name, 34)}</h1>
-              <p className="hero-sub">Tirzepatida (GLP-1) &middot; {farmacia} produtos, preço de fronteira.</p>
+              <p className="hero-sub">{discountPct}% de desconto &middot; preço de fronteira, direto do Paraguai.</p>
               <div className="hero-cta-row">
-                <Link href="/categoria/farmacia" className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
-                  Ver farmácia ({farmacia})
+                <Link href={promo.id ? `/produtos/${promo.id}` : '/produtos'} className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
+                  Ver oferta
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Link>
                 <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxFarmacia ? 0 : -1}>Como comprar →</Link>

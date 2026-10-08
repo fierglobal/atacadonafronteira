@@ -20,8 +20,7 @@ const dec = (s: string | null) => {
 // scroll infinito) virou página própria, mesmo padrão do Expresso
 // Paraguai: home enxuta, catálogo à parte.
 export type HomeInitial = {
-  deptEletronicos: number
-  deptFarmacia: number
+  deptApple: number
   departamentos: DeptCard[]
   destaques: DestaqueProduto[]
   total: number
@@ -66,8 +65,8 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       {/* HERO */}
       {initial && (
         <HeroRotativo
-          eletronicos={initial.deptEletronicos} farmacia={initial.deptFarmacia} total={initial.total} brlRate={brlRate}
-          heroEletronico={initial.heroEletronico} heroPromo={initial.heroPromo}
+          apple={initial.deptApple} total={initial.total} brlRate={brlRate}
+          heroApple={initial.heroEletronico} heroPromo={initial.heroPromo}
         />
       )}
 

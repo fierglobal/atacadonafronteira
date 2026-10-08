@@ -307,3 +307,6 @@
 
 <!-- session 2026-10-08 18:03 -->
 <!-- arquivos: .gitignore,PROJECT_MEMORY.md -->
+
+<!-- session 2026-10-08 19:31 -->
+<!-- arquivos: app/HomeClient.tsx,app/layout.tsx,app/page.tsx,app/produtos/page.tsx,components/HeroRotativo.tsx,lib/entrega.ts -->

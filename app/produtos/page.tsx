@@ -19,7 +19,7 @@ const ORDENS = [
 
 export const metadata: Metadata = {
   title: `Catálogo completo — ${SITE_NAME}`,
-  description: 'Catálogo completo de produtos em atacado, direto do Paraguai: Apple, perfumes e farmácia. Preços em R$, pagamento via PIX e retirada na loja.',
+  description: 'Catálogo completo de produtos em atacado, direto do Paraguai: Apple, perfumaria árabe e perfumaria de nicho. Preços em R$, pagamento via PIX e retirada na loja.',
   alternates: { canonical: '/produtos' },
 }
 

@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   // público usa, escrito uma vez, numa frase que faz sentido lida em voz alta.
   description:
     'Atacado na Fronteira (também procurado como Atacados na Fronteira): catálogo direto do ' +
-    'Paraguai com tirzepatida, celulares, eletrônicos Apple e perfumaria árabe, importada e de ' +
-    'nicho. Preços em real, pagamento via PIX e retirada na loja.',
+    'Paraguai com iPhone, Mac e demais produtos Apple, perfumaria árabe e perfumaria de nicho. ' +
+    'Preços em real, pagamento via PIX e retirada na loja.',
 }
 
 // Organization + WebSite: é o mecanismo padrão para declarar ao Google que a marca
@@ -38,8 +38,8 @@ const jsonLdLoja = () => ([
     logo: `${SITE_URL}/icon.png`,
     image: `${SITE_URL}/og-image.png`,
     description:
-      'Loja de atacado com produtos importados direto do Paraguai: tirzepatida, celulares, ' +
-      'eletrônicos Apple e perfumaria árabe, importada e de nicho.',
+      'Loja de atacado com produtos importados direto do Paraguai: iPhone, Mac e demais ' +
+      'produtos Apple, perfumaria árabe e perfumaria de nicho.',
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'sales',
@@ -141,9 +141,9 @@ async function getInitial(): Promise<HomeInitial | null> {
       marcasDe[raiz][p.brand] = (marcasDe[raiz][p.brand] ?? 0) + 1
     }
     const DESC_DEPT: Record<string, string> = {
-      'Eletrônicos': 'Linha Apple: iPhone, Mac, iPad, Apple Watch e AirPods, direto do Paraguai.',
-      'Farmácia': 'Tirzepatida (GLP-1) das principais marcas, direto do Paraguai.',
-      'Perfumes': 'Perfumaria árabe, importados e de nicho, direto do Paraguai.',
+      'Apple': 'Linha Apple: iPhone, Mac, iPad, Apple Watch e AirPods, direto do Paraguai.',
+      'Perfumes de Nicho': 'Perfumaria de nicho e designers importados, direto do Paraguai.',
+      'Perfumes Árabes': 'Os perfumes árabes mais vendidos, atacado em caixa fechada.',
     }
     // Destaques (Catálogo fundido): 4 produtos reais por departamento —
     // reaproveitados também como miniaturas da linha do departamento, então
@@ -173,29 +173,30 @@ async function getInitial(): Promise<HomeInitial | null> {
       .sort((a, b) => (departamentos.findIndex(d => d.nome === a.nome)) - (departamentos.findIndex(d => d.nome === b.nome)))
       .flatMap(r => (destaquesPorDept[r.id as string] || []).map(p => ({ ...p, menorPrecoAtacado: menorTierDestaque[p.id] ?? null })))
 
-    // Hero rotativo: o slide de Eletrônicos mostra o Apple/Xiaomi mais caro em
-    // Celular (foto de aparelho na mão cabe melhor no card quadrado do que um
-    // notebook) — vitrine, não "a partir de", não é o menor preço do departamento.
-    // Cai para o departamento inteiro só se Celular não tiver candidato.
-    // O slide de Farmácia mostra o MAIOR desconto real ativo hoje — se não houver
-    // nenhuma promoção rodando, o slide some sozinho em vez de inventar uma.
-    const eletronicosRaiz = raizes.find(r => r.nome === 'Eletrônicos')
-    const eletronicosIds = eletronicosRaiz
-      ? [eletronicosRaiz.id as string, ...cats.filter(c => c.parent_id === eletronicosRaiz.id).map(c => c.id as string)]
+    // Hero rotativo: o slide de Apple mostra o produto mais caro em Celular
+    // (foto de aparelho na mão cabe melhor no card quadrado do que um
+    // notebook) — vitrine, não "a partir de", não é o menor preço do painel.
+    // Cai para o painel inteiro só se Celular não tiver candidato.
+    // O slide de oferta mostra o MAIOR desconto real ativo hoje, em QUALQUER
+    // painel — se não houver nenhuma promoção rodando, o slide some sozinho
+    // em vez de inventar uma.
+    const appleRaiz = raizes.find(r => r.nome === 'Apple')
+    const appleIds = appleRaiz
+      ? [appleRaiz.id as string, ...cats.filter(c => c.parent_id === appleRaiz.id).map(c => c.id as string)]
       : []
-    const celularCat = eletronicosRaiz ? cats.find(c => c.nome === 'Celular' && c.parent_id === eletronicosRaiz.id) : null
+    const celularCat = appleRaiz ? cats.find(c => c.nome === 'Celular' && c.parent_id === appleRaiz.id) : null
     const [{ data: destaqueCelular }, { data: destaqueEletronicosGeral }, { data: promos }] = await Promise.all([
       celularCat
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-            .eq('categoria_id', celularCat.id as string).in('brand', ['APPLE', 'XIAOMI'])
+            .eq('categoria_id', celularCat.id as string).eq('brand', 'APPLE')
             .gt('estoque', 0).not('img_url', 'is', null)
             .order('brl_price', { ascending: false }).limit(1)
         : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
-      eletronicosIds.length
+      appleIds.length
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-            .in('categoria_id', eletronicosIds).in('brand', ['APPLE', 'XIAOMI'])
+            .in('categoria_id', appleIds).eq('brand', 'APPLE')
             .gt('estoque', 0).not('img_url', 'is', null)
             .order('brl_price', { ascending: false }).limit(1)
         : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
@@ -224,8 +225,7 @@ async function getInitial(): Promise<HomeInitial | null> {
 
     return {
       total: ativos.length,
-      deptEletronicos: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
-      deptFarmacia: departamentos.find(d => d.nome === 'Farmácia')?.total ?? 0,
+      deptApple: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
       departamentos,
       destaques,
       heroEletronico: heroEletronico
