@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
+import SiteFooter from '@/components/SiteFooter'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
 import CategoriaProductCardGrupo from '@/components/CategoriaProductCardGrupo'
 import { acharCategoriaPorSlug, type CategoriaSeo } from '@/lib/categorias'
@@ -226,8 +227,9 @@ export default async function CategoriaPage({
   ]
 
   const chip = (ativo: boolean) => ({
-    display: 'inline-block', padding: '6px 13px', borderRadius: 99, fontSize: 12.5, fontWeight: 700,
-    textDecoration: 'none', border: `1px solid ${ativo ? '#420E76' : '#ececec'}`,
+    width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none',
+    border: `1px solid ${ativo ? '#420E76' : '#ececec'}`,
     background: ativo ? '#420E76' : '#fff', color: ativo ? '#fff' : '#404040',
   })
 
@@ -267,14 +269,16 @@ export default async function CategoriaPage({
           {' / '}<span style={{ color: '#420E76', fontWeight: 700 }} aria-current="page">{cat.nome}</span>
         </nav>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: temFiltrosAtivos ? 12 : 20 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: '#0a0a0a', letterSpacing: '-0.02em' }}>
-            {cat.nome} no atacado
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <span style={{ fontSize: 12.5, color: '#737373' }}>
-              {total === 0 ? 'Nenhum produto' : `${total} produto${total > 1 ? 's' : ''}`}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: temFiltrosAtivos ? 16 : 32 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <h1 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, margin: 0, color: '#0a0a0a', letterSpacing: '-0.03em' }}>
+              {cat.nome} no atacado
+            </h1>
+            <span style={{ fontSize: 14, color: '#737373', fontWeight: 500 }}>
+              {total === 0 ? 'Nenhum produto encontrado' : `${total} produto${total > 1 ? 's' : ''} encontrado${total > 1 ? 's' : ''} em Ciudad del Este`}
             </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <details className="cat-order">
               <summary className="cat-order-summary">
                 Ordenar: {ORDENS.find(o => o.chave === (b.ordem || ''))?.rotulo}
@@ -335,22 +339,25 @@ export default async function CategoriaPage({
                 <span>PREÇO{b.precoMin || b.precoMax ? `: R$${b.precoMin || '0'}–${b.precoMax || '∞'}` : ''}</span>
                 <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </summary>
-              <form method="get" action={`/categoria/${cat.slug}`} className="cat-filter-list" style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 10px 8px' }}>
+              <form method="get" action={`/categoria/${cat.slug}`} className="cat-filter-list" style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '4px 10px 8px' }}>
                 {b.marca && <input type="hidden" name="marca" value={b.marca} />}
                 {b.ordem && <input type="hidden" name="ordem" value={b.ordem} />}
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <input type="number" name="precoMin" defaultValue={b.precoMin || ''} placeholder="Mín" min={0}
-                    style={{ width: 0, flex: 1, padding: '7px 8px', borderRadius: 6, border: '1px solid #ececec', fontSize: 12.5 }} />
-                  <span style={{ color: '#a3a3a3', fontSize: 12 }}>–</span>
-                  <input type="number" name="precoMax" defaultValue={b.precoMax || ''} placeholder="Máx" min={0}
-                    style={{ width: 0, flex: 1, padding: '7px 8px', borderRadius: 6, border: '1px solid #ececec', fontSize: 12.5 }} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase' }}>Mínimo</span>
+                    <input type="number" name="precoMin" defaultValue={b.precoMin || ''} placeholder="0" min={0}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ececec', background: '#fafafa', fontSize: 13, boxSizing: 'border-box' }} />
+                  </label>
+                  <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase' }}>Máximo</span>
+                    <input type="number" name="precoMax" defaultValue={b.precoMax || ''} placeholder="∞" min={0}
+                      style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ececec', background: '#fafafa', fontSize: 13, boxSizing: 'border-box' }} />
+                  </label>
                 </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button type="submit" style={{ flex: 1, padding: '7px 0', borderRadius: 6, border: 'none', background: '#420E76', color: '#fff', fontSize: 12.5, fontWeight: 700, cursor: 'pointer' }}>Aplicar</button>
-                  {(b.precoMin || b.precoMax) && (
-                    <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={{ display: 'flex', alignItems: 'center', padding: '0 10px', fontSize: 12.5, color: '#737373', textDecoration: 'none' }}>Limpar</Link>
-                  )}
-                </div>
+                <button type="submit" style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: 'none', background: '#420E76', color: '#fff', fontSize: 12, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer' }}>Aplicar</button>
+                {(b.precoMin || b.precoMax) && (
+                  <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={{ textAlign: 'center', fontSize: 12.5, color: '#737373', textDecoration: 'none' }}>Limpar</Link>
+                )}
               </form>
             </details>
           </aside>
@@ -379,8 +386,12 @@ export default async function CategoriaPage({
             )}
 
             {totalPaginas > 1 && (
-              <nav aria-label="Paginação" style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center', marginTop: 30 }}>
-                {pagina > 1 && <Link href={url({ pagina: String(pagina - 1) })} style={chip(false)}>← Anterior</Link>}
+              <nav aria-label="Paginação" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 40 }}>
+                {pagina > 1 && (
+                  <Link href={url({ pagina: String(pagina - 1) })} aria-label="Página anterior" style={chip(false)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+                  </Link>
+                )}
                 {Array.from({ length: totalPaginas }, (_, i) => i + 1)
                   .filter(n => n === 1 || n === totalPaginas || Math.abs(n - pagina) <= 2)
                   .map((n, i, arr) => (
@@ -389,7 +400,11 @@ export default async function CategoriaPage({
                       <Link href={url({ pagina: String(n) })} style={chip(n === pagina)}>{n}</Link>
                     </span>
                   ))}
-                {pagina < totalPaginas && <Link href={url({ pagina: String(pagina + 1) })} style={chip(false)}>Próxima →</Link>}
+                {pagina < totalPaginas && (
+                  <Link href={url({ pagina: String(pagina + 1) })} aria-label="Próxima página" style={chip(false)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+                  </Link>
+                )}
               </nav>
             )}
           </div>
@@ -397,11 +412,17 @@ export default async function CategoriaPage({
 
         {/* Texto para SEO: fica no rodapé da página, não compete com o filtro
             nem com o grid pela primeira tela. */}
-        <p style={{ fontSize: 14, color: '#737373', margin: '48px 0 0', paddingTop: 24, borderTop: '1px solid #ececec', maxWidth: 720, lineHeight: 1.6 }}>
-          {cat.total} {cat.total === 1 ? 'produto disponível' : 'produtos disponíveis'} de {cat.nome.toLowerCase()},
-          direto do Paraguai. Preços de atacado em R$, pagamento via PIX e retirada na loja.
-        </p>
+        <div style={{ margin: '64px 0 0', paddingTop: 40, borderTop: '1px solid #f5f5f5', maxWidth: 800 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            {cat.nome} no Atacado Direto do Paraguai
+          </h2>
+          <p style={{ fontSize: 14, color: '#737373', lineHeight: 1.6, margin: 0 }}>
+            {cat.total} {cat.total === 1 ? 'produto disponível' : 'produtos disponíveis'} de {cat.nome.toLowerCase()},
+            direto do Paraguai. Preços de atacado em R$, pagamento via PIX e retirada na loja.
+          </p>
+        </div>
       </main>
+      <SiteFooter brands={marcas.map(([nome]) => nome)} />
     </>
   )
 }

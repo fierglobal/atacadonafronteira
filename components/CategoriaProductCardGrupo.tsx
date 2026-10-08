@@ -23,12 +23,12 @@ export default function CategoriaProductCardGrupo({ brand, base, img, membros }:
   const resto = membros.length - visiveis.length
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+    <div style={{ background: '#fff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
       <Link href={`/produtos/${membros[0].id}`} style={{ position: 'relative', aspectRatio: '1 / 1', background: '#fafafa', display: 'block' }}>
-        <Image src={img} alt={base} fill sizes="(max-width: 640px) 50vw, 220px" style={{ objectFit: 'contain', padding: 12 }} />
+        <Image src={img} alt={base} fill sizes="(max-width: 640px) 50vw, 220px" style={{ objectFit: 'contain', padding: 24 }} />
       </Link>
-      <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <span style={{ fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.08em' }}>{brand}</span>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <span style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{brand}</span>
         <h2 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.3 }} title={base}>{base}</h2>
         <div style={{ marginTop: 4, borderTop: '1px solid #f5f5f5' }}>
           {visiveis.map(m => {

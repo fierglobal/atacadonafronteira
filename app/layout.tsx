@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import UtmCapture from "@/components/UtmCapture";
@@ -10,6 +10,7 @@ import { getConfig } from "@/lib/config";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], weight: ["700", "800", "900"] });
 
 const TITLE = "Atacado na Fronteira — Direto do Paraguai";
 const DESCRIPTION = "Catálogo direto do Paraguai com Apple, perfumaria árabe e perfumaria de nicho. Preços em R$, PIX à vista, retirada em Ciudad del Este.";
@@ -43,7 +44,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   // isso o CarrinhoProvider relê /api/config/loja no mount.
   const { brl_rate } = await getConfig()
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         {/* Anti-flash: a home é estática (ISR) e serve a vitrine sem filtro para
             qualquer URL; com ?cat/?marca/?q o grid fica oculto até o client

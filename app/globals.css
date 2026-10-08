@@ -284,7 +284,7 @@ body { overflow-x: clip; }
 /* ─── Página de categoria: filtro em sidebar ──────────────────────────────
    Chips horizontais viravam duas fileiras cheias de borda antes do grid.
    Sidebar fixa (sticky, some no mobile) devolve a primeira tela pro produto. */
-.cat-layout { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+.cat-layout { display: grid; grid-template-columns: 240px 1fr; gap: 40px; align-items: start; }
 .cat-sidebar { position: sticky; top: 132px; }
 .cat-filter-group { margin-bottom: 26px; }
 .cat-filter-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: #a3a3a3; margin-bottom: 8px; list-style: none; }
@@ -314,12 +314,12 @@ body { overflow-x: clip; }
 /* Toolbar de ordenação: fora da sidebar de propósito — ordenar não filtra,
    muda a visão do mesmo conjunto, então mora ao lado da contagem. */
 .cat-order { position: relative; }
-.cat-order-summary { display: flex; align-items: center; gap: 6px; list-style: none; cursor: pointer; font-size: 12.5px; font-weight: 700; color: #404040; padding: 7px 12px; border: 1px solid #ececec; border-radius: 8px; background: #fff; }
+.cat-order-summary { display: flex; align-items: center; gap: 8px; list-style: none; cursor: pointer; font-size: 13px; font-weight: 700; color: #404040; padding: 10px 16px; border: 1px solid #ececec; border-radius: 12px; background: #fff; }
 .cat-order-summary::-webkit-details-marker { display: none; }
 .cat-order-chevron { transition: transform 0.15s; }
 .cat-order[open] .cat-order-chevron { transform: rotate(180deg); }
-.cat-order-menu { position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #ececec; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 6px; min-width: 168px; z-index: 10; display: flex; flex-direction: column; gap: 1px; }
-.cat-order-menu a { padding: 8px 10px; border-radius: 6px; font-size: 13px; text-decoration: none; }
+.cat-order-menu { position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #ececec; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); padding: 8px; min-width: 192px; z-index: 10; display: flex; flex-direction: column; gap: 2px; }
+.cat-order-menu a { padding: 8px 12px; border-radius: 8px; font-size: 13px; text-decoration: none; }
 .cat-order-menu a:hover { background: #fafafa; }
 
 /* Botão de adicionar ao carrinho no card de categoria: 32px no desktop, mas

@@ -310,3 +310,6 @@
 
 <!-- session 2026-10-08 19:31 -->
 <!-- arquivos: app/HomeClient.tsx,app/layout.tsx,app/page.tsx,app/produtos/page.tsx,components/HeroRotativo.tsx,lib/entrega.ts -->
+
+<!-- session 2026-10-08 20:15 -->
+<!-- arquivos: app/categoria/[slug]/page.tsx,app/globals.css,app/layout.tsx,app/produtos/[id]/page.tsx,app/produtos/page.tsx,components/CategoriaProductCard.tsx,components/CategoriaProductCardGrupo.tsx,components/SiteFooter.tsx -->

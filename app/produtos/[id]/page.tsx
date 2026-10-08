@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
+import SiteFooter from '@/components/SiteFooter'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 import { progressoTier } from '@/lib/tier'
@@ -344,15 +345,18 @@ export default function ProdutoPage() {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .qty-btn:hover { background: rgba(66, 14, 118,0.08) !important; color: #420E76 !important; }
-        .rel-card:hover { border-color: #d4d4d4 !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
+        .qty-btn:hover { background: #fafafa !important; }
+        .rel-card:hover { border-color: rgba(66, 14, 118,0.2) !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
         .rel-card:hover .rel-img { filter: brightness(1.02); }
         .rel-card { transition: all 0.2s ease; }
         .rel-img { transition: filter 0.25s ease; }
-        .wa-btn:hover { background: #25d366 !important; color: #fff !important; border-color: #25d366 !important; }
-        .wa-btn { transition: all 0.2s; }
-        .add-btn:hover { background: #0fdc00 !important; }
+        .rel-add-btn:hover { background: #F6BD0C !important; }
+        .wa-btn:hover { color: #1ead55 !important; }
+        .wa-btn { transition: color 0.2s; }
+        .add-btn:hover { background: #2b0a4e !important; }
         .add-btn { transition: background 0.15s ease; }
+        .tier-chip { transition: all 0.2s; }
+        .tier-chip:not([data-active]):hover { background: #fafafa !important; }
         @media (max-width: 768px) {
           .product-grid { flex-direction: column !important; gap: 28px !important; }
           .product-image-col { width: 100% !important; max-width: 100% !important; }
@@ -425,7 +429,7 @@ export default function ProdutoPage() {
                     aspectRatio: '1 / 1',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                   }}>
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 36 }}>
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
                       <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'filter 0.3s ease' }}
                         onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.filter = 'brightness(1.02)' }}
                         onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.filter = 'brightness(1)' }}>
@@ -435,13 +439,13 @@ export default function ProdutoPage() {
                   </div>
 
                   {galeria.length > 1 && (
-                    <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
                       {galeria.map((src, i) => (
                         <button key={src} onClick={() => setImgAtiva(i)}
                           aria-label={`Ver imagem ${i + 1} de ${galeria.length}`}
                           aria-current={i === imgAtiva}
-                          style={{ width: 64, height: 64, borderRadius: 8, padding: 4, cursor: 'pointer', background: '#fff', border: `1.5px solid ${i === imgAtiva ? '#420E76' : '#ececec'}`, position: 'relative', overflow: 'hidden' }}>
-                          <Image src={src} alt="" fill sizes="64px" style={{ objectFit: 'contain', padding: 4 }} />
+                          style={{ width: 80, height: 80, borderRadius: 10, padding: 8, cursor: 'pointer', background: '#fff', border: `2px solid ${i === imgAtiva ? '#420E76' : '#ececec'}`, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+                          <Image src={src} alt="" fill sizes="80px" style={{ objectFit: 'contain', padding: 4 }} />
                         </button>
                       ))}
                     </div>
@@ -464,7 +468,7 @@ export default function ProdutoPage() {
                 )}
 
                 {/* name */}
-                <h1 className="product-name" style={{ fontSize: 28, fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.01em', margin: '0 0 14px', color: '#0a0a0a' }}>
+                <h1 className="product-name" style={{ fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 900, lineHeight: 1.15, letterSpacing: '-0.02em', margin: '0 0 16px', color: '#0a0a0a' }}>
                   {product.name}
                 </h1>
 
@@ -499,7 +503,7 @@ export default function ProdutoPage() {
                 {/* BUY CARD — preço, degraus de volume, quantidade e CTA num
                     card só: é a informação que decide a compra, o resto pode
                     vir depois. */}
-                <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: 24, marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 24, padding: 32, marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(0,0,0,0.08)' }}>
 
                   {/* PRICE */}
                   <div style={{ marginBottom: emBreve ? 0 : 20 }}>
@@ -512,17 +516,19 @@ export default function ProdutoPage() {
                       </div>
                     ) : (<>
                     <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
-                    <div className="price-usd" style={{ fontSize: 40, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                      R$ {fmtBRL(unitPrice)}
-                    </div>
-                    {unitPrice < product.brl_price && (
-                      <div style={{ fontSize: 12, color: '#525252', marginTop: 8, fontWeight: 600 }}>
-                        <span style={{ textDecoration: 'line-through', color: '#a3a3a3', marginRight: 8 }}>R$ {fmtBRL(product.brl_price)}</span>
-                        <span style={{ color: '#420E76', fontWeight: 700 }}>
-                          −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'por volume' : 'hoje'}
-                        </span>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+                      <div className="price-usd" style={{ fontFamily: 'var(--font-inter)', fontSize: 42, fontWeight: 800, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                        R$ {fmtBRL(unitPrice)}
                       </div>
-                    )}
+                      {unitPrice < product.brl_price && (
+                        <>
+                          <span style={{ fontSize: 14, color: '#a3a3a3', textDecoration: 'line-through', fontWeight: 700 }}>R$ {fmtBRL(product.brl_price)}</span>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#420E76', padding: '2px 8px', background: 'rgba(66, 14, 118,0.05)', borderRadius: 4 }}>
+                            −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'POR VOLUME' : 'HOJE'}
+                          </span>
+                        </>
+                      )}
+                    </div>
                     </>)}
                   </div>
 
@@ -545,13 +551,12 @@ export default function ProdutoPage() {
                         {tiers.map((t, i) => {
                           const active = qty >= t.qty_min && (t.qty_max == null || qty <= t.qty_max)
                           return (
-                            <button key={i} onClick={() => adjustQty(t.qty_min)}
+                            <button key={i} className="tier-chip" data-active={active || undefined} onClick={() => adjustQty(t.qty_min)}
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
-                                padding: '8px 14px', borderRadius: 10, cursor: 'pointer',
+                                padding: '8px 24px', borderRadius: 12, cursor: 'pointer',
                                 border: `1.5px solid ${active ? '#420E76' : '#ececec'}`,
                                 background: active ? 'rgba(66, 14, 118,0.06)' : '#ffffff',
-                                transition: 'all 0.15s',
                               }}>
                               <span style={{ fontSize: 10.5, fontWeight: 800, color: active ? '#420E76' : '#737373' }}>{t.qty_min}+ un.</span>
                               <span style={{ fontSize: 13, fontWeight: 900, color: active ? '#420E76' : '#0a0a0a', fontVariantNumeric: 'tabular-nums' }}>R$ {fmtBRL(Number(t.brl_price))}</span>
@@ -581,24 +586,24 @@ export default function ProdutoPage() {
                   {/* QUANTITY + TOTAL */}
                   <div style={{ marginBottom: 20 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: 'fit-content', border: '1px solid #d4d4d4', borderRadius: 10, overflow: 'hidden', background: '#ffffff' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 0, width: 'fit-content', border: '1px solid #d4d4d4', borderRadius: 12, overflow: 'hidden', background: '#fafafa' }}>
                         <button className="qty-btn" onClick={() => adjustQty(qty - multiplicador)}
-                          style={{ width: 44, height: 44, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}>
+                          style={{ width: 56, height: 56, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           −
                         </button>
-                        <div style={{ width: 58, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#0a0a0a', background: '#fafafa', borderLeft: '1px solid #ececec', borderRight: '1px solid #ececec' }}>
+                        <div style={{ width: 64, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 900, color: '#0a0a0a' }}>
                           {qty}
                         </div>
                         <button className="qty-btn" onClick={() => adjustQty(qty + multiplicador)}
-                          style={{ width: 44, height: 44, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                          style={{ width: 56, height: 56, background: '#ffffff', border: 'none', color: '#404040', fontSize: 20, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                           disabled={product.estoque !== null && product.estoque !== undefined && qty >= product.estoque}>
                           +
                         </button>
                       </div>
                       {!emBreve && (
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 9.5, color: '#737373', fontWeight: 800, letterSpacing: '0.1em' }}>TOTAL</div>
-                          <div style={{ fontSize: 20, fontWeight: 900, color: '#420E76', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
+                          <div style={{ fontSize: 10, color: '#a3a3a3', fontWeight: 700, letterSpacing: '0.14em' }}>TOTAL DO PEDIDO</div>
+                          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 24, fontWeight: 800, color: '#420E76', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
                             R$ {fmtBRL(unitPrice * qty)}
                           </div>
                         </div>
@@ -628,13 +633,13 @@ export default function ProdutoPage() {
                   ) : (
                     <button onClick={handleAdd} className="add-btn"
                       style={{
-                        width: '100%', padding: '18px 0', borderRadius: 12, border: 'none',
+                        width: '100%', padding: '20px 0', borderRadius: 16, border: 'none',
                         background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
                         color: added ? '#420E76' : '#ffffff',
                         fontSize: 14, fontWeight: 800, letterSpacing: '0.1em',
                         cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                        boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
+                        boxShadow: added ? 'none' : '0 8px 20px -4px rgba(66, 14, 118,0.3)',
                       }}>
                       {emBreve ? ROTULO_EM_BREVE : added ? (
                         <>
@@ -680,15 +685,15 @@ export default function ProdutoPage() {
                 {/* SELOS DE CONFIANÇA — faixa única com ícones SVG. Os glifos
                     unicode ■▶◆ de antes tinham métricas diferentes por fonte
                     e nunca alinhavam entre si. */}
-                <div style={{ display: 'flex', border: '1px solid #ececec', borderRadius: 10, overflow: 'hidden', marginBottom: 24 }}>
+                <div style={{ display: 'flex', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', marginBottom: 24 }}>
                   {[
                     { label: 'Original', icon: <><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></> },
                     { label: 'Pronta entrega', icon: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/> },
                     { label: 'Autenticado', icon: <><path d="M20 13c0 5-3.5 7.5-7.65 8.95a1 1 0 0 1-.7-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></> },
                   ].map((b, i) => (
-                    <div key={b.label} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '11px 6px', borderLeft: i > 0 ? '1px solid #ececec' : 'none' }}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>{b.icon}</svg>
-                      <span style={{ fontSize: 9.5, color: '#737373', fontWeight: 700, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{b.label.toUpperCase()}</span>
+                    <div key={b.label} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '16px 6px', borderLeft: i > 0 ? '1px solid #ececec' : 'none' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>{b.icon}</svg>
+                      <span style={{ fontSize: 10, color: '#737373', fontWeight: 900, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{b.label.toUpperCase()}</span>
                     </div>
                   ))}
                 </div>
@@ -725,7 +730,7 @@ export default function ProdutoPage() {
           {/* DESCRIPTION CARD */}
           {(product.descricao || (product.custom_field_defs && product.custom_field_defs.length > 0 && product.custom_fields && Object.keys(product.custom_fields).length > 0)) && (
             <section style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px 64px' }}>
-              <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '40px 44px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 24, padding: '40px 44px', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(0,0,0,0.08)' }}>
                 {product.descricao && (
                   <>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -776,33 +781,34 @@ export default function ProdutoPage() {
           {related.length > 0 && (
             <section style={{ borderTop: '1px solid #ececec', padding: '56px 24px 64px', background: '#fafafa' }}>
               <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-                  <h2 style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', color: '#525252' }}>
-                    PRODUTOS RELACIONADOS
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 28, borderBottom: '1px solid #ececec', paddingBottom: 20 }}>
+                  <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#420E76' }}>
+                    Produtos relacionados
                   </h2>
                 </div>
-                <div className="related-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+                <div className="related-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
                   {related.map(p => (
                     <div key={p.id} className="rel-card"
                       onClick={() => { router.push(`/produtos/${p.id}`); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                      style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                      <div style={{ position: 'relative', aspectRatio: '1 / 1', background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden' }}>
+                      style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ position: 'relative', aspectRatio: '1 / 1', background: '#fafafa', overflow: 'hidden' }}>
                         <RelImg src={p.img_url} alt={p.name} />
                       </div>
-                      <div style={{ padding: '14px' }}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: '#0a0a0a', margin: '0 0 10px', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                        {p.brand && <span style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.brand}</span>}
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: '2.6em' }}>
                           {p.name}
                         </p>
-                        <div style={{ fontSize: 15, fontWeight: 900, color: '#420E76' }}>
-                          R$ {fmtBRL(p.brl_price)}
+                        <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '-0.01em' }}>
+                            R$ {fmtBRL(p.brl_price)}
+                          </span>
+                          <button aria-label="Adicionar ao carrinho" className="rel-add-btn"
+                            onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
+                            style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'rgba(246,189,12,0.1)', border: 'none', color: '#2b0a4e', cursor: 'pointer', transition: 'background 0.15s' }}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                          </button>
                         </div>
-                        <button
-                          onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-                          style={{ marginTop: 10, width: '100%', padding: '8px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#A965ED'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#420E76' }}>
-                          + ADICIONAR
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -816,19 +822,19 @@ export default function ProdutoPage() {
             <section style={{ borderTop: '1px solid #ececec', padding: '48px 24px 56px', background: '#ffffff' }}>
               <div style={{ maxWidth: 1280, margin: '0 auto' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-                  <h2 style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: '0.12em', color: '#525252' }}>
+                  <h2 style={{ margin: 0, fontSize: 11, fontWeight: 900, letterSpacing: '0.14em', color: '#420E76' }}>
                     COMPRE JUNTO
                   </h2>
                 </div>
-                <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'thin' as const }}>
+                <div style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'thin' as const }}>
                   {product.relacionados.compre_junto.map(cj => (
                     <div key={cj.id} className="rel-card"
                       onClick={() => { router.push(`/produtos/${cj.id}`); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                      style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, overflow: 'hidden', cursor: 'pointer', flex: '0 0 140px', display: 'flex', flexDirection: 'column', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-                      <div style={{ position: 'relative', height: 120, background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)', overflow: 'hidden' }}>
+                      style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, overflow: 'hidden', cursor: 'pointer', flex: '0 0 140px', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ position: 'relative', height: 120, background: '#fafafa', overflow: 'hidden' }}>
                         <RelImg src={cj.img_url} alt={cj.name} />
                       </div>
-                      <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                      <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                         <p style={{ fontSize: 10.5, fontWeight: 600, color: '#0a0a0a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: 28 }}>
                           {cj.name}
                         </p>
@@ -837,9 +843,7 @@ export default function ProdutoPage() {
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: cj.id, name: cj.name, usd: cj.usd_price, img: cj.img_url ?? PLACEHOLDER }) }}
-                          style={{ marginTop: 'auto', width: '100%', padding: '6px 0', borderRadius: 6, background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', color: '#420E76', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', transition: 'all 0.15s' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = '#A965ED'; (e.currentTarget as HTMLButtonElement).style.color = '#000' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff'; (e.currentTarget as HTMLButtonElement).style.color = '#420E76' }}>
+                          style={{ marginTop: 'auto', width: '100%', padding: '7px 0', borderRadius: 8, background: '#420E76', border: 'none', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer' }}>
                           + ADICIONAR
                         </button>
                       </div>
@@ -911,7 +915,7 @@ export default function ProdutoPage() {
                         style={{ width: '100%', padding: '11px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a', fontSize: 13, resize: 'none', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                     </div>
                     <button onClick={submitReview} disabled={reviewSending || !reviewForm.nome.trim()}
-                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : '#A965ED', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#000', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)' }}>
+                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : '#420E76', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#fff', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)' }}>
                       {reviewSending ? 'ENVIANDO...' : 'ENVIAR AVALIAÇÃO'}
                     </button>
                   </div>
@@ -954,8 +958,8 @@ export default function ProdutoPage() {
               <button onClick={handleAdd} disabled={emBreve}
                 style={{
                   padding: '14px 18px', borderRadius: 10, border: 'none',
-                  background: added ? 'rgba(66, 14, 118,0.12)' : '#A965ED',
-                  color: added ? '#420E76' : '#000',
+                  background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
+                  color: added ? '#420E76' : '#fff',
                   fontSize: 12, fontWeight: 800, letterSpacing: '0.08em',
                   cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                   boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',
@@ -966,6 +970,7 @@ export default function ProdutoPage() {
           )}
         </>
       ) : null}
+      <SiteFooter />
     </div>
   )
 }
