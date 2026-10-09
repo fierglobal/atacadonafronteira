@@ -347,3 +347,10 @@ body { overflow-x: clip; }
 @media (max-width: 900px) {
   body { padding-bottom: var(--tabbar-h, 0px); }
 }
+
+/* Checkout: StepIndicator esconde o rótulo "Carrinho" em telas estreitas —
+   só os 3 círculos cabem lado a lado com "Dados"/"Pagamento" por extenso. */
+.ck-step-carrinho-label { display: none; }
+@media (min-width: 640px) {
+  .ck-step-carrinho-label { display: inline; }
+}

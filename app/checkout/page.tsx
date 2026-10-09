@@ -154,21 +154,16 @@ function AovBar({ totalBRL, pedidoMinimo }: { totalBRL: number; pedidoMinimo: nu
   const atingiu = totalBRL >= pedidoMinimo
   const faltam = Math.max(0, pedidoMinimo - totalBRL)
   const pct = Math.min(100, Math.round((totalBRL / pedidoMinimo) * 100))
-  const cor = atingiu ? '#420E76' : '#b45309'
-  const barCor = atingiu ? '#A965ED' : '#f59e0b'
-  const bg = atingiu ? 'rgba(66, 14, 118,0.06)' : 'rgba(245,158,11,0.06)'
-  const border = atingiu ? 'rgba(66, 14, 118,0.3)' : 'rgba(245,158,11,0.3)'
   return (
-    <div style={{ marginBottom: 20, padding: '12px 16px', background: bg, border: `1px solid ${border}`, borderRadius: 10 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, fontSize: 12 }}>
-        <span style={{ color: cor, fontWeight: 700 }}>
-          {atingiu
-            ? `✓ Pedido mínimo atingido (R$ ${pedidoMinimo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
-            : `Faltam R$ ${faltam.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} pra atingir o pedido mínimo de R$ ${pedidoMinimo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+    <div style={{ marginBottom: 24, padding: 16, background: 'rgba(66, 14, 118,0.05)', border: '1px solid rgba(66, 14, 118,0.1)', borderRadius: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Pedido Mínimo</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: atingiu ? '#0f7a3d' : '#b45309' }}>
+          {atingiu ? '✓ Atingido' : `Faltam R$ ${faltam.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </span>
       </div>
-      <div style={{ width: '100%', height: 4, background: '#ececec', borderRadius: 4, overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: barCor, transition: 'width 0.3s' }} />
+      <div style={{ width: '100%', height: 6, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: atingiu ? '#A965ED' : '#f59e0b', transition: 'width 0.3s' }} />
       </div>
     </div>
   )
@@ -291,25 +286,43 @@ function CheckoutSummary({
   )
 }
 
-function StepIndicator({ step }: { step: 1 | 2 }) {
+const STEPS: { n: 1 | 2 | 3; label: string }[] = [
+  { n: 1, label: 'Carrinho' },
+  { n: 2, label: 'Dados' },
+  { n: 3, label: 'Pagamento' },
+]
+
+function StepIndicator({ step }: { step: 1 | 2 | 3 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step > 1 ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: step > 1 ? '1px solid rgba(66, 14, 118,0.4)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step > 1 ? '#420E76' : '#000' }}>
-          {step > 1 ? '✓' : '1'}
-        </div>
-        <span style={{ fontSize: 11, color: step === 1 ? '#0a0a0a' : '#737373', fontWeight: step === 1 ? 700 : 400 }}>Dados</span>
-      </div>
-      <span style={{ color: '#a3a3a3' }}>→</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ width: 22, height: 22, borderRadius: '50%', background: step === 2 ? '#A965ED' : '#ffffff', border: step === 2 ? 'none' : '1px solid #d4d4d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: step === 2 ? '#000' : '#a3a3a3' }}>2</div>
-        <span style={{ fontSize: 11, color: step === 2 ? '#0a0a0a' : '#a3a3a3', fontWeight: step === 2 ? 700 : 400 }}>Pagamento</span>
-      </div>
-    </div>
+    <nav style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      {STEPS.map((s, i) => {
+        const done = step > s.n
+        const active = step === s.n
+        return (
+          <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {i > 0 && <span style={{ color: '#d4d4d4' }}>›</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 900,
+                background: active ? '#420E76' : done ? 'rgba(66, 14, 118,0.1)' : '#ffffff',
+                border: active ? 'none' : done ? '1px solid rgba(66, 14, 118,0.3)' : '1px solid #d4d4d4',
+                color: active ? '#ffffff' : done ? '#420E76' : '#a3a3a3',
+              }}>
+                {done ? '✓' : s.n}
+              </div>
+              <span className={s.n === 1 ? 'ck-step-carrinho-label' : undefined} style={{ fontSize: 11, color: active ? '#0a0a0a' : done ? '#737373' : '#a3a3a3', fontWeight: active ? 800 : 500 }}>
+                {s.label}
+              </span>
+            </div>
+          </div>
+        )
+      })}
+    </nav>
   )
 }
 
-function Header({ step }: { step?: 1 | 2 }) {
+function Header({ step }: { step?: 1 | 2 | 3 }) {
   const router = useRouter()
   return (
     <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
@@ -679,12 +692,12 @@ export default function Checkout() {
 
   // styles
   const inp = (err?: string) => ({
-    width: '100%', padding: '11px 14px',
-    background: '#ffffff', border: `1px solid ${err ? '#ef4444' : '#d4d4d4'}`,
-    borderRadius: 8, color: '#0a0a0a', fontSize: 14, outline: 'none',
-    boxSizing: 'border-box' as const, transition: 'border-color 0.2s',
+    width: '100%', padding: '12px 16px',
+    background: '#fafafa', border: `1px solid ${err ? '#ef4444' : '#d4d4d4'}`,
+    borderRadius: 12, color: '#0a0a0a', fontSize: 14, outline: 'none',
+    boxSizing: 'border-box' as const, transition: 'all 0.2s',
   })
-  const lbl = { display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }
+  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#404040', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' as const }
   const errStyle = { fontSize: 10, color: '#ef4444', marginTop: 4 }
 
   // A tela não sabe a categoria nem o preço com tier dos produtos: o servidor
@@ -767,7 +780,7 @@ export default function Checkout() {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }`}</style>
-        <Header step={2} />
+        <Header step={3} />
 
         <div style={{ maxWidth: 520, margin: '48px auto', padding: '0 24px 80px' }}>
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
@@ -807,7 +820,7 @@ export default function Checkout() {
               {pixPayloadStr}
             </div>
             <button onClick={() => copy(pixPayloadStr, 'pix')}
-              style={{ width: '100%', padding: '14px', background: copied === 'pix' ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: `1px solid ${copied === 'pix' ? 'rgba(66, 14, 118,0.4)' : '#A965ED'}`, borderRadius: 10, color: copied === 'pix' ? '#420E76' : '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 4px 16px rgba(66, 14, 118,0.25)' }}>
+              style={{ width: '100%', padding: '16px', background: copied === 'pix' ? 'rgba(66, 14, 118,0.08)' : '#A965ED', border: `1px solid ${copied === 'pix' ? 'rgba(66, 14, 118,0.4)' : '#A965ED'}`, borderRadius: 16, color: copied === 'pix' ? '#420E76' : '#2b0a4e', fontSize: 15, fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: copied === 'pix' ? 'none' : '0 8px 20px -4px rgba(169,101,237,0.35)' }}>
               {copied === 'pix' ? '✓ Código Copiado!' : 'Copiar Código PIX'}
             </button>
           </div>
@@ -920,7 +933,7 @@ export default function Checkout() {
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`
-          input:focus { border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
+          input:focus { background: #ffffff !important; border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
           input::placeholder { color: #a3a3a3; }
           @media (max-width: 768px) {
             .ck-confirm-grid { grid-template-columns: 1fr !important; }
@@ -929,7 +942,7 @@ export default function Checkout() {
             .ck-summary-chevron[data-open="true"] { transform: rotate(180deg); }
           }
         `}</style>
-        <Header step={1} />
+        <Header step={2} />
 
         <div className="ck-confirm-grid" style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 360px', gap: 32, alignItems: 'start' }}>
           <div>
@@ -1002,9 +1015,9 @@ export default function Checkout() {
             <button
               onClick={() => placeOrder(profile, userId, nomeRetirador)}
               disabled={!podeFinalizar}
-              style={{ width: '100%', padding: '18px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 14, fontWeight: 900, fontSize: 17, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.04em', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
-              onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(66, 14, 118,0.35)'; b.style.transform = 'translateY(-1px)' } }}
-              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(66, 14, 118,0.25)'; b.style.transform = 'none' }}>
+              style={{ width: '100%', padding: '20px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 16, fontWeight: 900, fontSize: 16, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 20px -4px rgba(66, 14, 118,0.3)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
+              onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)' } }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none' }}>
               {submitting ? 'Processando...' : 'Confirmar Pedido →'}
             </button>
 
@@ -1029,7 +1042,7 @@ export default function Checkout() {
   return (
     <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
       <style>{`
-        input:focus { border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
+        input:focus { background: #ffffff !important; border-color: rgba(66, 14, 118,0.5) !important; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); outline: none; }
         input::placeholder { color: #a3a3a3; }
         @media (max-width: 768px) {
           .ck-guest-grid { grid-template-columns: 1fr !important; }
@@ -1040,7 +1053,7 @@ export default function Checkout() {
           .ck-summary-chevron[data-open="true"] { transform: rotate(180deg); }
         }
       `}</style>
-      <Header step={1} />
+      <Header step={2} />
 
       <div className="ck-guest-grid" style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 360px', gap: 32, alignItems: 'start' }}>
         <div>
@@ -1079,20 +1092,21 @@ export default function Checkout() {
           <AovBar totalBRL={totalFinal} pedidoMinimo={pedidoMinimo} />
 
           {/* Toggle PF/PJ */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+          <div style={{ display: 'flex', gap: 4, padding: 4, marginBottom: 24, background: '#fafafa', border: '1px solid #ececec', borderRadius: 12 }}>
             {(['PF', 'PJ'] as TipoPessoa[]).map(tp => {
               const active = form.tipo_pessoa === tp
               return (
                 <button key={tp} type="button" onClick={() => setTipoPessoa(tp)}
                   style={{
                     flex: 1, padding: '10px 14px',
-                    background: active ? 'rgba(66, 14, 118,0.08)' : '#ffffff',
-                    border: `1px solid ${active ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`,
-                    borderRadius: 10, color: active ? '#420E76' : '#404040',
-                    fontSize: 12, fontWeight: 800, letterSpacing: '0.06em',
+                    background: active ? '#ffffff' : 'transparent',
+                    border: active ? '1px solid #ececec' : '1px solid transparent',
+                    borderRadius: 8, color: active ? '#420E76' : '#a3a3a3',
+                    fontSize: 12, fontWeight: active ? 900 : 700, letterSpacing: '0.06em',
                     cursor: 'pointer', transition: 'all 0.15s',
+                    boxShadow: active ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
                   }}>
-                  {tp === 'PF' ? 'Pessoa Física' : 'Pessoa Jurídica'}
+                  {tp === 'PF' ? 'PESSOA FÍSICA' : 'PESSOA JURÍDICA'}
                 </button>
               )
             })}
@@ -1201,9 +1215,9 @@ export default function Checkout() {
               if (validateGuest()) placeOrder(form, userId, nomeRetirador)
             }}
             disabled={!podeFinalizar}
-            style={{ marginTop: 20, width: '100%', padding: '16px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 16, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.05em', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
-            onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 6px 20px rgba(66, 14, 118,0.35)'; b.style.transform = 'translateY(-1px)' } }}
-            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.boxShadow = '0 4px 16px rgba(66, 14, 118,0.25)'; b.style.transform = 'none' }}>
+            style={{ marginTop: 24, width: '100%', padding: '20px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 16, fontWeight: 900, fontSize: 16, cursor: !podeFinalizar ? 'not-allowed' : 'pointer', letterSpacing: '0.02em', boxShadow: '0 8px 20px -4px rgba(66, 14, 118,0.3)', transition: 'all 0.2s', opacity: !podeFinalizar ? 0.4 : 1 }}
+            onMouseEnter={e => { if (podeFinalizar) { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.transform = 'none' }}>
             {submitting ? 'Processando...' : 'Finalizar Pedido →'}
           </button>
           <p style={{ marginTop: 10, textAlign: 'center', fontSize: 11, color: '#a3a3a3' }}>🔒 Seus dados são criptografados e protegidos</p>
