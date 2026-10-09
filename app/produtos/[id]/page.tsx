@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useRouter, useParams } from 'next/navigation'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import SiteFooter from '@/components/SiteFooter'
+import BotaoSalvarRecompra from '@/components/BotaoSalvarRecompra'
 import { SOB_ENCOMENDA_BADGE, SOB_ENCOMENDA_TEXTO } from '@/lib/site'
 import { effectiveBadges, isEmBreve, ROTULO_EM_BREVE } from '@/lib/produto'
 import { progressoTier } from '@/lib/tier'
@@ -679,6 +680,10 @@ export default function ProdutoPage() {
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
                       VER CARRINHO →
                     </button>
+                  )}
+
+                  {!emBreve && (
+                    <BotaoSalvarRecompra produto={{ id: product.id, name: product.name, brand: product.brand ?? undefined, img: product.img_url ?? PLACEHOLDER, brlPrice: basePriceBRL }} />
                   )}
                 </div>
 
