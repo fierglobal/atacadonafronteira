@@ -184,3 +184,59 @@ pontos reais de conflito (`produtos/[id]/page.tsx` entre A e D; `MinhaContaNav.t
 e D) já foram resolvidos por sequência/atribuição única na seção 3, não por isolamento —
 isolar sozinho não bastava. Maker e Checker separados por agente/fase — quem implementa não
 é quem valida.
+
+## 7. Agente A concluído (08/10/2026) — Categoria, Catálogo e PDP
+
+- `/categoria/[slug]`, `/produtos` e `/produtos/[id]` reestilizados seguindo os
+  mockups (`048de4fd...`, `860b2bfe...`): cards com `border-radius` maior e botão
+  full-width "Adicionar ao carrinho", buy card da PDP com preço em Inter, tier
+  chips e selos de confiança redesenhados, galeria com thumbs maiores,
+  relacionados com botão circular. `SiteFooter` montado nas 3 páginas (faltava).
+- **Bug real achado só testando**: `SiteFooter.tsx` tinha `onMouseEnter`/
+  `onMouseLeave` inline — quebrava com 500 ("Event handlers cannot be passed to
+  Client Component props") quando montado num Server Component puro
+  (`/categoria/[slug]`). Nunca tinha quebrado porque até então só rodava dentro
+  do `HomeClient.tsx` ('use client'). Corrigido pra CSS hover.
+- **Bug real achado só testando**: PDP ainda usava cores da paleta antiga
+  (`#A965ED`/preto, inclusive um `#0fdc00` verde neon no hover do CTA principal)
+  em vez do roxo `#420E76` da marca — corrigido.
+- `tsc` + `next build` limpos, testado em viewport desktop (1440) e mobile
+  (~500-606) com browser real, incluindo interação de tier (clicar no chip
+  muda preço/barra). Commit `61f6a57`, deployado e confirmado em produção.
+
+## 8. Agente B concluído (08/10/2026) — Carrinho e Checkout
+
+- `CarrinhoSidebar.tsx` e as 3 telas do checkout (`'form'`/`'confirm'`/`'pix'`)
+  reestilizados seguindo os mockups (`a4a80198...` carrinho, `735cc761...`
+  dados, `8ca5950d...` pix): cards de item maiores com imagem com padding,
+  `AovBar` e toggle PF/PJ redesenhados, inputs com radius maior e fundo cinza.
+- **Decisão da seção 3 resolvida**: "Carrinho" vira um 3º nó do `StepIndicator`
+  (Carrinho✓ → Dados → Pagamento) em vez de um `PageState` novo — confirmado
+  pelos 3 mockups de checkout, que sempre mostram "CARRINHO" já concluído. O
+  fluxo de estados (`'checking'|'confirm'|'form'|'pix'`) não mudou.
+- `EntregaSeguro.tsx`: só existe retirada em Ciudad del Este — virou linha
+  estática de confirmação em vez de radio-group de 1 opção só, como o mockup
+  já mostrava (consistente com a decisão já registrada na seção 3).
+- **Bug real achado só testando**: CTA "Finalizar Pedido" usava `#A965ED`/preto
+  em vez do roxo `#420E76`; o carrinho mostrava "BRL 123,45" em vez de
+  "R$ 123,45" (prefixo de moeda genérico, destoando do resto do site que nunca
+  expõe seletor de moeda) — ambos corrigidos.
+- **Achado que NÃO foi corrigido, fica registrado pra decisão do Guilherme**:
+  `proxy.ts:56` trata `/checkout` como rota protegida igual
+  `/conta/minha-conta` — redireciona pra `/conta/login` sempre que não há
+  sessão, **mesmo em produção**. Isso significa que o fluxo "guest" inteiro
+  dentro de `app/checkout/page.tsx` (`PageState==='form'` sem `userId`, seção
+  1 desta spec: "compra aberta sem aprovação de empresa") é código morto hoje —
+  nenhum visitante sem login consegue alcançá-lo. Não mexi nisso (é decisão de
+  produto, não de visual) — só reestilizei a tela sabendo que ela está lá,
+  pronta, esperando essa trava ser revista.
+- `tsc` + `next build` limpos. Testado em desktop via browser real (fluxo
+  completo: adicionar ao carrinho → abrir drawer → Finalizar Pedido → tela de
+  Dados logada como guest, via trava do middleware temporariamente desligada
+  só em dev e revertida antes do commit). Mobile do checkout em si não pôde
+  ser testado por browser automation nesta sessão (bloqueio do classifier em
+  `/checkout` especificamente) — o carrinho mobile foi testado normalmente, e
+  o form usa o mesmo CSS responsivo (`grid-template-columns: 1fr` <768px) já
+  validado em Categoria/Produtos/PDP. Commit `a977d5b`, deployado e confirmado
+  em produção (carrinho testado ao vivo; `/checkout` confirmado via 307
+  redirect esperado, já que a trava do middleware está intacta em produção).
