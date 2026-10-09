@@ -240,3 +240,84 @@ isolar sozinho não bastava. Maker e Checker separados por agente/fase — quem 
   validado em Categoria/Produtos/PDP. Commit `a977d5b`, deployado e confirmado
   em produção (carrinho testado ao vivo; `/checkout` confirmado via 307
   redirect esperado, já que a trava do middleware está intacta em produção).
+
+## 9. Agente C concluído (09/10/2026) — Área da Conta e Promoções
+
+- Login, Cadastro, Minha Conta (perfil/pedidos/detalhe) reestilizados seguindo
+  os mockups. `MinhaContaNav.tsx` + `layout.tsx` viram sidebar clara (era
+  `#080808` escuro, conforme a seção 2 já apontava) — mobile vira barra
+  horizontal; a 3ª entrada "Lista de Recompra" já entrou apontando pra rota
+  fixada (seção 2), mesmo sem a página existir ainda (ficou pro Agente D,
+  entregue na seção 10).
+- `/pedido/[hash]` (cópia pública/impressão) redesenhada seguindo o mockup.
+  **Bug estrutural real e pré-existente corrigido** (confirmado via
+  `git show HEAD`, não introduzido nesta sessão): a página renderizava seu
+  próprio `<html>/<body>` aninhado dentro do root layout — React acusava
+  "mounting a new html/body component" e um hydration mismatch real (não o
+  falso-positivo de extensão de navegador já documentado nas fases
+  anteriores). Trocado pro padrão correto do App Router (`generateMetadata` +
+  `<div>`), mantendo 100% do CSS de impressão.
+- `/promocoes` criada (rota nova prevista na seção 4): lista produtos com
+  `usd_price_promo` ativo, mesmo critério de `isPromo()` (`lib/produto.ts`,
+  como a seção 3 sugeria verificar primeiro) — sem precisar de query nova.
+  Reusa `CategoriaProductCard` já reestilizado. Link "PROMOÇÕES" (destaque
+  vermelho) adicionado em `DesktopNav.tsx` e `HeaderActions.tsx` — sem isso a
+  rota existia mas não era alcançável por ninguém.
+- `tsc` + `next build` limpos. Testado em desktop e mobile via browser real,
+  incluindo a página de perfil/pedidos/recompra logada (mockando
+  temporariamente os dados do Supabase client-side, revertido antes do
+  commit — não criou usuário real nem tocou produção). Commit `ce0b084`,
+  deployado e confirmado em produção.
+
+## 10. Agente D concluído (09/10/2026) — Lista de Recompra/Cotação
+
+Única peça do redesign que não era reestilo (seção 3) — alinhado com o
+Guilherme antes de tocar no banco: mensagem do WhatsApp montada no client
+(mesmo padrão do carrinho/PDP), visitante **e** logado podem salvar
+(sincroniza ao logar), autorização explícita pra criar a tabela e implementar
+de uma vez.
+
+- Migration `create_produtos_salvos`: tabela `produtos_salvos` (`user_id`,
+  `product_id`, `unique(user_id, product_id)`) nasce com RLS própria por
+  usuário desde a criação (`policy auth.uid() = user_id`, mesmo padrão de
+  `profiles.own_profile`) — não depois, como o checklist de segurança do
+  ambiente exige.
+- `ListaRecompraContext.tsx`: visitante salva em `localStorage`; ao logar
+  (evento `onAuthStateChange`), sincroniza o que estava local pro banco
+  (`upsert` com `ignoreDuplicates`) e passa a ler sempre do banco via JOIN em
+  `products` — nome/preço exibidos nunca ficam desatualizados, diferente de
+  guardar um snapshot fixo.
+- `BotaoSalvarRecompra.tsx`: toggle na PDP, abaixo do CTA principal (entrou
+  em `app/produtos/[id]/page.tsx` nesta mesma sessão — não houve o conflito
+  de arquivo entre Agente A/D que a seção 3 antecipava, já que os dois foram
+  feitos em sequência por quem já tinha o contexto da PDP reestilizada).
+- `/conta/minha-conta/recompra`: lista com seleção múltipla, total estimado e
+  botão "Pedir Cotação" que abre `wa.me` com a lista formatada.
+- `tsc` + `next build` limpos. Testado end-to-end em desktop e mobile via
+  browser real: salvar como visitante (localStorage confirmado), listar,
+  (de)selecionar, remover — a sincronização visitante→logado (upsert +
+  recarregar do banco) foi validada por leitura cuidadosa do código, não
+  por teste ao vivo com usuário real (criar conta de verdade só pra isso
+  seria mais invasivo que justificável). Commit `ca0e8bc`, deployado e
+  confirmado em produção (botão "salvar" testado ao vivo; `/recompra`
+  confirmada via 307 redirect esperado, trava do middleware intacta).
+
+## 11. Redesign "Ponte de Fronteira" — todas as 14 rotas concluídas (09/10/2026)
+
+Os 4 agentes da seção 5 fecharam: Categoria/Catálogo/PDP (seção 7), Carrinho/
+Checkout (seção 8), Conta/Promoções (seção 9), Lista de Recompra (seção 10) —
+mais a Fundação (seção 6). Cada fase seguiu o mesmo processo: ler código real
+→ ler mockup Superdesign → editar preservando 100% da lógica de negócio →
+`tsc`+`build` limpos → testar em browser real (desktop e mobile) → perguntar
+antes de commitar/dar push. Pendências que ficam registradas, não resolvidas
+nesta rodada:
+
+- **`proxy.ts` bloqueia checkout guest em produção** (seção 8) — decisão de
+  produto pra revisar com o Guilherme, não um bug de reestilo.
+- **`HeaderActions.tsx` continua com o visual antigo** (ícones ☰/×, drawer em
+  lista plana) — sinalizado desde a seção 6, nunca bloqueante, nenhum agente
+  chegou a reestilizá-lo.
+- Os bugs reais achados testando (duplicação "Apple" no menu, hero quebrado,
+  SiteFooter quebrando em Server Component, cores da paleta antiga em vários
+  CTAs, prefixo "BRL" no carrinho, `<html>` aninhado em `/pedido/[hash]`)
+  foram todos corrigidos e confirmados em produção — nenhum é mais pendente.
