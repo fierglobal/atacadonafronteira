@@ -67,13 +67,13 @@ export default function Login() {
         <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '28px 28px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }}>E-MAIL</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: '#404040', letterSpacing: '0.08em', marginBottom: 6, textTransform: 'uppercase' }}>E-mail</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus
                 placeholder="seu@email.com"
                 style={{ width: '100%', padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a', fontSize: 14, boxSizing: 'border-box' as const }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 }}>SENHA</label>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: '#404040', letterSpacing: '0.08em', marginBottom: 6, textTransform: 'uppercase' }}>Senha</label>
               <input type="password" value={pw} onChange={e => setPw(e.target.value)} required
                 placeholder="Sua senha"
                 style={{ width: '100%', padding: '12px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a', fontSize: 14, boxSizing: 'border-box' as const }} />
@@ -82,7 +82,7 @@ export default function Login() {
             {err && <p style={{ fontSize: 12, color: '#ef4444', textAlign: 'center', margin: 0 }}>{err}</p>}
 
             <button type="submit" disabled={loading}
-              style={{ padding: '14px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4, boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
+              style={{ padding: '14px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4, boxShadow: '0 4px 16px rgba(66, 14, 118,0.2)' }}>
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
@@ -94,7 +94,7 @@ export default function Login() {
           </div>
 
           <button type="button" onClick={loginGoogle}
-            style={{ width: '100%', padding: '13px', background: '#fff', color: '#404040', border: '1px solid #d4d4d4', borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            style={{ width: '100%', padding: '13px', background: '#fff', color: '#404040', border: '1px solid #d4d4d4', borderRadius: 12, fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             <svg width="18" height="18" viewBox="0 0 48 48">
               <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
               <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/>
@@ -108,7 +108,7 @@ export default function Login() {
             <p style={{ fontSize: 13, color: '#404040' }}>
               Não tem conta?{' '}
               <Link href={`/conta/cadastro?redirect=${encodeURIComponent(redirect)}`}
-                style={{ color: '#420E76', fontWeight: 700, textDecoration: 'none' }}>
+                style={{ color: '#420E76', fontWeight: 900, textDecoration: 'none' }}>
                 Criar conta grátis
               </Link>
             </p>

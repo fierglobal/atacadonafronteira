@@ -93,6 +93,10 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
               ))}
             </div>
           ))}
+          <Link href="/promocoes" onClick={() => setMobileMenu(false)}
+            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#dc2626', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
+            PROMOÇÕES
+          </Link>
           {WHATSAPP_ENABLED && (
             <a href={contatoHref} target="_blank" rel="noopener" onClick={() => setMobileMenu(false)}
               style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', textDecoration: 'none', borderRadius: 8, borderTop: '1px solid #ececec', marginTop: 4, paddingTop: 14, letterSpacing: '0.08em' }}>

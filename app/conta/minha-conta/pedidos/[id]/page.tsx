@@ -159,29 +159,36 @@ export default function PedidoDetalhe() {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 28, flexWrap: 'wrap' }}>
-        <button onClick={() => router.push('/conta/minha-conta/pedidos')} style={{ background: 'transparent', border: '1px solid #d4d4d4', borderRadius: 8, color: '#404040', padding: '7px 14px', fontSize: 12, cursor: 'pointer', flexShrink: 0 }}>← Pedidos</button>
-        <div style={{ flex: 1, minWidth: 120 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{order.order_num}</h1>
-          <p style={{ fontSize: 11, color: '#737373', margin: 0 }}>
-            {new Date(order.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
-          </p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button onClick={() => router.push('/conta/minha-conta/pedidos')} aria-label="Voltar aos pedidos"
+            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 10, color: '#404040', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <div style={{ minWidth: 120 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.01em', margin: 0, color: '#0a0a0a' }}>Pedido {order.order_num}</h1>
+            <p style={{ fontSize: 11, color: '#737373', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '2px 0 0' }}>
+              Realizado em {new Date(order.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
         </div>
-        {order.copy_hash && (
-          <a href={`/pedido/${order.copy_hash}`} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#404040', padding: '8px 16px', fontSize: 12, fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}>
-            🖨️ Imprimir Pedido
-          </a>
-        )}
-        <button onClick={reorder} disabled={reordering}
-          style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.4)', borderRadius: 8, color: '#420E76', padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0 }}>
-          {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {order.copy_hash && (
+            <a href={`/pedido/${order.copy_hash}`} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 12, color: '#404040', padding: '10px 16px', fontSize: 12, fontWeight: 700, textDecoration: 'none', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              🖨️ Imprimir Pedido
+            </a>
+          )}
+          <button onClick={reorder} disabled={reordering}
+            style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 12, color: '#420E76', padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
+          </button>
+        </div>
       </div>
 
       {/* Sob encomenda — bem visível, logo após o cabeçalho */}
       {temSobEncomenda && (
-        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.4)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.4)', borderRadius: 16, padding: '16px 20px', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ fontSize: 16 }}>📦</span>
             <p style={{ fontSize: 12, fontWeight: 800, color: '#b45309', margin: 0, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Pedido com item sob encomenda</p>
@@ -192,8 +199,8 @@ export default function PedidoDetalhe() {
 
       {/* Status timeline */}
       {!isCanceled ? (
-        <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '24px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <p style={{ fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 24px' }}>STATUS DO PEDIDO</p>
+        <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '24px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 24px' }}>STATUS DO PEDIDO</p>
           <div style={{ display: 'flex' }}>
             {STATUS_STEPS.map((step, i) => {
               const done = i <= stepIndex
@@ -207,20 +214,20 @@ export default function PedidoDetalhe() {
                     }} />
                   )}
                   <div style={{
-                    width: 26, height: 26, borderRadius: '50%',
-                    border: `2px solid ${done ? '#420E76' : '#d4d4d4'}`,
-                    background: current ? '#A965ED' : done ? 'rgba(66, 14, 118,0.08)' : '#ffffff',
+                    width: 24, height: 24, borderRadius: '50%',
+                    border: done ? 'none' : '2px solid #d4d4d4',
+                    background: done ? '#420E76' : '#ffffff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 1, position: 'relative',
-                    boxShadow: current ? '0 4px 12px rgba(66, 14, 118,0.18)' : 'none',
+                    boxShadow: current ? '0 0 0 4px rgba(66, 14, 118,0.1)' : 'none',
                   }}>
-                    {done && !current && (
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    {done && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
                   </div>
-                  <p style={{ fontSize: 9, fontWeight: current ? 800 : 600, color: current ? '#420E76' : done ? '#525252' : '#a3a3a3', marginTop: 8, textAlign: 'center', letterSpacing: '0.03em', lineHeight: 1.3 }}>
+                  <p style={{ fontSize: 9, fontWeight: done ? 900 : 700, color: done ? '#420E76' : '#a3a3a3', marginTop: 10, textAlign: 'center', letterSpacing: '0.03em', textTransform: 'uppercase', lineHeight: 1.3 }}>
                     {statusLabel(step, entregaTipo)}
                   </p>
                 </div>
@@ -229,14 +236,14 @@ export default function PedidoDetalhe() {
           </div>
         </div>
       ) : (
-        <div style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 14, padding: '16px 20px', marginBottom: 20 }}>
+        <div style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 16, padding: '16px 20px', marginBottom: 20 }}>
           <p style={{ color: '#ef4444', fontWeight: 700, fontSize: 13, margin: 0 }}>Pedido cancelado</p>
         </div>
       )}
 
       {/* PIX info — só quando pendente */}
       {order.status === 'pendente_pagamento' && (
-        <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 14, padding: '24px', marginBottom: 20 }}>
+        <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: 16, padding: '24px', marginBottom: 20 }}>
           <p style={{ fontSize: 10, fontWeight: 800, color: '#f59e0b', letterSpacing: '0.1em', margin: '0 0 14px' }}>PAGAMENTO VIA PIX</p>
           <p style={{ fontSize: 13, color: '#404040', marginBottom: 18, lineHeight: 1.5 }}>
             Transfira o valor exato abaixo para a chave PIX e aguarde a confirmação.
@@ -277,7 +284,7 @@ export default function PedidoDetalhe() {
         const emAnalise = enviado && order.status === 'pendente_pagamento'
         const cor = emAnalise ? '#f59e0b' : '#420E76'
         return (
-      <div style={{ background: '#ffffff', border: `1px solid ${enviado ? `${cor}4d` : '#ececec'}`, borderRadius: 14, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ background: '#ffffff', border: `1px solid ${enviado ? `${cor}4d` : '#ececec'}`, borderRadius: 16, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <p style={{ fontSize: 10, fontWeight: 800, color: enviado ? cor : '#525252', letterSpacing: '0.1em', margin: '0 0 12px' }}>COMPROVANTE DE PAGAMENTO</p>
         {enviado ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
@@ -319,15 +326,15 @@ export default function PedidoDetalhe() {
       })()}
 
       {/* Items */}
-      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, overflow: 'hidden', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #ececec', background: '#fafafa' }}>
-          <p style={{ fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', margin: 0 }}>ITENS DO PEDIDO</p>
+          <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: 0 }}>ITENS DO PEDIDO</p>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #ececec' }}>
               {['Produto', 'Qtd', 'Unit.', 'Subtotal'].map(h => (
-                <th key={h} style={{ padding: '10px 20px', textAlign: 'left', fontSize: 10, color: '#525252', fontWeight: 700, letterSpacing: '0.06em' }}>{h}</th>
+                <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: 10, color: '#737373', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -372,8 +379,8 @@ export default function PedidoDetalhe() {
       </div>
 
       {/* Entrega — endereço/retirada, frete, seguro e rastreio, condicionados à modalidade real do pedido */}
-      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <p style={{ fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 14px' }}>ENTREGA — {ENTREGA_LABEL[entregaTipo].toUpperCase()}</p>
+      <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 14px' }}>ENTREGA — {ENTREGA_LABEL[entregaTipo].toUpperCase()}</p>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: (order.frete_brl || order.seguro_brl) ? 16 : 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>

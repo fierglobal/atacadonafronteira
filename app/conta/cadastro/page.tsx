@@ -101,11 +101,11 @@ export default function Cadastro() {
   }
 
   const inp = (err?: string) => ({
-    width: '100%', padding: '11px 14px', background: '#ffffff',
-    border: `1px solid ${err ? '#ef4444' : '#d4d4d4'}`, borderRadius: 8,
+    width: '100%', padding: '12px 16px', background: '#fafafa',
+    border: `1px solid ${err ? '#ef4444' : '#ececec'}`, borderRadius: 12,
     color: '#0a0a0a', fontSize: 14, boxSizing: 'border-box' as const,
   })
-  const lbl = { display: 'block', fontSize: 11, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 6 } as const
+  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
   const errTxt = { fontSize: 10, color: '#ef4444', marginTop: 4 } as const
 
   if (success) {
@@ -118,7 +118,7 @@ export default function Cadastro() {
           <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 10, color: '#0a0a0a' }}>Conta criada!</h2>
           <p style={{ color: '#404040', fontSize: 14, lineHeight: 1.6 }}>Verifique seu e-mail <strong style={{ color: '#0a0a0a' }}>{form.email}</strong> para ativar sua conta.</p>
           <a href={`/conta/login?redirect=${encodeURIComponent(redirect)}`}
-            style={{ display: 'inline-block', marginTop: 24, padding: '12px 28px', background: '#A965ED', color: '#000', borderRadius: 8, fontWeight: 700, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
+            style={{ display: 'inline-block', marginTop: 24, padding: '12px 28px', background: '#A965ED', color: '#000', borderRadius: 12, fontWeight: 900, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(169,101,237,0.25)' }}>
             Ir para Login
           </a>
         </div>
@@ -138,12 +138,12 @@ export default function Cadastro() {
       <div style={{ maxWidth: 480, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Link href="/"><Logo size={30} /></Link>
-          <h1 style={{ fontSize: 20, fontWeight: 900, marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Criar conta</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', marginTop: 20, marginBottom: 4, color: '#0a0a0a' }}>Criar conta</h1>
           <p style={{ color: '#404040', fontSize: 13 }}>Cadastre-se para finalizar seu pedido</p>
         </div>
 
         <form onSubmit={submit}>
-          <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', gap: 16, boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+          <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 24, padding: 32, display: 'flex', flexDirection: 'column', gap: 16, boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
 
             <div>
               <label style={lbl}>NOME COMPLETO</label>
@@ -202,7 +202,7 @@ export default function Cadastro() {
           {globalErr && <p style={{ fontSize: 13, color: '#ef4444', textAlign: 'center', marginTop: 14 }}>{globalErr}</p>}
 
           <button type="submit" disabled={loading}
-            style={{ width: '100%', marginTop: 20, padding: '15px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 16, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 4px 16px rgba(66, 14, 118,0.25)' }}>
+            style={{ width: '100%', marginTop: 20, padding: '16px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 16, fontWeight: 900, fontSize: 16, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 8px 20px -4px rgba(169,101,237,0.35)' }}>
             {loading ? 'Criando conta...' : 'Criar Conta e Continuar →'}
           </button>
 

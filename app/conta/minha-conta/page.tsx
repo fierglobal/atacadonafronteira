@@ -38,27 +38,28 @@ export default function MeuPerfil() {
     setProfile(p => p ? { ...p, [k]: e.target.value } : p)
 
   const inp = {
-    width: '100%', padding: '10px 12px', background: '#ffffff',
-    border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a',
-    fontSize: 14, boxSizing: 'border-box' as const,
+    width: '100%', padding: '12px 16px', background: '#fafafa',
+    border: '1px solid #ececec', borderRadius: 12, color: '#0a0a0a',
+    fontSize: 14, fontWeight: 500, boxSizing: 'border-box' as const,
   }
-  const lbl = { display: 'block', fontSize: 10, fontWeight: 700, color: '#404040', letterSpacing: '0.08em', marginBottom: 5 } as const
+  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
 
   if (loading) return <div style={{ minHeight: 200 }} />
 
   return (
     <div>
       <style>{`
-        input:focus { border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); }
+        input:focus { background: #ffffff !important; border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 4px rgba(66, 14, 118,0.08); }
         @media (max-width: 640px) {
           .mc-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
-      <h1 style={{ fontSize: 20, fontWeight: 900, marginBottom: 6, marginTop: 0, color: '#0a0a0a' }}>Meu Perfil</h1>
-      <p style={{ fontSize: 12, color: '#737373', marginBottom: 28 }}>Gerencie seus dados cadastrais</p>
+      <h1 style={{ fontSize: 32, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 8, marginTop: 0, color: '#0a0a0a', textTransform: 'uppercase' }}>Meu Perfil</h1>
+      <p style={{ fontSize: 14, color: '#737373', marginBottom: 40 }}>Gerencie seus dados cadastrais para facilitar suas compras.</p>
 
       {profile && (
-        <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+        <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 24, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div style={{ padding: 32 }}>
           <div style={{ display: 'grid', gap: 16 }}>
             <div className="mc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div>
@@ -109,10 +110,13 @@ export default function MeuPerfil() {
               </div>
             </div>
           </div>
-          <button onClick={save} disabled={saving}
-            style={{ marginTop: 20, padding: '11px 28px', background: saved ? 'rgba(66, 14, 118,0.08)' : '#A965ED', color: saved ? '#420E76' : '#000', border: saved ? '1px solid rgba(66, 14, 118,0.4)' : 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 4px 16px rgba(66, 14, 118,0.25)' }}>
-            {saving ? 'Salvando...' : saved ? '✓ Salvo' : 'Salvar Dados'}
-          </button>
+          </div>
+          <div style={{ background: '#fafafa', borderTop: '1px solid #ececec', padding: '20px 32px', display: 'flex', justifyContent: 'flex-end' }}>
+            <button onClick={save} disabled={saving}
+              style={{ padding: '16px 40px', background: saved ? 'rgba(66, 14, 118,0.08)' : '#420E76', color: saved ? '#420E76' : '#ffffff', border: saved ? '1px solid rgba(66, 14, 118,0.4)' : 'none', borderRadius: 16, fontWeight: 900, fontSize: 14, letterSpacing: '0.02em', cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 8px 20px -4px rgba(66, 14, 118,0.3)' }}>
+              {saving ? 'Salvando...' : saved ? '✓ Salvo' : 'Salvar Dados'}
+            </button>
+          </div>
         </div>
       )}
     </div>
