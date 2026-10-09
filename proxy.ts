@@ -53,7 +53,10 @@ export async function proxy(req: NextRequest) {
     return response
   }
 
-  const isProtected = pathname === '/checkout' || pathname === '/conta/minha-conta' || pathname.startsWith('/conta/minha-conta/')
+  // /checkout fica de fora de propósito: compra é aberta, sem aprovação prévia
+  // de empresa (ver spec do redesign, seção 1) — o guest form em
+  // app/checkout/page.tsx já cobre quem não tem conta.
+  const isProtected = pathname === '/conta/minha-conta' || pathname.startsWith('/conta/minha-conta/')
   if (isProtected) {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -321,3 +321,20 @@ nesta rodada:
   SiteFooter quebrando em Server Component, cores da paleta antiga em vários
   CTAs, prefixo "BRL" no carrinho, `<html>` aninhado em `/pedido/[hash]`)
   foram todos corrigidos e confirmados em produção — nenhum é mais pendente.
+
+## 12. Trava de checkout guest revertida (09/10/2026)
+
+A pendência da seção 8/11 ("`proxy.ts` bloqueia checkout guest em produção")
+foi revisada e resolvida: `proxy.ts:56` deixou de tratar `/checkout` como rota
+protegida — `isProtected` agora cobre só `/conta/minha-conta` e
+`/conta/minha-conta/*`. Justificativa (seção 1 desta spec: "compra aberta sem
+aprovação de empresa"; o fluxo guest em `app/checkout/page.tsx` já existia e
+funcionava, só estava inalcançável; site B2B com pedido mínimo alto, onde
+fricção extra no checkout tem custo desproporcional). `tsc`+`build` limpos;
+testado em dev real (não em produção com trava temporariamente desligada): com
+1 item no carrinho, `/checkout` renderiza direto a tela "Dados" (3 passos:
+Carrinho✓ → Dados → Pagamento) sem redirecionar pra login, enquanto
+`/conta/minha-conta` continua redirecionando (307) como esperado. Console sem
+erros reais (só o warning de extensão do navegador já conhecido).
+`HeaderActions.tsx` com visual antigo (seção 11) continua como única pendência
+em aberto, fora do escopo desta mudança.
