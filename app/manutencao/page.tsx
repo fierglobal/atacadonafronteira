@@ -51,10 +51,10 @@ export default function ManutencaoPage() {
         <div style={{ padding: '40px 36px', background: '#ffffff', border: '1px solid #ececec', borderRadius: 20, boxShadow: '0 12px 40px rgba(0,0,0,0.06)', marginBottom: 28 }}>
           <span style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '5px 14px', background: 'rgba(66, 14, 118,0.08)', border: '1px solid rgba(66, 14, 118,0.3)',
-            borderRadius: 99, color: '#420E76', fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', marginBottom: 24,
+            padding: '5px 14px', background: 'rgba(214,168,101,0.08)', border: '1px solid rgba(214,168,101,0.3)',
+            borderRadius: 99, color: '#9D7133', fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', marginBottom: 24,
           }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#A965ED', boxShadow: '0 0 8px rgba(66, 14, 118,0.6)' }} />
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#D6A865', boxShadow: '0 0 8px rgba(214,168,101,0.6)' }} />
             EM BREVE
           </span>
 
@@ -66,7 +66,7 @@ export default function ManutencaoPage() {
             margin: '0 0 12px',
             color: '#0a0a0a',
           }}>
-            ATACADO <span style={{ color: '#420E76' }}>NA FRONTEIRA</span>
+            ATACADO <span style={{ color: '#9D7133' }}>NA FRONTEIRA</span>
           </h1>
           <p style={{ fontSize: 15, color: '#737373', lineHeight: 1.6, margin: '0 0 32px' }}>
             Nosso site está passando por melhorias. Voltaremos em breve.
@@ -95,8 +95,8 @@ export default function ManutencaoPage() {
                 disabled={loading}
                 style={{
                   padding: '11px 20px', borderRadius: 8,
-                  background: loading ? '#a3a3a3' : '#420E76',
-                  color: '#ffffff', border: 'none',
+                  background: loading ? '#a3a3a3' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)',
+                  color: '#111111', border: 'none',
                   fontSize: 13, fontWeight: 800, letterSpacing: '0.06em',
                   cursor: loading ? 'not-allowed' : 'pointer',
                   whiteSpace: 'nowrap',

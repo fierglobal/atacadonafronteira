@@ -8,7 +8,8 @@ import CategoriaProductCard from '@/components/CategoriaProductCard'
 // no servidor — é daqui que sai quase todo o texto plano que o Google lê, já que
 // nome de produto sai ofuscado em base64.
 
-const ROXO = '#420E76'
+const GOLD_TEXT = '#9D7133'
+const DARK = '#111111'
 const MONO = 'var(--font-geist-mono), ui-monospace, monospace'
 
 export type DestaqueProduto = {
@@ -93,7 +94,7 @@ export function Catalogo({ cards }: { cards: DeptCard[] }) {
                     ))}
                   </div>
                 )}
-                <Link href={`/categoria/${d.slug}`} style={{ fontSize: 13.5, fontWeight: 800, color: ROXO, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                <Link href={`/categoria/${d.slug}`} style={{ fontSize: 13.5, fontWeight: 800, color: GOLD_TEXT, textDecoration: 'none', whiteSpace: 'nowrap' }}>
                   Ver todos →
                 </Link>
               </div>
@@ -124,13 +125,13 @@ export function ComoFunciona() {
         <div className="como-final-grid" style={{ marginTop: 32, paddingTop: 28, borderTop: '1px solid #ececec', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 32 }}>
           {PASSOS.map(([titulo, texto], i) => (
             <div key={titulo}>
-              <span style={{ ...mono, fontSize: 26, fontWeight: 600, color: ROXO }}>{String(i + 1).padStart(2, '0')}</span>
+              <span style={{ ...mono, fontSize: 26, fontWeight: 600, color: GOLD_TEXT }}>{String(i + 1).padStart(2, '0')}</span>
               <h3 style={{ margin: '10px 0 6px', fontSize: 15, fontWeight: 600, color: '#0a0a0a' }}>{titulo}</h3>
               <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: '#525252' }}>{texto}</p>
             </div>
           ))}
           <div>
-            <span style={{ ...mono, fontSize: 26, fontWeight: 600, color: ROXO }}>04</span>
+            <span style={{ ...mono, fontSize: 26, fontWeight: 600, color: GOLD_TEXT }}>04</span>
             <h3 style={{ margin: '10px 0 6px', fontSize: 15, fontWeight: 600, color: '#0a0a0a' }}>Retire seu pedido</h3>
             <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.55, color: '#525252' }}>Retire na nossa loja, em Ciudad del Este — sem custo.</p>
           </div>
@@ -141,17 +142,17 @@ export function ComoFunciona() {
 }
 
 // Fecha a página sozinha: era CTA solto + banner de WhatsApp, duas chamadas
-// competindo. Uma banda só, roxo chapado (sem gradiente), a ação de fechar
+// competindo. Uma banda só, dark chapado (sem gradiente), a ação de fechar
 // (WhatsApp) e a de continuar navegando (catálogo).
 export function BandaFinal({ total }: { total?: number }) {
   return (
-    <section className="home-only sec-banda-final" style={{ background: ROXO, padding: '48px 0' }}>
+    <section className="home-only sec-banda-final" style={{ background: DARK, padding: '48px 0' }}>
       <div style={{ ...secao, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div>
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 650, color: '#fff', letterSpacing: '-0.01em' }}>
             Negocie direto com o balcão comercial
           </h2>
-          <p style={{ margin: '8px 0 0', fontSize: 14.5, lineHeight: 1.55, color: '#E8DAF8', maxWidth: 440 }}>
+          <p style={{ margin: '8px 0 0', fontSize: 14.5, lineHeight: 1.55, color: '#E8D9C0', maxWidth: 440 }}>
             Fale com um atendente em português — resposta em até 12 minutos. Nosso único número é o {WHATSAPP_DISPLAY}.
           </p>
         </div>

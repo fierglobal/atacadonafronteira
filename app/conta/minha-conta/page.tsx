@@ -42,14 +42,14 @@ export default function MeuPerfil() {
     border: '1px solid #ececec', borderRadius: 12, color: '#0a0a0a',
     fontSize: 14, fontWeight: 500, boxSizing: 'border-box' as const,
   }
-  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
+  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
 
   if (loading) return <div style={{ minHeight: 200 }} />
 
   return (
     <div>
       <style>{`
-        input:focus { background: #ffffff !important; border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 4px rgba(66, 14, 118,0.08); }
+        input:focus { background: #ffffff !important; border-color: rgba(214,168,101,0.5) !important; outline: none; box-shadow: 0 0 0 4px rgba(214,168,101,0.08); }
         @media (max-width: 640px) {
           .mc-grid { grid-template-columns: 1fr !important; }
         }
@@ -113,7 +113,7 @@ export default function MeuPerfil() {
           </div>
           <div style={{ background: '#fafafa', borderTop: '1px solid #ececec', padding: '20px 32px', display: 'flex', justifyContent: 'flex-end' }}>
             <button onClick={save} disabled={saving}
-              style={{ padding: '16px 40px', background: saved ? 'rgba(66, 14, 118,0.08)' : '#420E76', color: saved ? '#420E76' : '#ffffff', border: saved ? '1px solid rgba(66, 14, 118,0.4)' : 'none', borderRadius: 16, fontWeight: 900, fontSize: 14, letterSpacing: '0.02em', cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 8px 20px -4px rgba(66, 14, 118,0.3)' }}>
+              style={{ padding: '16px 40px', background: saved ? 'rgba(214,168,101,0.08)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: saved ? '#9D7133' : '#111111', border: saved ? '1px solid rgba(214,168,101,0.4)' : 'none', borderRadius: 16, fontWeight: 900, fontSize: 14, letterSpacing: '0.02em', cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s', boxShadow: saved ? 'none' : '0 8px 20px -4px rgba(214,168,101,0.3)' }}>
               {saving ? 'Salvando...' : saved ? '✓ Salvo' : 'Salvar Dados'}
             </button>
           </div>

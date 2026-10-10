@@ -28,7 +28,7 @@ export default function CategoriaProductCardGrupo({ brand, base, img, membros }:
         <Image src={img} alt={base} fill sizes="(max-width: 640px) 50vw, 220px" style={{ objectFit: 'contain', padding: 24 }} />
       </Link>
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <span style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{brand}</span>
+        <span style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{brand}</span>
         <h2 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.3 }} title={base}>{base}</h2>
         <div style={{ marginTop: 4, borderTop: '1px solid #f5f5f5' }}>
           {visiveis.map(m => {
@@ -40,7 +40,7 @@ export default function CategoriaProductCardGrupo({ brand, base, img, membros }:
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, padding: '7px 0', borderBottom: '1px solid #f5f5f5', textDecoration: 'none' }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#404040' }}>{m.capacidade}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: emBreve ? 600 : 800, color: emBreve ? '#a3a3a3' : '#420E76' }}>
+                  <span style={{ fontSize: 12, fontWeight: emBreve ? 600 : 800, color: emBreve ? '#a3a3a3' : '#9D7133' }}>
                     {emBreve ? 'Em breve' : `R$ ${fmtBRL(preco)}`}
                   </span>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#a3a3a3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
@@ -50,7 +50,7 @@ export default function CategoriaProductCardGrupo({ brand, base, img, membros }:
           })}
         </div>
         {resto > 0 && (
-          <Link href={`/produtos/${membros[0].id}`} style={{ fontSize: 11.5, fontWeight: 700, color: '#420E76', textDecoration: 'none', paddingTop: 4 }}>
+          <Link href={`/produtos/${membros[0].id}`} style={{ fontSize: 11.5, fontWeight: 700, color: '#9D7133', textDecoration: 'none', paddingTop: 4 }}>
             ver todas as {membros.length} opções →
           </Link>
         )}

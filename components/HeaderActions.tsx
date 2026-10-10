@@ -55,13 +55,13 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
           {mobileMenu ? '×' : '☰'}
         </button>
         <button onClick={abrirSidebar} className="header-cart"
-          style={{ position: 'relative', background: 'rgba(66, 14, 118,0.06)', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#420E76', fontSize: 12, fontWeight: 700 }}>
+          style={{ position: 'relative', background: 'rgba(214,168,101,0.06)', border: '1px solid rgba(214,168,101,0.3)', borderRadius: 8, padding: '7px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, color: '#9D7133', fontSize: 12, fontWeight: 700 }}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
           <span className="nav-cart-txt">CARRINHO</span>
           {quantidade > 0 && (
-            <span style={{ background: '#A965ED', color: '#000', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '0 6px', minWidth: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
+            <span style={{ background: '#D6A865', color: '#111111', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '0 6px', minWidth: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
           )}
         </button>
       </div>
@@ -71,10 +71,10 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
           <form onSubmit={buscar} role="search" style={{ display: 'flex', gap: 8, padding: '4px 6px 10px' }}>
             <input value={busca} onChange={e => setBusca(e.target.value)} placeholder="Buscar produto ou marca…" aria-label="Buscar produto"
               style={{ flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #d4d4d4', fontSize: 14, outline: 'none' }} />
-            <button type="submit" style={{ padding: '10px 16px', borderRadius: 8, background: '#420E76', color: '#ffffff', border: 'none', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>IR</button>
+            <button type="submit" style={{ padding: '10px 16px', borderRadius: 8, background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#111111', border: 'none', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>IR</button>
           </form>
           <Link href="/produtos" onClick={() => setMobileMenu(false)}
-            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#420E76' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
+            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#9D7133' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             TODOS
           </Link>
           {topCats.map(c => (

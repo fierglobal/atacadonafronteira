@@ -15,7 +15,7 @@ const STATUS_LABEL: Record<string, string> = {
   cancelado: 'Cancelado',
 }
 const STATUS_COLOR: Record<string, string> = {
-  pendente_pagamento: '#f59e0b', pago: '#3b82f6', pronto_retirada: '#420E76', retirado: '#737373', cancelado: '#ef4444',
+  pendente_pagamento: '#f59e0b', pago: '#3b82f6', pronto_retirada: '#9D7133', retirado: '#737373', cancelado: '#ef4444',
 }
 const fmt = (n: number) => `R$ ${n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
@@ -48,7 +48,7 @@ export default function MeusPedidos() {
       {orders.length === 0 ? (
         <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 24, padding: '60px 40px', textAlign: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <p style={{ color: '#737373', fontSize: 14, marginBottom: 16 }}>Nenhum pedido ainda.</p>
-          <Link href="/" style={{ color: '#420E76', fontWeight: 900, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</Link>
+          <Link href="/" style={{ color: '#9D7133', fontWeight: 900, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</Link>
         </div>
       ) : (
         <>
@@ -76,7 +76,7 @@ export default function MeusPedidos() {
                     style={{ borderBottom: '1px solid #ececec', cursor: 'pointer' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                    <td style={{ padding: '16px 24px', fontSize: 13, color: '#420E76', fontWeight: 900 }}>{o.order_num}</td>
+                    <td style={{ padding: '16px 24px', fontSize: 13, color: '#9D7133', fontWeight: 900 }}>{o.order_num}</td>
                     <td style={{ padding: '16px 24px', fontSize: 13, fontWeight: 900, color: '#0a0a0a' }}>{fmt(o.total_brl)}</td>
                     <td style={{ padding: '16px 24px' }}>
                       <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', color: STATUS_COLOR[o.status] || '#737373', background: `${STATUS_COLOR[o.status] || '#737373'}14`, padding: '4px 10px', borderRadius: 6, border: `1px solid ${STATUS_COLOR[o.status] || '#737373'}30` }}>
@@ -97,7 +97,7 @@ export default function MeusPedidos() {
                 onClick={() => router.push(`/conta/minha-conta/pedidos/${o.id}`)}
                 style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: 18, cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#420E76' }}>{o.order_num}</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#9D7133' }}>{o.order_num}</span>
                   <span style={{ fontSize: 16, fontWeight: 900, color: '#0a0a0a' }}>{fmt(o.total_brl)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

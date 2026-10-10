@@ -32,8 +32,8 @@ type Product = {
 const BADGE_COLORS: Record<string, { bg: string; color: string; border: string }> = {
   'novo': { bg: 'rgba(0,180,210,0.08)', color: '#0891b2', border: 'rgba(0,180,210,0.35)' },
   'mais vendido': { bg: 'rgba(245,158,11,0.10)', color: '#b45309', border: 'rgba(245,158,11,0.4)' },
-  'promoção': { bg: 'rgba(66, 14, 118,0.08)', color: '#420E76', border: 'rgba(66, 14, 118,0.35)' },
-  'promocao': { bg: 'rgba(66, 14, 118,0.08)', color: '#420E76', border: 'rgba(66, 14, 118,0.35)' },
+  'promoção': { bg: 'rgba(214,168,101,0.08)', color: '#9D7133', border: 'rgba(214,168,101,0.35)' },
+  'promocao': { bg: 'rgba(214,168,101,0.08)', color: '#9D7133', border: 'rgba(214,168,101,0.35)' },
   'lançamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
   'lancamento': { bg: 'rgba(190,40,180,0.08)', color: '#a21caf', border: 'rgba(190,40,180,0.35)' },
   [SOB_ENCOMENDA_BADGE]: { bg: 'rgba(245,158,11,0.10)', color: '#b45309', border: 'rgba(245,158,11,0.4)' },
@@ -75,7 +75,7 @@ function renderBlock(linhas: string[]) {
     if (l.startsWith('- ') || l.startsWith('* ')) {
       return (
         <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 6, alignItems: 'flex-start' }}>
-          <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#420E76', opacity: 0.85 }} />
+          <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#D6A865', opacity: 0.85 }} />
           <span style={{ flex: 1 }}>{renderInline(l.slice(2))}</span>
         </div>
       )
@@ -93,7 +93,7 @@ function Descricao({ texto }: { texto: string }) {
         if (l.startsWith('## ')) return <p key={i} style={{ fontWeight: 800, color: '#0a0a0a', margin: '18px 0 8px', fontSize: 11, letterSpacing: '0.12em' }}>{l.slice(3).toUpperCase()}</p>
         if (l.startsWith('- ') || l.startsWith('* ')) return (
           <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 6, alignItems: 'flex-start' }}>
-            <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#420E76', opacity: 0.85 }} />
+            <span style={{ flexShrink: 0, marginTop: 8, width: 4, height: 4, borderRadius: '50%', background: '#D6A865', opacity: 0.85 }} />
             <span style={{ flex: 1 }}>{renderInline(l.slice(2))}</span>
           </div>
         )
@@ -140,10 +140,10 @@ function DescricaoTabs({ texto }: { texto: string }) {
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.08em',
-              color: active === t.key ? '#420E76' : '#737373',
+              color: active === t.key ? '#9D7133' : '#737373',
               background: 'transparent',
               border: 'none',
-              borderBottom: active === t.key ? '2px solid #A965ED' : '2px solid transparent',
+              borderBottom: active === t.key ? '2px solid #D6A865' : '2px solid transparent',
               cursor: 'pointer',
               whiteSpace: 'nowrap',
               transition: 'color 0.15s, border-color 0.15s',
@@ -333,10 +333,10 @@ export default function ProdutoPage() {
       : null
 
   const stockStatus = (p: Product) => {
-    if (p.estoque === null) return { label: 'Em estoque', color: '#420E76', bg: 'rgba(66, 14, 118,0.06)', border: 'rgba(66, 14, 118,0.3)' }
+    if (p.estoque === null) return { label: 'Em estoque', color: '#9D7133', bg: 'rgba(214,168,101,0.06)', border: 'rgba(214,168,101,0.3)' }
     if (p.estoque === 0) return { label: 'Sem estoque', color: '#dc2626', bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.3)' }
     if (p.estoque <= 5) return { label: `Últimas ${p.estoque} unidades`, color: '#b45309', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.35)' }
-    return { label: `${p.estoque} em estoque`, color: '#420E76', bg: 'rgba(66, 14, 118,0.06)', border: 'rgba(66, 14, 118,0.3)' }
+    return { label: `${p.estoque} em estoque`, color: '#9D7133', bg: 'rgba(214,168,101,0.06)', border: 'rgba(214,168,101,0.3)' }
   }
 
   return (
@@ -347,14 +347,14 @@ export default function ProdutoPage() {
           to { opacity: 1; transform: translateY(0); }
         }
         .qty-btn:hover { background: #fafafa !important; }
-        .rel-card:hover { border-color: rgba(66, 14, 118,0.2) !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
+        .rel-card:hover { border-color: rgba(214,168,101,0.2) !important; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06) !important; }
         .rel-card:hover .rel-img { filter: brightness(1.02); }
         .rel-card { transition: all 0.2s ease; }
         .rel-img { transition: filter 0.25s ease; }
-        .rel-add-btn:hover { background: #F6BD0C !important; }
+        .rel-add-btn:hover { background: #E1BC84 !important; }
         .wa-btn:hover { color: #1ead55 !important; }
         .wa-btn { transition: color 0.2s; }
-        .add-btn:hover { background: #2b0a4e !important; }
+        .add-btn:hover { background: #8B6D42 !important; }
         .add-btn { transition: background 0.15s ease; }
         .tier-chip { transition: all 0.2s; }
         .tier-chip:not([data-active]):hover { background: #fafafa !important; }
@@ -398,12 +398,12 @@ export default function ProdutoPage() {
             {/* Breadcrumb */}
             <nav style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 36, fontSize: 11, color: '#737373', fontWeight: 600, letterSpacing: '0.04em' }}>
               <span style={{ cursor: 'pointer', transition: 'color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#420E76' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9D7133' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#737373' }}
                 onClick={() => router.push('/')}>INÍCIO</span>
               <span>›</span>
               <span style={{ cursor: 'pointer', transition: 'color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#420E76' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#9D7133' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#737373' }}
                 onClick={() => router.push('/produtos')}>CATÁLOGO</span>
               {product.brand && (
@@ -445,7 +445,7 @@ export default function ProdutoPage() {
                         <button key={src} onClick={() => setImgAtiva(i)}
                           aria-label={`Ver imagem ${i + 1} de ${galeria.length}`}
                           aria-current={i === imgAtiva}
-                          style={{ width: 80, height: 80, borderRadius: 10, padding: 8, cursor: 'pointer', background: '#fff', border: `2px solid ${i === imgAtiva ? '#420E76' : '#ececec'}`, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+                          style={{ width: 80, height: 80, borderRadius: 10, padding: 8, cursor: 'pointer', background: '#fff', border: `2px solid ${i === imgAtiva ? '#D6A865' : '#ececec'}`, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
                           <Image src={src} alt="" fill sizes="80px" style={{ objectFit: 'contain', padding: 4 }} />
                         </button>
                       ))}
@@ -463,7 +463,7 @@ export default function ProdutoPage() {
 
                 {/* brand label */}
                 {product.brand && (
-                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#420E76', marginBottom: 10, textTransform: 'uppercase' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', color: '#9D7133', marginBottom: 10, textTransform: 'uppercase' }}>
                     {product.brand}
                   </div>
                 )}
@@ -509,22 +509,22 @@ export default function ProdutoPage() {
                   {/* PRICE */}
                   <div style={{ marginBottom: emBreve ? 0 : 20 }}>
                     {emBreve ? (
-                      <div style={{ background: '#faf7ff', border: '1px solid #d9c7f0', borderRadius: 12, padding: '18px 20px' }}>
-                        <div style={{ fontSize: 26, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em', lineHeight: 1.1 }}>{ROTULO_EM_BREVE}</div>
-                        <p style={{ fontSize: 13, color: '#5b4a6b', margin: '8px 0 0', lineHeight: 1.55 }}>
+                      <div style={{ background: '#FAF1E9', border: '1px solid #F0DFC4', borderRadius: 12, padding: '18px 20px' }}>
+                        <div style={{ fontSize: 26, fontWeight: 900, color: '#9D7133', letterSpacing: '0.03em', lineHeight: 1.1 }}>{ROTULO_EM_BREVE}</div>
+                        <p style={{ fontSize: 13, color: '#6b5b47', margin: '8px 0 0', lineHeight: 1.55 }}>
                           Ainda não estamos vendendo este modelo. Assim que ele chegar, anunciamos preço e disponibilidade aqui.
                         </p>
                       </div>
                     ) : (<>
                     <div style={{ fontSize: 10, fontWeight: 800, color: '#737373', letterSpacing: '0.14em', marginBottom: 10 }}>PREÇO ATACADO</div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
-                      <div className="price-usd" style={{ fontFamily: 'var(--font-inter)', fontSize: 42, fontWeight: 800, color: '#420E76', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                      <div className="price-usd" style={{ fontFamily: 'var(--font-inter)', fontSize: 42, fontWeight: 800, color: '#9D7133', letterSpacing: '-0.02em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                         R$ {fmtBRL(unitPrice)}
                       </div>
                       {unitPrice < product.brl_price && (
                         <>
                           <span style={{ fontSize: 14, color: '#a3a3a3', textDecoration: 'line-through', fontWeight: 700 }}>R$ {fmtBRL(product.brl_price)}</span>
-                          <span style={{ fontSize: 12, fontWeight: 900, color: '#420E76', padding: '2px 8px', background: 'rgba(66, 14, 118,0.05)', borderRadius: 4 }}>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#9D7133', padding: '2px 8px', background: 'rgba(214,168,101,0.05)', borderRadius: 4 }}>
                             −{Math.round((1 - unitPrice / product.brl_price) * 100)}% {tierAtivo ? 'POR VOLUME' : 'HOJE'}
                           </span>
                         </>
@@ -556,11 +556,11 @@ export default function ProdutoPage() {
                               style={{
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                                 padding: '8px 24px', borderRadius: 12, cursor: 'pointer',
-                                border: `1.5px solid ${active ? '#420E76' : '#ececec'}`,
-                                background: active ? 'rgba(66, 14, 118,0.06)' : '#ffffff',
+                                border: `1.5px solid ${active ? '#D6A865' : '#ececec'}`,
+                                background: active ? 'rgba(214,168,101,0.06)' : '#ffffff',
                               }}>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, color: active ? '#420E76' : '#737373' }}>{t.qty_min}+ un.</span>
-                              <span style={{ fontSize: 13, fontWeight: 900, color: active ? '#420E76' : '#0a0a0a', fontVariantNumeric: 'tabular-nums' }}>R$ {fmtBRL(Number(t.brl_price))}</span>
+                              <span style={{ fontSize: 10.5, fontWeight: 800, color: active ? '#9D7133' : '#737373' }}>{t.qty_min}+ un.</span>
+                              <span style={{ fontSize: 13, fontWeight: 900, color: active ? '#9D7133' : '#0a0a0a', fontVariantNumeric: 'tabular-nums' }}>R$ {fmtBRL(Number(t.brl_price))}</span>
                             </button>
                           )
                         })}
@@ -570,13 +570,13 @@ export default function ProdutoPage() {
                         if (!prog) return null
                         return (
                           <div>
-                            <p style={{ fontSize: 11, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#420E76', margin: '0 0 5px' }}>
+                            <p style={{ fontSize: 11, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#9D7133', margin: '0 0 5px' }}>
                               {prog.atingiu
                                 ? `✓ Melhor preço aplicado: R$ ${fmtBRL(prog.precoAlvo)}/un`
                                 : `Faltam ${prog.faltam} un. pra R$ ${fmtBRL(prog.precoAlvo)}/un`}
                             </p>
                             <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
-                              <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#A965ED', transition: 'width 0.3s' }} />
+                              <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#D6A865', transition: 'width 0.3s' }} />
                             </div>
                           </div>
                         )
@@ -604,7 +604,7 @@ export default function ProdutoPage() {
                       {!emBreve && (
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: 10, color: '#a3a3a3', fontWeight: 700, letterSpacing: '0.14em' }}>TOTAL DO PEDIDO</div>
-                          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 24, fontWeight: 800, color: '#420E76', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
+                          <div style={{ fontFamily: 'var(--font-inter)', fontSize: 24, fontWeight: 800, color: '#9D7133', fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>
                             R$ {fmtBRL(unitPrice * qty)}
                           </div>
                         </div>
@@ -613,9 +613,9 @@ export default function ProdutoPage() {
                     {(multiplicador > 1 || vendaMinima > 1 || product.unidade_venda) && (
                       <div style={{ fontSize: 11, color: '#737373', marginTop: 10, lineHeight: 1.5 }}>
                         {product.unidade_venda && <span>Unidade: <span style={{ color: '#404040' }}>{product.unidade_venda}</span> · </span>}
-                        {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#420E76', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
+                        {multiplicador > 1 && <span>Venda em caixas de <span style={{ color: '#9D7133', fontWeight: 700 }}>{multiplicador}</span> un.</span>}
                         {multiplicador > 1 && vendaMinima > 1 && <span> · </span>}
-                        {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#420E76', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
+                        {vendaMinima > 1 && <span>Mínimo <span style={{ color: '#9D7133', fontWeight: 700 }}>{vendaMinima}</span> un./pedido</span>}
                       </div>
                     )}
                     {!!product.limite_por_cpf && (
@@ -635,12 +635,12 @@ export default function ProdutoPage() {
                     <button onClick={handleAdd} className="add-btn"
                       style={{
                         width: '100%', padding: '20px 0', borderRadius: 16, border: 'none',
-                        background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
-                        color: added ? '#420E76' : '#ffffff',
+                        background: added ? 'rgba(214,168,101,0.12)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)',
+                        color: added ? '#9D7133' : '#111111',
                         fontSize: 14, fontWeight: 800, letterSpacing: '0.1em',
                         cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                        boxShadow: added ? 'none' : '0 8px 20px -4px rgba(66, 14, 118,0.3)',
+                        boxShadow: added ? 'none' : '0 8px 20px -4px rgba(214,168,101,0.3)',
                       }}>
                       {emBreve ? ROTULO_EM_BREVE : added ? (
                         <>
@@ -659,7 +659,7 @@ export default function ProdutoPage() {
                   {product.estoque !== 0 && (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 12, flexWrap: 'wrap' }}>
                       <button onClick={handleBuyNow}
-                        style={{ background: 'none', border: 'none', padding: 0, color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                        style={{ background: 'none', border: 'none', padding: 0, color: '#9D7133', fontSize: 12, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 3 }}>
                         COMPRAR AGORA
                       </button>
                       {whatsapp && (
@@ -675,8 +675,8 @@ export default function ProdutoPage() {
 
                   {added && (
                     <button onClick={abrirSidebar}
-                      style={{ width: '100%', padding: '12px 0', marginTop: 12, borderRadius: 12, border: '1px solid rgba(66, 14, 118,0.4)', background: '#ffffff', color: '#420E76', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(66, 14, 118,0.06)' }}
+                      style={{ width: '100%', padding: '12px 0', marginTop: 12, borderRadius: 12, border: '1px solid rgba(214,168,101,0.4)', background: '#ffffff', color: '#9D7133', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(214,168,101,0.06)' }}
                       onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '#ffffff' }}>
                       VER CARRINHO →
                     </button>
@@ -697,7 +697,7 @@ export default function ProdutoPage() {
                     { label: 'Autenticado', icon: <><path d="M20 13c0 5-3.5 7.5-7.65 8.95a1 1 0 0 1-.7-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></> },
                   ].map((b, i) => (
                     <div key={b.label} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '16px 6px', borderLeft: i > 0 ? '1px solid #ececec' : 'none' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>{b.icon}</svg>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9D7133" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>{b.icon}</svg>
                       <span style={{ fontSize: 10, color: '#737373', fontWeight: 900, letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>{b.label.toUpperCase()}</span>
                     </div>
                   ))}
@@ -787,7 +787,7 @@ export default function ProdutoPage() {
             <section style={{ borderTop: '1px solid #ececec', padding: '56px 24px 64px', background: '#fafafa' }}>
               <div style={{ maxWidth: 1280, margin: '0 auto' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 28, borderBottom: '1px solid #ececec', paddingBottom: 20 }}>
-                  <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#420E76' }}>
+                  <h2 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#9D7133' }}>
                     Produtos relacionados
                   </h2>
                 </div>
@@ -800,17 +800,17 @@ export default function ProdutoPage() {
                         <RelImg src={p.img_url} alt={p.name} />
                       </div>
                       <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-                        {p.brand && <span style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.brand}</span>}
+                        {p.brand && <span style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.brand}</span>}
                         <p style={{ fontSize: 13, fontWeight: 600, color: '#0a0a0a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: '2.6em' }}>
                           {p.name}
                         </p>
                         <div style={{ marginTop: 'auto', paddingTop: 12, borderTop: '1px solid #f5f5f5', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
-                          <span style={{ fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '-0.01em' }}>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#9D7133', letterSpacing: '-0.01em' }}>
                             R$ {fmtBRL(p.brl_price)}
                           </span>
                           <button aria-label="Adicionar ao carrinho" className="rel-add-btn"
                             onClick={e => { e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: p.usd_price, img: p.img_url ?? PLACEHOLDER, brand: p.brand ?? undefined }) }}
-                            style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'rgba(246,189,12,0.1)', border: 'none', color: '#2b0a4e', cursor: 'pointer', transition: 'background 0.15s' }}>
+                            style={{ width: 36, height: 36, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'rgba(214,168,101,0.1)', border: 'none', color: '#9D7133', cursor: 'pointer', transition: 'background 0.15s' }}>
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                           </button>
                         </div>
@@ -827,7 +827,7 @@ export default function ProdutoPage() {
             <section style={{ borderTop: '1px solid #ececec', padding: '48px 24px 56px', background: '#ffffff' }}>
               <div style={{ maxWidth: 1280, margin: '0 auto' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-                  <h2 style={{ margin: 0, fontSize: 11, fontWeight: 900, letterSpacing: '0.14em', color: '#420E76' }}>
+                  <h2 style={{ margin: 0, fontSize: 11, fontWeight: 900, letterSpacing: '0.14em', color: '#9D7133' }}>
                     COMPRE JUNTO
                   </h2>
                 </div>
@@ -843,12 +843,12 @@ export default function ProdutoPage() {
                         <p style={{ fontSize: 10.5, fontWeight: 600, color: '#0a0a0a', margin: 0, lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: 28 }}>
                           {cj.name}
                         </p>
-                        <div style={{ fontSize: 13, fontWeight: 900, color: '#420E76' }}>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: '#9D7133' }}>
                           R$ {fmtBRL(cj.brl_price)}
                         </div>
                         <button
                           onClick={e => { e.stopPropagation(); adicionar({ id: cj.id, name: cj.name, usd: cj.usd_price, img: cj.img_url ?? PLACEHOLDER }) }}
-                          style={{ marginTop: 'auto', width: '100%', padding: '7px 0', borderRadius: 8, background: '#420E76', border: 'none', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer' }}>
+                          style={{ marginTop: 'auto', width: '100%', padding: '7px 0', borderRadius: 8, background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', color: '#111111', fontSize: 9, fontWeight: 800, letterSpacing: '0.06em', cursor: 'pointer' }}>
                           + ADICIONAR
                         </button>
                       </div>
@@ -889,7 +889,7 @@ export default function ProdutoPage() {
               <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 14, padding: '28px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: 11, fontWeight: 800, color: '#525252', marginBottom: 20, letterSpacing: '0.14em' }}>DEIXE SUA AVALIAÇÃO</p>
                 {reviewSent ? (
-                  <div style={{ textAlign: 'center', padding: '20px 0', color: '#420E76' }}>
+                  <div style={{ textAlign: 'center', padding: '20px 0', color: '#9D7133' }}>
                     <p style={{ fontSize: 15, fontWeight: 700, margin: 0 }}>Obrigado!</p>
                     <p style={{ fontSize: 12, color: '#737373', marginTop: 6 }}>Sua avaliação será publicada após aprovação.</p>
                   </div>
@@ -920,7 +920,7 @@ export default function ProdutoPage() {
                         style={{ width: '100%', padding: '11px 14px', background: '#ffffff', border: '1px solid #d4d4d4', borderRadius: 8, color: '#0a0a0a', fontSize: 13, resize: 'none', outline: 'none', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                     </div>
                     <button onClick={submitReview} disabled={reviewSending || !reviewForm.nome.trim()}
-                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : '#420E76', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#fff', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)' }}>
+                      style={{ padding: '13px', background: !reviewForm.nome.trim() ? '#fafafa' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: !reviewForm.nome.trim() ? '#a3a3a3' : '#111111', border: !reviewForm.nome.trim() ? '1px solid #ececec' : 'none', borderRadius: 10, fontWeight: 800, fontSize: 13, letterSpacing: '0.08em', cursor: reviewSending ? 'wait' : 'pointer', boxShadow: !reviewForm.nome.trim() ? 'none' : '0 4px 12px rgba(214,168,101,0.18)' }}>
                       {reviewSending ? 'ENVIANDO...' : 'ENVIAR AVALIAÇÃO'}
                     </button>
                   </div>
@@ -943,7 +943,7 @@ export default function ProdutoPage() {
               boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
             }}>
               {emBreve ? (
-                <div style={{ flex: 1, fontSize: 16, fontWeight: 900, color: '#420E76', letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
+                <div style={{ flex: 1, fontSize: 16, fontWeight: 900, color: '#9D7133', letterSpacing: '0.03em' }}>{ROTULO_EM_BREVE}</div>
               ) : (<>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 0, border: '1px solid #d4d4d4', borderRadius: 8, overflow: 'hidden', flexShrink: 0 }}>
                   <button onClick={() => adjustQty(qty - multiplicador)}
@@ -955,7 +955,7 @@ export default function ProdutoPage() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 9, fontWeight: 800, color: '#737373', letterSpacing: '0.1em' }}>TOTAL</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: '#420E76', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: '#9D7133', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' }}>
                     R$ {fmtBRL(unitPrice * qty)}
                   </div>
                 </div>
@@ -963,8 +963,8 @@ export default function ProdutoPage() {
               <button onClick={handleAdd} disabled={emBreve}
                 style={{
                   padding: '14px 18px', borderRadius: 10, border: 'none',
-                  background: added ? 'rgba(66, 14, 118,0.12)' : '#420E76',
-                  color: added ? '#420E76' : '#fff',
+                  background: added ? 'rgba(214,168,101,0.12)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)',
+                  color: added ? '#9D7133' : '#111111',
                   fontSize: 12, fontWeight: 800, letterSpacing: '0.08em',
                   cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                   boxShadow: added ? 'none' : '0 4px 12px rgba(66, 14, 118,0.18)',

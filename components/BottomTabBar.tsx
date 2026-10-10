@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useCarrinho } from './CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import type { User } from '@supabase/supabase-js'
-import { COR_ROXO } from '@/lib/site'
+import { COR_DOURADO_TEXTO, COR_DOURADO } from '@/lib/site'
 
 // Só aparece nas páginas de navegação (home, catálogo, conta) — nas
 // transacionais (PDP, carrinho, checkout) e de drill-down (detalhe de pedido,
@@ -50,7 +50,7 @@ export default function BottomTabBar() {
   const item = (href: string, chave: string, label: string, icon: React.ReactNode) => {
     const estaAtivo = ativo === chave
     return (
-      <a href={href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, textDecoration: 'none', color: estaAtivo ? COR_ROXO : '#737373' }}>
+      <a href={href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, textDecoration: 'none', color: estaAtivo ? COR_DOURADO_TEXTO : '#737373' }}>
         {icon}
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.02em' }}>{label}</span>
       </a>
@@ -67,8 +67,8 @@ export default function BottomTabBar() {
       ))}
 
       <a href="/produtos" aria-label="Catálogo" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-        <span style={{ position: 'relative', top: -18, width: 50, height: 50, borderRadius: '50%', background: COR_ROXO, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(66, 14, 118,0.35)', border: '4px solid #ffffff' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span style={{ position: 'relative', top: -18, width: 50, height: 50, borderRadius: '50%', background: COR_DOURADO, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(214,168,101,0.35)', border: '4px solid #ffffff' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </span>
       </a>
 
@@ -79,7 +79,7 @@ export default function BottomTabBar() {
       <button onClick={abrirSidebar} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, background: 'none', border: 'none', color: '#737373', position: 'relative' }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         {quantidade > 0 && (
-          <span style={{ position: 'absolute', top: -2, right: '28%', background: '#A965ED', color: '#000', borderRadius: 99, fontSize: 9, fontWeight: 900, minWidth: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
+          <span style={{ position: 'absolute', top: -2, right: '28%', background: '#D6A865', color: '#111111', borderRadius: 99, fontSize: 9, fontWeight: 900, minWidth: 15, height: 15, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{quantidade}</span>
         )}
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.02em' }}>Carrinho</span>
       </button>

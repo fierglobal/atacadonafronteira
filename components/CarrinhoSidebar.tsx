@@ -97,12 +97,12 @@ export function CarrinhoSidebar() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9D7133" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
             <span style={{ fontWeight: 900, fontSize: 16, color: '#0a0a0a', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>Carrinho</span>
             {quantidade > 0 && (
-              <span style={{ background: '#A965ED', color: '#000', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '2px 8px' }}>
+              <span style={{ background: '#D6A865', color: '#111111', borderRadius: 99, fontSize: 10, fontWeight: 900, padding: '2px 8px' }}>
                 {String(quantidade).padStart(2, '0')}
               </span>
             )}
@@ -116,19 +116,19 @@ export function CarrinhoSidebar() {
 
         {/* AOV bar */}
         {itens.length > 0 && pedidoMinimo && (
-          <div style={{ padding: '14px 24px', background: minOk ? 'rgba(66, 14, 118,0.04)' : '#FFFDF7', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
+          <div style={{ padding: '14px 24px', background: minOk ? 'rgba(214,168,101,0.08)' : '#FFFDF7', borderBottom: '1px solid #ececec', flexShrink: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: minOk ? '#420E76' : '#b45309', letterSpacing: '0.02em' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: minOk ? '#9D7133' : '#b45309', letterSpacing: '0.02em' }}>
                 {minOk
                   ? '✓ Pedido mínimo atingido'
                   : `Faltam R$ ${faltaBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} para o mínimo`}
               </span>
-              <span style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.08em', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.08em', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
                 Min R$ {pedidoMinimo.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
               </span>
             </div>
             <div style={{ height: 5, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
-              <div style={{ width: `${progressPct}%`, height: '100%', background: minOk ? '#A965ED' : '#f59e0b', transition: 'width 0.3s' }} />
+              <div style={{ width: `${progressPct}%`, height: '100%', background: minOk ? '#D6A865' : '#f59e0b', transition: 'width 0.3s' }} />
             </div>
           </div>
         )}
@@ -153,7 +153,7 @@ export function CarrinhoSidebar() {
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
                     {item.brand && (
-                      <span style={{ fontSize: 9, color: '#420E76', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.brand}</span>
+                      <span style={{ fontSize: 9, color: '#9D7133', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{item.brand}</span>
                     )}
                     <button onClick={() => remover(item.id)}
                       style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 2, display: 'flex', marginLeft: 'auto' }}>
@@ -163,7 +163,7 @@ export function CarrinhoSidebar() {
                   <p style={{ fontWeight: 700, fontSize: 13, color: '#0a0a0a', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.name}
                   </p>
-                  <p style={{ fontSize: 12, color: '#420E76', fontWeight: 900, marginBottom: 12 }}>
+                  <p style={{ fontSize: 12, color: '#9D7133', fontWeight: 900, marginBottom: 12 }}>
                     {fmtCurrency(item.usd, currency.rate, currency.code)}<span style={{ fontSize: 10, color: '#a3a3a3', fontWeight: 500 }}> /un</span>
                   </p>
 
@@ -187,13 +187,13 @@ export function CarrinhoSidebar() {
                     if (!prog) return null
                     return (
                       <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #f5f5f5' }}>
-                        <p style={{ fontSize: 10, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#420E76', margin: '0 0 5px' }}>
+                        <p style={{ fontSize: 10, fontWeight: 700, color: prog.atingiu ? '#0f7a3d' : '#9D7133', margin: '0 0 5px' }}>
                           {prog.atingiu
                             ? `✓ Melhor preço aplicado: R$ ${prog.precoAlvo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/un`
                             : `Faltam ${prog.faltam} un. pra R$ ${prog.precoAlvo.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/un`}
                         </p>
                         <div style={{ height: 4, background: '#ececec', borderRadius: 99, overflow: 'hidden' }}>
-                          <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#A965ED', transition: 'width 0.3s' }} />
+                          <div style={{ width: `${prog.pct}%`, height: '100%', background: prog.atingiu ? '#0f7a3d' : '#D6A865', transition: 'width 0.3s' }} />
                         </div>
                       </div>
                     )
@@ -224,12 +224,12 @@ export function CarrinhoSidebar() {
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontSize: 12, color: '#0a0a0a', fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</p>
-                      <p style={{ fontSize: 12, color: '#420E76', fontWeight: 900, margin: '2px 0 0' }}>
+                      <p style={{ fontSize: 12, color: '#9D7133', fontWeight: 900, margin: '2px 0 0' }}>
                         {currency.code === 'BRL' && p.brl_price != null ? `BRL ${p.brl_price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : fmtCurrency(p.usd_price, currency.rate, currency.code)}
                       </p>
                     </div>
                     <button onClick={() => adicionar({ id: p.id, name, usd: p.usd_price, img: p.img_url || '/produto-placeholder.svg', brand: brand || undefined })}
-                      style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(66, 14, 118,0.05)', border: 'none', color: '#420E76', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(214,168,101,0.1)', border: 'none', color: '#9D7133', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </button>
                   </div>
@@ -247,7 +247,7 @@ export function CarrinhoSidebar() {
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total do Pedido</span>
                 <span style={{ fontSize: 10, color: '#a3a3a3', fontWeight: 500 }}>Câmbio: R$ {currency.rate.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
-              <span style={{ fontWeight: 900, fontSize: 28, color: '#420E76', letterSpacing: '-0.02em' }}>
+              <span style={{ fontWeight: 900, fontSize: 28, color: '#9D7133', letterSpacing: '-0.02em' }}>
                 {fmtCurrency(totalUsd, currency.rate, currency.code)}
               </span>
             </div>
@@ -255,7 +255,7 @@ export function CarrinhoSidebar() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button onClick={() => { if (minOk) { fecharSidebar(); router.push('/checkout') } }}
                 disabled={!minOk}
-                style={{ width: '100%', height: 56, background: minOk ? '#420E76' : '#f5f5f5', color: minOk ? '#ffffff' : '#a3a3a3', borderRadius: 16, fontWeight: 900, fontSize: 16, border: minOk ? 'none' : '1px solid #ececec', cursor: minOk ? 'pointer' : 'not-allowed', boxShadow: minOk ? '0 8px 20px -4px rgba(66, 14, 118,0.3)' : 'none' }}>
+                style={{ width: '100%', height: 56, background: minOk ? 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)' : '#f5f5f5', color: minOk ? '#111111' : '#a3a3a3', borderRadius: 16, fontWeight: 900, fontSize: 16, border: minOk ? 'none' : '1px solid #ececec', cursor: minOk ? 'pointer' : 'not-allowed', boxShadow: minOk ? '0 8px 20px -4px rgba(214,168,101,0.4)' : 'none' }}>
                 {minOk ? 'Finalizar Pedido' : 'Adicione mais para finalizar'}
               </button>
 

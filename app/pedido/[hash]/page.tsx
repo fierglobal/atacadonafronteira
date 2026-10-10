@@ -24,7 +24,7 @@ const fmt = (n: number) => n.toLocaleString('pt-BR', { minimumFractionDigits: 2,
 const STATUS_META: Record<string, { label: (envio: boolean) => string; bg: string; color: string }> = {
   pendente_pagamento: { label: () => 'Aguardando pagamento (PIX)', bg: '#fff7ed', color: '#c2410c' },
   pago: { label: () => 'Pago', bg: '#f0fdf4', color: '#15803d' },
-  pronto_retirada: { label: envio => envio ? 'Enviado' : 'Pronto para retirada', bg: '#eef2ff', color: '#420E76' },
+  pronto_retirada: { label: envio => envio ? 'Enviado' : 'Pronto para retirada', bg: '#FAF1E9', color: '#9D7133' },
   retirado: { label: envio => envio ? 'Entregue' : 'Retirado', bg: '#f0fdf4', color: '#065f46' },
   cancelado: { label: () => 'Cancelado', bg: '#fef2f2', color: '#b91c1c' },
 }
@@ -108,7 +108,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
       <div id="pedido-copia-doc">
         <div style={{ maxWidth: 800, margin: '0 auto' }} className="print-card">
           <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
-            <div className="bridge-accent" style={{ height: 4, background: 'linear-gradient(90deg,#420E76,#A965ED,#420E76)' }} />
+            <div className="bridge-accent" style={{ height: 4, background: 'linear-gradient(90deg,#D6A865,#E1BC84,#D6A865)' }} />
 
             {/* Header */}
             <div style={{ padding: '32px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20, flexWrap: 'wrap' }}>
@@ -133,7 +133,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
             {/* Cliente + Retirada */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#ececec' }}>
               <div style={{ background: '#ffffff', padding: 32 }}>
-                <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>Dados do Cliente</h2>
+                <h2 style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>Dados do Cliente</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   <div>
                     <p style={{ fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 2px' }}>Nome Completo</p>
@@ -174,12 +174,12 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
               </div>
 
               <div style={{ background: '#fafafa', padding: 32 }}>
-                <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>
+                <h2 style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>
                   {envio ? 'Informações de Entrega' : 'Informações de Retirada'}
                 </h2>
                 <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, padding: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                   <div style={{ display: 'flex', gap: 14 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9D7133" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
                     </svg>
                     <div>
@@ -188,7 +188,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                           <p style={{ fontSize: 12, fontWeight: 900, color: '#0a0a0a', textTransform: 'uppercase', margin: 0 }}>Endereço de entrega</p>
                           <p style={{ fontSize: 13, color: '#525252', margin: '6px 0 0', lineHeight: 1.6 }}>{order.entrega_endereco || '—'}</p>
                           {order.codigo_rastreio && (
-                            <p style={{ fontSize: 11, fontWeight: 900, color: '#420E76', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 0' }}>Rastreio: {order.codigo_rastreio}</p>
+                            <p style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '12px 0 0' }}>Rastreio: {order.codigo_rastreio}</p>
                           )}
                         </>
                       ) : (
@@ -211,10 +211,10 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
 
             {/* Itens */}
             <div style={{ padding: 32 }}>
-              <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>Itens da Mercadoria</h2>
+              <h2 style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 20px' }}>Itens da Mercadoria</h2>
               <table>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid rgba(66, 14, 118,0.1)' }}>
+                  <tr style={{ borderBottom: '2px solid rgba(214,168,101,0.1)' }}>
                     <th style={{ padding: '0 16px 14px 0', textAlign: 'left', fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Produto</th>
                     <th style={{ padding: '0 16px 14px', textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Qtd</th>
                     <th style={{ padding: '0 16px 14px', textAlign: 'right', fontSize: 10, fontWeight: 700, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Unit. (R$)</th>
@@ -226,7 +226,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                     <Fragment key={cat}>
                       {mostrarGrupos && (
                         <tr>
-                          <td colSpan={4} style={{ paddingTop: 20, paddingBottom: 8, fontSize: 10, fontWeight: 900, color: '#420E76', textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid #f5f5f5' }}>{cat}</td>
+                          <td colSpan={4} style={{ paddingTop: 20, paddingBottom: 8, fontSize: 10, fontWeight: 900, color: '#9D7133', textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: '1px solid #f5f5f5' }}>{cat}</td>
                         </tr>
                       )}
                       {grupos[cat].map((it, i) => (
@@ -266,14 +266,14 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 10, paddingTop: 14, borderTop: '1px solid #ececec' }}>
                   <span style={{ fontSize: 11, fontWeight: 900, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total do Pedido</span>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: '#420E76', letterSpacing: '-0.02em' }}>R$ {fmt(totalBRL)}</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: '#9D7133', letterSpacing: '-0.02em' }}>R$ {fmt(totalBRL)}</span>
                 </div>
                 <p style={{ fontSize: 10, color: '#a3a3a3', textAlign: 'right', margin: '2px 0 0' }}>USD ${order.total_usd.toFixed(2)} · taxa {config.brl_rate}</p>
               </div>
 
               {order.notas && (
                 <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #ececec' }}>
-                  <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 10px' }}>Observações</h2>
+                  <h2 style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.15em', textTransform: 'uppercase', margin: '0 0 10px' }}>Observações</h2>
                   <p style={{ fontSize: 13, color: '#525252', whiteSpace: 'pre-wrap', margin: 0, lineHeight: 1.6 }}>{order.notas}</p>
                 </div>
               )}
@@ -304,7 +304,7 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
           </div>
 
           <div className="no-print" style={{ maxWidth: 800, margin: '32px auto 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
-            <a href="/" style={{ fontSize: 12, fontWeight: 900, color: '#420E76', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <a href="/" style={{ fontSize: 12, fontWeight: 900, color: '#9D7133', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               ← Voltar para o catálogo
             </a>
             <p style={{ fontSize: 11, color: '#737373', lineHeight: 1.6, margin: 0 }}>

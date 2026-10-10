@@ -136,7 +136,7 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
             <div className="hero-cta-row">
               <Link href="/produtos" className="hero-cta" tabIndex={active === 0 ? 0 : -1}>
                 Ver catálogo completo
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </Link>
               <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === 0 ? 0 : -1}>Como comprar →</Link>
             </div>
@@ -168,7 +168,7 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
               <div className="hero-cta-row">
                 <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/apple'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
                   {limitePorCpf ? 'Garantir o meu' : `Ver Apple (${apple})`}
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Link>
                 <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxEletronicos ? 0 : -1}>Como comprar →</Link>
               </div>
@@ -195,7 +195,7 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
               <div className="hero-cta-row">
                 <Link href={promo.id ? `/produtos/${promo.id}` : '/produtos'} className="hero-cta" tabIndex={active === idxFarmacia ? 0 : -1}>
                   Ver oferta
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2b0a4e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Link>
                 <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxFarmacia ? 0 : -1}>Como comprar →</Link>
               </div>
@@ -220,7 +220,7 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
       )}
 
       <style>{`
-        .hero-rot { position: relative; overflow: hidden; font-family: inherit; background: #420E76; }
+        .hero-rot { position: relative; overflow: hidden; font-family: inherit; background: #111111; }
         .hero-slide-base { position: relative; }
         .hero-slide-abs { position: absolute; inset: 0; }
         .hero-slide-base, .hero-slide-abs { transition: opacity 0.35s ease, transform 0.35s ease; }
@@ -228,12 +228,12 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
         .hero-content { position: relative; padding: 72px 24px; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 48px; align-items: center; }
         .hero-col-text { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
         .hero-h1 { margin: 0; font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; font-size: 44px; line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; color: #ffffff; text-wrap: balance; max-width: 560px; }
-        .hero-sub { margin: 0; font-size: 16px; font-weight: 400; line-height: 1.55; color: #E8DAF8; max-width: 460px; }
+        .hero-sub { margin: 0; font-size: 16px; font-weight: 400; line-height: 1.55; color: #E8D9C0; max-width: 460px; }
         .hero-facts { margin: 0; font-size: 13.5px; font-weight: 500; line-height: 1.5; color: rgba(255,255,255,0.72); }
         .hero-facts-dot { margin: 0 8px; opacity: 0.6; }
         .hero-mono { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-weight: 600; color: #ffffff; }
         .hero-cta-row { display: flex; align-items: center; gap: 20px; margin-top: 4px; flex-wrap: wrap; }
-        .hero-cta { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; background: #F6BD0C; color: #2b0a4e; font-weight: 800; font-size: 15px; text-decoration: none; transition: transform 0.1s; }
+        .hero-cta { display: inline-flex; align-items: center; gap: 8px; padding: 14px 26px; border-radius: 10px; background: linear-gradient(135deg, #D6A865, #E1BC84, #D6A865); color: #111111; font-weight: 800; font-size: 15px; text-decoration: none; transition: transform 0.1s; }
         .hero-cta:active { transform: scale(0.98); }
         .hero-cta-secondary { font-size: 14px; font-weight: 700; color: #ffffff; text-decoration: none; }
         .hero-cta-secondary:hover { text-decoration: underline; }
@@ -247,13 +247,13 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
 
         .hero-ficha { background: #ffffff; border: 1px solid #ececec; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
         .hero-ficha-photo { position: relative; aspect-ratio: 4 / 3; background: #fafafa; }
-        .hero-ficha-tag { position: absolute; top: 10px; left: 10px; z-index: 2; background: #F6BD0C; color: #2b0a4e; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+        .hero-ficha-tag { position: absolute; top: 10px; left: 10px; z-index: 2; background: #D6A865; color: #111111; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
         .hero-ficha-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
-        .hero-ficha-brand { font-size: 11px; font-weight: 800; color: #420E76; }
+        .hero-ficha-brand { font-size: 11px; font-weight: 800; color: #9D7133; }
         .hero-ficha-name { margin: 0; font-size: 15px; font-weight: 600; color: #0a0a0a; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.7em; }
-        .hero-ficha-price { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 24px; font-weight: 600; color: #420E76; }
+        .hero-ficha-price { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 24px; font-weight: 600; color: #9D7133; }
         .hero-ficha-price-strike { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 500; color: #a3a3a3; text-decoration: line-through; }
-        .hero-ficha-link { margin-top: 4px; font-size: 13px; font-weight: 700; color: #420E76; text-decoration: none; }
+        .hero-ficha-link { margin-top: 4px; font-size: 13px; font-weight: 700; color: #9D7133; text-decoration: none; }
         .hero-ficha-link:hover { text-decoration: underline; }
 
         @keyframes heroFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -267,7 +267,7 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
         .hero-indicator-count { font-size: 12px; color: rgba(255,255,255,0.6); }
         .hero-indicator-ticks { display: flex; gap: 6px; }
         .hero-indicator-ticks span { width: 16px; height: 3px; border-radius: 1px; background: rgba(255,255,255,0.25); transition: background 0.3s; }
-        .hero-indicator-ticks span.on { background: #F6BD0C; }
+        .hero-indicator-ticks span.on { background: #D6A865; }
 
         @media (prefers-reduced-motion: reduce) {
           .hero-slide-abs, .hero-slide-base { transition: none; }

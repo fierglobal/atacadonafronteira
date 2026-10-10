@@ -106,16 +106,16 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
   const chip = (ativo: boolean) => ({
     width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none',
-    border: `1px solid ${ativo ? '#420E76' : '#ececec'}`,
-    background: ativo ? '#420E76' : '#fff', color: ativo ? '#fff' : '#404040',
+    border: `1px solid ${ativo ? '#D6A865' : '#ececec'}`,
+    background: ativo ? 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)' : '#fff', color: ativo ? '#111111' : '#404040',
   })
 
   const sidebarLink = (ativo: boolean) => ({
     display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
     padding: '8px 10px', borderRadius: 8, fontSize: 13, textDecoration: 'none',
     fontWeight: ativo ? 800 as const : 600 as const,
-    background: ativo ? 'rgba(66, 14, 118,0.08)' : 'transparent',
-    color: ativo ? '#420E76' : '#404040',
+    background: ativo ? 'rgba(214,168,101,0.08)' : 'transparent',
+    color: ativo ? '#9D7133' : '#404040',
   })
 
   const categoriaAtiva = b.categoria ? categorias.find(c => c.id === b.categoria) : null
@@ -126,7 +126,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
       <main style={{ width: '100%', maxWidth: 1280, margin: '0 auto', padding: '20px 20px 60px', boxSizing: 'border-box' }}>
         <nav aria-label="Trilha de navegação" style={{ fontSize: 12, color: '#737373', marginBottom: 14 }}>
           <Link href="/" style={{ color: '#737373', textDecoration: 'none' }}>Início</Link>
-          {' / '}<span style={{ color: '#420E76', fontWeight: 700 }}>Catálogo</span>
+          {' / '}<span style={{ color: '#9D7133', fontWeight: 700 }}>Catálogo</span>
         </nav>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
@@ -206,7 +206,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
                       style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ececec', background: '#fafafa', fontSize: 13, boxSizing: 'border-box' }} />
                   </label>
                 </div>
-                <button type="submit" style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: 'none', background: '#420E76', color: '#fff', fontSize: 12, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer' }}>Aplicar</button>
+                <button type="submit" style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#111111', fontSize: 12, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer' }}>Aplicar</button>
                 {(b.precoMin || b.precoMax) && (
                   <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={{ textAlign: 'center', fontSize: 12.5, color: '#737373', textDecoration: 'none' }}>Limpar</Link>
                 )}
@@ -232,7 +232,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
           <div className="cat-main">
             {itens.length === 0 ? (
               <p style={{ padding: '40px 0', color: '#737373' }}>
-                Nada encontrado com esse filtro. <Link href="/produtos" style={{ color: '#420E76', fontWeight: 700 }}>Ver catálogo completo</Link>.
+                Nada encontrado com esse filtro. <Link href="/produtos" style={{ color: '#9D7133', fontWeight: 700 }}>Ver catálogo completo</Link>.
               </p>
             ) : (
               <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>

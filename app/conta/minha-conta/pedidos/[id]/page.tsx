@@ -180,7 +180,7 @@ export default function PedidoDetalhe() {
             </a>
           )}
           <button onClick={reorder} disabled={reordering}
-            style={{ background: '#ffffff', border: '1px solid rgba(66, 14, 118,0.3)', borderRadius: 12, color: '#420E76', padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            style={{ background: '#ffffff', border: '1px solid rgba(214,168,101,0.3)', borderRadius: 12, color: '#9D7133', padding: '10px 16px', fontSize: 12, fontWeight: 700, cursor: reordering ? 'wait' : 'pointer', opacity: reordering ? 0.6 : 1, flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
             {reordering ? 'Adicionando...' : '🔄 Repetir pedido'}
           </button>
         </div>
@@ -200,7 +200,7 @@ export default function PedidoDetalhe() {
       {/* Status timeline */}
       {!isCanceled ? (
         <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '24px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 24px' }}>STATUS DO PEDIDO</p>
+          <p style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.1em', margin: '0 0 24px' }}>STATUS DO PEDIDO</p>
           <div style={{ display: 'flex' }}>
             {STATUS_STEPS.map((step, i) => {
               const done = i <= stepIndex
@@ -210,24 +210,24 @@ export default function PedidoDetalhe() {
                   {i < STATUS_STEPS.length - 1 && (
                     <div style={{
                       position: 'absolute', top: 13, left: '50%', width: '100%', height: 2,
-                      background: i < stepIndex ? '#420E76' : '#ececec', zIndex: 0,
+                      background: i < stepIndex ? '#D6A865' : '#ececec', zIndex: 0,
                     }} />
                   )}
                   <div style={{
                     width: 24, height: 24, borderRadius: '50%',
                     border: done ? 'none' : '2px solid #d4d4d4',
-                    background: done ? '#420E76' : '#ffffff',
+                    background: done ? '#D6A865' : '#ffffff',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     zIndex: 1, position: 'relative',
-                    boxShadow: current ? '0 0 0 4px rgba(66, 14, 118,0.1)' : 'none',
+                    boxShadow: current ? '0 0 0 4px rgba(214,168,101,0.1)' : 'none',
                   }}>
                     {done && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
                   </div>
-                  <p style={{ fontSize: 9, fontWeight: done ? 900 : 700, color: done ? '#420E76' : '#a3a3a3', marginTop: 10, textAlign: 'center', letterSpacing: '0.03em', textTransform: 'uppercase', lineHeight: 1.3 }}>
+                  <p style={{ fontSize: 9, fontWeight: done ? 900 : 700, color: done ? '#9D7133' : '#a3a3a3', marginTop: 10, textAlign: 'center', letterSpacing: '0.03em', textTransform: 'uppercase', lineHeight: 1.3 }}>
                     {statusLabel(step, entregaTipo)}
                   </p>
                 </div>
@@ -259,7 +259,7 @@ export default function PedidoDetalhe() {
               <p style={{ fontSize: 10, color: '#737373', fontWeight: 700, margin: '0 0 8px', letterSpacing: '0.08em' }}>CHAVE PIX (CNPJ)</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 15, fontWeight: 900, fontFamily: 'monospace', letterSpacing: '0.05em', flex: 1, color: '#0a0a0a' }}>{pixKey}</span>
-                <button onClick={() => copy(pixKey, 'key')} style={{ padding: '6px 14px', background: copied === 'key' ? 'rgba(66, 14, 118,0.08)' : '#fafafa', border: `1px solid ${copied === 'key' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'key' ? '#420E76' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                <button onClick={() => copy(pixKey, 'key')} style={{ padding: '6px 14px', background: copied === 'key' ? 'rgba(214,168,101,0.08)' : '#fafafa', border: `1px solid ${copied === 'key' ? 'rgba(214,168,101,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'key' ? '#9D7133' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                   {copied === 'key' ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
@@ -269,7 +269,7 @@ export default function PedidoDetalhe() {
               <p style={{ fontSize: 10, color: '#737373', fontWeight: 700, margin: '0 0 8px', letterSpacing: '0.08em' }}>VALOR A TRANSFERIR</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 22, fontWeight: 900, flex: 1, color: '#0a0a0a' }}>{fmt(order.total_brl)}</span>
-                <button onClick={() => copy(order.total_brl.toFixed(2), 'valor')} style={{ padding: '6px 14px', background: copied === 'valor' ? 'rgba(66, 14, 118,0.08)' : '#fafafa', border: `1px solid ${copied === 'valor' ? 'rgba(66, 14, 118,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'valor' ? '#420E76' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
+                <button onClick={() => copy(order.total_brl.toFixed(2), 'valor')} style={{ padding: '6px 14px', background: copied === 'valor' ? 'rgba(214,168,101,0.08)' : '#fafafa', border: `1px solid ${copied === 'valor' ? 'rgba(214,168,101,0.4)' : '#d4d4d4'}`, borderRadius: 6, color: copied === 'valor' ? '#9D7133' : '#404040', fontSize: 11, cursor: 'pointer', fontWeight: 700 }}>
                   {copied === 'valor' ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
@@ -282,7 +282,7 @@ export default function PedidoDetalhe() {
       {(() => {
         const enviado = comprovante === 'done' || !!order.comprovante_url
         const emAnalise = enviado && order.status === 'pendente_pagamento'
-        const cor = emAnalise ? '#f59e0b' : '#420E76'
+        const cor = emAnalise ? '#f59e0b' : '#9D7133'
         return (
       <div style={{ background: '#ffffff', border: `1px solid ${enviado ? `${cor}4d` : '#ececec'}`, borderRadius: 16, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <p style={{ fontSize: 10, fontWeight: 800, color: enviado ? cor : '#525252', letterSpacing: '0.1em', margin: '0 0 12px' }}>COMPROVANTE DE PAGAMENTO</p>
@@ -328,7 +328,7 @@ export default function PedidoDetalhe() {
       {/* Items */}
       <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, overflow: 'hidden', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #ececec', background: '#fafafa' }}>
-          <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: 0 }}>ITENS DO PEDIDO</p>
+          <p style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.1em', margin: 0 }}>ITENS DO PEDIDO</p>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -351,7 +351,7 @@ export default function PedidoDetalhe() {
                 <Fragment key={cat}>
                   {mostrarGrupos && (
                     <tr key={`h-${cat}`}>
-                      <td colSpan={4} style={{ padding: '8px 20px 4px', fontSize: 10, fontWeight: 800, color: '#420E76', letterSpacing: '0.08em', background: '#fafafa' }}>{cat}</td>
+                      <td colSpan={4} style={{ padding: '8px 20px 4px', fontSize: 10, fontWeight: 800, color: '#9D7133', letterSpacing: '0.08em', background: '#fafafa' }}>{cat}</td>
                     </tr>
                   )}
                   {grupos[cat].map(item => (
@@ -380,10 +380,10 @@ export default function PedidoDetalhe() {
 
       {/* Entrega — endereço/retirada, frete, seguro e rastreio, condicionados à modalidade real do pedido */}
       <div style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: '20px', marginBottom: 20, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-        <p style={{ fontSize: 10, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', margin: '0 0 14px' }}>ENTREGA — {ENTREGA_LABEL[entregaTipo].toUpperCase()}</p>
+        <p style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.1em', margin: '0 0 14px' }}>ENTREGA — {ENTREGA_LABEL[entregaTipo].toUpperCase()}</p>
 
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: (order.frete_brl || order.seguro_brl) ? 16 : 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9D7133" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 2 }}>
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
@@ -399,11 +399,11 @@ export default function PedidoDetalhe() {
                   </p>
                 )}
                 {order.codigo_rastreio ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '10px 12px', background: 'rgba(66, 14, 118,0.05)', border: '1px solid rgba(66, 14, 118,0.2)', borderRadius: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, padding: '10px 12px', background: 'rgba(214,168,101,0.05)', border: '1px solid rgba(214,168,101,0.2)', borderRadius: 8 }}>
                     <span style={{ fontSize: 14 }}>🚚</span>
                     <div>
                       <p style={{ fontSize: 9, color: '#737373', fontWeight: 700, letterSpacing: '0.06em', margin: 0 }}>CÓDIGO DE RASTREIO</p>
-                      <p style={{ fontSize: 13, color: '#420E76', fontWeight: 800, fontFamily: 'monospace', margin: 0 }}>{order.codigo_rastreio}</p>
+                      <p style={{ fontSize: 13, color: '#9D7133', fontWeight: 800, fontFamily: 'monospace', margin: 0 }}>{order.codigo_rastreio}</p>
                     </div>
                   </div>
                 ) : (stepIndex >= STATUS_STEPS.indexOf('pronto_retirada')) && (

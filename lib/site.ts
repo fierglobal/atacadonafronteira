@@ -37,14 +37,16 @@ export const WHATSAPP_GRUPO_HREF =
 // categoria de novo.
 export const MARCAS_VITRINE: string[] = []
 
-// Tokens do redesign "Ponte de Fronteira" (07/10/2026). Cores da marca já
-// usadas cruas em todo o código antigo — isso NÃO migra essas centenas de
-// ocorrências, só dá um nome pros componentes novos/reestilizados usarem daqui
-// pra frente (ver docs/redesign-ponte-de-fronteira-spec.md, seção 2).
-export const COR_ROXO = '#420E76'
-export const COR_ROXO_ESCURO = '#2b0a4e'
-export const COR_LILAS = '#A965ED'
-export const COR_AMARELO = '#F6BD0C'
+// Tokens da comunicação visual "branco e dourado" (09/10/2026, substitui o
+// roxo/amarelo do redesign "Ponte de Fronteira" de 07/10/2026) — mesma paleta
+// gold/ivory do paraguai-express (.superdesign/design-system.md de lá). Cores
+// da marca já usadas cruas em todo o código antigo — isso NÃO migra essas
+// centenas de ocorrências, só dá um nome pros componentes novos/reestilizados
+// usarem daqui pra frente (ver docs/redesign-ponte-de-fronteira-spec.md, seção 2).
+export const COR_DOURADO_TEXTO = '#9D7133'
+export const COR_DOURADO_TEXTO_ESCURO = '#6B4A1F'
+export const COR_DOURADO = '#D6A865'
+export const COR_DOURADO_GRAD = 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)'
 
 // Badge 'sob encomenda' (iPhone 17 EUA, 29/08/2026): mesmo texto na PDP e no
 // checkout, então mora num só lugar em vez de duplicado nos dois arquivos.

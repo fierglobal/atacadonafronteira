@@ -54,7 +54,7 @@ export function MinimoBar() {
           </div>
         </div>
         <button onClick={abrirSidebar}
-          style={{ flexShrink: 0, padding: '11px 22px', background: '#420E76', color: '#ffffff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 800, letterSpacing: '0.04em', cursor: 'pointer' }}>
+          style={{ flexShrink: 0, padding: '11px 22px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#111111', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 800, letterSpacing: '0.04em', cursor: 'pointer' }}>
           VER CARRINHO · R$ {brl(totalBRL)}
         </button>
       </div>

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const UPDATE_DATE = '15 de junho de 2026'
 
 const sec = { background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, padding: 24, marginBottom: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }
-const h2 = { fontSize: 18, fontWeight: 800, color: '#420E76', margin: '0 0 12px', letterSpacing: '-0.01em' } as const
+const h2 = { fontSize: 18, fontWeight: 800, color: '#9D7133', margin: '0 0 12px', letterSpacing: '-0.01em' } as const
 const p = { fontSize: 14, color: '#404040', lineHeight: 1.7, margin: '0 0 12px' } as const
 
 export default function Termos() {
@@ -71,7 +71,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>10. Privacidade</h2>
-          <p style={p}>O tratamento dos seus dados está descrito em nossa <a href="/politica-privacidade" style={{ color: '#420E76' }}>Política de Privacidade</a>.</p>
+          <p style={p}>O tratamento dos seus dados está descrito em nossa <a href="/politica-privacidade" style={{ color: '#9D7133' }}>Política de Privacidade</a>.</p>
         </div>
 
         <div style={sec}>
@@ -86,7 +86,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>13. Contato</h2>
-          <p style={p}>WhatsApp: <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#420E76', fontWeight: 700 }}>+595 992 636 618</a>. Atendimento em português.</p>
+          <p style={p}>WhatsApp: <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#9D7133', fontWeight: 700 }}>+595 992 636 618</a>. Atendimento em português.</p>
         </div>
       </div>
     </div>

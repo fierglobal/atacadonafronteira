@@ -54,7 +54,7 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <style>{`
-        input:focus { border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); }
+        input:focus { border-color: rgba(214,168,101,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(214,168,101,0.08); }
         input::placeholder { color: #a3a3a3; }
       `}</style>
       <div style={{ width: '100%', maxWidth: 400 }}>
@@ -82,7 +82,7 @@ export default function Login() {
             {err && <p style={{ fontSize: 12, color: '#ef4444', textAlign: 'center', margin: 0 }}>{err}</p>}
 
             <button type="submit" disabled={loading}
-              style={{ padding: '14px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4, boxShadow: '0 4px 16px rgba(66, 14, 118,0.2)' }}>
+              style={{ padding: '14px', background: '#D6A865', color: '#111111', border: 'none', borderRadius: 12, fontWeight: 900, fontSize: 15, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: 4, boxShadow: '0 4px 16px rgba(214,168,101,0.2)' }}>
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
@@ -108,7 +108,7 @@ export default function Login() {
             <p style={{ fontSize: 13, color: '#404040' }}>
               Não tem conta?{' '}
               <Link href={`/conta/cadastro?redirect=${encodeURIComponent(redirect)}`}
-                style={{ color: '#420E76', fontWeight: 900, textDecoration: 'none' }}>
+                style={{ color: '#9D7133', fontWeight: 900, textDecoration: 'none' }}>
                 Criar conta grátis
               </Link>
             </p>

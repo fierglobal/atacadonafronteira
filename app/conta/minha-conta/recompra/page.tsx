@@ -55,7 +55,7 @@ export default function ListaRecompra() {
           <p style={{ color: '#a3a3a3', fontSize: 12, marginBottom: 20, lineHeight: 1.6 }}>
             Clique em &quot;Salvar para recomprar depois&quot; na página de qualquer produto para montar sua lista.
           </p>
-          <Link href="/produtos" style={{ color: '#420E76', fontWeight: 900, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</Link>
+          <Link href="/produtos" style={{ color: '#9D7133', fontWeight: 900, fontSize: 13, textDecoration: 'none' }}>Ver catálogo →</Link>
         </div>
       ) : (
         <>
@@ -64,16 +64,16 @@ export default function ListaRecompra() {
               <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 16, background: '#ffffff', border: '1px solid #ececec', borderRadius: 16, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <input type="checkbox" checked={selecionados.has(item.id)} onChange={() => toggle(item.id)}
                   aria-label={`Selecionar ${item.name}`}
-                  style={{ width: 18, height: 18, accentColor: '#420E76', cursor: 'pointer', flexShrink: 0 }} />
+                  style={{ width: 18, height: 18, accentColor: '#9D7133', cursor: 'pointer', flexShrink: 0 }} />
                 <Link href={`/produtos/${item.id}`} style={{ width: 64, height: 64, background: '#fafafa', borderRadius: 10, overflow: 'hidden', position: 'relative', flexShrink: 0, border: '1px solid #f5f5f5' }}>
                   <Image src={item.img} alt={item.name} fill style={{ objectFit: 'contain', padding: 6 }} />
                 </Link>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  {item.brand && <p style={{ fontSize: 9, fontWeight: 900, color: '#420E76', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 2px' }}>{item.brand}</p>}
+                  {item.brand && <p style={{ fontSize: 9, fontWeight: 900, color: '#9D7133', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 2px' }}>{item.brand}</p>}
                   <Link href={`/produtos/${item.id}`} style={{ fontSize: 13, fontWeight: 700, color: '#0a0a0a', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.name}
                   </Link>
-                  <p style={{ fontSize: 13, fontWeight: 900, color: '#420E76', margin: '4px 0 0' }}>{fmt(item.brlPrice)}</p>
+                  <p style={{ fontSize: 13, fontWeight: 900, color: '#9D7133', margin: '4px 0 0' }}>{fmt(item.brlPrice)}</p>
                 </div>
                 <button onClick={() => remover(item.id)} aria-label="Remover da lista"
                   style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}>

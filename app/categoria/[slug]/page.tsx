@@ -229,8 +229,8 @@ export default async function CategoriaPage({
   const chip = (ativo: boolean) => ({
     width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none',
-    border: `1px solid ${ativo ? '#420E76' : '#ececec'}`,
-    background: ativo ? '#420E76' : '#fff', color: ativo ? '#fff' : '#404040',
+    border: `1px solid ${ativo ? '#D6A865' : '#ececec'}`,
+    background: ativo ? 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)' : '#fff', color: ativo ? '#111111' : '#404040',
   })
 
   // Itens de filtro da sidebar: lista vertical, não pílula horizontal.
@@ -238,14 +238,14 @@ export default async function CategoriaPage({
     display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8,
     padding: '8px 10px', borderRadius: 8, fontSize: 13, textDecoration: 'none',
     fontWeight: ativo ? 800 as const : 600 as const,
-    background: ativo ? 'rgba(66, 14, 118,0.08)' : 'transparent',
-    color: ativo ? '#420E76' : '#404040',
+    background: ativo ? 'rgba(214,168,101,0.08)' : 'transparent',
+    color: ativo ? '#9D7133' : '#404040',
   })
 
   const pill = {
     display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 99,
-    fontSize: 12, fontWeight: 700, color: '#420E76', background: 'rgba(66, 14, 118,0.06)',
-    border: '1px solid rgba(66, 14, 118,0.25)', textDecoration: 'none',
+    fontSize: 12, fontWeight: 700, color: '#9D7133', background: 'rgba(214,168,101,0.06)',
+    border: '1px solid rgba(214,168,101,0.25)', textDecoration: 'none',
   }
   const temFiltrosAtivos = !!(b.marca || b.precoMin || b.precoMax)
 
@@ -266,7 +266,7 @@ export default async function CategoriaPage({
           {cat.paiNome && cat.paiSlug && (
             <>{' / '}<Link href={`/categoria/${cat.paiSlug}`} style={{ color: '#737373', textDecoration: 'none' }}>{cat.paiNome}</Link></>
           )}
-          {' / '}<span style={{ color: '#420E76', fontWeight: 700 }} aria-current="page">{cat.nome}</span>
+          {' / '}<span style={{ color: '#9D7133', fontWeight: 700 }} aria-current="page">{cat.nome}</span>
         </nav>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: temFiltrosAtivos ? 16 : 32 }}>
@@ -287,7 +287,7 @@ export default async function CategoriaPage({
               <div className="cat-order-menu">
                 {ORDENS.map(o => (
                   <Link key={o.chave} href={url({ ordem: o.chave, pagina: '1' })}
-                    style={{ fontWeight: (b.ordem || '') === o.chave ? 800 : 600, color: (b.ordem || '') === o.chave ? '#420E76' : '#404040' }}>
+                    style={{ fontWeight: (b.ordem || '') === o.chave ? 800 : 600, color: (b.ordem || '') === o.chave ? '#9D7133' : '#404040' }}>
                     {o.rotulo}
                   </Link>
                 ))}
@@ -354,7 +354,7 @@ export default async function CategoriaPage({
                       style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #ececec', background: '#fafafa', fontSize: 13, boxSizing: 'border-box' }} />
                   </label>
                 </div>
-                <button type="submit" style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: 'none', background: '#420E76', color: '#fff', fontSize: 12, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer' }}>Aplicar</button>
+                <button type="submit" style={{ width: '100%', padding: '10px 0', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#111111', fontSize: 12, fontWeight: 900, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer' }}>Aplicar</button>
                 {(b.precoMin || b.precoMax) && (
                   <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={{ textAlign: 'center', fontSize: 12.5, color: '#737373', textDecoration: 'none' }}>Limpar</Link>
                 )}
@@ -368,7 +368,7 @@ export default async function CategoriaPage({
           <div className="cat-main">
             {itens.length === 0 ? (
               <p style={{ padding: '40px 0', color: '#737373' }}>
-                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#420E76', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
+                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#9D7133', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
               </p>
             ) : (
               <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>
@@ -413,7 +413,7 @@ export default async function CategoriaPage({
         {/* Texto para SEO: fica no rodapé da página, não compete com o filtro
             nem com o grid pela primeira tela. */}
         <div style={{ margin: '64px 0 0', paddingTop: 40, borderTop: '1px solid #f5f5f5', maxWidth: 800 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <h2 style={{ fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {cat.nome} no Atacado Direto do Paraguai
           </h2>
           <p style={{ fontSize: 14, color: '#737373', lineHeight: 1.6, margin: 0 }}>

@@ -6,10 +6,10 @@ const CONTATO_HREF = WHATSAPP_HREF
 
 export default function SiteFooter({ brands = [] }: { brands?: string[] }) {
   return (
-    <footer style={{ background: '#0A0710', color: '#a3a3a3', padding: '56px 24px 24px' }}>
+    <footer style={{ background: '#0A0A0A', color: '#a3a3a3', padding: '56px 24px 24px' }}>
       <style>{`
         .footer-brand-link { transition: color 0.15s; }
-        .footer-brand-link:hover { color: #420E76 !important; }
+        .footer-brand-link:hover { color: #D6A865 !important; }
         .footer-whatsapp-link { transition: color 0.15s; }
         .footer-whatsapp-link:hover { color: #25d366 !important; }
         @media (max-width: 640px) {
@@ -59,11 +59,11 @@ export default function SiteFooter({ brands = [] }: { brands?: string[] }) {
           <h4 style={{ color: '#ffffff', fontSize: 11, fontWeight: 800, letterSpacing: '0.15em', marginBottom: 18 }}>RETIRADA</h4>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <svg style={{ flexShrink: 0, marginTop: 1 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D6A865" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               <span style={{ fontSize: 13, lineHeight: 1.6 }}>Retirada em loja, em<br />Ciudad del Este.</span>
             </li>
             <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D6A865" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <span style={{ fontSize: 13, lineHeight: 1.7 }}>Pedido pronto em até 24h úteis<br />após a confirmação do PIX.</span>
             </li>
             {WHATSAPP_ENABLED && (
@@ -82,7 +82,7 @@ export default function SiteFooter({ brands = [] }: { brands?: string[] }) {
         <span style={{ fontSize: 11, letterSpacing: '0.05em', color: '#404040' }}>© 2026 ATACADO NA FRONTEIRA — TODOS OS DIREITOS RESERVADOS</span>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <span style={{ fontSize: 10, color: '#404040', letterSpacing: '0.08em' }}>PAGAMENTO</span>
-          <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(169, 101, 237,0.12)', border: '1px solid rgba(169, 101, 237,0.2)', color: '#A965ED', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
+          <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(214,168,101,0.12)', border: '1px solid rgba(214,168,101,0.2)', color: '#D6A865', fontSize: 10, fontWeight: 800, letterSpacing: '0.1em' }}>PIX</span>
           <span style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#a3a3a3', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>BRL</span>
         </div>
       </div>

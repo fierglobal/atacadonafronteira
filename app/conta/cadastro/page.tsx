@@ -105,20 +105,20 @@ export default function Cadastro() {
     border: `1px solid ${err ? '#ef4444' : '#ececec'}`, borderRadius: 12,
     color: '#0a0a0a', fontSize: 14, boxSizing: 'border-box' as const,
   })
-  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#420E76', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
+  const lbl = { display: 'block', fontSize: 11, fontWeight: 900, color: '#9D7133', letterSpacing: '0.1em', marginBottom: 8, textTransform: 'uppercase' } as const
   const errTxt = { fontSize: 10, color: '#ef4444', marginTop: 4 } as const
 
   if (success) {
     return (
       <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center', maxWidth: 400 }}>
-          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(66, 14, 118,0.06)', border: '2px solid #420E76', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 4px 16px rgba(66, 14, 118,0.18)' }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#420E76" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(214,168,101,0.06)', border: '2px solid #9D7133', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 4px 16px rgba(214,168,101,0.18)' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9D7133" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 10, color: '#0a0a0a' }}>Conta criada!</h2>
           <p style={{ color: '#404040', fontSize: 14, lineHeight: 1.6 }}>Verifique seu e-mail <strong style={{ color: '#0a0a0a' }}>{form.email}</strong> para ativar sua conta.</p>
           <a href={`/conta/login?redirect=${encodeURIComponent(redirect)}`}
-            style={{ display: 'inline-block', marginTop: 24, padding: '12px 28px', background: '#A965ED', color: '#000', borderRadius: 12, fontWeight: 900, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(169,101,237,0.25)' }}>
+            style={{ display: 'inline-block', marginTop: 24, padding: '12px 28px', background: '#D6A865', color: '#111111', borderRadius: 12, fontWeight: 900, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(214,168,101,0.25)' }}>
             Ir para Login
           </a>
         </div>
@@ -129,7 +129,7 @@ export default function Cadastro() {
   return (
     <div style={{ minHeight: '100vh', background: '#fafafa', color: '#0a0a0a', padding: '40px 24px 80px' }}>
       <style>{`
-        input:focus { border-color: rgba(66, 14, 118,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(66, 14, 118,0.08); }
+        input:focus { border-color: rgba(214,168,101,0.5) !important; outline: none; box-shadow: 0 0 0 3px rgba(214,168,101,0.08); }
         input::placeholder { color: #a3a3a3; }
         @media (max-width: 640px) {
           .cad-grid { grid-template-columns: 1fr !important; }
@@ -202,13 +202,13 @@ export default function Cadastro() {
           {globalErr && <p style={{ fontSize: 13, color: '#ef4444', textAlign: 'center', marginTop: 14 }}>{globalErr}</p>}
 
           <button type="submit" disabled={loading}
-            style={{ width: '100%', marginTop: 20, padding: '16px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 16, fontWeight: 900, fontSize: 16, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 8px 20px -4px rgba(169,101,237,0.35)' }}>
+            style={{ width: '100%', marginTop: 20, padding: '16px', background: '#D6A865', color: '#111111', border: 'none', borderRadius: 16, fontWeight: 900, fontSize: 16, cursor: loading ? 'wait' : 'pointer', opacity: loading ? 0.7 : 1, boxShadow: '0 8px 20px -4px rgba(214,168,101,0.35)' }}>
             {loading ? 'Criando conta...' : 'Criar Conta e Continuar →'}
           </button>
 
           <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: '#404040' }}>
             Já tem conta?{' '}
-            <a href={`/conta/login?redirect=${encodeURIComponent(redirect)}`} style={{ color: '#420E76', fontWeight: 700, textDecoration: 'none' }}>Entrar</a>
+            <a href={`/conta/login?redirect=${encodeURIComponent(redirect)}`} style={{ color: '#9D7133', fontWeight: 700, textDecoration: 'none' }}>Entrar</a>
           </p>
         </form>
       </div>

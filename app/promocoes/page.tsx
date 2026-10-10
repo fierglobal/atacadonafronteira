@@ -82,8 +82,8 @@ export default async function PromocoesPage({ searchParams }: { searchParams: Pr
   const chip = (ativo: boolean) => ({
     width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     borderRadius: 12, fontSize: 13, fontWeight: 700, textDecoration: 'none',
-    border: `1px solid ${ativo ? '#420E76' : '#ececec'}`,
-    background: ativo ? '#420E76' : '#fff', color: ativo ? '#fff' : '#404040',
+    border: `1px solid ${ativo ? '#D6A865' : '#ececec'}`,
+    background: ativo ? 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)' : '#fff', color: ativo ? '#111111' : '#404040',
   })
 
   return (
@@ -92,10 +92,10 @@ export default async function PromocoesPage({ searchParams }: { searchParams: Pr
       <SiteHeader />
 
       {/* Faixa de destaque — a única página do site com acento vermelho:
-          comunica urgência/desconto, fora da paleta roxo/amarelo de marca. */}
-      <div style={{ background: 'linear-gradient(90deg, #420E76 0%, #2b0a4e 100%)', padding: '10px 0', textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#ffffff', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F6BD0C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+          comunica urgência/desconto, fora da paleta branco/dourado de marca. */}
+      <div style={{ background: 'linear-gradient(90deg, #D6A865 0%, #E1BC84 100%)', padding: '10px 0', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: '#111111', fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B4A1F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
           Ofertas diretas do Paraguai
         </div>
       </div>
@@ -117,7 +117,7 @@ export default async function PromocoesPage({ searchParams }: { searchParams: Pr
 
         {itens.length === 0 ? (
           <p style={{ padding: '40px 0', color: '#737373' }}>
-            Nenhum produto em promoção agora. <Link href="/produtos" style={{ color: '#420E76', fontWeight: 700 }}>Ver catálogo completo</Link>.
+            Nenhum produto em promoção agora. <Link href="/produtos" style={{ color: '#9D7133', fontWeight: 700 }}>Ver catálogo completo</Link>.
           </p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>

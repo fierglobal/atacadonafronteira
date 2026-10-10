@@ -34,7 +34,7 @@ export default function MinhaContaNav() {
       label: 'Meu Perfil',
       exact: true,
       icon: (active: boolean) => (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#420E76' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#9D7133' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
           <circle cx="12" cy="7" r="4"/>
         </svg>
@@ -45,7 +45,7 @@ export default function MinhaContaNav() {
       label: 'Meus Pedidos',
       exact: false,
       icon: (active: boolean) => (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#420E76' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#9D7133' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
           <line x1="3" y1="6" x2="21" y2="6"/>
           <path d="M16 10a4 4 0 0 1-8 0"/>
@@ -57,7 +57,7 @@ export default function MinhaContaNav() {
       label: 'Lista de Recompra',
       exact: false,
       icon: (active: boolean) => (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#420E76' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#9D7133' : '#525252'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
         </svg>
       ),
@@ -91,8 +91,8 @@ export default function MinhaContaNav() {
 
         <div className="conta-user-info" style={{ padding: '24px 24px 8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(66, 14, 118,0.05)', border: '1px solid rgba(66, 14, 118,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#420E76' }}>{nome ? nome[0].toUpperCase() : '?'}</span>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(214,168,101,0.05)', border: '1px solid rgba(214,168,101,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#9D7133' }}>{nome ? nome[0].toUpperCase() : '?'}</span>
             </div>
             <div style={{ minWidth: 0, overflow: 'hidden' }}>
               {nome && <p style={{ fontSize: 13, fontWeight: 700, margin: '0 0 2px', color: '#0a0a0a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</p>}
@@ -108,9 +108,9 @@ export default function MinhaContaNav() {
               <a key={item.href} href={item.href} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '12px 16px', borderRadius: 12,
-                background: active ? 'rgba(66, 14, 118,0.05)' : 'transparent',
-                borderLeft: active ? '3px solid #420E76' : '3px solid transparent',
-                color: active ? '#420E76' : '#525252',
+                background: active ? 'rgba(214,168,101,0.05)' : 'transparent',
+                borderLeft: active ? '3px solid #9D7133' : '3px solid transparent',
+                color: active ? '#9D7133' : '#525252',
                 textDecoration: 'none', fontSize: 13, fontWeight: active ? 700 : 500,
                 transition: 'all 0.15s',
               }}>

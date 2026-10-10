@@ -57,7 +57,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           órfã (o arquivo chegou a ter 13, e só shimmer/fadeUp tinham uso
           de verdade — nenhuma delas neste componente). */}
       {aviso && (
-        <div style={{ background: 'rgba(66, 14, 118,0.06)', borderBottom: '1px solid rgba(66, 14, 118,0.2)', padding: '8px 24px', textAlign: 'center', fontSize: 12, color: '#420E76', fontWeight: 600, letterSpacing: '0.04em' }}>
+        <div style={{ background: 'rgba(214,168,101,0.06)', borderBottom: '1px solid rgba(214,168,101,0.2)', padding: '8px 24px', textAlign: 'center', fontSize: 12, color: '#9D7133', fontWeight: 600, letterSpacing: '0.04em' }}>
           {aviso}
         </div>
       )}
