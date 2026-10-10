@@ -83,7 +83,7 @@ export default function Cupons() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{cupons.length} cupons cadastrados</p>
         </div>
         <button onClick={() => setModal(true)}
-          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', borderRadius: 8, color: '#111111', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Cupom
         </button>
       </div>
@@ -106,7 +106,7 @@ export default function Cupons() {
               <tr key={c.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
                 <td style={{ padding: '12px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#A965ED', fontFamily: 'monospace', letterSpacing: '0.08em' }}>{c.codigo}</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#9D7133', fontFamily: 'monospace', letterSpacing: '0.08em' }}>{c.codigo}</span>
                     <button onClick={() => copiar(c.codigo)}
                       style={{ padding: '3px 8px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 4, color: 'var(--a-text3)', fontSize: 10, cursor: 'pointer' }}>
                       {copied === c.codigo ? '✓' : 'Copiar'}
@@ -116,7 +116,7 @@ export default function Cupons() {
                 <td style={{ padding: '12px 18px', fontSize: 16, fontWeight: 900, color: '#f59e0b' }}>{c.desconto_pct}%</td>
                 <td style={{ padding: '12px 18px' }}>
                   <button onClick={() => toggleAtivo(c)}
-                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: c.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
+                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(214,168,101,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(214,168,101,0.08)' : 'transparent', color: c.ativo ? '#9D7133' : 'var(--a-text3)', cursor: 'pointer' }}>
                     {c.ativo ? '● Ativo' : '○ Inativo'}
                   </button>
                 </td>
@@ -150,7 +150,7 @@ export default function Cupons() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#A965ED', fontFamily: 'monospace', letterSpacing: '0.06em' }}>{c.codigo}</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#9D7133', fontFamily: 'monospace', letterSpacing: '0.06em' }}>{c.codigo}</span>
                   <button onClick={() => copiar(c.codigo)}
                     style={{ padding: '3px 8px', background: 'transparent', border: '1px solid var(--a-border)', borderRadius: 4, color: 'var(--a-text3)', fontSize: 10, cursor: 'pointer' }}>
                     {copied === c.codigo ? '✓' : 'Copiar'}
@@ -159,7 +159,7 @@ export default function Cupons() {
                 <p style={{ fontSize: 18, fontWeight: 900, color: '#f59e0b', margin: '4px 0 0' }}>{c.desconto_pct}%</p>
               </div>
               <button onClick={() => toggleAtivo(c)}
-                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: c.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(214,168,101,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(214,168,101,0.08)' : 'transparent', color: c.ativo ? '#9D7133' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
                 {c.ativo ? '● Ativo' : '○ Inativo'}
               </button>
             </div>
@@ -223,7 +223,7 @@ export default function Cupons() {
               </div>
 
               <button onClick={criar} disabled={saving || !form.codigo || !form.desconto_pct}
-                style={{ marginTop: 8, padding: '13px', background: (!form.codigo || !form.desconto_pct) ? 'var(--a-border)' : '#A965ED', color: (!form.codigo || !form.desconto_pct) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.codigo || !form.desconto_pct) ? 'var(--a-border)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: (!form.codigo || !form.desconto_pct) ? 'var(--a-text3)' : '#111111', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : 'Criar Cupom'}
               </button>
             </div>

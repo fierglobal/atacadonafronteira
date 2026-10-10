@@ -3,38 +3,22 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Admin — light (padrão) */
-  --a-bg: #f5f6f8;
+  /* Admin — sempre claro (modo escuro removido em 09/10/2026, clone visual
+     do painel do paraguai-express, que não tem dark mode) */
+  --a-bg: #f8fafc;
   --a-surface: #ffffff;
-  --a-surface2: #f0f1f3;
+  --a-surface2: #f1f5f9;
   --a-sidebar: #ffffff;
-  --a-border: #e5e7eb;
-  --a-border2: #d1d5db;
-  --a-text: #111827;
-  --a-text2: #6b7280;
-  --a-text3: #9ca3af;
-  --a-nav-inactive: #6b7280;
-  --a-nav-active-bg: rgba(0,0,0,0.06);
-  --a-nav-active-border: rgba(0,0,0,0.1);
-  --a-nav-active-text: #111827;
-  --a-row-hover: #f9fafb;
-}
-
-.admin-dark {
-  --a-bg: #080808;
-  --a-surface: #0a0a0a;
-  --a-surface2: #0d0d0d;
-  --a-sidebar: #0a0a0a;
-  --a-border: #1a1a1a;
-  --a-border2: #111111;
-  --a-text: #ffffff;
-  --a-text2: #666666;
-  --a-text3: #444444;
-  --a-nav-inactive: #555555;
-  --a-nav-active-bg: rgba(169, 101, 237,0.1);
-  --a-nav-active-border: rgba(169, 101, 237,0.2);
-  --a-nav-active-text: #A965ED;
-  --a-row-hover: #0e0e0e;
+  --a-border: #e2e8f0;
+  --a-border2: #cbd5e1;
+  --a-text: #0f172a;
+  --a-text2: #475569;
+  --a-text3: #94a3b8;
+  --a-nav-inactive: #475569;
+  --a-nav-active-bg: rgba(214,168,101,0.12);
+  --a-nav-active-border: rgba(214,168,101,0.35);
+  --a-nav-active-text: #9D7133;
+  --a-row-hover: #f8fafc;
 }
 
 @theme inline {

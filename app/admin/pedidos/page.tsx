@@ -10,7 +10,7 @@ type Product = { id: string; name: string; brand: string; brl_price: number }
 const STATUSES = [
   { value: 'pendente_pagamento', label: 'Pendente PIX', color: '#f59e0b' },
   { value: 'pago', label: 'Pago', color: '#3b82f6' },
-  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#A965ED' },
+  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#9D7133' },
   { value: 'retirado', label: 'Retirado', color: '#555' },
   { value: 'cancelado', label: 'Cancelado', color: '#ef4444' },
 ]
@@ -30,7 +30,7 @@ type Order = {
 }
 
 const TAG_COLORS: Record<string, string> = {
-  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#A965ED', 'problemático': '#A965ED',
+  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#9D7133', 'problemático': '#9D7133',
 }
 
 const sc = (s: string) => STATUSES.find(x => x.value === s)?.color || '#888'
@@ -206,7 +206,7 @@ export default function Pedidos() {
             ↓ CSV
           </button>
           <button onClick={openModalManual}
-            style={{ padding: '9px 16px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', whiteSpace: 'nowrap' }}>
             + Novo Pedido
           </button>
         </div>
@@ -221,7 +221,7 @@ export default function Pedidos() {
           { v: 'todos', label: 'Todos' },
         ] as const).map(f => (
           <button key={f.v} onClick={() => setGrupo(f.v)}
-            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: grupo === f.v ? '#A965ED' : 'var(--a-text3)', borderBottom: grupo === f.v ? '2px solid #A965ED' : '2px solid transparent', marginBottom: -1, flexShrink: 0, whiteSpace: 'nowrap' }}>
+            style={{ padding: '9px 4px', marginRight: 20, fontSize: 13, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', color: grupo === f.v ? '#9D7133' : 'var(--a-text3)', borderBottom: grupo === f.v ? '2px solid #9D7133' : '2px solid transparent', marginBottom: -1, flexShrink: 0, whiteSpace: 'nowrap' }}>
             {f.label} <span style={{ color: 'var(--a-text3)', fontWeight: 600 }}>({countGrupo(f.v)})</span>
           </button>
         ))}
@@ -229,8 +229,8 @@ export default function Pedidos() {
 
       {/* Barra de ação em massa */}
       {selecionados.size > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, background: 'rgba(169, 101, 237,0.08)', border: '1px solid rgba(169, 101, 237,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}</span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, background: 'rgba(214,168,101,0.08)', border: '1px solid rgba(214,168,101,0.25)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: '#9D7133' }}>{selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}</span>
           <select value={statusAlvo} onChange={e => setStatusAlvo(e.target.value)} disabled={alterandoStatus}
             style={{ padding: '6px 10px', fontSize: 12, borderRadius: 7, border: '1px solid var(--a-border)', background: 'var(--a-bg)', color: 'var(--a-text)', cursor: 'pointer', outline: 'none' }}>
             <option value="">Mudar status…</option>
@@ -238,7 +238,7 @@ export default function Pedidos() {
           </select>
           {statusAlvo && (
             <button onClick={alterarStatusEmMassa} disabled={alterandoStatus}
-              style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: '#A965ED', color: '#000', border: 'none', cursor: 'pointer', opacity: alterandoStatus ? 0.6 : 1 }}>
+              style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 7, background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#000', border: 'none', cursor: 'pointer', opacity: alterandoStatus ? 0.6 : 1 }}>
               {alterandoStatus ? '...' : `Aplicar (${selecionados.size})`}
             </button>
           )}
@@ -260,7 +260,7 @@ export default function Pedidos() {
             <tr style={{ borderBottom: '1px solid var(--a-border)' }}>
               <th style={{ padding: '11px 12px', width: 30 }}>
                 <div onClick={() => setSelecionados(prev => paginados.length > 0 && paginados.every(p => prev.has(p.id)) ? new Set() : new Set(paginados.map(p => p.id)))}
-                  style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+                  style={{ width: 15, height: 15, border: `2px solid ${paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#D6A865' : 'var(--a-border)'}`, borderRadius: 4, background: paginados.length > 0 && paginados.every(p => selecionados.has(p.id)) ? '#D6A865' : 'transparent', cursor: 'pointer' }} />
               </th>
               {['Pedido', 'Cliente', 'Telefone', 'Origem', 'Total', 'Status', 'Comprovante', 'Data', ''].map(h => (
                 <th key={h} style={{ padding: '11px 18px', textAlign: 'left', fontSize: 10, color: 'var(--a-text3)', fontWeight: 700, letterSpacing: '0.08em' }}>{h}</th>
@@ -273,14 +273,14 @@ export default function Pedidos() {
             ) : paginados.length === 0 ? (
               <tr><td colSpan={10} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</td></tr>
             ) : paginados.map(o => (
-              <tr key={o.id} style={{ borderBottom: '1px solid var(--a-surface)', cursor: 'pointer', background: selecionados.has(o.id) ? 'rgba(169, 101, 237,0.05)' : 'transparent', transition: 'background 0.1s' }}
+              <tr key={o.id} style={{ borderBottom: '1px solid var(--a-surface)', cursor: 'pointer', background: selecionados.has(o.id) ? 'rgba(214,168,101,0.05)' : 'transparent', transition: 'background 0.1s' }}
                 onMouseEnter={e => { if (!selecionados.has(o.id)) e.currentTarget.style.background = 'var(--a-border)' }}
                 onMouseLeave={e => { if (!selecionados.has(o.id)) e.currentTarget.style.background = 'transparent' }}
                 onClick={() => router.push(`/admin/pedidos/${o.id}`)}>
                 <td style={{ padding: '12px' }} onClick={e => toggleSelecionado(o.id, e)}>
-                  <div style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#A965ED' : 'transparent', cursor: 'pointer' }} />
+                  <div style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#D6A865' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#D6A865' : 'transparent', cursor: 'pointer' }} />
                 </td>
-                <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontWeight: 700 }}>{o.order_num}</td>
+                <td style={{ padding: '12px 18px', fontSize: 12, color: '#9D7133', fontWeight: 700 }}>{o.order_num}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text)' }}>{o.customers?.nome || '—'}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text2)' }}>{o.customers?.telefone || '—'}</td>
                 <td style={{ padding: '12px 18px' }}><OrigemCell o={o} /></td>
@@ -326,14 +326,14 @@ export default function Pedidos() {
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum pedido encontrado</div>
         ) : paginados.map(o => (
           <div key={o.id} onClick={() => router.push(`/admin/pedidos/${o.id}`)}
-            style={{ cursor: 'pointer', borderBottom: '1px solid var(--a-border)', background: selecionados.has(o.id) ? 'rgba(169, 101, 237,0.06)' : 'transparent' }}>
+            style={{ cursor: 'pointer', borderBottom: '1px solid var(--a-border)', background: selecionados.has(o.id) ? 'rgba(214,168,101,0.06)' : 'transparent' }}>
             <div style={{ height: 4, background: sc(o.status) }} />
             <div style={{ padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div onClick={e => toggleSelecionado(o.id, e)}
-                    style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#A965ED' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#A965ED' : 'transparent', cursor: 'pointer', flexShrink: 0 }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#A965ED' }}>{o.order_num}</span>
+                    style={{ width: 15, height: 15, border: `2px solid ${selecionados.has(o.id) ? '#D6A865' : 'var(--a-border)'}`, borderRadius: 4, background: selecionados.has(o.id) ? '#D6A865' : 'transparent', cursor: 'pointer', flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#9D7133' }}>{o.order_num}</span>
                 </div>
                 <span style={{ fontSize: 11, color: 'var(--a-text3)', flexShrink: 0 }}>
                   {new Date(o.created_at).toLocaleDateString('pt-BR')} {new Date(o.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -403,15 +403,15 @@ export default function Pedidos() {
             {manualSuccess ? (
               <div style={{ textAlign: 'center', padding: '40px 0' }}>
                 <p style={{ fontSize: 32, margin: '0 0 12px' }}>✓</p>
-                <p style={{ fontSize: 18, fontWeight: 900, color: '#A965ED', margin: '0 0 8px' }}>Pedido criado!</p>
+                <p style={{ fontSize: 18, fontWeight: 900, color: '#9D7133', margin: '0 0 8px' }}>Pedido criado!</p>
                 <p style={{ fontSize: 14, color: 'var(--a-text2)', margin: '0 0 24px' }}>{manualSuccess}</p>
-                <button onClick={() => { setModalManual(false); setManualSuccess('') }} style={{ padding: '10px 24px', background: '#A965ED', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Fechar</button>
+                <button onClick={() => { setModalManual(false); setManualSuccess('') }} style={{ padding: '10px 24px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: '#000', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer' }}>Fechar</button>
               </div>
             ) : (
               <div className="pedidos-manual-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 24 }}>
                 {/* Cliente */}
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
+                  <p style={{ fontSize: 10, color: '#9D7133', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>DADOS DO CLIENTE</p>
                   {(['nome', 'cpf', 'telefone', 'email', 'cidade', 'endereco'] as const).map(k => (
                     <div key={k} style={{ marginBottom: 10 }}>
                       <label style={{ fontSize: 10, color: 'var(--a-text2)', fontWeight: 700, letterSpacing: '0.08em', display: 'block', marginBottom: 4 }}>{k.toUpperCase()}</label>
@@ -423,7 +423,7 @@ export default function Pedidos() {
 
                 {/* Produtos */}
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ fontSize: 10, color: '#A965ED', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>PRODUTOS</p>
+                  <p style={{ fontSize: 10, color: '#9D7133', fontWeight: 800, letterSpacing: '0.1em', margin: '0 0 14px' }}>PRODUTOS</p>
                   <div style={{ width: '100%', boxSizing: 'border-box', maxHeight: 220, overflowY: 'auto', marginBottom: 14, border: '1px solid var(--a-border)', borderRadius: 8 }}>
                     {allProducts.map(p => (
                       <div key={p.id} onClick={() => addManualItem(p)}
@@ -431,7 +431,7 @@ export default function Pedidos() {
                         onMouseEnter={e => (e.currentTarget.style.background = 'var(--a-border)')}
                         onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                         <span style={{ color: 'var(--a-text2)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</span>
-                        <span style={{ color: '#A965ED', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+  R$ {p.brl_price.toFixed(2).replace('.', ',')}</span>
+                        <span style={{ color: '#9D7133', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0, marginLeft: 8 }}>+  R$ {p.brl_price.toFixed(2).replace('.', ',')}</span>
                       </div>
                     ))}
                   </div>
@@ -451,7 +451,7 @@ export default function Pedidos() {
                       ))}
                       <div style={{ borderTop: '1px solid var(--a-border)', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 13, fontWeight: 700 }}>
                         <span style={{ color: 'var(--a-text2)' }}>Total</span>
-                        <span style={{ color: '#A965ED' }}>R$ {manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2).replace('.', ',')}</span>
+                        <span style={{ color: '#9D7133' }}>R$ {manualItems.reduce((s, i) => s + i.usd * i.quantity, 0).toFixed(2).replace('.', ',')}</span>
                       </div>
                     </div>
                   )}
@@ -461,7 +461,7 @@ export default function Pedidos() {
 
             {!manualSuccess && (
               <button onClick={submitManual} disabled={manualSaving || !manualCustomer.nome || manualItems.length === 0}
-                style={{ marginTop: 24, width: '100%', padding: '13px', background: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-border)' : '#A965ED', color: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: manualSaving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 24, width: '100%', padding: '13px', background: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-border)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: (!manualCustomer.nome || manualItems.length === 0) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: manualSaving ? 'wait' : 'pointer' }}>
                 {manualSaving ? 'Criando...' : 'Criar Pedido'}
               </button>
             )}

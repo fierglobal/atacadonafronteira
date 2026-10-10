@@ -165,7 +165,7 @@ export default function Estoque() {
               const draft = drafts[p.id] || { value: '', saving: false, saved: false, error: '' }
               const isDirty = changed(p)
               const estoqueNum = p.estoque
-              const statusColor = estoqueNum === null ? 'var(--a-text3)' : estoqueNum === 0 ? '#ef4444' : estoqueNum <= 5 ? '#f59e0b' : '#A965ED'
+              const statusColor = estoqueNum === null ? 'var(--a-text3)' : estoqueNum === 0 ? '#ef4444' : estoqueNum <= 5 ? '#f59e0b' : '#9D7133'
               const statusLabel = estoqueNum === null ? 'Ilimitado' : estoqueNum === 0 ? 'Sem estoque' : estoqueNum <= 5 ? 'Baixo' : 'Ok'
 
               return (
@@ -206,7 +206,7 @@ export default function Estoque() {
                         onChange={e => setDraft(p.id, e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && isDirty && salvar(p)}
                         placeholder="∞"
-                        style={{ width: 90, padding: '7px 10px', background: 'var(--a-bg)', border: `1px solid ${isDirty ? 'rgba(169, 101, 237,0.5)' : 'var(--a-border)'}`, borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', textAlign: 'center', transition: 'border-color 0.15s' }}
+                        style={{ width: 90, padding: '7px 10px', background: 'var(--a-bg)', border: `1px solid ${isDirty ? 'rgba(214,168,101,0.5)' : 'var(--a-border)'}`, borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', textAlign: 'center', transition: 'border-color 0.15s' }}
                       />
                       <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>un.</span>
                     </div>
@@ -216,14 +216,14 @@ export default function Estoque() {
                   {/* Salvar */}
                   <td style={{ padding: '11px 18px' }}>
                     {draft.saved ? (
-                      <span style={{ fontSize: 12, color: '#A965ED', fontWeight: 700 }}>✓ Salvo</span>
+                      <span style={{ fontSize: 12, color: '#9D7133', fontWeight: 700 }}>✓ Salvo</span>
                     ) : (
                       <button
                         onClick={() => salvar(p)}
                         disabled={!isDirty || draft.saving}
                         style={{
                           padding: '7px 18px', fontSize: 12, fontWeight: 700, borderRadius: 7, cursor: !isDirty || draft.saving ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-                          background: !isDirty ? 'transparent' : draft.saving ? 'var(--a-border)' : '#A965ED',
+                          background: !isDirty ? 'transparent' : draft.saving ? 'var(--a-border)' : '#D6A865',
                           color: !isDirty ? 'var(--a-text3)' : draft.saving ? 'var(--a-text3)' : '#000',
                           border: !isDirty ? '1px solid var(--a-border)' : 'none',
                         }}>
@@ -252,7 +252,7 @@ export default function Estoque() {
           const draft = drafts[p.id] || { value: '', saving: false, saved: false, error: '' }
           const isDirty = changed(p)
           const estoqueNum = p.estoque
-          const statusColor = estoqueNum === null ? 'var(--a-text3)' : estoqueNum === 0 ? '#ef4444' : estoqueNum <= 5 ? '#f59e0b' : '#A965ED'
+          const statusColor = estoqueNum === null ? 'var(--a-text3)' : estoqueNum === 0 ? '#ef4444' : estoqueNum <= 5 ? '#f59e0b' : '#9D7133'
           const statusLabel = estoqueNum === null ? 'Ilimitado' : estoqueNum === 0 ? 'Sem estoque' : estoqueNum <= 5 ? 'Baixo' : 'Ok'
 
           return (
@@ -279,19 +279,19 @@ export default function Estoque() {
                   onChange={e => setDraft(p.id, e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && isDirty && salvar(p)}
                   placeholder="∞"
-                  style={{ width: 90, padding: '7px 10px', background: 'var(--a-bg)', border: `1px solid ${isDirty ? 'rgba(169, 101, 237,0.5)' : 'var(--a-border)'}`, borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', textAlign: 'center', transition: 'border-color 0.15s' }}
+                  style={{ width: 90, padding: '7px 10px', background: 'var(--a-bg)', border: `1px solid ${isDirty ? 'rgba(214,168,101,0.5)' : 'var(--a-border)'}`, borderRadius: 7, color: 'var(--a-text)', fontSize: 13, outline: 'none', textAlign: 'center', transition: 'border-color 0.15s' }}
                 />
                 <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>un.</span>
                 <div style={{ marginLeft: 'auto' }}>
                   {draft.saved ? (
-                    <span style={{ fontSize: 12, color: '#A965ED', fontWeight: 700 }}>✓ Salvo</span>
+                    <span style={{ fontSize: 12, color: '#9D7133', fontWeight: 700 }}>✓ Salvo</span>
                   ) : (
                     <button
                       onClick={() => salvar(p)}
                       disabled={!isDirty || draft.saving}
                       style={{
                         padding: '7px 18px', fontSize: 12, fontWeight: 700, borderRadius: 7, cursor: !isDirty || draft.saving ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-                        background: !isDirty ? 'transparent' : draft.saving ? 'var(--a-border)' : '#A965ED',
+                        background: !isDirty ? 'transparent' : draft.saving ? 'var(--a-border)' : '#D6A865',
                         color: !isDirty ? 'var(--a-text3)' : draft.saving ? 'var(--a-text3)' : '#000',
                         border: !isDirty ? '1px solid var(--a-border)' : 'none',
                       }}>

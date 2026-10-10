@@ -83,7 +83,7 @@ export default function SalesChannels() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>{channels.length} canais cadastrados</p>
         </div>
         <button onClick={() => { setModal(true); setErr('') }}
-          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', borderRadius: 8, color: '#111111', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Canal
         </button>
       </div>
@@ -104,12 +104,12 @@ export default function SalesChannels() {
               <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--a-text3)', fontSize: 13 }}>Nenhum canal cadastrado</td></tr>
             ) : channels.map(c => (
               <tr key={c.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
-                <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontFamily: 'monospace', fontWeight: 700 }}>{c.slug}</td>
+                <td style={{ padding: '12px 18px', fontSize: 12, color: '#9D7133', fontFamily: 'monospace', fontWeight: 700 }}>{c.slug}</td>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 600, color: 'var(--a-text)' }}>{c.nome}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{c.descricao || '—'}</td>
                 <td style={{ padding: '12px 18px' }}>
                   <button onClick={() => toggleAtivo(c)}
-                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: c.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer' }}>
+                    style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(214,168,101,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(214,168,101,0.08)' : 'transparent', color: c.ativo ? '#9D7133' : 'var(--a-text3)', cursor: 'pointer' }}>
                     {c.ativo ? '● Ativo' : '○ Inativo'}
                   </button>
                 </td>
@@ -136,11 +136,11 @@ export default function SalesChannels() {
           <div key={c.id} style={{ padding: '12px 16px', borderBottom: '1px solid var(--a-border)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
               <div style={{ minWidth: 0 }}>
-                <span style={{ fontSize: 11, color: '#A965ED', fontFamily: 'monospace', fontWeight: 700 }}>{c.slug}</span>
+                <span style={{ fontSize: 11, color: '#9D7133', fontFamily: 'monospace', fontWeight: 700 }}>{c.slug}</span>
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--a-text)', margin: '2px 0 0' }}>{c.nome}</p>
               </div>
               <button onClick={() => toggleAtivo(c)}
-                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(169, 101, 237,0.08)' : 'transparent', color: c.ativo ? '#A965ED' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                style={{ padding: '4px 12px', fontSize: 11, fontWeight: 700, borderRadius: 20, border: `1px solid ${c.ativo ? 'rgba(214,168,101,0.3)' : 'var(--a-border)'}`, background: c.ativo ? 'rgba(214,168,101,0.08)' : 'transparent', color: c.ativo ? '#9D7133' : 'var(--a-text3)', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
                 {c.ativo ? '● Ativo' : '○ Inativo'}
               </button>
             </div>
@@ -188,7 +188,7 @@ export default function SalesChannels() {
               </label>
               {err && <p style={{ color: '#ef4444', fontSize: 12, margin: 0 }}>{err}</p>}
               <button onClick={criar} disabled={saving || !form.slug || !form.nome}
-                style={{ marginTop: 8, padding: '13px', background: (!form.slug || !form.nome) ? 'var(--a-border)' : '#A965ED', color: (!form.slug || !form.nome) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.slug || !form.nome) ? 'var(--a-border)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: (!form.slug || !form.nome) ? 'var(--a-text3)' : '#111111', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : 'Criar Canal'}
               </button>
             </div>

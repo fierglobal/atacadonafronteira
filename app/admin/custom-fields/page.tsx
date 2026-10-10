@@ -124,7 +124,7 @@ export default function CustomFields() {
           <p style={{ color: 'var(--a-text3)', fontSize: 13, marginTop: 4 }}>Master data dinâmico</p>
         </div>
         <button onClick={() => { setModal(true); setErr('') }}
-          style={{ padding: '9px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '9px 18px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', borderRadius: 8, color: '#111111', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           + Novo Campo
         </button>
       </div>
@@ -134,9 +134,9 @@ export default function CustomFields() {
           <button key={e.v} onClick={() => setEntity(e.v)}
             style={{
               padding: '7px 16px', fontSize: 12, fontWeight: 700, borderRadius: 8,
-              border: `1px solid ${entity === e.v ? 'rgba(169, 101, 237,0.3)' : 'var(--a-border)'}`,
-              background: entity === e.v ? 'rgba(169, 101, 237,0.08)' : 'transparent',
-              color: entity === e.v ? '#A965ED' : 'var(--a-text2)',
+              border: `1px solid ${entity === e.v ? 'rgba(214,168,101,0.3)' : 'var(--a-border)'}`,
+              background: entity === e.v ? 'rgba(214,168,101,0.08)' : 'transparent',
+              color: entity === e.v ? '#9D7133' : 'var(--a-text2)',
               cursor: 'pointer',
             }}>
             {e.label}
@@ -161,7 +161,7 @@ export default function CustomFields() {
             ) : defs.map(d => (
               <tr key={d.id} style={{ borderBottom: '1px solid var(--a-border)' }}>
                 <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 700, color: 'var(--a-text2)', width: 60 }}>{d.ordem}</td>
-                <td style={{ padding: '12px 18px', fontSize: 12, color: '#A965ED', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</td>
+                <td style={{ padding: '12px 18px', fontSize: 12, color: '#9D7133', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</td>
                 <td style={{ padding: '12px 18px', fontSize: 13, color: 'var(--a-text)' }}>{d.label}</td>
                 <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--a-text3)' }}>{TYPES.find(t => t.v === d.field_type)?.label || d.field_type}</td>
                 <td style={{ padding: '12px 18px' }}>
@@ -193,7 +193,7 @@ export default function CustomFields() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
               <div style={{ minWidth: 0 }}>
                 <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--a-text3)' }}>#{d.ordem}</span>{' '}
-                <span style={{ fontSize: 11, color: '#A965ED', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</span>
+                <span style={{ fontSize: 11, color: '#9D7133', fontFamily: 'monospace', fontWeight: 700 }}>{d.field_key}</span>
                 <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--a-text)', margin: '2px 0 0' }}>{d.label}</p>
                 <span style={{ fontSize: 11, color: 'var(--a-text3)' }}>{TYPES.find(t => t.v === d.field_type)?.label || d.field_type}</span>
               </div>
@@ -260,7 +260,7 @@ export default function CustomFields() {
               </label>
               {err && <p style={{ color: '#ef4444', fontSize: 12, margin: 0 }}>{err}</p>}
               <button onClick={criar} disabled={saving || !form.field_key || !form.label}
-                style={{ marginTop: 8, padding: '13px', background: (!form.field_key || !form.label) ? 'var(--a-border)' : '#A965ED', color: (!form.field_key || !form.label) ? 'var(--a-text3)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
+                style={{ marginTop: 8, padding: '13px', background: (!form.field_key || !form.label) ? 'var(--a-border)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: (!form.field_key || !form.label) ? 'var(--a-text3)' : '#111111', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer' }}>
                 {saving ? 'Salvando...' : 'Criar Campo'}
               </button>
             </div>

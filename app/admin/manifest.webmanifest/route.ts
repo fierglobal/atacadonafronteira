@@ -16,8 +16,8 @@ export async function GET() {
       description: 'Painel administrativo Atacado na Fronteira',
       start_url: '/admin',
       display: 'standalone',
-      background_color: '#080808',
-      theme_color: '#080808',
+      background_color: '#ffffff',
+      theme_color: '#ffffff',
       orientation: 'portrait',
       scope: '/admin',
       icons: [

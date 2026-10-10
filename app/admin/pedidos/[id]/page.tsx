@@ -7,13 +7,13 @@ const fmt = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`
 const STATUSES = [
   { value: 'pendente_pagamento', label: 'Pendente PIX', color: '#f59e0b' },
   { value: 'pago', label: 'Pago', color: '#3b82f6' },
-  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#A965ED' },
+  { value: 'pronto_retirada', label: 'Pronto p/ Retirada', color: '#9D7133' },
   { value: 'retirado', label: 'Retirado', color: '#555' },
   { value: 'cancelado', label: 'Cancelado', color: '#ef4444' },
 ]
 const ORDER_TAGS = ['urgente', 'atacadista', 'vip', 'novo cliente', 'problemático']
 const TAG_COLORS: Record<string, string> = {
-  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#A965ED', 'problemático': '#A965ED',
+  urgente: '#ef4444', atacadista: '#3b82f6', vip: '#f59e0b', 'novo cliente': '#9D7133', 'problemático': '#9D7133',
 }
 const AÇÃO_LABEL: Record<string, string> = {
   tags: 'Tags alteradas', notas: 'Notas alteradas', update: 'Pedido editado', bulk_status: 'Status alterado em lote',
@@ -108,7 +108,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
     return (
       <div style={{ padding: '32px 36px', background: 'var(--a-bg)', minHeight: '100vh' }}>
         <p style={{ color: 'var(--a-text3)' }}>Pedido não encontrado.</p>
-        <Link href="/admin/pedidos" style={{ color: '#A965ED' }}>← Voltar pra lista</Link>
+        <Link href="/admin/pedidos" style={{ color: '#9D7133' }}>← Voltar pra lista</Link>
       </div>
     )
   }
@@ -264,7 +264,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>⚡</div>
               <div>
                 <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--a-text)' }}>PIX</p>
-                <p style={{ margin: '2px 0 0', fontSize: 11, color: order.comprovante_url ? '#A965ED' : 'var(--a-text3)', fontWeight: 700 }}>
+                <p style={{ margin: '2px 0 0', fontSize: 11, color: order.comprovante_url ? '#9D7133' : 'var(--a-text3)', fontWeight: 700 }}>
                   {order.comprovante_url ? '✓ Comprovante recebido' : 'Aguardando comprovante'}
                 </p>
               </div>
@@ -292,11 +292,11 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               return categorias.map(cat => (
                 <div key={cat}>
                   {mostrarGrupos && (
-                    <p style={{ margin: 0, padding: '8px 16px 4px', fontSize: 10, fontWeight: 800, color: '#A965ED', letterSpacing: '0.08em', textTransform: 'uppercase', background: 'var(--a-bg)' }}>{cat}</p>
+                    <p style={{ margin: 0, padding: '8px 16px 4px', fontSize: 10, fontWeight: 800, color: '#9D7133', letterSpacing: '0.08em', textTransform: 'uppercase', background: 'var(--a-bg)' }}>{cat}</p>
                   )}
                   {grupos[cat].map((item, i) => {
                     const estoque = stockMap[item.product_name]
-                    const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#A965ED' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#A965ED'
+                    const estoqueColor = estoque === undefined ? '#555' : estoque === null ? '#9D7133' : estoque === 0 ? '#ef4444' : estoque <= 5 ? '#f59e0b' : '#9D7133'
                     const estoqueLabel = estoque === undefined ? '' : estoque === null ? '∞' : `${estoque} un.`
                     const img = item.products?.img_url
                     return (
@@ -319,7 +319,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
                           </div>
                           <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--a-text3)' }}>{item.quantity}x · {fmt(item.unit_brl ?? item.unit_usd * taxaDoPedido)}/un</p>
                         </div>
-                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#A965ED', flexShrink: 0 }}>{fmt(item.subtotal_brl ?? item.subtotal_usd * taxaDoPedido)}</p>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#9D7133', flexShrink: 0 }}>{fmt(item.subtotal_brl ?? item.subtotal_usd * taxaDoPedido)}</p>
                       </div>
                     )
                   })}
@@ -339,7 +339,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--a-border)', marginTop: 4, fontWeight: 900 }}>
                 <span style={{ fontSize: 13, color: 'var(--a-text)' }}>Total</span>
-                <span style={{ color: '#A965ED' }}>{fmt(order.total_brl)}</span>
+                <span style={{ color: '#9D7133' }}>{fmt(order.total_brl)}</span>
               </div>
             </div>
           </div>
@@ -361,7 +361,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
                     )}
                   </button>
                   <a href={order.comprovante_url} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'block', marginTop: 8, fontSize: 11, color: '#A965ED', textAlign: 'center', textDecoration: 'none' }}>
+                    style={{ display: 'block', marginTop: 8, fontSize: 11, color: '#9D7133', textAlign: 'center', textDecoration: 'none' }}>
                     Abrir em nova aba ↗
                   </a>
                 </>
@@ -398,7 +398,7 @@ export default function PedidoDetalhe({ params }: { params: Promise<{ id: string
               <Card title="Histórico">
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   {timeline.map((h, i) => {
-                    const color = h.tipo === 'status' ? (STATUSES.find(s => s.value === h.status)?.color || '#888') : '#A965ED'
+                    const color = h.tipo === 'status' ? (STATUSES.find(s => s.value === h.status)?.color || '#888') : '#9D7133'
                     const label = h.tipo === 'status' ? (STATUSES.find(s => s.value === h.status)?.label || h.status) : (AÇÃO_LABEL[h.action] || h.action)
                     return (
                       <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderBottom: i < timeline.length - 1 ? '1px solid var(--a-bg)' : 'none' }}>

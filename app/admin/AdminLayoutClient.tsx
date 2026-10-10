@@ -2,6 +2,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Logo from '@/components/Logo'
+import AdminCommandPalette from './AdminCommandPalette'
 
 type NavItem = { href: string; label: string; icon: string }
 type NavGroup = { key: string; label: string; icon: string; items: NavItem[] }
@@ -62,28 +63,20 @@ const groups: NavGroup[] = [
   },
 ]
 
+const BOTTOM_TAB_ITEMS: NavItem[] = [
+  dashboard,
+  { href: '/admin/pedidos', label: 'Pedidos', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+  { href: '/admin/produtos', label: 'Produtos', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+  { href: '/admin/clientes', label: 'Clientes', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
+]
+
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [dark, setDark] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [searchQ, setSearchQ] = useState('')
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [cmdOpen, setCmdOpen] = useState(false)
 
-  useEffect(() => {
-    queueMicrotask(() => {
-      const saved = localStorage.getItem('admin-theme')
-      setDark(saved === 'dark')
-      const activeGroup = groups.find(g => g.items.some(i => pathname.startsWith(i.href)))
-      const savedGroups = localStorage.getItem('admin-nav-groups')
-      const initial = new Set<string>(savedGroups ? JSON.parse(savedGroups) : [])
-      if (activeGroup) initial.add(activeGroup.key)
-      setOpenGroups(initial)
-      setMounted(true)
-      setSidebarOpen(false)
-    })
-  }, [pathname])
+  useEffect(() => { setSidebarOpen(false) }, [pathname])
 
   // Sidebar de menu vira drawer no mobile — sem isto ela ficava com os 220px
   // fixos sempre, empurrando o conteúdo e forçando scroll lateral na tela
@@ -96,31 +89,17 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onEsc) }
   }, [sidebarOpen])
 
-  const toggleGroup = (key: string) => {
-    setOpenGroups(prev => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key); else next.add(key)
-      localStorage.setItem('admin-nav-groups', JSON.stringify([...next]))
-      return next
-    })
-  }
-
-  const toggleTheme = () => {
-    const next = !dark
-    setDark(next)
-    localStorage.setItem('admin-theme', next ? 'dark' : 'light')
-  }
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(o => !o) }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
 
   const logout = async () => {
     await fetch('/api/admin/login', { method: 'DELETE' })
     router.push('/admin/login')
-  }
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQ.trim()) {
-      router.push(`/admin/busca?q=${encodeURIComponent(searchQ.trim())}`)
-    }
   }
 
   if (pathname === '/admin/login') return <>{children}</>
@@ -128,174 +107,144 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const allItems = [dashboard, ...groups.flatMap(g => g.items)]
   const currentLabel = pathname === '/admin' ? 'Dashboard' : (allItems.find(i => pathname.startsWith(i.href))?.label ?? 'Admin')
 
+  const navLinkStyle = (active: boolean) => ({
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '8px 10px', borderRadius: 7,
+    background: active ? 'rgba(214,168,101,0.12)' : 'transparent',
+    borderLeft: `2px solid ${active ? '#9D7133' : 'transparent'}`,
+    color: active ? '#9D7133' : '#475569',
+    textDecoration: 'none', fontSize: 12, fontWeight: active ? 700 : 500,
+    flexShrink: 0,
+  } as const)
+
   return (
-    <div className={dark ? 'admin-dark' : ''} style={{ minHeight: '100vh', background: 'var(--a-bg)', display: 'flex', color: 'var(--a-text)', visibility: mounted ? 'visible' : 'hidden' }}>
-      <style>{`
-        .admin-mobile-bar { display: none; }
-        @media (max-width: 900px) {
-          .admin-sidebar {
-            width: 260px !important;
-            max-width: 82vw !important;
-            transform: translateX(-100%);
-            transition: transform 0.22s ease;
-            box-shadow: 8px 0 32px rgba(0,0,0,0.35);
+    <>
+      <AdminCommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} items={allItems} />
+      <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', color: '#0f172a' }}>
+        <style>{`
+          .admin-desktop-header { display: flex; }
+          .admin-mobile-header { display: none; }
+          .admin-bottom-tabbar { display: none; }
+          @media (max-width: 900px) {
+            .admin-sidebar {
+              width: 260px !important;
+              max-width: 82vw !important;
+              transform: translateX(-100%);
+              transition: transform 0.22s ease;
+              box-shadow: 8px 0 32px rgba(0,0,0,0.25);
+            }
+            .admin-sidebar.open { transform: translateX(0) !important; }
+            .admin-sidebar-close { display: flex !important; }
+            .admin-main { margin-left: 0 !important; padding-bottom: 66px; }
+            .admin-desktop-header { display: none !important; }
+            .admin-mobile-header { display: flex !important; }
+            .admin-bottom-tabbar { display: flex !important; }
           }
-          .admin-sidebar.open { transform: translateX(0) !important; }
-          .admin-sidebar-close { display: flex !important; }
-          .admin-main { margin-left: 0 !important; padding-top: 54px; }
-          .admin-mobile-bar { display: flex !important; }
-        }
-      `}</style>
+        `}</style>
 
-      {/* Backdrop do drawer (só existe montado quando aberto) */}
-      {sidebarOpen && (
-        <div onClick={() => setSidebarOpen(false)} aria-hidden="true"
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 45 }} />
-      )}
+        {sidebarOpen && (
+          <div onClick={() => setSidebarOpen(false)} aria-hidden="true"
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 45 }} />
+        )}
 
-      {/* Barra superior mobile */}
-      <header className="admin-mobile-bar"
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 54, alignItems: 'center', gap: 12, padding: '0 14px', background: 'var(--a-sidebar)', borderBottom: '1px solid var(--a-border)', zIndex: 40 }}>
-        <button onClick={() => setSidebarOpen(true)} aria-label="Abrir menu"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 34, height: 34, borderRadius: 7, background: 'var(--a-nav-active-bg)', border: 'none', color: 'var(--a-text)', cursor: 'pointer', flexShrink: 0 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-          </svg>
-        </button>
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--a-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentLabel}</span>
-      </header>
-
-      {/* Sidebar */}
-      <aside className={`admin-sidebar${sidebarOpen ? ' open' : ''}`} style={{ width: 220, background: 'var(--a-sidebar)', borderRight: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 50 }}>
-        <div style={{ padding: '20px 20px 12px', borderBottom: '1px solid var(--a-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-            <Logo size={26} dark />
+        {/* Sidebar */}
+        <aside className={`admin-sidebar${sidebarOpen ? ' open' : ''}`} style={{ width: 220, background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, height: '100vh', zIndex: 50 }}>
+          <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+            <Logo size={24} />
             <button onClick={() => setSidebarOpen(false)} aria-label="Fechar menu" className="admin-sidebar-close"
-              style={{ display: 'none', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 6, background: 'transparent', border: 'none', color: 'var(--a-text2)', cursor: 'pointer', flexShrink: 0, marginTop: -2 }}>
+              style={{ display: 'none', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 6, background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', flexShrink: 0, marginTop: -2 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
           </div>
-          <p style={{ fontSize: 9, color: 'var(--a-text3)', letterSpacing: '0.12em', marginTop: 6, marginBottom: 10 }}>ADMIN</p>
-          {/* Busca global */}
-          <form onSubmit={handleSearch}>
-            <input
-              value={searchQ}
-              onChange={e => setSearchQ(e.target.value)}
-              placeholder="Buscar..."
-              style={{ width: '100%', padding: '7px 10px', background: 'var(--a-border)', border: '1px solid transparent', borderRadius: 6, color: 'var(--a-text)', fontSize: 12, outline: 'none', boxSizing: 'border-box' as const, transition: 'border-color 0.15s' }}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(18,253,0,0.3)')}
-              onBlur={e => (e.currentTarget.style.borderColor = 'transparent')}
-            />
-          </form>
-        </div>
 
-        <nav style={{ flex: 1, padding: '10px 10px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
-          {(() => {
-            const dashActive = pathname === '/admin'
-            return (
-              <a href={dashboard.href}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 10px', borderRadius: 7,
-                  background: dashActive ? 'var(--a-nav-active-bg)' : 'transparent',
-                  border: `1px solid ${dashActive ? 'var(--a-nav-active-border)' : 'transparent'}`,
-                  color: dashActive ? 'var(--a-nav-active-text)' : 'var(--a-nav-inactive)',
-                  textDecoration: 'none', fontSize: 12, fontWeight: dashActive ? 700 : 400,
-                  flexShrink: 0, marginBottom: 6,
-                }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d={dashboard.icon} />
-                </svg>
-                {dashboard.label}
-              </a>
-            )
-          })()}
+          <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 1, overflowY: 'auto' }}>
+            <a href={dashboard.href} onClick={() => setSidebarOpen(false)} style={{ ...navLinkStyle(pathname === '/admin'), marginBottom: 10 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <path d={dashboard.icon} />
+              </svg>
+              {dashboard.label}
+            </a>
 
-          {groups.map(g => {
-            const open = openGroups.has(g.key)
-            const hasActive = g.items.some(i => pathname.startsWith(i.href))
-            return (
-              <div key={g.key} style={{ marginBottom: 2 }}>
-                <button onClick={() => toggleGroup(g.key)}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                    padding: '8px 10px', borderRadius: 7,
-                    background: 'transparent', border: '1px solid transparent',
-                    color: hasActive ? 'var(--a-text)' : 'var(--a-nav-inactive)',
-                    fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase',
-                    cursor: 'pointer', textAlign: 'left' as const, flexShrink: 0,
-                  }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                    <path d={g.icon} />
-                  </svg>
-                  <span style={{ flex: 1 }}>{g.label}</span>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s', flexShrink: 0 }}>
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
-                {open && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 1, paddingLeft: 8, marginTop: 2 }}>
-                    {g.items.map(item => {
-                      const active = pathname.startsWith(item.href)
-                      return (
-                        <a key={item.href} href={item.href}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '7px 10px', borderRadius: 7,
-                            background: active ? 'var(--a-nav-active-bg)' : 'transparent',
-                            border: `1px solid ${active ? 'var(--a-nav-active-border)' : 'transparent'}`,
-                            color: active ? 'var(--a-nav-active-text)' : 'var(--a-nav-inactive)',
-                            textDecoration: 'none', fontSize: 12, fontWeight: active ? 700 : 400,
-                            flexShrink: 0,
-                          }}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.7 }}>
-                            <path d={item.icon} />
-                          </svg>
-                          {item.label}
-                        </a>
-                      )
-                    })}
-                  </div>
-                )}
+            {groups.map(g => (
+              <div key={g.key} style={{ marginBottom: 14 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0 10px 6px' }}>{g.label}</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  {g.items.map(item => (
+                    <a key={item.href} href={item.href} onClick={() => setSidebarOpen(false)} style={navLinkStyle(pathname.startsWith(item.href))}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.85 }}>
+                        <path d={item.icon} />
+                      </svg>
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
               </div>
-            )
-          })}
-        </nav>
+            ))}
+          </nav>
+        </aside>
 
-        <div style={{ padding: '10px 10px', borderTop: '1px solid var(--a-border)', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <button onClick={toggleTheme}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 10px', borderRadius: 7, background: 'none', border: 'none', color: 'var(--a-text2)', fontSize: 12, cursor: 'pointer' }}>
-            {dark ? (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        {/* Coluna principal */}
+        <div className="admin-main" style={{ marginLeft: 220, flex: 1, minHeight: '100vh', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          {/* Barra superior mobile */}
+          <header className="admin-mobile-header" style={{ alignItems: 'center', gap: 12, padding: '10px 14px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 40 }}>
+            <button onClick={() => setSidebarOpen(true)} aria-label="Abrir menu"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', cursor: 'pointer', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
               </svg>
-            ) : (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-              </svg>
-            )}
-            {dark ? 'Tema Claro' : 'Tema Escuro'}
-          </button>
+            </button>
+            <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentLabel}</span>
+            <a href="/" target="_blank" aria-label="Ver loja" title="Ver loja"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9.5L4.5 4h15L21 9.5M4 9.5v9a1.5 1.5 0 001.5 1.5H10v-5a1 1 0 011-1h2a1 1 0 011 1v5h4.5A1.5 1.5 0 0020 18.5v-9M4 9.5a2 2 0 004 0M8 9.5a2 2 0 004 0M12 9.5a2 2 0 004 0M16 9.5a2 2 0 004 0"/></svg>
+            </a>
+            <button onClick={logout} aria-label="Sair" title="Sair"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, border: '1px solid #fee2e2', background: '#fff', color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </button>
+          </header>
 
-          <button onClick={logout}
-            style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 10px', borderRadius: 7, background: 'none', border: 'none', color: 'var(--a-text3)', fontSize: 12, cursor: 'pointer', transition: 'color 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#ef4444')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--a-text3)')}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
-            </svg>
-            Sair
-          </button>
+          {/* Barra superior desktop */}
+          <header className="admin-desktop-header" style={{ alignItems: 'center', justifyContent: 'flex-end', gap: 8, padding: '10px 24px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', position: 'sticky', top: 0, zIndex: 40 }}>
+            <button onClick={() => setCmdOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer', color: '#94a3b8', fontSize: 13 }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <span>Buscar...</span>
+              <kbd style={{ fontSize: 10, color: '#94a3b8', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.05em' }}>⌘K</kbd>
+            </button>
+            <a href="/" target="_blank" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 500, textDecoration: 'none' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              Ver loja
+            </a>
+            <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 8, border: '1px solid #fee2e2', background: '#fff', color: '#ef4444', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Sair
+            </button>
+          </header>
+
+          <main style={{ flex: 1, minWidth: 0 }}>
+            {children}
+          </main>
+
+          {/* Bottom tab bar — mobile */}
+          <nav className="admin-bottom-tabbar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50, background: '#fff', borderTop: '1px solid #e2e8f0', minHeight: 58, paddingBottom: 'calc(8px + env(safe-area-inset-bottom))' }}>
+            {BOTTOM_TAB_ITEMS.map(item => {
+              const active = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href)
+              return (
+                <a key={item.href} href={item.href} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '6px 0', textDecoration: 'none' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={active ? '#9D7133' : '#94a3b8'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={item.icon} /></svg>
+                  <span style={{ fontSize: 10, fontWeight: active ? 700 : 500, color: active ? '#9D7133' : '#94a3b8' }}>{item.label}</span>
+                </a>
+              )
+            })}
+            <button onClick={() => setSidebarOpen(true)} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '6px 0', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+              <span style={{ fontSize: 10, fontWeight: 500, color: '#94a3b8' }}>Menu</span>
+            </button>
+          </nav>
         </div>
-      </aside>
-
-      {/* Main */}
-      <main className="admin-main" style={{ marginLeft: 220, flex: 1, minHeight: '100vh', minWidth: 0 }}>
-        {children}
-      </main>
-    </div>
+      </div>
+    </>
   )
 }

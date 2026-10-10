@@ -32,7 +32,7 @@ export default function Deliveries({ params }: { params: Promise<{ id: string }>
   const statusColor = (d: Delivery): string => {
     if (d.error) return '#ef4444'
     const s = d.status_code || 0
-    if (s >= 200 && s < 300) return '#A965ED'
+    if (s >= 200 && s < 300) return '#9D7133'
     if (s >= 400) return '#ef4444'
     return '#f59e0b'
   }
@@ -72,7 +72,7 @@ export default function Deliveries({ params }: { params: Promise<{ id: string }>
                     {new Date(d.created_at).toLocaleString('pt-BR')}
                   </td>
                   <td style={{ padding: '12px 18px' }}>
-                    <code style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(169, 101, 237,0.1)', color: '#A965ED', border: '1px solid rgba(169, 101, 237,0.2)', borderRadius: 4 }}>
+                    <code style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(214,168,101,0.1)', color: '#9D7133', border: '1px solid rgba(214,168,101,0.2)', borderRadius: 4 }}>
                       {d.event}
                     </code>
                   </td>

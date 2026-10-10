@@ -173,10 +173,10 @@ export default function AdminHome() {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <button onClick={save} disabled={saving}
-          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : '#A965ED', color: saving ? 'var(--a-text2)' : '#000', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
+          style={{ padding: '12px 32px', background: saving ? 'var(--a-border)' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', color: saving ? 'var(--a-text2)' : '#111111', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 14, cursor: saving ? 'wait' : 'pointer', transition: 'all 0.2s' }}>
           {saving ? 'Salvando...' : 'Salvar alterações'}
         </button>
-        {saved && <span style={{ fontSize: 13, color: '#A965ED', fontWeight: 700 }}>✓ Salvo com sucesso</span>}
+        {saved && <span style={{ fontSize: 13, color: '#9D7133', fontWeight: 700 }}>✓ Salvo com sucesso</span>}
         <a href="/" target="_blank" rel="noopener"
           style={{ fontSize: 12, color: 'var(--a-text3)', textDecoration: 'none', marginLeft: 'auto', border: '1px solid var(--a-border)', padding: '9px 16px', borderRadius: 8 }}>
           Ver home →

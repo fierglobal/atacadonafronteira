@@ -45,10 +45,10 @@ export default function Audit() {
   const filtrar = () => load(0)
 
   const actionColor = (a: string): string => {
-    if (a === 'create') return '#A965ED'
+    if (a === 'create') return '#9D7133'
     if (a === 'delete') return '#ef4444'
     if (a === 'update') return '#f59e0b'
-    if (a === 'test') return '#A965ED'
+    if (a === 'test') return '#9D7133'
     return 'var(--a-text2)'
   }
 
@@ -87,7 +87,7 @@ export default function Audit() {
           placeholder="Filtrar por usuário"
           style={{ ...inp, width: 240 }} />
         <button onClick={filtrar}
-          style={{ padding: '8px 18px', background: '#A965ED', border: 'none', borderRadius: 8, color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
+          style={{ padding: '8px 18px', background: 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', borderRadius: 8, color: '#111111', fontSize: 12, fontWeight: 900, cursor: 'pointer' }}>
           Filtrar
         </button>
         <button onClick={() => { setEntity(''); setUser(''); setTimeout(() => load(0), 0) }}
@@ -120,7 +120,7 @@ export default function Audit() {
                   <td style={{ padding: '12px 18px', fontSize: 11, fontWeight: 800, color: actionColor(l.action), textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>
                     {l.action}
                   </td>
-                  <td style={{ padding: '12px 18px', fontSize: 11, color: '#A965ED', fontFamily: 'monospace' }}>{l.entity}</td>
+                  <td style={{ padding: '12px 18px', fontSize: 11, color: '#9D7133', fontFamily: 'monospace' }}>{l.entity}</td>
                   <td style={{ padding: '12px 18px', fontSize: 11, color: 'var(--a-text3)', fontFamily: 'monospace', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {l.entity_id || '—'}
                   </td>
@@ -165,7 +165,7 @@ export default function Audit() {
             </div>
             <p style={{ fontSize: 13, color: 'var(--a-text)', margin: '6px 0 0' }}>{l.user_nome}</p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 6 }}>
-              <span style={{ fontSize: 11, color: '#A965ED', fontFamily: 'monospace' }}>{l.entity}</span>
+              <span style={{ fontSize: 11, color: '#9D7133', fontFamily: 'monospace' }}>{l.entity}</span>
               {l.entity_id && <span style={{ fontSize: 10, color: 'var(--a-text3)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 160 }}>{l.entity_id}</span>}
             </div>
             {l.diff != null && (

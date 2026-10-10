@@ -49,7 +49,7 @@ export default async function RelatorioPedidos({ searchParams }: { searchParams:
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111; background: #fff; padding: 28px; max-width: 900px; margin: 0 auto; font-size: 12.5px; line-height: 1.5; }
           h1 { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
           .subtitle { color: #666; font-size: 12px; margin: 0 0 16px; }
-          .rule { height: 3px; background: #A965ED; border: none; margin: 0 0 16px; }
+          .rule { height: 3px; background: #D6A865; border: none; margin: 0 0 16px; }
           .criterio { background: #FBF4FE; border: 1px solid #E9D2F9; border-radius: 8px; padding: 10px 14px; font-size: 11.5px; color: #444; margin-bottom: 20px; }
           .cards { display: flex; gap: 12px; margin-bottom: 22px; }
           .card { flex: 1; border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 16px; }
@@ -108,7 +108,7 @@ export default async function RelatorioPedidos({ searchParams }: { searchParams:
               return (
                 <Fragment key={o.id}>
                   <tr className="grupo cabecalho" style={{ background: shade }}>
-                    <td style={{ fontWeight: 800, color: '#A965ED' }}>#{o.order_num}</td>
+                    <td style={{ fontWeight: 800, color: '#9D7133' }}>#{o.order_num}</td>
                     <td style={{ fontWeight: 700 }}>
                       {o.customers?.nome || '—'}
                       <span style={{ marginLeft: 8 }} className="muted">{STATUS_LABEL[o.status] || o.status}</span>

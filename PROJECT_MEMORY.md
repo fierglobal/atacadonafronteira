@@ -313,3 +313,18 @@
 
 <!-- session 2026-10-08 20:15 -->
 <!-- arquivos: app/categoria/[slug]/page.tsx,app/globals.css,app/layout.tsx,app/produtos/[id]/page.tsx,app/produtos/page.tsx,components/CategoriaProductCard.tsx,components/CategoriaProductCardGrupo.tsx,components/SiteFooter.tsx -->
+
+<!-- session 2026-10-09 22:54 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/estoque/page.tsx,app/admin/home/page.tsx -->
+
+<!-- session 2026-10-09 22:54 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx -->
+
+<!-- session 2026-10-09 22:55 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx -->
+
+<!-- session 2026-10-09 22:55 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx -->
+
+<!-- session 2026-10-09 22:57 -->
+<!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx -->
