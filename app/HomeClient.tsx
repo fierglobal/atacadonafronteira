@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import SiteFooter from '@/components/SiteFooter'
-import { Destaques, Catalogo, ComoFunciona, BandaFinal, type DeptCard, type DestaqueProduto } from '@/components/HomeSecoes'
+import { MarcasCarrossel, ComoFunciona, BandaFinal, FaixaLojaFisica, VitrineCarrossel, BannerPromo, type DestaqueProduto } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 
 const dec = (s: string | null) => {
@@ -21,12 +21,14 @@ const dec = (s: string | null) => {
 // Paraguai: home enxuta, catálogo à parte.
 export type HomeInitial = {
   deptApple: number
-  departamentos: DeptCard[]
-  destaques: DestaqueProduto[]
   total: number
   brands: { nome: string; total: number }[]  // nomes em base64, como a API
   heroEletronico: HeroProduct | null          // idem — decodificado dentro do HeroRotativo
   heroPromo: HeroProduct | null
+  totalPerfumes: number
+  totalEletronicos: number
+  vitrinePerfumes: DestaqueProduto[]
+  vitrineEletronicos: DestaqueProduto[]
 }
 
 export default function Home({ initial }: { initial?: HomeInitial }) {
@@ -48,6 +50,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   }, [])
 
   const brands = (initial?.brands ?? []).map(b => dec(b.nome) ?? b.nome)
+  const marcasComContagem = (initial?.brands ?? []).map(b => ({ nome: dec(b.nome) ?? b.nome, total: b.total }))
 
   return (
     <div className="min-h-screen font-sans home-root" style={{ background: '#ffffff', color: '#0a0a0a' }}>
@@ -75,8 +78,30 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           fundidos) e Como funciona (passos+retirada fundidos) vêm depois. */}
       {initial && (
         <>
-          <Destaques produtos={initial.destaques} />
-          <Catalogo cards={initial.departamentos} />
+          <FaixaLojaFisica totalPerfumes={initial.totalPerfumes} totalEletronicos={initial.totalEletronicos} />
+          <VitrineCarrossel
+            titulo="Vitrine — Perfumes" subtitulo="535 referências entre árabes e nicho, preço de atacado."
+            href="/categoria/perfumes-de-nicho" hrefLabel="Ver todas as referências"
+            produtos={initial.vitrinePerfumes}
+          />
+          <BannerPromo
+            eyebrow="Perfumaria de importação" tom="gold"
+            titulo={`${brands.length} marcas em uma loja só`}
+            subtitulo="Lattafa, Xerjoff, Armaf, Chopard e mais — tudo em caixa fechada, preço de atacado."
+            href="/produtos" cta="Ver todas as marcas"
+          />
+          <VitrineCarrossel
+            titulo="Vitrine — Eletrônicos" subtitulo="Linha Apple completa: iPhone, Mac, iPad, Watch e AirPods."
+            href="/categoria/apple" hrefLabel="Ver catálogo completo"
+            produtos={initial.vitrineEletronicos}
+          />
+          <BannerPromo
+            eyebrow="iPhone 17 e 18" tom="green"
+            titulo="Catálogo Apple atualizado hoje"
+            subtitulo="Lacrados, com nota fiscal, retirada em Ciudad del Este."
+            href="/categoria/celular" cta="Ver linha completa"
+          />
+          <MarcasCarrossel marcas={marcasComContagem} />
           <ComoFunciona />
         </>
       )}

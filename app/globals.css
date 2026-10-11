@@ -59,7 +59,7 @@ body {
 }
 .nav-desktop {
   max-width: 1280px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px;
   min-width: 0;
 }
 /* Era overflow-x:auto — mas overflow-x diferente de 'visible' força overflow-y
@@ -67,7 +67,6 @@ body {
    e isso cortava o .nav-dropdown (position:absolute, top:100%) na altura da
    própria barra: o mega menu ficava com display:flex mas 0px visíveis.
    flex-wrap deixa o item que não coube ir pra 2ª linha em vez de sumir. */
-.nav-cat-ajuda { margin-left: auto; color: #9D7133 !important; }
 .nav-cat-btn {
   position: relative;
   padding: 0 12px; height: 60px;
@@ -146,6 +145,11 @@ body {
   overflow-x: auto; white-space: nowrap; scrollbar-width: none;
 }
 .top-bar-inner::-webkit-scrollbar { display: none; }
+/* Carrossel de marcas (home): mesma técnica de scroll sem barra do top-bar. */
+.marcas-scroll { scrollbar-width: none; }
+.marcas-scroll::-webkit-scrollbar { display: none; }
+.marca-pill { transition: border-color 0.15s, color 0.15s; }
+.marca-pill:hover { border-color: rgba(214,168,101,0.6); color: #9D7133; }
 .top-bar-inner span { opacity: 0.82; }
 .top-bar-inner span b { opacity: 1; color: #111111; font-weight: 800; }
 .header-strip span + span::before { content: '·'; margin-right: 18px; opacity: 0.45; }
@@ -219,15 +223,16 @@ body { overflow-x: clip; }
   .home-root > * { min-width: 0; width: 100%; }
   .sec-hero            { order: 1; }
   .sec-destaques       { order: 2; }
-  .sec-catalogo        { order: 3; }
-  .sec-como-funciona   { order: 4; }
-  .sec-banda-final     { order: 5; }
-  footer               { order: 6; }
+  .sec-marcas          { order: 3; }
+  .sec-catalogo        { order: 4; }
+  .sec-como-funciona   { order: 5; }
+  .sec-banda-final     { order: 6; }
+  footer               { order: 7; }
 
   /* O hero rotativo (HeroRotativo.tsx) monta o próprio layout mobile via
      <style> interno — essas overrides eram do hero de texto puro anterior. */
 
-  .sec-destaques, .sec-catalogo, .sec-como-funciona { padding: 48px 0 !important; }
+  .sec-destaques, .sec-marcas, .sec-catalogo, .sec-como-funciona { padding: 48px 0 !important; }
   .sec-banda-final { padding: 40px 0 !important; }
   .como-final-grid { display: flex !important; flex-direction: column !important; gap: 24px !important; }
 }

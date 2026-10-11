@@ -10,7 +10,7 @@ import { slugify } from '@/lib/slug'
 
 type Cat = { id: string; nome: string; subs?: { id: string; nome: string }[]; marca?: string }
 
-export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]; contatoHref: string }) {
+export default function HeaderActions({ topCats, contatoHref, temPromocao }: { topCats: Cat[]; contatoHref: string; temPromocao: boolean }) {
   const pathname = usePathname()
   const { abrirSidebar, quantidade } = useCarrinho()
   const [mobileMenu, setMobileMenu] = useState(false)
@@ -77,6 +77,12 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: isHome ? '#9D7133' : '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             TODOS
           </Link>
+          {temPromocao && (
+            <Link href="/promocoes" onClick={() => setMobileMenu(false)}
+              style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#dc2626', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
+              PROMOÇÕES
+            </Link>
+          )}
           {topCats.map(c => (
             <div key={c.id}>
               <a href={c.marca ? `/produtos?marca=${encodeURIComponent(c.marca)}` : `/categoria/${slugify(c.nome)}`} onClick={() => setMobileMenu(false)}
@@ -93,10 +99,6 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
               ))}
             </div>
           ))}
-          <Link href="/promocoes" onClick={() => setMobileMenu(false)}
-            style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#dc2626', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
-            PROMOÇÕES
-          </Link>
           <Link href="/onde-retirar" onClick={() => setMobileMenu(false)}
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             ONDE RETIRAR
