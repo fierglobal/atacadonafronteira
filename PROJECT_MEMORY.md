@@ -1,8 +1,13 @@
-# PROJECT_MEMORY — Atacado Paraguai Novo
+# PROJECT_MEMORY — Atacado na Fronteira
+
+Renomeado de "Atacado Paraguai Novo" / atacadoparaguai.app — domínio de produção e toda a marca no
+código (e-mails, termos, LGPD) já são atacadonafronteira.com. Só o nome do projeto Supabase
+(`xjmapfpfgwoivlsalltb`, "atacadoparaguainovo") ficou preso no nome antigo — Supabase não deixa
+renomear o projeto depois de criado.
 
 ## Stack
-- Next.js + Supabase (`xjmapfpfgwoivlsalltb`) + Vercel
-- E-commerce B2B (atacadoparaguai.app)
+- Next.js + Supabase (`xjmapfpfgwoivlsalltb`) + Vercel (projeto `atacadonafronteira`)
+- E-commerce B2B (atacadonafronteira.com)
 
 ## Estado atual
 - Admin upgrade concluído (14/06/2026): RBAC granular, audit universal, promoções compostas, sales channels, webhooks HMAC, FTS, CSV import, custom fields, 2FA, rate limit, RLS em 22 tabelas
