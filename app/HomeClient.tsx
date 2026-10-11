@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import SiteFooter from '@/components/SiteFooter'
-import { Destaques, MarcasCarrossel, Catalogo, ComoFunciona, BandaFinal, FaixaOmnichannel, TabelaDoDia, type DeptCard, type DestaqueProduto, type IphoneModelo } from '@/components/HomeSecoes'
+import { MarcasCarrossel, Catalogo, ComoFunciona, BandaFinal, FaixaLojaFisica, VitrineDepartamento, type DeptCard, type DestaqueProduto } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 
 const dec = (s: string | null) => {
@@ -22,15 +22,14 @@ const dec = (s: string | null) => {
 export type HomeInitial = {
   deptApple: number
   departamentos: DeptCard[]
-  destaques: DestaqueProduto[]
   total: number
   brands: { nome: string; total: number }[]  // nomes em base64, como a API
   heroEletronico: HeroProduct | null          // idem — decodificado dentro do HeroRotativo
   heroPromo: HeroProduct | null
   totalPerfumes: number
   totalEletronicos: number
-  iphones: IphoneModelo[]
-  dolarHoje: number
+  vitrinePerfumes: DestaqueProduto[]
+  vitrineEletronicos: DestaqueProduto[]
 }
 
 export default function Home({ initial }: { initial?: HomeInitial }) {
@@ -80,9 +79,17 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           fundidos) e Como funciona (passos+retirada fundidos) vêm depois. */}
       {initial && (
         <>
-          <FaixaOmnichannel totalPerfumes={initial.totalPerfumes} totalEletronicos={initial.totalEletronicos} />
-          <TabelaDoDia modelos={initial.iphones} dolarHoje={initial.dolarHoje} />
-          <Destaques produtos={initial.destaques} />
+          <FaixaLojaFisica totalPerfumes={initial.totalPerfumes} totalEletronicos={initial.totalEletronicos} />
+          <VitrineDepartamento
+            titulo="Vitrine — Perfumes" subtitulo="535 referências entre árabes e nicho, preço de atacado."
+            href="/categoria/perfumes-de-nicho" hrefLabel="Ver todas as referências"
+            produtos={initial.vitrinePerfumes}
+          />
+          <VitrineDepartamento
+            titulo="Vitrine — Eletrônicos" subtitulo="Linha Apple completa: iPhone, Mac, iPad, Watch e AirPods."
+            href="/categoria/apple" hrefLabel="Ver catálogo completo"
+            produtos={initial.vitrineEletronicos}
+          />
           <MarcasCarrossel marcas={marcasComContagem} />
           <Catalogo cards={initial.departamentos} />
           <ComoFunciona />

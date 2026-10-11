@@ -94,7 +94,9 @@ export default async function SiteHeader() {
           {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
           <span>Pagamento via PIX à vista</span>
           <span>Separação em até 24h úteis</span>
-          <span>Retirada em Ciudad del Este</span>
+          <Link href="/onde-retirar" style={{ color: 'inherit', textDecoration: 'none' }}>
+            Shopping Internacional, loja 17 · Seg–Sáb 07h–16h
+          </Link>
         </div>
       </div>
 

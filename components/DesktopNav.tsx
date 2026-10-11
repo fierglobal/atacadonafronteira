@@ -100,6 +100,18 @@ export default function DesktopNav({ items }: { items: NavItem[] }) {
         )
       })}
 
+      {/* Medicamentos e Cosméticos ainda estão em zero produto ativo — a loja
+          vai vender também, então o nome já aparece no menu (promessa
+          omnichannel), só que sem link pra uma vitrine vazia. */}
+      {['Medicamentos', 'Cosméticos'].map(nome => (
+        <span key={nome} className="nav-cat-btn" style={{ cursor: 'default', opacity: 0.55 }} aria-disabled="true">
+          <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {nome}
+            <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.04em', color: '#bd6a3c' }}>EM BREVE</span>
+          </span>
+        </span>
+      ))}
+
       <Link href="/promocoes" className="nav-cat-btn" onMouseEnter={() => setHovered('promocoes')} onMouseLeave={() => setHovered(null)}>
         <span style={{ position: 'relative', zIndex: 1, color: '#dc2626' }}>PROMOÇÕES</span>
         {hovered === 'promocoes' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}

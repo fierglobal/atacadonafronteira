@@ -97,6 +97,12 @@ export default function HeaderActions({ topCats, contatoHref }: { topCats: Cat[]
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#dc2626', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             PROMOÇÕES
           </Link>
+          {['Medicamentos', 'Cosméticos'].map(nome => (
+            <span key={nome} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.08em' }}>
+              {nome.toUpperCase()}
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#bd6a3c' }}>EM BREVE</span>
+            </span>
+          ))}
           <Link href="/onde-retirar" onClick={() => setMobileMenu(false)}
             style={{ display: 'block', padding: '11px 14px', fontSize: 13, fontWeight: 700, color: '#404040', background: 'none', borderRadius: 8, letterSpacing: '0.08em', textDecoration: 'none' }}>
             ONDE RETIRAR
