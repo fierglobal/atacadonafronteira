@@ -17,14 +17,6 @@ export type DestaqueProduto = {
   brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number
   badges?: string[] | null; menorPrecoAtacado?: number | null
 }
-export type DeptCard = {
-  nome: string
-  slug: string
-  total: number
-  descricao: string
-  marcas: { nome: string; qtd: number }[]
-  miniaturas: { id: string; img: string | null }[]
-}
 const secao: React.CSSProperties = { maxWidth: 1200, margin: '0 auto', padding: '0 24px' }
 const h2: React.CSSProperties = { margin: 0, fontSize: 28, fontWeight: 650, letterSpacing: '-0.01em', color: '#0a0a0a' }
 const sub: React.CSSProperties = { margin: '8px 0 0', color: '#737373', fontSize: 15 }
@@ -182,62 +174,6 @@ export function MarcasCarrossel({ marcas }: { marcas: { nome: string; total: num
               style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#404040', background: '#fafafa', border: '1px solid #ececec', borderRadius: 99, padding: '9px 16px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
               {m.nome} <span style={{ color: '#a3a3a3', fontWeight: 600 }}>{m.total}</span>
             </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// Substitui "Compre por categoria" + "Departamentos", que mostravam a mesma
-// taxonomia duas vezes. Vira linha de documento comercial, não card de landing:
-// nome+contagem, descrição, marcas, miniaturas reais do estoque e o link.
-// Ordem por tamanho REAL do catálogo (Perfumes é o maior, de longe) — tratar
-// os 3 departamentos como iguais seria hierarquia falsa.
-export function Catalogo({ cards }: { cards: DeptCard[] }) {
-  if (!cards.length) return null
-  return (
-    <section className="home-only sec-catalogo" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '64px 0' }}>
-      <div style={secao}>
-        <h2 style={h2}>Catálogo</h2>
-        <p style={sub}>Linhas comerciais diretas da importadora.</p>
-        <div style={{ marginTop: 32, borderTop: '1px solid #ececec' }}>
-          {cards.map(d => (
-            <div key={d.slug} style={{ borderBottom: '1px solid #ececec', padding: '28px 0', display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-                <h3 style={{ margin: 0, fontSize: 19, fontWeight: 600, color: '#0a0a0a', display: 'flex', alignItems: 'baseline', gap: 10 }}>
-                  {d.nome} <span style={{ ...mono, fontWeight: 500, fontSize: 14, color: '#a3a3a3' }}>{d.total}</span>
-                </h3>
-                <p style={{ margin: '6px 0 0', fontSize: 14, color: '#525252', lineHeight: 1.5, maxWidth: 480 }}>{d.descricao}</p>
-                {d.marcas.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 12 }}>
-                    {d.marcas.map(m => (
-                      <a key={m.nome} href={`/produtos?marca=${encodeURIComponent(m.nome)}`}
-                        style={{ fontSize: 12, fontWeight: 700, color: '#404040', background: '#fff', border: '1px solid #ececec', borderRadius: 99, padding: '5px 11px', textDecoration: 'none' }}>
-                        {m.nome} <span style={{ color: '#a3a3a3', fontWeight: 600 }}>{m.qtd}</span>
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: '0 0 auto' }}>
-                {d.miniaturas.length > 0 && (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {d.miniaturas.slice(0, 6).map(m => (
-                      <div key={m.id} style={{ width: 52, height: 52, borderRadius: 8, background: '#fff', border: '1px solid #ececec', overflow: 'hidden', flexShrink: 0 }}>
-                        {m.img && (
-                          // eslint-disable-next-line @next/next/no-img-element -- miniatura 52px, next/image exigiria position:relative extra num container já bem pequeno
-                          <img src={m.img} alt="" width={52} height={52} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 4 }} />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <Link href={`/categoria/${d.slug}`} style={{ fontSize: 13.5, fontWeight: 800, color: GOLD_TEXT, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                  Ver todos →
-                </Link>
-              </div>
-            </div>
           ))}
         </div>
       </div>

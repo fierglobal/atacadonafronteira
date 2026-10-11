@@ -239,7 +239,6 @@ async function getInitial(): Promise<HomeInitial | null> {
       totalEletronicos: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
       vitrinePerfumes,
       vitrineEletronicos,
-      departamentos,
       heroEletronico: heroEletronico
         ? { ...heroEletronico, name: enc(heroEletronico.name), brand: enc(heroEletronico.brand) }
         : null,
