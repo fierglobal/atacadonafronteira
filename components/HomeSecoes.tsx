@@ -25,6 +25,8 @@ export type DeptCard = {
   marcas: { nome: string; qtd: number }[]
   miniaturas: { id: string; img: string | null }[]
 }
+export type IphoneVariante = { cor: string; usd: number; brl: number }
+export type IphoneModelo = { linha: string; storage: string; variantes: IphoneVariante[] }
 
 const secao: React.CSSProperties = { maxWidth: 1200, margin: '0 auto', padding: '0 24px' }
 const h2: React.CSSProperties = { margin: 0, fontSize: 28, fontWeight: 650, letterSpacing: '-0.01em', color: '#0a0a0a' }
@@ -45,6 +47,101 @@ export function Destaques({ produtos }: { produtos: DestaqueProduto[] }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginTop: 32 }}>
           {produtos.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={p.menorPrecoAtacado ?? null} />)}
         </div>
+      </div>
+    </section>
+  )
+}
+
+// Faixa omnichannel: o Guilherme vai abrir loja física também e quer o site
+// comunicando as 4 linhas de negócio (perfumes, eletrônicos, medicamentos,
+// cosméticos), não só as que já têm estoque hoje. Honesto em vez de inventar
+// produto: Farmácia e Cosméticos (categoria "Estética") estão em ZERO
+// produtos ativos agora (conferido no banco em 11/10/2026) — aparecem como
+// "em breve", sem link pra uma vitrine vazia.
+const LINHAS_NEGOCIO = [
+  { nome: 'Perfumes', href: '/categoria/perfumes-de-nicho', totalKey: 'perfumes' as const },
+  { nome: 'Eletrônicos', href: '/categoria/apple', totalKey: 'eletronicos' as const },
+  { nome: 'Medicamentos', href: null, totalKey: null },
+  { nome: 'Cosméticos', href: null, totalKey: null },
+] as const
+
+export function FaixaOmnichannel({ totalPerfumes, totalEletronicos }: { totalPerfumes: number; totalEletronicos: number }) {
+  const totais: Record<string, number> = { perfumes: totalPerfumes, eletronicos: totalEletronicos }
+  return (
+    <section className="home-only sec-omnichannel" style={{ background: '#fafafa', borderBottom: '1px solid #ececec', padding: '28px 0' }}>
+      <div style={{ ...secao, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
+        {LINHAS_NEGOCIO.map(l => {
+          const disponivel = l.href !== null
+          const total = l.totalKey ? totais[l.totalKey] : null
+          const conteudo = (
+            <>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: disponivel ? '#16a34a' : '#d4d4d4', flexShrink: 0 }} />
+              <span style={{ fontWeight: 800 }}>{l.nome}</span>
+              <span style={{ color: disponivel ? '#737373' : '#a3a3a3', fontWeight: 600 }}>
+                {disponivel ? total : 'em breve'}
+              </span>
+            </>
+          )
+          const estilo: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, padding: '9px 16px', borderRadius: 99, background: '#fff', border: '1px solid #ececec', color: '#0a0a0a', textDecoration: 'none' }
+          return l.href
+            ? <a key={l.nome} href={l.href} style={estilo}>{conteudo}</a>
+            : <span key={l.nome} style={{ ...estilo, opacity: 0.7 }}>{conteudo}</span>
+        })}
+      </div>
+    </section>
+  )
+}
+
+// Cor de bolinha por nome — só estética, cai em cinza se a cor não estiver
+// no mapa (nunca quebra por cor nova que o fornecedor inventar).
+const COR_SWATCH: Record<string, string> = {
+  Black: '#1a1a1a', White: '#f5f5f5', Silver: '#d4d4d8', Glacier: '#b8d4e8',
+  Burgundy: '#6b1530', Orange: '#ea7317', Blue: '#3b6fd6', Pink: '#eeb4c9',
+  Lavander: '#b9a6d9', Sage: '#9caf88',
+}
+
+// "Tabela do dia": vira a vitrine de eletrônicos (campeã de venda real, é o
+// que o Guilherme redesenha à mão em imagem e manda no WhatsApp todo dia) em
+// dado vivo do banco em vez de arte estática. Mesma informação, zero retrabalho
+// manual quando o preço muda.
+export function TabelaDoDia({ modelos, dolarHoje }: { modelos: IphoneModelo[]; dolarHoje: number }) {
+  if (!modelos.length) return null
+  return (
+    <section className="home-only sec-tabela-dia" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '64px 0' }}>
+      <div style={secao}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <h2 style={h2}>Tabela do dia — iPhone</h2>
+            <p style={sub}>Lacrados, direto da fronteira. Preço atualizado agora, não é imagem de ontem.</p>
+          </div>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 800, color: GOLD_TEXT, background: 'rgba(214,168,101,0.08)', border: '1px solid rgba(214,168,101,0.3)', borderRadius: 99, padding: '8px 16px', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
+            Dólar hoje: R$ {dolarHoje.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+        <div style={{ marginTop: 28, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+          {modelos.map(m => (
+            <div key={`${m.linha}-${m.storage}`} style={{ border: '1px solid #ececec', borderRadius: 14, padding: '18px 20px', background: '#fafafa' }}>
+              <h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, color: '#0a0a0a' }}>
+                iPhone {m.linha} <span style={{ ...mono, fontWeight: 600, color: '#737373', fontSize: 13 }}>{m.storage}</span>
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {m.variantes.map(v => (
+                  <div key={v.cor} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5 }}>
+                    <span style={{ width: 11, height: 11, borderRadius: '50%', border: '1px solid rgba(0,0,0,0.12)', background: COR_SWATCH[v.cor] ?? '#e5e5e5', flexShrink: 0 }} />
+                    <span style={{ flex: 1, color: '#404040', fontWeight: 600 }}>{v.cor}</span>
+                    <span style={{ ...mono, fontWeight: 700, color: '#0a0a0a' }}>
+                      {v.usd.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}$ · R$ {v.brl.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <Link href="/categoria/celular" style={{ display: 'inline-block', marginTop: 24, fontSize: 13.5, fontWeight: 800, color: GOLD_TEXT, textDecoration: 'none' }}>
+          Ver catálogo completo de celulares →
+        </Link>
       </div>
     </section>
   )

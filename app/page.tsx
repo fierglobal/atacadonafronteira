@@ -6,6 +6,8 @@ import HomeClient, { type HomeInitial } from './HomeClient'
 import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import { slugify } from '@/lib/slug'
 import { SITE_URL, SITE_NAME, WHATSAPP_NUMBER } from '@/lib/site'
+import { getConfig } from '@/lib/config'
+import type { IphoneModelo } from '@/components/HomeSecoes'
 
 // ISR: NUNCA ler searchParams aqui — isso tornaria a rota dinâmica e mataria o
 // cache (ver o caso da categoria no Expresso Paraguai). O servidor sempre monta
@@ -91,6 +93,39 @@ async function getDestaquesPorDepartamento(raizes: Categoria[], cats: Categoria[
   return Object.fromEntries(pares)
 }
 
+// "Tabela do dia" de iPhone: linha+storage+cor extraídos do NOME do produto,
+// de propósito — não existe campo separado pra isso e criar um só pra essa
+// vitrine seria escopo a mais. Produtos sem cor reconhecível (pré-venda sem
+// variante, lote fechado) não casam o regex e ficam de fora — é o resultado
+// certo pra uma tabela de "cor disponível hoje", não um bug.
+const ORDEM_LINHA_IPHONE = ['18 Pro', '18 Pro Max', '17e', '17', '17 Pro', '17 Pro Max']
+function parseIphone(name: string): { linha: string; storage: string; cor: string } | null {
+  const m = name.match(/iPhone\s+(17e|17\s+Pro\s+Max|17\s+Pro|17|18\s+Pro\s+Max|18\s+Pro)\s+(\d+(?:GB|TB))\s+([A-Za-zÀ-ú]+)/i)
+  if (!m) return null
+  return { linha: m[1].replace(/\s+/g, ' '), storage: m[2], cor: m[3] }
+}
+async function getIphonesTabela(): Promise<IphoneModelo[]> {
+  const now = new Date().toISOString()
+  const { data } = await supabaseAdmin.from('products').select('name, usd_price, brl_price')
+    .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+    .gt('estoque', 0)
+    .or('name.ilike.*iPhone 17*,name.ilike.*iPhone 18*')
+  const grupos = new Map<string, IphoneModelo>()
+  for (const r of (data || []) as { name: string; usd_price: number; brl_price: number }[]) {
+    const parsed = parseIphone(r.name)
+    if (!parsed) continue
+    const chave = `${parsed.linha}__${parsed.storage}`
+    if (!grupos.has(chave)) grupos.set(chave, { linha: parsed.linha, storage: parsed.storage, variantes: [] })
+    grupos.get(chave)!.variantes.push({ cor: parsed.cor, usd: Number(r.usd_price), brl: Number(r.brl_price) })
+  }
+  return Array.from(grupos.values())
+    .map(g => ({ ...g, variantes: g.variantes.sort((a, b) => a.usd - b.usd) }))
+    .sort((a, b) => {
+      const oa = ORDEM_LINHA_IPHONE.indexOf(a.linha), ob = ORDEM_LINHA_IPHONE.indexOf(b.linha)
+      return oa !== ob ? oa - ob : a.storage.localeCompare(b.storage)
+    })
+}
+
 // Menor brl_price entre os tiers de quantidade — mesmo campo que já alimenta
 // o selo "a partir de RX/un no atacado" na página de categoria.
 async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
@@ -150,7 +185,11 @@ async function getInitial(): Promise<HomeInitial | null> {
     // é UMA busca só, não uma pra cada seção.
     const destaquesPorDept = await getDestaquesPorDepartamento(raizes as Categoria[], cats as Categoria[])
     const idsDestaque = Object.values(destaquesPorDept).flat().map(p => p.id)
-    const menorTierDestaque = await getMenorTierPorProduto(idsDestaque)
+    const [menorTierDestaque, iphones, config] = await Promise.all([
+      getMenorTierPorProduto(idsDestaque),
+      getIphonesTabela(),
+      getConfig(),
+    ])
 
     const departamentos = raizes
       .map(r => ({
@@ -226,6 +265,14 @@ async function getInitial(): Promise<HomeInitial | null> {
     return {
       total: ativos.length,
       deptApple: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
+      // Totais honestos pra faixa omnichannel: Perfumes soma os 2 departamentos
+      // raiz (Nicho+Árabes), Medicamentos/Cosméticos ficam de fora do payload
+      // de propósito — hoje é zero produto ativo, "em breve" é texto fixo no
+      // componente, não um número que ia aparecer como "0 produtos".
+      totalPerfumes: departamentos.filter(d => d.nome.startsWith('Perfumes')).reduce((s, d) => s + d.total, 0),
+      totalEletronicos: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
+      iphones,
+      dolarHoje: config.brl_rate,
       departamentos,
       destaques,
       heroEletronico: heroEletronico
