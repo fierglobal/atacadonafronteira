@@ -89,19 +89,20 @@ export function FaixaLojaFisica({ totalPerfumes, totalEletronicos }: { totalPerf
   )
 }
 
-// Vitrine por departamento — substitui o grid genérico "Destaques" que
-// misturava perfume com celular na mesma grade sem contexto nenhum. Reusa o
-// card já redesenhado da página de categoria, não inventa card novo só pra
-// home; usada 2x (Perfumes e Eletrônicos) com os mesmos 8 produtos reais que
-// já alimentam as miniaturas do Catálogo.
-export function VitrineDepartamento({ titulo, subtitulo, href, hrefLabel, produtos }: {
+// Vitrine por departamento em CARROSSEL horizontal — não grade estática. O
+// Guilherme mandou referência do atacadoconnect.com: lá cada departamento
+// rola na horizontal e tem banner promocional intercalado entre eles, nunca
+// o mesmo padrão repetido a vitrine inteira. Reusa o card já redesenhado da
+// categoria (só embrulha em largura fixa pra funcionar dentro do scroll),
+// não inventa card novo.
+export function VitrineCarrossel({ titulo, subtitulo, href, hrefLabel, produtos }: {
   titulo: string; subtitulo: string; href: string; hrefLabel: string; produtos: DestaqueProduto[]
 }) {
   if (!produtos.length) return null
   return (
-    <section className="home-only sec-vitrine" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '56px 0' }}>
+    <section className="home-only sec-vitrine" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '48px 0' }}>
       <div style={secao}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 28 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
           <div>
             <h2 style={h2}>{titulo}</h2>
             <p style={sub}>{subtitulo}</p>
@@ -110,10 +111,44 @@ export function VitrineDepartamento({ titulo, subtitulo, href, hrefLabel, produt
             {hrefLabel} →
           </Link>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
-          {produtos.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={p.menorPrecoAtacado ?? null} />)}
-        </div>
       </div>
+      <div className="vitrine-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto', padding: '4px 24px 12px', scrollSnapType: 'x proximity' }}>
+        {produtos.map(p => (
+          <div key={p.id} style={{ flex: '0 0 170px', scrollSnapAlign: 'start' }}>
+            <CategoriaProductCard p={p} menorPrecoAtacado={p.menorPrecoAtacado ?? null} />
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// Banner promocional cheio, pra quebrar o ritmo entre dois carrosséis — mesmo
+// papel do banner "REDMI NOTE..." no atacadoconnect.com. Cada chamada do
+// componente traz um dado real (contagem de marca, câmbio do dia), nunca
+// texto solto inventado.
+export function BannerPromo({ eyebrow, titulo, subtitulo, href, cta, tom = 'green' }: {
+  eyebrow: string; titulo: string; subtitulo: string; href: string; cta: string; tom?: 'green' | 'gold'
+}) {
+  const bg = tom === 'green'
+    ? 'linear-gradient(120deg, #1f4d38, #2f6f4e)'
+    : 'linear-gradient(120deg, #4a3414, #9D7133)'
+  return (
+    <section className="home-only sec-banner-promo" style={{ padding: '0' }}>
+      <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+        <div style={{ ...secao, padding: '28px 24px' }}>
+          <div style={{ background: bg, borderRadius: 16, padding: '28px 32px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>{eyebrow}</div>
+              <h3 style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 700, color: '#fff' }}>{titulo}</h3>
+              <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(255,255,255,0.75)' }}>{subtitulo}</p>
+            </div>
+            <span style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#111111', background: '#fff', borderRadius: 10, padding: '12px 20px', whiteSpace: 'nowrap' }}>
+              {cta} →
+            </span>
+          </div>
+        </div>
+      </Link>
     </section>
   )
 }
