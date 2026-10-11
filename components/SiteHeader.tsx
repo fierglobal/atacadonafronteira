@@ -4,7 +4,7 @@ import { getConfig } from '@/lib/config'
 import HeaderActions from '@/components/HeaderActions'
 import DesktopNav from '@/components/DesktopNav'
 import Logo from '@/components/Logo'
-import { MARCAS_VITRINE, WHATSAPP_HREF } from '@/lib/site'
+import { MARCAS_VITRINE, WHATSAPP_HREF, BRL_RATE_FALLBACK } from '@/lib/site'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -69,6 +69,13 @@ export default async function SiteHeader() {
   const minimo = config?.pedido_minimo_brl
     ? `R$ ${Number(config.pedido_minimo_brl).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
     : null
+  // Ticker de câmbio (referência: atacadobrasilpy.com). Só R$/US$ nesta rodada —
+  // as 2 moedas que o site já resolve de verdade (brl_rate existe, usd_price é
+  // a base). Guarani fica de fora: não existe fonte de câmbio USD→PYG no projeto
+  // hoje, e inventar uma só pro ticker é a mesma "cobertura capenga" que o
+  // carrossel de marca do projeto irmão já teve com logo incompleto.
+  const taxaCambio = Number(config?.brl_rate ?? BRL_RATE_FALLBACK)
+  const cambio = `🇧🇷 R$ ${taxaCambio.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · 🇺🇸 US$ 1,00`
   // Departamentos primeiro, vitrines depois. O menu é cortado a partir do fim
   // (slice + media query), então o que vem por último é o que some em tela
   // menor — e é melhor perder um atalho de marca do que a porta de entrada de
@@ -83,6 +90,7 @@ export default async function SiteHeader() {
           carrinho, não no checkout. */}
       <div className="top-bar" aria-label="Condições de compra">
         <div className="top-bar-inner">
+          <span><b>{cambio}</b></span>
           {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
           <span>Pagamento via PIX à vista</span>
           <span>Separação em até 24h úteis</span>

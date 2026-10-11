@@ -18,12 +18,16 @@ const STATUS: Record<'pronta_entrega' | 'sob_encomenda' | 'esgotado', { dot: str
 }
 
 export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
-  p: { id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number; badges?: string[] | null }
+  p: { id: string; name: string; brand: string | null; sku?: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number; badges?: string[] | null }
   /** menor brl_price entre os tiers de quantidade do produto, quando existem */
   menorPrecoAtacado?: number | null
 }) {
   const { adicionar } = useCarrinho()
   const promo = isPromo(p)
+  // Mesma regra da PDP (app/produtos/[id]/page.tsx): usa o SKU real quando
+  // existe (só 12 produtos no banco hoje têm), senão cai pro prefixo do id —
+  // nunca sem nada, nunca um formato diferente do que o cliente já vê na PDP.
+  const sku = (p.sku || p.id.slice(0, 8)).toUpperCase()
   // Exibição usa brl_price direto (sem multiplicar por brl_rate); o carrinho
   // segue recebendo o valor em USD (usd_price), que é o que o checkout entende.
   const precoBRL = promo ? Number(p.brl_price_promo) : Number(p.brl_price)
@@ -45,23 +49,26 @@ export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
         )}
         {p.img_url && (
           <Image src={p.img_url} alt={p.name} fill sizes="(max-width: 640px) 50vw, 220px"
-            style={{ objectFit: 'contain', padding: 24 }} />
+            style={{ objectFit: 'contain', padding: 18 }} />
         )}
       </div>
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 5, flex: 1 }}>
-        {p.brand && <span style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.brand}</span>}
+      <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 6 }}>
+          {p.brand ? <span style={{ fontSize: 10, fontWeight: 900, color: '#9D7133', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{p.brand}</span> : <span />}
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#a3a3a3', letterSpacing: '0.04em', whiteSpace: 'nowrap', flexShrink: 0 }}>SKU {sku}</span>
+        </div>
         <h2 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#0a0a0a', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '2.7em' }} title={p.name}>
           {nome}
         </h2>
 
         {!emBreve && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: status.texto, marginBottom: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, fontWeight: 700, color: status.texto, marginBottom: 2 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: status.dot, flexShrink: 0 }} />
             {status.label}
           </div>
         )}
 
-        <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid #f5f5f5', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ marginTop: 'auto', paddingTop: 10, borderTop: '1px solid #f5f5f5', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ minWidth: 0 }}>
             {emBreve ? (
               <div style={{ fontSize: 15, fontWeight: 900, color: '#9D7133', letterSpacing: '0.04em' }}>{ROTULO_EM_BREVE}</div>
@@ -83,7 +90,7 @@ export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
           </div>
           <button disabled={semCompra} aria-label={semCompra ? 'Indisponível' : 'Adicionar ao carrinho'}
             onClick={e => { e.preventDefault(); e.stopPropagation(); adicionar({ id: p.id, name: p.name, usd: precoUSD, img: p.img_url ?? '/produto-placeholder.svg', brand: p.brand ?? undefined }) }}
-            style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, background: semCompra ? '#ececec' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', color: semCompra ? '#a3a3a3' : '#111111', fontSize: 11, fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: semCompra ? 'not-allowed' : 'pointer', boxShadow: semCompra ? 'none' : '0 2px 8px rgba(214,168,101,0.2)', transition: 'all 0.15s' }}>
+            style={{ width: '100%', height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, background: semCompra ? '#ececec' : 'linear-gradient(135deg, #D6A865, #E1BC84, #D6A865)', border: 'none', color: semCompra ? '#a3a3a3' : '#111111', fontSize: 11, fontWeight: 900, letterSpacing: '0.06em', textTransform: 'uppercase', cursor: semCompra ? 'not-allowed' : 'pointer', boxShadow: semCompra ? 'none' : '0 2px 8px rgba(214,168,101,0.2)', transition: 'all 0.15s' }}>
             {semCompra ? (
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" /></svg>
             ) : (

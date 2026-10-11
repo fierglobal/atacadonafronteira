@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useCarrinho } from '@/components/CarrinhoContext'
 import { WHATSAPP_ENABLED, WHATSAPP_GRUPO_HREF } from '@/lib/site'
 import SiteFooter from '@/components/SiteFooter'
-import { Destaques, Catalogo, ComoFunciona, BandaFinal, type DeptCard, type DestaqueProduto } from '@/components/HomeSecoes'
+import { Destaques, MarcasCarrossel, Catalogo, ComoFunciona, BandaFinal, type DeptCard, type DestaqueProduto } from '@/components/HomeSecoes'
 import HeroRotativo, { type HeroProduct } from '@/components/HeroRotativo'
 
 const dec = (s: string | null) => {
@@ -48,6 +48,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
   }, [])
 
   const brands = (initial?.brands ?? []).map(b => dec(b.nome) ?? b.nome)
+  const marcasComContagem = (initial?.brands ?? []).map(b => ({ nome: dec(b.nome) ?? b.nome, total: b.total }))
 
   return (
     <div className="min-h-screen font-sans home-root" style={{ background: '#ffffff', color: '#0a0a0a' }}>
@@ -76,6 +77,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
       {initial && (
         <>
           <Destaques produtos={initial.destaques} />
+          <MarcasCarrossel marcas={marcasComContagem} />
           <Catalogo cards={initial.departamentos} />
           <ComoFunciona />
         </>

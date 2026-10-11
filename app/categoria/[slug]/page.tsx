@@ -32,7 +32,7 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
 
   let q = supabaseAdmin
     .from('products')
-    .select('id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
+    .select('id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
     .in('categoria_id', ids)
@@ -371,7 +371,7 @@ export default async function CategoriaPage({
                 Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#9D7133', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
               </p>
             ) : (
-              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>
+              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
                 {linhas.map(l => l.tipo === 'grupo'
                   ? <CategoriaProductCardGrupo key={l.membros.map(m => m.id).join('-')} brand={l.brand} base={l.base} img={l.img} membros={l.membros} />
                   : <CategoriaProductCard key={l.produto.id} p={l.produto} menorPrecoAtacado={menorTierPorProduto[l.produto.id] ?? null} />

@@ -31,7 +31,7 @@ async function getProdutos(b: Busca) {
 
   let q = supabaseAdmin
     .from('products')
-    .select('id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges, categoria_id', { count: 'exact' })
+    .select('id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges, categoria_id', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
 
@@ -235,7 +235,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
                 Nada encontrado com esse filtro. <Link href="/produtos" style={{ color: '#9D7133', fontWeight: 700 }}>Ver catálogo completo</Link>.
               </p>
             ) : (
-              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16 }}>
+              <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>
                 {itens.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={menorTierPorProduto[p.id] ?? null} />)}
               </div>
             )}

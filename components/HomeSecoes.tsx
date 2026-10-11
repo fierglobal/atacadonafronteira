@@ -13,7 +13,7 @@ const DARK = '#111111'
 const MONO = 'var(--font-geist-mono), ui-monospace, monospace'
 
 export type DestaqueProduto = {
-  id: string; name: string; brand: string | null; usd_price: number; usd_price_promo: number | null
+  id: string; name: string; brand: string | null; sku?: string | null; usd_price: number; usd_price_promo: number | null
   brl_price: number; brl_price_promo: number | null; img_url: string | null; estoque: number
   badges?: string[] | null; menorPrecoAtacado?: number | null
 }
@@ -42,8 +42,42 @@ export function Destaques({ produtos }: { produtos: DestaqueProduto[] }) {
       <div style={secao}>
         <h2 style={h2}>Destaques</h2>
         <p style={sub}>Preços reais de balcão, prontos pra revenda.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(184px, 1fr))', gap: 16, marginTop: 32 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginTop: 32 }}>
           {produtos.map(p => <CategoriaProductCard key={p.id} p={p} menorPrecoAtacado={p.menorPrecoAtacado ?? null} />)}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Carrossel textual de marcas (fallback (b) do redesign Ponte de Fronteira):
+// auditoria no banco em 11/10/2026 não achou NENHUMA imagem de marca em
+// nenhuma tabela (products/marcas) — 0/34 marcas têm logo. Construir um
+// carrossel de <img> com placeholder genérico pra 34 marcas repetiria o
+// carrossel "capenga" do projeto irmão. Nome + contagem real é honesto com o
+// que o banco tem hoje; a imagem entra depois, se/quando existir campo pra ela.
+export function MarcasCarrossel({ marcas }: { marcas: { nome: string; total: number }[] }) {
+  if (marcas.length < 2) return null
+  const destaque = marcas.slice(0, 30)
+  return (
+    <section className="home-only sec-marcas" style={{ background: '#fff', borderBottom: '1px solid #ececec', padding: '40px 0' }}>
+      <div style={secao}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <h2 style={{ ...h2, fontSize: 20 }}>Marcas</h2>
+            <p style={{ ...sub, marginTop: 4 }}>Mais de {marcas.length} marcas disponíveis, direto da importadora.</p>
+          </div>
+          <Link href="/produtos" style={{ fontSize: 13, fontWeight: 800, color: GOLD_TEXT, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Ver todas as marcas →
+          </Link>
+        </div>
+        <div className="marcas-scroll" style={{ display: 'flex', gap: 8, marginTop: 20, overflowX: 'auto', paddingBottom: 4 }}>
+          {destaque.map(m => (
+            <a key={m.nome} href={`/produtos?marca=${encodeURIComponent(m.nome)}`} className="marca-pill"
+              style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#404040', background: '#fafafa', border: '1px solid #ececec', borderRadius: 99, padding: '9px 16px', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+              {m.nome} <span style={{ color: '#a3a3a3', fontWeight: 600 }}>{m.total}</span>
+            </a>
+          ))}
         </div>
       </div>
     </section>

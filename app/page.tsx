@@ -67,10 +67,10 @@ const jsonLdLoja = () => ([
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
 const CAMPOS = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador, limite_por_cpf'
-const CAMPOS_DESTAQUE = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges'
+const CAMPOS_DESTAQUE = 'id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges'
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
-type ProdutoDestaque = { id: string; name: string; brand: string | null; brl_price: number; brl_price_promo: number | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number; badges: string[] | null }
+type ProdutoDestaque = { id: string; name: string; brand: string | null; sku: string | null; brl_price: number; brl_price_promo: number | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number; badges: string[] | null }
 
 // 4 produtos reais por departamento raiz — com promoção ativa primeiro (sinal
 // de destaque genuíno, o mesmo critério do heroPromo), o resto por sort_order
