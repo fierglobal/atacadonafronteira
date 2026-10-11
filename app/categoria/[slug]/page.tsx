@@ -6,7 +6,8 @@ import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
 import CategoriaProductCardGrupo from '@/components/CategoriaProductCardGrupo'
-import { acharCategoriaPorSlug, type CategoriaSeo } from '@/lib/categorias'
+import FiltroMarcas from '@/components/FiltroMarcas'
+import { acharCategoriaPorSlug, listarCategoriasSeo, type CategoriaSeo } from '@/lib/categorias'
 import { nomeSemMarca, nomeSemSufixoStatus } from '@/lib/produto'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
 
@@ -66,7 +67,9 @@ async function getMarcas(cat: CategoriaSeo) {
   )
   const cont: Record<string, number> = {}
   for (const p of data) if (p.brand) cont[p.brand] = (cont[p.brand] || 0) + 1
-  return Object.entries(cont).sort((a, b) => b[1] - a[1])
+  // Alfabética — mesma razão do /produtos: lista grande fica mais fácil de
+  // achar por nome do que por volume.
+  return Object.entries(cont).sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'))
 }
 
 // Menor brl_price entre os tiers de quantidade de cada produto — vira o selo
@@ -179,8 +182,17 @@ export default async function CategoriaPage({
   params, searchParams,
 }: { params: Promise<{ slug: string }>; searchParams: Promise<Busca> }) {
   const [{ slug }, b] = await Promise.all([params, searchParams])
-  const cat = await acharCategoriaPorSlug(slug)
+  const todasCategorias = await listarCategoriasSeo()
+  const cat = todasCategorias.find(c => c.slug === slug) ?? null
   if (!cat) notFound()
+
+  // Subcategorias diretas (ex.: dentro de Apple, Celular/Notebook/Watch...) —
+  // "às vezes a pessoa quer filtrar só por iPhone, ou só MacBook" (pedido
+  // explícito). Só os departamentos com 2+ filhas reais fazem sentido mostrar
+  // esse filtro; categoria-folha (ex. Celular sozinha) não tem o que filtrar.
+  const subcategorias = todasCategorias
+    .filter(c => c.parentId === cat.id)
+    .sort((a, b) => b.total - a.total)
 
   const [{ itens, total, pagina }, marcas] = await Promise.all([getProdutos(cat, b), getMarcas(cat)])
   const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id))
@@ -317,21 +329,34 @@ export default async function CategoriaPage({
             browser, um "display:flex!important" no CSS não sobrepõe). */}
         <div className="cat-layout">
           <aside className="cat-sidebar" aria-label="Filtros">
+            {subcategorias.length > 0 && (
+              <details className="cat-filter-group" open>
+                <summary className="cat-filter-title">
+                  <span>CATEGORIA</span>
+                  <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
+                <div className="cat-filter-list">
+                  <Link href={`/categoria/${cat.slug}`} style={sidebarLink(true)}>
+                    <span>Todas em {cat.nome}</span>
+                    <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{cat.total}</span>
+                  </Link>
+                  {subcategorias.map(sub => (
+                    <Link key={sub.id} href={`/categoria/${sub.slug}`} style={sidebarLink(false)}>
+                      <span>{sub.nome}</span>
+                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{sub.total}</span>
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            )}
             {marcas.length > 1 && (
               <details className="cat-filter-group" open>
                 <summary className="cat-filter-title">
                   <span>MARCA{b.marca ? `: ${b.marca}` : ''}</span>
                   <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </summary>
-                <div className="cat-filter-list">
-                  <Link href={url({ marca: '', pagina: '1' })} style={sidebarLink(!b.marca)}>Todas as marcas</Link>
-                  {marcas.map(([nome, qtd]) => (
-                    <Link key={nome} href={url({ marca: nome, pagina: '1' })} style={sidebarLink(b.marca === nome)}>
-                      <span>{nome}</span>
-                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{qtd}</span>
-                    </Link>
-                  ))}
-                </div>
+                <FiltroMarcas marcas={marcas} hrefTodas={url({ marca: '', pagina: '1' })}
+                  hrefMarca={nome => url({ marca: nome, pagina: '1' })} marcaAtiva={b.marca} />
               </details>
             )}
             <details className="cat-filter-group" open>

@@ -4,6 +4,7 @@ import { supabaseAdmin, fetchAllRows } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
+import FiltroMarcas from '@/components/FiltroMarcas'
 import { listarCategoriasSeo } from '@/lib/categorias'
 import { SITE_NAME } from '@/lib/site'
 
@@ -59,7 +60,9 @@ async function getMarcas(b: Busca) {
   const data = await fetchAllRows<{ brand: string | null }>((from, to) => q.range(from, to))
   const cont: Record<string, number> = {}
   for (const p of data) if (p.brand) cont[p.brand] = (cont[p.brand] || 0) + 1
-  return Object.entries(cont).sort((a, b) => b[1] - a[1])
+  // Alfabética — com 100+ marcas, achar uma específica por ordem de volume
+  // exige rolar a lista inteira; por nome é como o cliente já sabe procurar.
+  return Object.entries(cont).sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'))
 }
 
 async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
@@ -172,15 +175,8 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
                   <span>MARCA{b.marca ? `: ${b.marca}` : ''}</span>
                   <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </summary>
-                <div className="cat-filter-list">
-                  <Link href={url({ marca: '', pagina: '1' })} style={sidebarLink(!b.marca)}>Todas as marcas</Link>
-                  {marcas.map(([nome, qtd]) => (
-                    <Link key={nome} href={url({ marca: nome, pagina: '1' })} style={sidebarLink(b.marca === nome)}>
-                      <span>{nome}</span>
-                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{qtd}</span>
-                    </Link>
-                  ))}
-                </div>
+                <FiltroMarcas marcas={marcas} hrefTodas={url({ marca: '', pagina: '1' })}
+                  hrefMarca={nome => url({ marca: nome, pagina: '1' })} marcaAtiva={b.marca} />
               </details>
             )}
 

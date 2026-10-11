@@ -33,7 +33,7 @@ const ICONS: Record<string, LucideIcon> = {
 
 const catHref = (nome: string) => `/categoria/${slugify(nome)}`
 
-export default function DesktopNav({ items }: { items: NavItem[] }) {
+export default function DesktopNav({ items, temPromocao }: { items: NavItem[]; temPromocao: boolean }) {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
 
@@ -43,6 +43,15 @@ export default function DesktopNav({ items }: { items: NavItem[] }) {
         <span style={{ position: 'relative', zIndex: 1 }}>TODOS OS PRODUTOS</span>
         {hovered === 'todos' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
       </Link>
+
+      {/* Só aparece com desconto real ativo — e vem ANTES da Apple, não depois
+          (pedido explícito: promoção é a chamada mais forte quando existe). */}
+      {temPromocao && (
+        <Link href="/promocoes" className="nav-cat-btn" onMouseEnter={() => setHovered('promocoes')} onMouseLeave={() => setHovered(null)}>
+          <span style={{ position: 'relative', zIndex: 1, color: '#dc2626' }}>PROMOÇÕES</span>
+          {hovered === 'promocoes' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
+        </Link>
+      )}
 
       {items.map(item => {
         const href = item.marca ? `/produtos?marca=${encodeURIComponent(item.marca)}` : catHref(item.nome)
@@ -100,19 +109,9 @@ export default function DesktopNav({ items }: { items: NavItem[] }) {
         )
       })}
 
-      <Link href="/promocoes" className="nav-cat-btn" onMouseEnter={() => setHovered('promocoes')} onMouseLeave={() => setHovered(null)}>
-        <span style={{ position: 'relative', zIndex: 1, color: '#dc2626' }}>PROMOÇÕES</span>
-        {hovered === 'promocoes' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
-      </Link>
-
       <Link href="/onde-retirar" className="nav-cat-btn" onMouseEnter={() => setHovered('onde-retirar')} onMouseLeave={() => setHovered(null)}>
         <span style={{ position: 'relative', zIndex: 1 }}>ONDE RETIRAR</span>
         {hovered === 'onde-retirar' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
-      </Link>
-
-      <Link href="/#como-comprar" className="nav-cat-btn nav-cat-ajuda" onMouseEnter={() => setHovered('ajuda')} onMouseLeave={() => setHovered(null)}>
-        <span style={{ position: 'relative', zIndex: 1 }}>COMO COMPRAR</span>
-        {hovered === 'ajuda' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
       </Link>
     </nav>
   )

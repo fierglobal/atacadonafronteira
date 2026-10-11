@@ -5,6 +5,7 @@ import HeaderActions from '@/components/HeaderActions'
 import DesktopNav from '@/components/DesktopNav'
 import Logo from '@/components/Logo'
 import { MARCAS_VITRINE, WHATSAPP_HREF, BRL_RATE_FALLBACK } from '@/lib/site'
+import { isPromo } from '@/lib/produto'
 
 const CONTATO_HREF = WHATSAPP_HREF
 
@@ -44,8 +45,27 @@ async function getTopCats(): Promise<NavItem[]> {
 
     const total = (it: NavItem) =>
       (counts[it.id] || 0) + it.subs.reduce((s, f) => s + (counts[f.id] || 0), 0)
-    return base.sort((a, b) => total(b) - total(a))
+    // Apple sempre primeiro — pedido explícito do Guilherme, não é mais
+    // ordenado só por tamanho de estoque (Perfumes tem mais produto, mas
+    // Apple é a vitrine que ele quer na frente).
+    return base.sort((a, b) => {
+      if (a.nome === 'Apple') return -1
+      if (b.nome === 'Apple') return 1
+      return total(b) - total(a)
+    })
   } catch { return [] }
+}
+
+// Promoções só aparece no menu quando existe pelo menos 1 produto com desconto
+// real ativo agora — nunca um link morto pra página vazia.
+async function getTemPromocao(): Promise<boolean> {
+  try {
+    const now = new Date().toISOString()
+    const { data } = await supabaseAdmin.from('products').select('usd_price, usd_price_promo')
+      .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
+      .not('usd_price_promo', 'is', null).gt('estoque', 0)
+    return (data || []).some(p => isPromo(p))
+  } catch { return false }
 }
 
 // Vitrines de marca só entram no menu se tiverem produto ativo — senão o
@@ -65,7 +85,7 @@ async function getVitrines(): Promise<NavItem[]> {
 }
 
 export default async function SiteHeader() {
-  const [cats, vitrines, config] = await Promise.all([getTopCats(), getVitrines(), getConfig().catch(() => null)])
+  const [cats, vitrines, config, temPromocao] = await Promise.all([getTopCats(), getVitrines(), getConfig().catch(() => null), getTemPromocao()])
   const minimo = config?.pedido_minimo_brl
     ? `R$ ${Number(config.pedido_minimo_brl).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`
     : null
@@ -107,13 +127,13 @@ export default async function SiteHeader() {
           <Link href="/" className="site-logo" aria-label="Atacado na Fronteira">
             <Logo size={30} />
           </Link>
-          <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} />
+          <HeaderActions topCats={topCats} contatoHref={CONTATO_HREF} temPromocao={temPromocao} />
         </div>
 
         {/* Linha 2: navegação. Separar das ações acabou com o corte por
             nth-child que escondia departamento inteiro em tela média. */}
         <div className="nav-row">
-          <DesktopNav items={topCats} />
+          <DesktopNav items={topCats} temPromocao={temPromocao} />
         </div>
       </header>
     </>

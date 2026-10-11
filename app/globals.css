@@ -59,7 +59,7 @@ body {
 }
 .nav-desktop {
   max-width: 1280px; margin: 0 auto; padding: 0 24px;
-  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2px;
   min-width: 0;
 }
 /* Era overflow-x:auto — mas overflow-x diferente de 'visible' força overflow-y
@@ -67,7 +67,6 @@ body {
    e isso cortava o .nav-dropdown (position:absolute, top:100%) na altura da
    própria barra: o mega menu ficava com display:flex mas 0px visíveis.
    flex-wrap deixa o item que não coube ir pra 2ª linha em vez de sumir. */
-.nav-cat-ajuda { margin-left: auto; color: #9D7133 !important; }
 .nav-cat-btn {
   position: relative;
   padding: 0 12px; height: 60px;
