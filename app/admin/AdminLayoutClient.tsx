@@ -76,7 +76,13 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [cmdOpen, setCmdOpen] = useState(false)
 
-  useEffect(() => { setSidebarOpen(false) }, [pathname])
+  // Fecha o drawer ao trocar de rota — ajuste de estado durante o render
+  // (padrão recomendado pelo React), não dentro de efeito.
+  const [pathnameAnterior, setPathnameAnterior] = useState(pathname)
+  if (pathname !== pathnameAnterior) {
+    setPathnameAnterior(pathname)
+    setSidebarOpen(false)
+  }
 
   // Sidebar de menu vira drawer no mobile — sem isto ela ficava com os 220px
   // fixos sempre, empurrando o conteúdo e forçando scroll lateral na tela

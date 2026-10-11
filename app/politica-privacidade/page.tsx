@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { WHATSAPP_HREF } from '@/lib/site'
+import { WHATSAPP_HREF, WHATSAPP_DISPLAY } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade — Atacado na Fronteira',
@@ -93,7 +93,7 @@ export default function Privacidade() {
 
         <div style={sec}>
           <h2 style={h2}>11. Contato</h2>
-          <p style={p}>Encarregado de dados (DPO): solicitações pelo WhatsApp <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#9D7133', fontWeight: 700 }}>+595 992 636 618</a>.</p>
+          <p style={p}>Encarregado de dados (DPO): solicitações pelo WhatsApp <a href={WHATSAPP_HREF} target="_blank" rel="noopener" style={{ color: '#9D7133', fontWeight: 700 }}>{WHATSAPP_DISPLAY}</a>.</p>
         </div>
       </div>
     </div>

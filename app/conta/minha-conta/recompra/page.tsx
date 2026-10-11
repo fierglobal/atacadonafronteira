@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -19,9 +19,16 @@ export default function ListaRecompra() {
     if (!carregando && !logado) router.replace('/conta/login?redirect=/conta/minha-conta/recompra')
   }, [carregando, logado, router])
 
-  useEffect(() => {
+  // Seleciona tudo de novo quando a lista muda de verdade (carregou/mudou
+  // item) — comparado pelo conjunto de ids, não pela referência do array, que
+  // o context pode recriar a cada render. Ajuste de estado durante o render
+  // (padrão recomendado pelo React), não dentro de efeito.
+  const itensIds = useMemo(() => itens.map(i => i.id).join(','), [itens])
+  const [itensIdsAnterior, setItensIdsAnterior] = useState(itensIds)
+  if (itensIds !== itensIdsAnterior) {
+    setItensIdsAnterior(itensIds)
     setSelecionados(new Set(itens.map(i => i.id)))
-  }, [itens])
+  }
 
   const toggle = (id: string) => {
     setSelecionados(prev => {

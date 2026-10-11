@@ -1,9 +1,10 @@
 import { Fragment } from 'react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
-import { ENTREGA_LABEL, ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
+import { ehEntregaTipo, type EntregaTipo } from '@/lib/entrega'
 import Logo from '@/components/Logo'
 import PrintButton from './PrintButton'
 
@@ -304,9 +305,9 @@ export default async function PedidoCopia({ params }: { params: Promise<{ hash: 
           </div>
 
           <div className="no-print" style={{ maxWidth: 800, margin: '32px auto 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
-            <a href="/" style={{ fontSize: 12, fontWeight: 900, color: '#9D7133', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <Link href="/" style={{ fontSize: 12, fontWeight: 900, color: '#9D7133', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               ← Voltar para o catálogo
-            </a>
+            </Link>
             <p style={{ fontSize: 11, color: '#737373', lineHeight: 1.6, margin: 0 }}>
               © 2026 Atacado na Fronteira. Esta é uma cópia pública do pedido.<br />
               O uso indevido deste documento é passível de sanções legais.

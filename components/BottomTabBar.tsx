@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCarrinho } from './CarrinhoContext'
@@ -50,10 +51,10 @@ export default function BottomTabBar() {
   const item = (href: string, chave: string, label: string, icon: React.ReactNode) => {
     const estaAtivo = ativo === chave
     return (
-      <a href={href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, textDecoration: 'none', color: estaAtivo ? COR_DOURADO_TEXTO : '#737373' }}>
+      <Link href={href} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, textDecoration: 'none', color: estaAtivo ? COR_DOURADO_TEXTO : '#737373' }}>
         {icon}
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.02em' }}>{label}</span>
-      </a>
+      </Link>
     )
   }
 
@@ -66,11 +67,11 @@ export default function BottomTabBar() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21 12 16 5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
       ))}
 
-      <a href="/produtos" aria-label="Catálogo" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+      <Link href="/produtos" aria-label="Catálogo" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
         <span style={{ position: 'relative', top: -18, width: 50, height: 50, borderRadius: '50%', background: COR_DOURADO, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(214,168,101,0.35)', border: '4px solid #ffffff' }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </span>
-      </a>
+      </Link>
 
       {item(logado ? '/conta/minha-conta' : '/conta/login', 'conta', 'Conta', (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>

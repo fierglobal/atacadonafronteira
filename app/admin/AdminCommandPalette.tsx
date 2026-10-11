@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 
 type NavItem = { href: string; label: string; icon: string }
@@ -7,20 +7,36 @@ type NavItem = { href: string; label: string; icon: string }
 export default function AdminCommandPalette({ open, onClose, items }: { open: boolean; onClose: () => void; items: NavItem[] }) {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(0)
-  const [results, setResults] = useState<NavItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    if (open) { setQuery(''); setSelected(0); setTimeout(() => inputRef.current?.focus(), 50) }
-  }, [open])
+  // Reseta busca+seleção ao abrir — ajuste de estado durante o render (padrão
+  // recomendado pelo React), não dentro de efeito. O foco no input continua
+  // em efeito de verdade, porque ali sim é uma chamada imperativa no DOM.
+  const [openAnterior, setOpenAnterior] = useState(open)
+  if (open !== openAnterior) {
+    setOpenAnterior(open)
+    if (open) { setQuery(''); setSelected(0) }
+  }
 
   useEffect(() => {
-    if (!query.trim()) { setResults(items.slice(0, 8)); return }
+    if (open) setTimeout(() => inputRef.current?.focus(), 50)
+  }, [open])
+
+  // `results` é 100% derivado de query+items — sem precisar de state+efeito.
+  const results = useMemo(() => {
+    if (!query.trim()) return items.slice(0, 8)
     const q = query.toLowerCase()
-    setResults(items.filter(i => i.label.toLowerCase().includes(q)).slice(0, 8))
-    setSelected(0)
+    return items.filter(i => i.label.toLowerCase().includes(q)).slice(0, 8)
   }, [query, items])
+
+  // Reseta o índice selecionado quando a busca muda — ajuste de estado durante
+  // o render (padrão recomendado pelo React), não dentro de efeito.
+  const [queryAnterior, setQueryAnterior] = useState(query)
+  if (query !== queryAnterior) {
+    setQueryAnterior(query)
+    setSelected(0)
+  }
 
   const go = useCallback((href: string) => {
     router.push(href); onClose()

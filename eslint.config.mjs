@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     ".open-next/**",
     // Saída de build do Vercel adapter — código gerado, não fonte.
     ".vercel/**",
+    // Worktrees de agentes em background — cópia isolada em branch própria,
+    // não é o código que será deployado a partir daqui.
+    ".claude/worktrees/**",
   ]),
 ]);
 

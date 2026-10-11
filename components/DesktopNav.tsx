@@ -105,6 +105,11 @@ export default function DesktopNav({ items }: { items: NavItem[] }) {
         {hovered === 'promocoes' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
       </Link>
 
+      <Link href="/onde-retirar" className="nav-cat-btn" onMouseEnter={() => setHovered('onde-retirar')} onMouseLeave={() => setHovered(null)}>
+        <span style={{ position: 'relative', zIndex: 1 }}>ONDE RETIRAR</span>
+        {hovered === 'onde-retirar' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}
+      </Link>
+
       <Link href="/#como-comprar" className="nav-cat-btn nav-cat-ajuda" onMouseEnter={() => setHovered('ajuda')} onMouseLeave={() => setHovered(null)}>
         <span style={{ position: 'relative', zIndex: 1 }}>COMO COMPRAR</span>
         {hovered === 'ajuda' && <motion.div layoutId="nav-hover-bg" className="nav-hover-bg" />}

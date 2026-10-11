@@ -16,8 +16,8 @@ export type Config = {
 }
 
 const DEFAULTS: Config = {
-  pix_key: '52347525000100',
-  pix_holder: 'FIER GLOBAL',
+  pix_key: '65263561000129',
+  pix_holder: 'RENEWAL INTERMEDIACAO',
   brl_rate: BRL_RATE_FALLBACK,
   admin_email: '',
   store_name: 'Atacado na Fronteira',

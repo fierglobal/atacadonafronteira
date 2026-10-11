@@ -14,14 +14,14 @@ export const BRL_RATE_FALLBACK = 5.20
 // sobrou o número velho em algum arquivo — mensagem de cliente caindo na empresa
 // errada. Trocar AQUI, e também em configuracoes.whatsapp no banco, que tem
 // precedência em runtime (lib/config.ts).
-export const WHATSAPP_NUMBER = '595992636618'
+export const WHATSAPP_NUMBER = '595991199096'
 export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}`
 export const WHATSAPP_ENABLED = true
 
 // Como o número é escrito para humanos. Derivado da constante acima de propósito:
 // se o número mudar, esta linha é a única que precisa acompanhar, e o erro fica
 // visível na hora em vez de sobrar um telefone velho formatado em algum banner.
-export const WHATSAPP_DISPLAY = '+595 992 636618'
+export const WHATSAPP_DISPLAY = '+595 991 199096'
 
 // Grupo oficial no WhatsApp. Link de convite copiado da fonte, com os parâmetros
 // de compartilhamento que o próprio app anexa — o convite cru

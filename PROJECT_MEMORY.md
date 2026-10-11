@@ -328,3 +328,21 @@
 
 <!-- session 2026-10-09 22:57 -->
 <!-- arquivos: app/admin/AdminLayoutClient.tsx,app/admin/audit/page.tsx,app/admin/avaliacoes/page.tsx,app/admin/busca/page.tsx,app/admin/carrinhos/page.tsx,app/admin/categorias/page.tsx,app/admin/clientes/page.tsx,app/admin/configuracoes/page.tsx,app/admin/cupons/page.tsx,app/admin/custom-fields/page.tsx -->
+
+<!-- session 2026-10-10 12:36 -->
+<!-- arquivos: lib/config.ts,lib/pix.ts -->
+
+<!-- session 2026-10-10 12:58 -->
+<!-- arquivos: lib/config.ts,lib/pix.ts,lib/site.ts,PROJECT_MEMORY.md -->
+
+<!-- session 2026-10-11 09:12 -->
+<!-- arquivos: lib/config.ts,lib/pix.ts,lib/site.ts,PROJECT_MEMORY.md -->
+
+<!-- session 2026-10-11 09:14 -->
+<!-- arquivos: lib/config.ts,lib/pix.ts,lib/site.ts,PROJECT_MEMORY.md -->
+
+<!-- session 2026-10-11 09:23 -->
+<!-- arquivos: app/onde-retirar/page.tsx,app/politica-privacidade/page.tsx,app/sitemap.ts,app/termos/page.tsx,components/DesktopNav.tsx,components/HeaderActions.tsx,components/SiteFooter.tsx,lib/config.ts,lib/pix.ts,lib/site.ts -->
+
+<!-- session 2026-10-11 09:26 -->
+<!-- arquivos: app/onde-retirar/page.tsx,app/politica-privacidade/page.tsx,app/sitemap.ts,app/termos/page.tsx,components/DesktopNav.tsx,components/HeaderActions.tsx,components/SiteFooter.tsx,lib/config.ts,lib/pix.ts,lib/site.ts -->

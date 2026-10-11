@@ -1,19 +1,18 @@
 import SiteHeader from '@/components/SiteHeader'
-import { WHATSAPP_ENABLED, WHATSAPP_NUMBER } from '@/lib/site'
+import { WHATSAPP_ENABLED, WHATSAPP_NUMBER, WHATSAPP_DISPLAY } from '@/lib/site'
 
 export const revalidate = 3600
 
 const WA_NUMBER = WHATSAPP_NUMBER
 const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Olá! Quero informações sobre retirada.')}`
-const PHONE_DISPLAY = '+595 992 636 618'
-const ADDRESS_LINE1 = 'Av. Carlos Antonio López 7000'
-const ADDRESS_LINE2 = 'Cd. del Este 100136 — Paraguai'
-const MAPS_LINK = 'https://www.google.com/maps?ll=-25.510525,-54.610327&z=14&t=m&hl=pt-BR&gl=US&mapclient=embed&q=Av.+Carlos+Antonio+L%C3%B3pez+7000+Cd.+del+Este+100136+Paraguai'
-const MAPS_EMBED = 'https://www.google.com/maps?q=Av.+Carlos+Antonio+L%C3%B3pez+7000+Cd.+del+Este+100136+Paraguai&hl=pt-BR&z=15&output=embed'
+const PHONE_DISPLAY = WHATSAPP_DISPLAY
+const ADDRESS_LINE1 = 'Shopping Internacional, 1º piso, loja 17'
+const ADDRESS_LINE2 = 'Av. Adrián Jara c/ Itá Ybaté, Cd. del Este — Paraguai'
+const MAPS_LINK = 'https://www.google.com/maps?ll=-25.5112127,-54.608666&z=17&t=m&hl=pt-BR&gl=US&mapclient=embed&q=Shopping+Internacional+Cd.+del+Este+Paraguai'
+const MAPS_EMBED = 'https://www.google.com/maps?q=Shopping+Internacional+Cd.+del+Este+Paraguai&hl=pt-BR&z=17&output=embed'
 
 const HORARIO = [
-  { dia: 'Segunda a Sexta', horas: '09:00 — 18:00' },
-  { dia: 'Sábado', horas: '09:00 — 13:00' },
+  { dia: 'Segunda a Sábado', horas: '07:00 — 16:00' },
   { dia: 'Domingo', horas: 'Fechado' },
 ]
 

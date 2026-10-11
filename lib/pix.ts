@@ -2,9 +2,9 @@
 // duplicado em app/checkout/page.tsx e app/pix/[orderNum]/page.tsx byte a byte; um
 // terceiro lugar precisando disso (Minha Conta) foi o motivo de extrair.
 
-export const PIX_KEY_FALLBACK = '65078504000170'
-export const PIX_HOLDER_FALLBACK = 'ATACADO NA FRONTEIRA'
-export const PIX_CITY = 'MARINGA'
+export const PIX_KEY_FALLBACK = '65263561000129'
+export const PIX_HOLDER_FALLBACK = 'RENEWAL INTERMEDIACAO'
+export const PIX_CITY = 'SAO PAULO'
 
 function crc16(str: string): string {
   let crc = 0xFFFF
