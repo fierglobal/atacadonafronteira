@@ -176,7 +176,7 @@ export default async function ProdutosPage({ searchParams }: { searchParams: Pro
                   <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                 </summary>
                 <FiltroMarcas marcas={marcas} hrefTodas={url({ marca: '', pagina: '1' })}
-                  hrefMarca={nome => url({ marca: nome, pagina: '1' })} marcaAtiva={b.marca} />
+                  hrefMarcaTemplate={url({ marca: '__MARCA__', pagina: '1' })} marcaAtiva={b.marca} />
               </details>
             )}
 

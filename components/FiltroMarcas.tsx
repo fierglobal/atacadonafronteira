@@ -6,10 +6,13 @@ import Link from 'next/link'
 // Lista de marcas pode passar de 100 itens (ex: Perfumes) — sem busca, achar
 // uma marca específica é rolar a lista inteira. Filtro só no cliente (a lista
 // completa já veio do servidor), então digitar não recarrega a página.
-export default function FiltroMarcas({ marcas, hrefTodas, hrefMarca, marcaAtiva }: {
+export default function FiltroMarcas({ marcas, hrefTodas, hrefMarcaTemplate, marcaAtiva }: {
   marcas: [string, number][]
   hrefTodas: string
-  hrefMarca: (nome: string) => string
+  /** URL com o placeholder __MARCA__ no lugar do nome — função não dá pra passar
+      de Server pra Client Component (RSC não serializa função), então o
+      servidor manda um molde de string em vez de um closure. */
+  hrefMarcaTemplate: string
   marcaAtiva?: string
 }) {
   const [busca, setBusca] = useState('')
@@ -37,7 +40,7 @@ export default function FiltroMarcas({ marcas, hrefTodas, hrefMarca, marcaAtiva 
           <p style={{ fontSize: 12, color: '#a3a3a3', padding: '6px 10px', margin: 0 }}>Nenhuma marca encontrada</p>
         )}
         {filtradas.map(([nome, qtd]) => (
-          <Link key={nome} href={hrefMarca(nome)} style={sidebarLink(marcaAtiva === nome)}>
+          <Link key={nome} href={hrefMarcaTemplate.replace('__MARCA__', encodeURIComponent(nome))} style={sidebarLink(marcaAtiva === nome)}>
             <span>{nome}</span>
             <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{qtd}</span>
           </Link>
