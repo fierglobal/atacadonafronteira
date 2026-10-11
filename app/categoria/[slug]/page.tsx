@@ -8,12 +8,12 @@ import CategoriaProductCard from '@/components/CategoriaProductCard'
 import CategoriaProductCardGrupo from '@/components/CategoriaProductCardGrupo'
 import FiltroMarcas from '@/components/FiltroMarcas'
 import { acharCategoriaPorSlug, listarCategoriasSeo, type CategoriaSeo } from '@/lib/categorias'
-import { nomeSemMarca, nomeSemSufixoStatus } from '@/lib/produto'
+import { nomeSemMarca, nomeSemSufixoStatus, extrairAtributosIphone } from '@/lib/produto'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
 
-type Busca = { marca?: string; ordem?: string; pagina?: string; precoMin?: string; precoMax?: string }
+type Busca = { marca?: string; modelo?: string; linha?: string; ordem?: string; pagina?: string; precoMin?: string; precoMax?: string }
 
 const ORDENS = [
   { chave: '', rotulo: 'Relevância' },
@@ -25,7 +25,7 @@ const ORDENS = [
 // Ao contrário da home, o nome do produto vai em TEXTO PURO. A home ofusca em
 // base64 contra scraping, mas uma landing de categoria sem texto indexável não
 // serve para nada — é o texto que diz ao Google que esta página é sobre peptídeos.
-async function getProdutos(cat: CategoriaSeo, b: Busca) {
+async function getProdutos(cat: CategoriaSeo, b: Busca, idsIphoneFiltro: string[] | null) {
   const now = new Date().toISOString()
   const ids = [cat.id, ...cat.descendentes]
   const pagina = Math.max(1, parseInt(b.pagina || '1', 10) || 1)
@@ -39,6 +39,9 @@ async function getProdutos(cat: CategoriaSeo, b: Busca) {
     .in('categoria_id', ids)
 
   if (b.marca) q = q.eq('brand', b.marca)
+  // Sentinela: filtro de modelo/linha sem produto nenhum deve devolver
+  // "nada encontrado" (um id impossível), não a categoria inteira.
+  if (idsIphoneFiltro) q = q.in('id', idsIphoneFiltro.length ? idsIphoneFiltro : ['__nenhum__'])
   const precoMin = b.precoMin ? Number(b.precoMin) : null
   const precoMax = b.precoMax ? Number(b.precoMax) : null
   if (precoMin != null && !Number.isNaN(precoMin)) q = q.gte('brl_price', precoMin)
@@ -70,6 +73,41 @@ async function getMarcas(cat: CategoriaSeo) {
   // Alfabética — mesma razão do /produtos: lista grande fica mais fácil de
   // achar por nome do que por volume.
   return Object.entries(cont).sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'))
+}
+
+// Atributo "modelo"/"linha" do iPhone não existe como coluna — vem do nome
+// (extrairAtributosIphone), então o filtro funciona sem depender de alguém
+// preencher um campo custom produto a produto. modeloAtivo escopa a contagem
+// de LINHA pro modelo já escolhido (pedido só "Pro Max" dentro do 18, por
+// exemplo, não o total de Pro Max do catálogo inteiro).
+async function getAtributosIphone(cat: CategoriaSeo, modeloAtivo?: string) {
+  const now = new Date().toISOString()
+  const data = await fetchAllRows<{ id: string; name: string }>((from, to) =>
+    supabaseAdmin
+      .from('products')
+      .select('id, name')
+      .eq('ativo', true)
+      .or(`published_at.is.null,published_at.lte.${now}`)
+      .in('categoria_id', [cat.id, ...cat.descendentes])
+      .ilike('name', '%iPhone%')
+      .range(from, to)
+  )
+  const modeloCont: Record<string, number> = {}
+  const linhaCont: Record<string, number> = {}
+  const idsPorModelo: Record<string, string[]> = {}
+  const idsPorLinha: Record<string, string[]> = {}
+  for (const p of data) {
+    const attrs = extrairAtributosIphone(p.name)
+    if (!attrs) continue
+    modeloCont[attrs.modelo] = (modeloCont[attrs.modelo] || 0) + 1
+    ;(idsPorModelo[attrs.modelo] ||= []).push(p.id)
+    if (attrs.linha) {
+      if (!modeloAtivo || attrs.modelo === modeloAtivo) linhaCont[attrs.linha] = (linhaCont[attrs.linha] || 0) + 1
+      ;(idsPorLinha[attrs.linha] ||= []).push(p.id)
+    }
+  }
+  const modelos = Object.entries(modeloCont).sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10) || a[0].localeCompare(b[0]))
+  return { modelos, linhaCont, idsPorModelo, idsPorLinha }
 }
 
 // Menor brl_price entre os tiers de quantidade de cada produto — vira o selo
@@ -194,18 +232,33 @@ export default async function CategoriaPage({
     .filter(c => c.parentId === cat.id)
     .sort((a, b) => b.total - a.total)
 
-  const [{ itens, total, pagina }, marcas] = await Promise.all([getProdutos(cat, b), getMarcas(cat)])
+  const [marcas, atributosIphone] = await Promise.all([getMarcas(cat), getAtributosIphone(cat, b.modelo)])
+
+  let idsIphoneFiltro: string[] | null = null
+  if (b.modelo || b.linha) {
+    const porModelo = b.modelo ? new Set(atributosIphone.idsPorModelo[b.modelo] || []) : null
+    const porLinha = b.linha ? new Set(atributosIphone.idsPorLinha[b.linha] || []) : null
+    idsIphoneFiltro = porModelo && porLinha
+      ? [...porModelo].filter(id => porLinha.has(id))
+      : porModelo ? [...porModelo] : porLinha ? [...porLinha] : []
+  }
+
+  const { itens, total, pagina } = await getProdutos(cat, b, idsIphoneFiltro)
   const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id))
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA))
 
   const url = (extra: Partial<Busca>) => {
     const p = new URLSearchParams()
     const m = extra.marca !== undefined ? extra.marca : b.marca
+    const modelo = extra.modelo !== undefined ? extra.modelo : b.modelo
+    const linha = extra.linha !== undefined ? extra.linha : b.linha
     const o = extra.ordem !== undefined ? extra.ordem : b.ordem
     const pMin = extra.precoMin !== undefined ? extra.precoMin : b.precoMin
     const pMax = extra.precoMax !== undefined ? extra.precoMax : b.precoMax
     const pg = extra.pagina
     if (m) p.set('marca', m)
+    if (modelo) p.set('modelo', modelo)
+    if (linha) p.set('linha', linha)
     if (o) p.set('ordem', o)
     if (pMin) p.set('precoMin', pMin)
     if (pMax) p.set('precoMax', pMax)
@@ -259,7 +312,7 @@ export default async function CategoriaPage({
     fontSize: 12, fontWeight: 700, color: '#9D7133', background: 'rgba(214,168,101,0.06)',
     border: '1px solid rgba(214,168,101,0.25)', textDecoration: 'none',
   }
-  const temFiltrosAtivos = !!(b.marca || b.precoMin || b.precoMax)
+  const temFiltrosAtivos = !!(b.marca || b.modelo || b.linha || b.precoMin || b.precoMax)
 
   // Agrupamento por foto só faz sentido quando a ordem preserva os "irmãos"
   // próximos (Relevância/A–Z) — nas ordenações por preço eles se espalham pelo
@@ -311,6 +364,8 @@ export default async function CategoriaPage({
         {temFiltrosAtivos && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
             {b.marca && <Link href={url({ marca: '', pagina: '1' })} style={pill}>Marca: {b.marca} <span aria-hidden="true">×</span></Link>}
+            {b.modelo && <Link href={url({ modelo: '', pagina: '1' })} style={pill}>Modelo: iPhone {b.modelo} <span aria-hidden="true">×</span></Link>}
+            {b.linha && <Link href={url({ linha: '', pagina: '1' })} style={pill}>Linha: {b.linha} <span aria-hidden="true">×</span></Link>}
             {(b.precoMin || b.precoMax) && (
               <Link href={url({ precoMin: '', precoMax: '', pagina: '1' })} style={pill}>R$ {b.precoMin || '0'}–{b.precoMax || '∞'} <span aria-hidden="true">×</span></Link>
             )}
@@ -359,6 +414,40 @@ export default async function CategoriaPage({
                   hrefMarcaTemplate={url({ marca: '__MARCA__', pagina: '1' })} marcaAtiva={b.marca} />
               </details>
             )}
+            {atributosIphone.modelos.length > 0 && (
+              <details className="cat-filter-group" open>
+                <summary className="cat-filter-title">
+                  <span>MODELO (iPhone){b.modelo ? `: ${b.modelo}` : ''}</span>
+                  <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
+                <div className="cat-filter-list">
+                  <Link href={url({ modelo: '', pagina: '1' })} style={sidebarLink(!b.modelo)}>Todos os modelos</Link>
+                  {atributosIphone.modelos.map(([modelo, qtd]) => (
+                    <Link key={modelo} href={url({ modelo, pagina: '1' })} style={sidebarLink(b.modelo === modelo)}>
+                      <span>iPhone {modelo}</span>
+                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{qtd}</span>
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            )}
+            {Object.keys(atributosIphone.linhaCont).length > 0 && (
+              <details className="cat-filter-group" open>
+                <summary className="cat-filter-title">
+                  <span>LINHA{b.linha ? `: ${b.linha}` : ''}</span>
+                  <svg className="cat-filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </summary>
+                <div className="cat-filter-list">
+                  <Link href={url({ linha: '', pagina: '1' })} style={sidebarLink(!b.linha)}>Todas as linhas</Link>
+                  {(['Pro', 'Pro Max'] as const).filter(l => atributosIphone.linhaCont[l]).map(linha => (
+                    <Link key={linha} href={url({ linha, pagina: '1' })} style={sidebarLink(b.linha === linha)}>
+                      <span>{linha}</span>
+                      <span style={{ opacity: 0.6, fontWeight: 600, fontSize: 11.5 }}>{atributosIphone.linhaCont[linha]}</span>
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            )}
             <details className="cat-filter-group" open>
               <summary className="cat-filter-title">
                 <span>PREÇO{b.precoMin || b.precoMax ? `: R$${b.precoMin || '0'}–${b.precoMax || '∞'}` : ''}</span>
@@ -393,7 +482,7 @@ export default async function CategoriaPage({
           <div className="cat-main">
             {itens.length === 0 ? (
               <p style={{ padding: '40px 0', color: '#737373' }}>
-                Nada encontrado com esse filtro. <Link href={url({ marca: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#9D7133', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
+                Nada encontrado com esse filtro. <Link href={url({ marca: '', modelo: '', linha: '', ordem: '', precoMin: '', precoMax: '', pagina: '1' })} style={{ color: '#9D7133', fontWeight: 700 }}>Ver tudo em {cat.nome}</Link>.
               </p>
             ) : (
               <div className="categoria-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12 }}>

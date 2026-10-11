@@ -52,7 +52,11 @@ export default function CategoriaProductCard({ p, menorPrecoAtacado }: {
         </h2>
 
         <div style={{ marginTop: 'auto', paddingTop: 10, borderTop: '1px solid #f5f5f5', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ minWidth: 0 }}>
+          {/* Altura fixa pro bloco de preço — "1 linha" (preço normal) e "3 linhas"
+              (promo riscado + preço no atacado + rótulo /un) senão existem lado a
+              lado no carrossel, que não estica os cards pra mesma altura como o
+              grid faz; sem isso o botão sobe/desce por card conforme o preço. */}
+          <div style={{ minWidth: 0, minHeight: 56, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 2 }}>
             {emBreve ? (
               <div style={{ fontSize: 15, fontWeight: 900, color: '#9D7133', letterSpacing: '0.04em' }}>{ROTULO_EM_BREVE}</div>
             ) : esgotado ? (

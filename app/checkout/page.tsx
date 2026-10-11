@@ -3,6 +3,7 @@ import { useState, useEffect, type ChangeEvent } from 'react'
 import QRCode from 'qrcode'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useCarrinho, type CartItem } from '@/components/CarrinhoContext'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import type { User } from '@supabase/supabase-js'
@@ -325,8 +326,18 @@ function StepIndicator({ step }: { step: 1 | 2 | 3 }) {
 function Header({ step }: { step?: 1 | 2 | 3 }) {
   const router = useRouter()
   return (
-    <header style={{ borderBottom: '1px solid #ececec', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
-      <Logo size={26} />
+    <header style={{ borderBottom: '1px solid #ececec', padding: '0 16px 0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, height: 60, position: 'sticky', top: 0, background: '#ffffff', zIndex: 50 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+        <Logo size={26} />
+        {/* Dentro do fluxo (Dados/Pagamento) o cliente ficava sem rota de volta
+            pro site — o header só tinha o indicador de passos. */}
+        {step && (
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#737373', fontSize: 12, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+            <span className="ck-continuar-label">Continuar comprando</span>
+          </Link>
+        )}
+      </div>
       {step ? <StepIndicator step={step} /> : (
         <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: '#404040', fontSize: 13, cursor: 'pointer' }}>
           ← Voltar

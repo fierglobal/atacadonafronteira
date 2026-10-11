@@ -41,6 +41,23 @@ export function nomeSemSufixoStatus(name: string): string {
   return name.replace(/\s*-\s*(PR[ÉE]-VENDA|EM BREVE)\s*$/i, '').trim()
 }
 
+export type AtributosIphone = { modelo: string; linha: 'Pro Max' | 'Pro' | null }
+
+// Deriva modelo (14/15/16/17/17e/18) e linha (Pro/Pro Max) direto do nome —
+// os dois esquemas de nome em uso ("Apple iPhone 18 Pro Max 512GB Black" e
+// "iPhone 17 Pro 256GB Silver (EUA) Celular") sempre têm "iPhone <dígitos>[e]"
+// logo no início do modelo, então não precisa de um atributo manual no banco
+// pra funcionar como filtro — confirmado contra os nomes reais em produção.
+const IPHONE_MODELO_RE = /iPhone\s+(1[4-8])(e)?\b/i
+
+export function extrairAtributosIphone(nome: string): AtributosIphone | null {
+  const m = nome.match(IPHONE_MODELO_RE)
+  if (!m) return null
+  const modelo = m[1] + (m[2] ? 'e' : '')
+  const linha = /pro\s*max/i.test(nome) ? 'Pro Max' : /\bpro\b/i.test(nome) ? 'Pro' : null
+  return { modelo, linha }
+}
+
 export type StatusDisponibilidade = 'em_breve' | 'sob_encomenda' | 'esgotado' | 'pronta_entrega'
 
 export function statusDisponibilidade(p: ProdutoPromo & { estoque: number }): StatusDisponibilidade {

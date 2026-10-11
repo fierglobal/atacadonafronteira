@@ -353,3 +353,10 @@ body { overflow-x: clip; }
 @media (min-width: 640px) {
   .ck-step-carrinho-label { display: inline; }
 }
+
+/* Mesmo princípio pro link "Continuar comprando" — só o ícone cabe lado a
+   lado com os 3 passos em telas bem estreitas. */
+.ck-continuar-label { display: none; }
+@media (min-width: 480px) {
+  .ck-continuar-label { display: inline; }
+}
