@@ -52,10 +52,12 @@ export function Destaques({ produtos }: { produtos: DestaqueProduto[] }) {
 
 // Carrossel textual de marcas (fallback (b) do redesign Ponte de Fronteira):
 // auditoria no banco em 11/10/2026 não achou NENHUMA imagem de marca em
-// nenhuma tabela (products/marcas) — 0/34 marcas têm logo. Construir um
-// carrossel de <img> com placeholder genérico pra 34 marcas repetiria o
-// carrossel "capenga" do projeto irmão. Nome + contagem real é honesto com o
-// que o banco tem hoje; a imagem entra depois, se/quando existir campo pra ela.
+// nenhuma tabela — nem products.brand (texto livre, 111 marcas distintas
+// entre os 661 produtos ativos), nem a tabela `marcas` (34 linhas, só
+// id/nome/created_at, sem coluna de logo). Construir um carrossel de <img>
+// com placeholder genérico pra essas marcas repetiria o carrossel "capenga"
+// do projeto irmão. Nome + contagem real é honesto com o que o banco tem
+// hoje; a imagem entra depois, se/quando existir campo pra ela.
 export function MarcasCarrossel({ marcas }: { marcas: { nome: string; total: number }[] }) {
   if (marcas.length < 2) return null
   const destaque = marcas.slice(0, 30)
