@@ -221,10 +221,20 @@ body { overflow-x: clip; }
      ser dimensionado pelo conteúdo (carrossel de 1248px) até o max-width de
      1280. Só min-width:0 não segura. */
   .home-root > * { min-width: 0; width: 100%; }
+  /* "Destaques"/"Catálogo" (sec-destaques/sec-catalogo) saíram da home em
+     11/10/2026 — viraram sec-loja-fisica + sec-vitrine (carrossel, 2x,
+     Perfumes e Eletrônicos) + sec-banner-promo (2x, intercalado). Esqueci de
+     atualizar esta lista na hora e as seções novas, sem `order` definido,
+     caíam em order:0 (padrão) — ANTES do Hero (order:1), que é exatamente o
+     bug que isso tinha corrigido da primeira vez. sec-vitrine e
+     sec-banner-promo dividem o mesmo order de propósito: elementos com
+     order igual preservam a ordem do DOM entre si (regra do flexbox), que já
+     é a sequência certa (vitrine → banner → vitrine → banner). */
   .sec-hero            { order: 1; }
-  .sec-destaques       { order: 2; }
-  .sec-marcas          { order: 3; }
-  .sec-catalogo        { order: 4; }
+  .sec-loja-fisica     { order: 2; }
+  .sec-vitrine         { order: 3; }
+  .sec-banner-promo    { order: 3; }
+  .sec-marcas          { order: 4; }
   .sec-como-funciona   { order: 5; }
   .sec-banda-final     { order: 6; }
   footer               { order: 7; }
@@ -232,7 +242,7 @@ body { overflow-x: clip; }
   /* O hero rotativo (HeroRotativo.tsx) monta o próprio layout mobile via
      <style> interno — essas overrides eram do hero de texto puro anterior. */
 
-  .sec-destaques, .sec-marcas, .sec-catalogo, .sec-como-funciona { padding: 48px 0 !important; }
+  .sec-marcas, .sec-como-funciona { padding: 48px 0 !important; }
   .sec-banda-final { padding: 40px 0 !important; }
   .como-final-grid { display: flex !important; flex-direction: column !important; gap: 24px !important; }
 }
