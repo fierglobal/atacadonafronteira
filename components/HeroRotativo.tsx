@@ -220,7 +220,20 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
       )}
 
       <style>{`
-        .hero-rot { position: relative; overflow: hidden; font-family: inherit; background: #111111; }
+        /* Arte gerada (still life Apple+perfume em dourado/preto) como fundo —
+           scrim escuro da esquerda garante contraste do texto branco/CTA
+           independente de como a imagem encaixar; a direita (onde a arte tem
+           os produtos) fica mais visível, atrás do card de produto real. */
+        .hero-rot {
+          position: relative; overflow: hidden; font-family: inherit;
+          background:
+            linear-gradient(90deg, rgba(10,10,10,0.94) 0%, rgba(10,10,10,0.82) 32%, rgba(10,10,10,0.35) 58%, rgba(10,10,10,0.12) 100%),
+            url('/hero-banner.webp') center right / cover no-repeat,
+            #111111;
+        }
+        @media (max-width: 900px) {
+          .hero-rot { background: #111111; }
+        }
         .hero-slide-base { position: relative; }
         .hero-slide-abs { position: absolute; inset: 0; }
         .hero-slide-base, .hero-slide-abs { transition: opacity 0.35s ease, transform 0.35s ease; }
