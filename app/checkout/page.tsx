@@ -363,6 +363,7 @@ export default function Checkout() {
   // pix
   const [orderNum, setOrderNum] = useState('')
   const [orderId, setOrderId] = useState('')
+  const [copyHash, setCopyHash] = useState('')
   const [pixItens, setPixItens] = useState<CartItem[]>([])
   const [pixTotal, setPixTotal] = useState(0)
   const [pixForm, setPixForm] = useState<Profile | null>(null)
@@ -616,7 +617,7 @@ export default function Checkout() {
         return
       }
       const respJson = await res.json()
-      const { orderNum: num, orderId: oid, pixExpiraEm, estimatedReadyTime: ert, totalBrl: totalServidor } = respJson
+      const { orderNum: num, orderId: oid, copyHash: hash, pixExpiraEm, estimatedReadyTime: ert, totalBrl: totalServidor } = respJson
       if (cartSessionId) {
         fetch('/api/cart-session', {
           method: 'PATCH', headers: { 'Content-Type': 'application/json' },
@@ -625,6 +626,7 @@ export default function Checkout() {
       }
       setOrderNum(num)
       setOrderId(oid || '')
+      setCopyHash(hash || '')
       setPixItens(snapshotItens)
       setPixTemSobEncomenda(temSobEncomenda)
       setPixTotal(snapshotTotal)
@@ -787,7 +789,7 @@ export default function Checkout() {
 
   /* ─── PIX SCREEN ─── */
   if (pageState === 'pix') {
-    const readyTimeFallback = 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (em até 24 horas úteis).'
+    const readyTimeFallback = 'Após a confirmação do PIX, aguarde a aprovação do pedido antes de vir retirar — avisamos por e-mail e WhatsApp quando estiver liberado (a partir do dia seguinte à compra, após as 13h).'
     return (
       <div style={{ minHeight: '100vh', background: '#ffffff', color: '#0a0a0a' }}>
         <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }`}</style>
@@ -814,6 +816,15 @@ export default function Checkout() {
               </p>
             </div>
           </div>
+
+          {/* Pedido pra imprimir e apresentar na retirada */}
+          {copyHash && (
+            <a href={`/pedido/${copyHash}`} target="_blank" rel="noopener"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', marginBottom: 20, padding: '13px 20px', background: '#ffffff', border: '1px solid rgba(214,168,101,0.4)', borderRadius: 12, color: '#9D7133', fontSize: 13, fontWeight: 800, textDecoration: 'none', boxSizing: 'border-box' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Ver pedido completo para imprimir
+            </a>
+          )}
 
           {/* QR Code + Timer */}
           {qrDataUrl && pixStartSecs > 0 && <PixQrBlock qrDataUrl={qrDataUrl} totalSecs={pixStartSecs} />}

@@ -67,7 +67,7 @@ export default function SiteFooter({ brands = [] }: { brands?: string[] }) {
             </li>
             <li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <svg style={{ flexShrink: 0, marginTop: 2 }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D6A865" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span style={{ fontSize: 13, lineHeight: 1.7 }}>Pedido pronto em até 24h úteis<br />após a confirmação do PIX.</span>
+              <span style={{ fontSize: 13, lineHeight: 1.7 }}>Pedido pronto para retirada<br />no dia seguinte, após 13h.</span>
             </li>
             {WHATSAPP_ENABLED && (
               <li style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>

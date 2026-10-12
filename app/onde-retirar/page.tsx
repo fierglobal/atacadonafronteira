@@ -46,7 +46,7 @@ export default function OndeRetirarPage() {
               Onde <span style={{ color: '#9D7133' }}>retirar</span> seu pedido
             </h1>
             <p style={{ fontSize: 15, color: '#525252', lineHeight: 1.6, margin: '0 0 28px', maxWidth: 480 }}>
-              Trabalhamos exclusivamente com retirada na loja em Ciudad del Este, Paraguai. Após confirmação do PIX, seu pedido fica pronto em até 24h úteis.
+              Trabalhamos exclusivamente com retirada na loja em Ciudad del Este, Paraguai. Após confirmação do PIX, seu pedido fica pronto para retirada no dia seguinte à compra, a partir das 13h.
             </p>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' as const }}>
               <a href={MAPS_LINK} target="_blank" rel="noopener" className="maps-btn"
@@ -136,7 +136,7 @@ export default function OndeRetirarPage() {
           {[
             { n: '1', t: 'Faça seu pedido', d: 'Adicione produtos ao carrinho e finalize na nossa loja online.' },
             { n: '2', t: 'Pague via PIX', d: 'Use a chave PIX ou copie o código. Envie o comprovante para agilizar.' },
-            { n: '3', t: 'Aguarde confirmação', d: 'Após validar o PIX, separamos seu pedido em até 24h úteis.' },
+            { n: '3', t: 'Aguarde confirmação', d: 'Após validar o PIX, seu pedido fica pronto no dia seguinte, a partir das 13h.' },
             { n: '4', t: 'Retire na loja', d: 'Apresente o número do pedido e seu documento. Pronto!' },
           ].map(s => (
             <div key={s.n} className="contact-card" style={{ background: '#ffffff', border: '1px solid #ececec', borderRadius: 12, padding: 20 }}>

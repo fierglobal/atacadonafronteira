@@ -81,7 +81,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (body.status) {
     const { data: order } = await supabaseAdmin
       .from('orders')
-      .select('status, order_num, total_brl, customers(nome, email)')
+      .select('status, order_num, total_brl, copy_hash, customers(nome, email)')
       .eq('id', id)
       .single()
 
@@ -92,7 +92,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         const config = await getConfig()
         const customer = (order as unknown as { customers: { nome: string; email: string | null } | null }).customers
         if (customer?.email) {
-          emailProntoRetirada(customer.email, customer.nome, order.order_num, order.total_brl).catch(() => {})
+          emailProntoRetirada(customer.email, customer.nome, order.order_num, order.total_brl, order.copy_hash).catch(() => {})
         }
         void config
       }

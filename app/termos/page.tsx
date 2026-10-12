@@ -45,7 +45,7 @@ export default function Termos() {
 
         <div style={sec}>
           <h2 style={h2}>5. Retirada</h2>
-          <p style={p}>Operamos exclusivamente por <strong>retirada em loja física, em Ciudad del Este</strong>. Não trabalhamos com transportadoras, envio para outras cidades nem entrega em domicílio. Após a confirmação do PIX, o pedido passa por aprovação em até 24 horas úteis — aguarde nosso aviso por e-mail ou WhatsApp antes de vir retirar.</p>
+          <p style={p}>Operamos exclusivamente por <strong>retirada em loja física, em Ciudad del Este</strong>. Não trabalhamos com transportadoras, envio para outras cidades nem entrega em domicílio. Após a confirmação do PIX, o pedido fica pronto para retirada no dia seguinte à compra, a partir das 13h — aguarde nosso aviso por e-mail ou WhatsApp antes de vir retirar.</p>
           <p style={p}>Pedidos não retirados em 30 dias serão cancelados sem direito a reembolso, salvo acordo prévio.</p>
         </div>
 

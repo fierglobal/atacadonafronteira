@@ -37,12 +37,12 @@ function layout(content: string, accent = '#8b5cf6') {
 </body></html>`
 }
 
-export async function emailProntoRetirada(email: string, nome: string, orderNum: string, totalBrl: number) {
+export async function emailProntoRetirada(email: string, nome: string, orderNum: string, totalBrl: number, copyHash: string) {
   const html = layout(`
     <h2 style="margin:0 0 8px;font-size:20px;color:#fff">Olá, ${nome.split(' ')[0]}! Seu pedido está pronto.</h2>
     <p style="color:#888;font-size:15px;line-height:1.6;margin:0 0 24px">
       O pagamento do pedido <strong style="color:#8b5cf6">${orderNum}</strong> foi confirmado e
-      seu pedido já está separado e pronto para retirada.
+      seu pedido já está separado e pronto para retirada, a partir das 13h do dia seguinte à compra.
     </p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px">
       <tr><td style="background:#111;border-radius:10px;padding:20px;border-left:4px solid #8b5cf6">
@@ -53,14 +53,14 @@ export async function emailProntoRetirada(email: string, nome: string, orderNum:
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px">
       <tr><td style="background:#111;border-radius:10px;padding:16px">
         <p style="margin:0;font-size:13px;color:#888;line-height:1.6">
-          Compareça à nossa loja com o número do pedido para retirada.<br>
+          Imprima o pedido abaixo (ou leve no celular) e apresente na loja junto com um documento com foto.<br>
           Em caso de dúvidas, entre em contato.
         </p>
       </td></tr>
     </table>
-    <a href="https://atacadonafronteira.com/conta/minha-conta/pedidos"
+    <a href="https://atacadonafronteira.com/pedido/${copyHash}"
        style="display:inline-block;background:#8b5cf6;color:#000;font-weight:900;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">
-      Ver meu pedido
+      Ver e imprimir pedido
     </a>`)
   return send(email, `Pedido ${orderNum} pronto para retirada — Atacado na Fronteira`, html)
 }
@@ -68,7 +68,7 @@ export async function emailProntoRetirada(email: string, nome: string, orderNum:
 export async function emailConfirmacaoPedido(
   email: string, nome: string, orderNum: string,
   itens: { name: string; quantity: number; usd: number }[],
-  totalBrl: number,
+  totalBrl: number, copyHash: string,
 ) {
   // Taxa derivada do próprio pedido, não a de hoje nem 5.20 fixo: assim as linhas
   // somam exatamente o total que o cliente vai pagar, inclusive em pedido antigo
@@ -99,6 +99,9 @@ export async function emailConfirmacaoPedido(
     </a>
     <p style="color:#666;font-size:12px;line-height:1.6;margin:16px 0 0">
       Após o pagamento e o envio do comprovante, <strong style="color:#888">aguarde a aprovação</strong> — avisamos por e-mail e WhatsApp quando o pedido estiver liberado para retirada ou entrega.
+    </p>
+    <p style="color:#666;font-size:12px;line-height:1.6;margin:12px 0 0">
+      <a href="https://atacadonafronteira.com/pedido/${copyHash}" style="color:#8b5cf6">Ver pedido completo (para imprimir e apresentar na loja)</a>
     </p>`)
   return send(email, `Pedido ${orderNum} confirmado — Atacado na Fronteira`, html)
 }

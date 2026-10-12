@@ -23,7 +23,7 @@ const DEFAULTS: Config = {
   store_name: 'Atacado na Fronteira',
   whatsapp: WHATSAPP_NUMBER,
   pedido_minimo_brl: null,
-  estimated_ready_time: 'Após a confirmação do PIX, seu pedido fica pronto para retirada em até 24 horas úteis.',
+  estimated_ready_time: 'Após a confirmação do PIX, seu pedido fica pronto para retirada no dia seguinte à compra, a partir das 13h.',
   pix_expiry_minutes: 30,
   recovery_abandono_min: 120,
   recovery_template: null,

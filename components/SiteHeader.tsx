@@ -113,7 +113,7 @@ export default async function SiteHeader() {
           <span><b>{cambio}</b></span>
           {minimo && <span><b>Pedido mínimo {minimo}</b></span>}
           <span>Pagamento via PIX à vista</span>
-          <span>Separação em até 24h úteis</span>
+          <span>Retirada no dia seguinte, após 13h</span>
           <Link href="/onde-retirar" style={{ color: 'inherit', textDecoration: 'none' }}>
             Shopping Internacional, loja 17 · Seg–Sáb 07h–16h
           </Link>

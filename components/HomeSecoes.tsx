@@ -182,9 +182,9 @@ export function MarcasCarrossel({ marcas }: { marcas: { nome: string; total: num
 }
 
 const PASSOS = [
-  ['Monte seu pedido', 'Preços em R$. Pedido mínimo de R$ 3.000.'],
+  ['Monte seu pedido', 'Preços em R$. Pedido mínimo de R$ 600.'],
   ['Pague via PIX', 'Pagamento à vista. Confirmamos em menos de 30 minutos e seu pedido entra na fila de separação.'],
-  ['Separação em até 24h úteis', 'Seu pedido é conferido e embalado na fronteira. Avisamos quando estiver pronto.'],
+  ['Retirada no dia seguinte, após 13h', 'Seu pedido é conferido e embalado na fronteira. Avisamos quando estiver pronto.'],
 ] as const
 
 // Substitui "Como comprar" + "Entrega e retirada" — eram duas seções contando

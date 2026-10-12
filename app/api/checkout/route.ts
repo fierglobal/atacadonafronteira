@@ -273,7 +273,7 @@ export async function POST(req: Request) {
 
   if (form.email) {
     emailConfirmacaoPedido(form.email, form.nome, orderNum,
-      items.map(i => ({ name: i.product_name, usd: i.unit_usd, quantity: i.quantity })), totalBrl,
+      items.map(i => ({ name: i.product_name, usd: i.unit_usd, quantity: i.quantity })), totalBrl, copyHash,
     ).catch(() => {})
   }
 
