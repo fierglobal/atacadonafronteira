@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { isEmBreve } from '@/lib/produto'
+import { isEmBreve, brlFromUsd, tierComBrlAoVivo } from '@/lib/produto'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getConfig } from '@/lib/config'
 import { rateLimit, getIp } from '@/lib/rate-limit'
@@ -55,21 +55,21 @@ export async function POST(req: Request) {
   }
 
   const productIds = itens.map(i => i.id).filter(Boolean) as string[]
-  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; brl_price: number | null; categoria_id: string | null; limite_por_cpf: number | null }[] = []
-  let tiersRows: { product_id: string; qty_min: number; qty_max: number | null; brl_price: number }[] = []
+  let prods: { id: string; estoque: number | null; ativo: boolean; published_at: string | null; badges: string[] | null; usd_price: number; usd_price_promo: number | null; categoria_id: string | null; limite_por_cpf: number | null }[] = []
+  let tiersRows: { product_id: string; qty_min: number; qty_max: number | null; usd_price: number }[] = []
   if (productIds.length) {
     const [{ data }, { data: tData }] = await Promise.all([
       supabaseAdmin
         .from('products')
-        .select('id, name, estoque, ativo, published_at, badges, usd_price, brl_price, categoria_id, limite_por_cpf')
+        .select('id, name, estoque, ativo, published_at, badges, usd_price, usd_price_promo, categoria_id, limite_por_cpf')
         .in('id', productIds),
       supabaseAdmin
         .from('product_price_tiers')
-        .select('product_id, qty_min, qty_max, brl_price')
+        .select('product_id, qty_min, qty_max, usd_price')
         .in('product_id', productIds),
     ])
     prods = data || []
-    tiersRows = (tData || []).map(t => ({ ...t, brl_price: Number(t.brl_price) }))
+    tiersRows = (tData || []).map(t => ({ ...t, usd_price: Number(t.usd_price) }))
     const now = new Date()
     const indisponiveis: string[] = []
     for (const it of itens) {
@@ -133,20 +133,29 @@ export async function POST(req: Request) {
     }
   }
 
-  // BRL é a fonte principal do preço (products.brl_price); USD é calculado a partir
-  // do BRL só como referência de câmbio, nunca o contrário. O preço por unidade
-  // respeita o tier de volume (product_price_tiers) — sem isso, um pedido de 100
-  // caixas pagava o preço cheio mostrado só pra 1 unidade.
-  const brlById = new Map(prods.map(p => [p.id, p.brl_price != null ? Number(p.brl_price) : null]))
+  // USD (usd_price/usd_price_promo) é a fonte do preço; R$ é sempre calculado na
+  // hora pelo câmbio vivo (config.brl_rate) — nunca lido de uma coluna brl_price
+  // gravada, que fica desatualizada assim que o câmbio muda sem repassar produto
+  // por produto. O preço por unidade respeita promoção ativa e o tier de volume
+  // (product_price_tiers) — sem isso, um pedido de 100 caixas pagava o preço
+  // cheio mostrado só pra 1 unidade, e promoção ativa na vitrine não baixava o
+  // valor cobrado aqui.
+  const productsById = new Map(prods.map(p => [p.id, p]))
   const tiersById = new Map<string, Tier[]>()
   for (const t of tiersRows) {
     const arr = tiersById.get(t.product_id) || []
-    arr.push({ qty_min: t.qty_min, qty_max: t.qty_max, brl_price: t.brl_price })
+    arr.push(tierComBrlAoVivo({ qty_min: t.qty_min, qty_max: t.qty_max, usd_price: t.usd_price }, config.brl_rate))
     tiersById.set(t.product_id, arr)
   }
   const itensBrl = itens.map(i => {
-    const brlPrice = i.id ? brlById.get(i.id) : undefined
-    const unitBrl = brlPrice != null ? priceForQty(i.quantity, brlPrice, i.id ? tiersById.get(i.id) : undefined) : +(i.usd * config.brl_rate).toFixed(2)
+    const p = i.id ? productsById.get(i.id) : undefined
+    let unitBrl: number
+    if (p) {
+      const usdBase = (p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)) ? Number(p.usd_price_promo) : Number(p.usd_price)
+      unitBrl = priceForQty(i.quantity, brlFromUsd(usdBase, config.brl_rate), tiersById.get(p.id))
+    } else {
+      unitBrl = brlFromUsd(i.usd, config.brl_rate)
+    }
     return { ...i, unitBrl, subtotalBrl: +(unitBrl * i.quantity).toFixed(2) }
   })
 

@@ -31,9 +31,11 @@ export async function POST(req: Request) {
   if (!relatedIds.length) return NextResponse.json({ products: [], temSobEncomenda })
 
   const now = new Date().toISOString()
+  // Sem brl_price na resposta de propósito — o client já cai pro cálculo ao
+  // vivo (usd_price × câmbio) quando o campo não vem, ver CrossSellStrip.
   const { data: prods } = await supabaseAdmin
     .from('products')
-    .select('id, name, brand, brl_price, usd_price, img_url, estoque, descricao_curta')
+    .select('id, name, brand, usd_price, img_url, estoque, descricao_curta')
     .in('id', relatedIds)
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)

@@ -3,7 +3,9 @@ export type Tier = { qty_min: number; qty_max: number | null; brl_price: number 
 // Mesma regra usada na PDP para escolher o preço unitário pela quantidade —
 // vive aqui para o servidor (checkout, cotação de retirada) usar exatamente a
 // mesma lógica que a tela mostrou, em vez de confiar no preço que veio do
-// carrinho do navegador.
+// carrinho do navegador. `brl_price` aqui já deve chegar recalculado ao vivo
+// (usd_price × câmbio atual) por quem buscou o tier — ver brlFromUsd em
+// lib/produto.ts e os pontos de busca em product_price_tiers.
 export function priceForQty(qty: number, basePrice: number, tiers: Tier[] | undefined): number {
   if (!tiers || tiers.length === 0) return basePrice
   const sorted = [...tiers].sort((a, b) => b.qty_min - a.qty_min)

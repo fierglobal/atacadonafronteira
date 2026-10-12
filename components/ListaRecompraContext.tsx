@@ -72,15 +72,21 @@ export function ListaRecompraProvider({ children }: { children: ReactNode }) {
           .upsert(pendentesLocais.map(i => ({ user_id: userId, product_id: i.id })), { onConflict: 'user_id,product_id', ignoreDuplicates: true })
         gravarLocal([])
       }
-      const { data } = await supabase
-        .from('produtos_salvos')
-        .select('product_id, products(id, name, brand, img_url, brl_price)')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      type Row = { product_id: string; products: { id: string; name: string; brand: string | null; img_url: string | null; brl_price: number } | null }
+      const [{ data }, cfg] = await Promise.all([
+        supabase
+          .from('produtos_salvos')
+          .select('product_id, products(id, name, brand, img_url, usd_price)')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false }),
+        fetch('/api/checkout-config').then(r => r.json()).catch(() => ({ brl_rate: null })),
+      ])
+      // Preço sempre calculado na hora (usd_price × câmbio vivo) — nunca lido
+      // de brl_price gravado, que é exatamente o que esta tela promete não fazer.
+      const rate = Number(cfg?.brl_rate) || 1
+      type Row = { product_id: string; products: { id: string; name: string; brand: string | null; img_url: string | null; usd_price: number } | null }
       const remoto: ItemSalvo[] = ((data || []) as unknown as Row[])
         .filter(r => r.products)
-        .map(r => ({ id: r.products!.id, name: r.products!.name, brand: r.products!.brand || undefined, img: r.products!.img_url || '/produto-placeholder.svg', brlPrice: Number(r.products!.brl_price) }))
+        .map(r => ({ id: r.products!.id, name: r.products!.name, brand: r.products!.brand || undefined, img: r.products!.img_url || '/produto-placeholder.svg', brlPrice: Math.round(Number(r.products!.usd_price) * rate * 100) / 100 }))
       setItens(remoto)
       setCarregando(false)
     })()

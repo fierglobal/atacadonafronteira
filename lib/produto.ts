@@ -1,3 +1,33 @@
+// R$ é sempre derivado do usd_price × câmbio vivo (configuracoes.brl_rate),
+// nunca lido de uma coluna brl_price gravada — ela existe no banco por motivo
+// histórico/de schema, mas fica dessincronizada toda vez que o USD muda sem
+// alguém re-salvar o R$ na mesma hora. Pedido explícito do Guilherme
+// (12/10/2026): mudar o câmbio geral tem que atualizar a vitrine inteira
+// sozinho, sem precisar re-tocar produto por produto. Ponto único de verdade:
+// toda tela que mostra preço em R$ do catálogo (nunca pedido já fechado,
+// que fica congelado pra sempre) deve passar por aqui.
+export const brlFromUsd = (usd: number, rate: number): number => Math.round(Number(usd) * rate * 100) / 100
+
+// Recarimba brl_price/brl_price_promo de um produto já buscado no banco com o
+// valor ao vivo — usar logo após toda query a `products` que alimenta tela de
+// catálogo (nunca em pedido já fechado, onde o preço fica congelado pra sempre
+// em order_items/orders).
+export function comBrlAoVivo<T extends { usd_price: number; usd_price_promo?: number | null }>(
+  p: T, rate: number,
+): T & { brl_price: number; brl_price_promo: number | null } {
+  return {
+    ...p,
+    brl_price: brlFromUsd(p.usd_price, rate),
+    brl_price_promo: p.usd_price_promo != null ? brlFromUsd(p.usd_price_promo, rate) : null,
+  }
+}
+
+// Mesma ideia, pro tier de quantidade (product_price_tiers) — só tem usd_price
+// + brl_price, sem campo promo.
+export function tierComBrlAoVivo<T extends { usd_price: number }>(t: T, rate: number): T & { brl_price: number } {
+  return { ...t, brl_price: brlFromUsd(t.usd_price, rate) }
+}
+
 export type ProdutoPromo = { usd_price: number; usd_price_promo?: number | null; badges?: string[] | null }
 
 export const isPromo = (p: ProdutoPromo) =>

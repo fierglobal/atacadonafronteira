@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { isEmBreve } from '@/lib/produto'
+import { isEmBreve, brlFromUsd } from '@/lib/produto'
+import { getConfig } from '@/lib/config'
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
@@ -61,12 +62,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProdutoLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
   const { id } = await params
-  const { data: p } = await supabaseAdmin
-    .from('products')
-    .select('name, titulo, descricao_curta, descricao, img_url, brand, brl_price, brl_price_promo, estoque, sku, badges')
-    .eq('id', id)
-    .eq('ativo', true)
-    .single()
+  const [{ data: p }, config] = await Promise.all([
+    supabaseAdmin
+      .from('products')
+      .select('name, titulo, descricao_curta, descricao, img_url, brand, usd_price, usd_price_promo, estoque, sku, badges')
+      .eq('id', id)
+      .eq('ativo', true)
+      .single(),
+    getConfig(),
+  ])
 
   // Sem isto a rota devolve 200 com "Produto não encontrado" no corpo — um soft
   // 404. Com 47 produtos desativados (perfumes, PODs, acessórios), seriam 47
@@ -76,9 +80,12 @@ export default async function ProdutoLayout({ children, params }: { children: Re
   const name = (p.titulo as string) || (p.name as string) || ''
   const brand = p.brand as string | null
 
-  const base = p.brl_price as number | null
-  const promo = p.brl_price_promo as number | null
-  const precoVigente = promo != null && base != null && promo < base ? promo : base
+  // R$ do rich result calculado na hora (usd_price × câmbio vivo) — nunca de
+  // coluna brl_price gravada, pra nunca divergir do que a PDP mostra.
+  const baseUsd = p.usd_price as number | null
+  const promoUsd = p.usd_price_promo as number | null
+  const usdVigente = promoUsd != null && baseUsd != null && promoUsd < baseUsd ? promoUsd : baseUsd
+  const precoVigente = usdVigente != null ? brlFromUsd(usdVigente, config.brl_rate) : null
 
   const jsonLd = {
     '@context': 'https://schema.org',

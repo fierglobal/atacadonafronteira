@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import SiteHeader from '@/components/SiteHeader'
 import SiteFooter from '@/components/SiteFooter'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
+import { comBrlAoVivo, brlFromUsd } from '@/lib/produto'
+import { getConfig } from '@/lib/config'
 import { SITE_URL, SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
@@ -18,14 +20,14 @@ export const metadata: Metadata = {
 
 // Mesmo critério de isPromo() (lib/produto.ts), reescrito como filtro
 // PostgREST — produto com preço promocional ativo e menor que o preço cheio.
-async function getPromocoes(b: Busca) {
+async function getPromocoes(b: Busca, rate: number) {
   const now = new Date().toISOString()
   const pagina = Math.max(1, parseInt(b.pagina || '1', 10) || 1)
   const de = (pagina - 1) * POR_PAGINA
 
   const { data, count } = await supabaseAdmin
     .from('products')
-    .select('id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
+    .select('id, name, brand, sku, usd_price, usd_price_promo, img_url, estoque, badges', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
     .not('usd_price_promo', 'is', null)
@@ -35,28 +37,30 @@ async function getPromocoes(b: Busca) {
 
   // usd_price_promo < usd_price não dá pra comparar direto no PostgREST (duas colunas) —
   // filtra no app. Volume pequeno (produtos com promo setada), não pesa a query.
-  const itens = (data || []).filter(p => p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price))
+  const itens = (data || [])
+    .filter(p => p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price))
+    .map(p => comBrlAoVivo(p, rate))
   return { itens, total: count ?? itens.length, pagina }
 }
 
-async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
+async function getMenorTierPorProduto(produtoIds: string[], rate: number): Promise<Record<string, number>> {
   if (!produtoIds.length) return {}
   const { data } = await supabaseAdmin
     .from('product_price_tiers')
-    .select('product_id, brl_price')
+    .select('product_id, usd_price')
     .in('product_id', produtoIds)
-    .order('brl_price', { ascending: true })
+    .order('usd_price', { ascending: true })
   const menor: Record<string, number> = {}
   for (const t of data || []) {
-    if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
+    if (menor[t.product_id] === undefined) menor[t.product_id] = brlFromUsd(t.usd_price, rate)
   }
   return menor
 }
 
 export default async function PromocoesPage({ searchParams }: { searchParams: Promise<Busca> }) {
-  const b = await searchParams
-  const { itens, total, pagina } = await getPromocoes(b)
-  const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id))
+  const [b, config] = await Promise.all([searchParams, getConfig()])
+  const { itens, total, pagina } = await getPromocoes(b, config.brl_rate)
+  const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id), config.brl_rate)
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA))
 
   const url = (extra: Partial<Busca>) => {

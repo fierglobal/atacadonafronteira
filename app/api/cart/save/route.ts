@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getConfig } from '@/lib/config'
+import { brlFromUsd } from '@/lib/produto'
 
 export async function POST(req: Request) {
   const cookieStore = await cookies()
@@ -18,17 +19,17 @@ export async function POST(req: Request) {
   const itens = Array.isArray(body.itens) ? body.itens as { id?: string; usd: number; quantity: number }[] : []
   const total_usd = Number(body.total_usd) || 0
 
-  // BRL é a fonte principal do preço (products.brl_price); USD é calculado a partir
-  // do BRL só como referência de câmbio, nunca o contrário.
+  // USD (usd_price/usd_price_promo) é a fonte do preço; R$ é sempre calculado
+  // na hora pelo câmbio vivo, nunca lido de coluna brl_price gravada.
   const config = await getConfig()
   const productIds = itens.map(i => i.id).filter(Boolean) as string[]
   const { data: prods } = productIds.length
-    ? await supabaseAdmin.from('products').select('id, brl_price').in('id', productIds)
-    : { data: [] as { id: string; brl_price: number | null }[] }
-  const brlById = new Map((prods || []).map(p => [p.id, p.brl_price != null ? Number(p.brl_price) : null]))
+    ? await supabaseAdmin.from('products').select('id, usd_price, usd_price_promo').in('id', productIds)
+    : { data: [] as { id: string; usd_price: number; usd_price_promo: number | null }[] }
+  const usdById = new Map((prods || []).map(p => [p.id, (p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)) ? Number(p.usd_price_promo) : Number(p.usd_price)]))
   const total_brl = +itens.reduce((s, i) => {
-    const brlPrice = i.id ? brlById.get(i.id) : undefined
-    const unitBrl = brlPrice != null ? brlPrice : +((i.usd || 0) * config.brl_rate).toFixed(2)
+    const usdPrice = i.id ? usdById.get(i.id) : undefined
+    const unitBrl = brlFromUsd(usdPrice != null ? usdPrice : (i.usd || 0), config.brl_rate)
     return s + unitBrl * (i.quantity || 0)
   }, 0).toFixed(2)
 

@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
-import { isEmBreve } from '@/lib/produto'
+import { isEmBreve, comBrlAoVivo, brlFromUsd } from '@/lib/produto'
+import { getConfig } from '@/lib/config'
 import type { Metadata } from 'next'
 import SiteHeader from '@/components/SiteHeader'
 import HomeClient, { type HomeInitial } from './HomeClient'
@@ -66,8 +67,8 @@ const jsonLdLoja = () => ([
 
 const enc = (s: string | null) => s ? Buffer.from(s).toString('base64') : null
 
-const CAMPOS = 'id, name, brand, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador, limite_por_cpf'
-const CAMPOS_DESTAQUE = 'id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges'
+const CAMPOS = 'id, name, brand, usd_price, usd_price_promo, img_url, estoque, categoria_id, descricao_curta, badges, venda_minima, multiplicador, limite_por_cpf'
+const CAMPOS_DESTAQUE = 'id, name, brand, sku, usd_price, usd_price_promo, img_url, estoque, badges'
 
 type Categoria = { id: string; nome: string; parent_id: string | null }
 type ProdutoDestaque = { id: string; name: string; brand: string | null; sku: string | null; brl_price: number; brl_price_promo: number | null; usd_price: number; usd_price_promo: number | null; img_url: string | null; estoque: number; badges: string[] | null }
@@ -77,29 +78,30 @@ type ProdutoDestaque = { id: string; name: string; brand: string | null; sku: st
 // (a curadoria manual que já existe hoje via "Relevância" na categoria). Sem
 // isso a home não tinha NENHUM preço visível fora do hero. Alimenta tanto as
 // miniaturas do Catálogo (slice(0,6)) quanto as vitrines de Perfumes/Eletrônicos.
-async function getDestaquesPorDepartamento(raizes: Categoria[], cats: Categoria[]): Promise<Record<string, ProdutoDestaque[]>> {
+async function getDestaquesPorDepartamento(raizes: Categoria[], cats: Categoria[], rate: number): Promise<Record<string, ProdutoDestaque[]>> {
   const now = new Date().toISOString()
   const pares = await Promise.all(raizes.map(async r => {
     const ids = [r.id, ...cats.filter(c => c.parent_id === r.id).map(c => c.id)]
     const { data } = await supabaseAdmin.from('products').select(CAMPOS_DESTAQUE)
       .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
       .in('categoria_id', ids).gt('estoque', 0).not('img_url', 'is', null)
-      .order('brl_price_promo', { ascending: true, nullsFirst: false })
+      .order('usd_price_promo', { ascending: true, nullsFirst: false })
       .order('sort_order', { ascending: true }).order('id', { ascending: true })
       .limit(8)
-    return [r.id, (data || []) as ProdutoDestaque[]] as const
+    const itens = (data || []).map(p => comBrlAoVivo(p, rate)) as ProdutoDestaque[]
+    return [r.id, itens] as const
   }))
   return Object.fromEntries(pares)
 }
 
 // Menor brl_price entre os tiers de quantidade — mesmo campo que já alimenta
 // o selo "a partir de RX/un no atacado" na página de categoria.
-async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
+async function getMenorTierPorProduto(produtoIds: string[], rate: number): Promise<Record<string, number>> {
   if (!produtoIds.length) return {}
   const { data } = await supabaseAdmin.from('product_price_tiers')
-    .select('product_id, brl_price').in('product_id', produtoIds).order('brl_price', { ascending: true })
+    .select('product_id, usd_price').in('product_id', produtoIds).order('usd_price', { ascending: true })
   const menor: Record<string, number> = {}
-  for (const t of data || []) if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
+  for (const t of data || []) if (menor[t.product_id] === undefined) menor[t.product_id] = brlFromUsd(t.usd_price, rate)
   return menor
 }
 
@@ -109,7 +111,8 @@ async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<stri
 async function getInitial(): Promise<HomeInitial | null> {
   try {
     const now = new Date().toISOString()
-    const [{ data: cats }, ativos] = await Promise.all([
+    const [config, { data: cats }, ativos] = await Promise.all([
+      getConfig(),
       supabaseAdmin.from('categorias').select('id, nome, parent_id'),
       fetchAllRows<{ categoria_id: string | null; brand: string | null }>((from, to) =>
         supabaseAdmin.from('products').select('categoria_id, brand')
@@ -117,6 +120,7 @@ async function getInitial(): Promise<HomeInitial | null> {
           .range(from, to)
       ),
     ])
+    const rate = config.brl_rate
     if (!cats) return null
 
     const counts: Record<string, number> = {}
@@ -149,9 +153,9 @@ async function getInitial(): Promise<HomeInitial | null> {
     // Destaques (Catálogo fundido): 4 produtos reais por departamento —
     // reaproveitados também como miniaturas da linha do departamento, então
     // é UMA busca só, não uma pra cada seção.
-    const destaquesPorDept = await getDestaquesPorDepartamento(raizes as Categoria[], cats as Categoria[])
+    const destaquesPorDept = await getDestaquesPorDepartamento(raizes as Categoria[], cats as Categoria[], rate)
     const idsDestaque = Object.values(destaquesPorDept).flat().map(p => p.id)
-    const menorTierDestaque = await getMenorTierPorProduto(idsDestaque)
+    const menorTierDestaque = await getMenorTierPorProduto(idsDestaque, rate)
     const comTier = (p: ProdutoDestaque) => ({ ...p, menorPrecoAtacado: menorTierDestaque[p.id] ?? null })
 
     const departamentos = raizes
@@ -190,24 +194,27 @@ async function getInitial(): Promise<HomeInitial | null> {
       ? [appleRaiz.id as string, ...cats.filter(c => c.parent_id === appleRaiz.id).map(c => c.id as string)]
       : []
     const celularCat = appleRaiz ? cats.find(c => c.nome === 'Celular' && c.parent_id === appleRaiz.id) : null
+    // Ordenar por usd_price (não brl_price) pra escolher "o mais caro": é a
+    // moeda canônica, nunca fica dessincronizada entre produtos repreçados em
+    // momentos diferentes — ver brlFromUsd em lib/produto.ts.
     const [{ data: destaqueCelular }, { data: destaqueEletronicosGeral }, { data: promos }] = await Promise.all([
       celularCat
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
             .eq('categoria_id', celularCat.id as string).eq('brand', 'APPLE')
             .gt('estoque', 0).not('img_url', 'is', null)
-            .order('brl_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
+            .order('usd_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
       appleIds.length
         ? supabaseAdmin.from('products').select(CAMPOS)
             .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
             .in('categoria_id', appleIds).eq('brand', 'APPLE')
             .gt('estoque', 0).not('img_url', 'is', null)
-            .order('brl_price', { ascending: false }).limit(1)
-        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; brl_price: number | null; brl_price_promo: number | null; img_url: string | null }[] }),
+            .order('usd_price', { ascending: false }).limit(1)
+        : Promise.resolve({ data: [] as { name: string; brand: string | null; usd_price: number; usd_price_promo: number | null; img_url: string | null }[] }),
       supabaseAdmin.from('products').select(CAMPOS)
         .eq('ativo', true).or(`published_at.is.null,published_at.lte.${now}`)
-        .not('brl_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
+        .not('usd_price_promo', 'is', null).gt('estoque', 0).not('img_url', 'is', null),
     ])
     // Produto de pré-venda não pode liderar o hero: o hero anuncia preço, e ele não tem preço
     // a anunciar. Filtrar aqui evita ter que tratar o caso dentro do HeroRotativo, que nem
@@ -218,15 +225,15 @@ async function getInitial(): Promise<HomeInitial | null> {
     // predicado aceita qualquer objeto e lê o campo de forma defensiva.
     const naoEhPreVenda = (x: unknown) =>
       !isEmBreve({ usd_price: 0, badges: (x as { badges?: string[] | null })?.badges })
-    const heroEletronico = (destaqueCelular ?? []).filter(naoEhPreVenda)[0]
-      ?? (destaqueEletronicosGeral ?? []).filter(naoEhPreVenda)[0]
-    const heroPromo = (promos ?? []).filter(naoEhPreVenda)
+    const heroEletronico = (destaqueCelular ?? []).map(p => comBrlAoVivo(p, rate)).filter(naoEhPreVenda)[0]
+      ?? (destaqueEletronicosGeral ?? []).map(p => comBrlAoVivo(p, rate)).filter(naoEhPreVenda)[0]
+    const heroPromo = (promos ?? []).map(p => comBrlAoVivo(p, rate)).filter(naoEhPreVenda)
       // brand GENÉRICO é insumo (água bacteriostática etc.), não o produto que
       // vende a categoria — mesmo com desconto real, não é o que deve liderar
       // o hero. Todo produto de verdade tem marca de fabricante.
-      .filter(p => p.brl_price_promo != null && Number(p.brl_price_promo) < Number(p.brl_price) && p.brand !== 'GENÉRICO')
+      .filter(p => p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price) && p.brand !== 'GENÉRICO')
       .sort((a, b) =>
-        (1 - Number(b.brl_price_promo) / Number(b.brl_price)) - (1 - Number(a.brl_price_promo) / Number(a.brl_price)))[0]
+        (1 - Number(b.usd_price_promo) / Number(b.usd_price)) - (1 - Number(a.usd_price_promo) / Number(a.usd_price)))[0]
 
     return {
       total: ativos.length,

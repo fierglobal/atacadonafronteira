@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getConfig } from '@/lib/config'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params
@@ -22,25 +21,27 @@ export async function GET(_req: Request, { params }: { params: Promise<{ orderId
 
   type OrderItemRow = {
     product_name: string; product_brand: string | null; unit_usd: number; quantity: number
-    products: { brl_price: number | null } | null
+    products: { usd_price: number | null; usd_price_promo: number | null } | null
   }
   const { data } = await supabaseAdmin
     .from('order_items')
-    .select('product_name, product_brand, unit_usd, quantity, products(brl_price)')
+    .select('product_name, product_brand, unit_usd, quantity, products(usd_price, usd_price_promo)')
     .eq('order_id', orderId)
     .returns<OrderItemRow[]>()
   const items = data || []
 
-  // Repreça pelo catálogo atual (products.brl_price), não pelo valor histórico do
-  // pedido — só cai pro unit_usd salvo se o produto sumiu ou ainda não tem brl_price.
-  const { brl_rate } = await getConfig()
+  // Repreça pelo catálogo atual (products.usd_price/usd_price_promo), não pelo
+  // valor histórico do pedido — só cai pro unit_usd salvo se o produto sumiu.
+  // Saída já é em USD, câmbio não entra nesta conta.
 
   return NextResponse.json({
     orderNum: order.order_num,
     items: items.map(i => {
-      const brl = i.products?.brl_price
-      const usd = brl != null && brl_rate > 0 ? Number(brl) / brl_rate : Number(i.unit_usd)
-      return { name: i.product_name, brand: i.product_brand, usd, quantity: i.quantity }
+      const p = i.products
+      const usdAtual = p?.usd_price != null
+        ? ((p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)) ? Number(p.usd_price_promo) : Number(p.usd_price))
+        : null
+      return { name: i.product_name, brand: i.product_brand, usd: usdAtual ?? Number(i.unit_usd), quantity: i.quantity }
     }),
   })
 }

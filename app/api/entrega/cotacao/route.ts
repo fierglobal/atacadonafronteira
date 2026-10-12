@@ -4,6 +4,8 @@ import { idsEletronicos, idsFarmacia } from '@/lib/categorias'
 import { calcularEntrega, type TipoRetirada } from '@/lib/entrega'
 import { priceForQty, type Tier } from '@/lib/tier'
 import { rateLimit, getIp } from '@/lib/rate-limit'
+import { getConfig } from '@/lib/config'
+import { brlFromUsd, tierComBrlAoVivo } from '@/lib/produto'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,19 +25,23 @@ export async function POST(req: Request) {
   if (!itens.length) return NextResponse.json({ error: 'Carrinho vazio' }, { status: 400 })
 
   const ids = itens.map(i => i.id!)
-  const [{ data: prods }, { data: tiersRows }, eletronicos, farmacia] = await Promise.all([
-    supabaseAdmin.from('products').select('id, categoria_id, brl_price').in('id', ids),
-    supabaseAdmin.from('product_price_tiers').select('product_id, qty_min, qty_max, brl_price').in('product_id', ids),
+  const [config, { data: prods }, { data: tiersRows }, eletronicos, farmacia] = await Promise.all([
+    getConfig(),
+    supabaseAdmin.from('products').select('id, categoria_id, usd_price, usd_price_promo').in('id', ids),
+    supabaseAdmin.from('product_price_tiers').select('product_id, qty_min, qty_max, usd_price').in('product_id', ids),
     idsEletronicos(),
     idsFarmacia(),
   ])
 
   const catPorId = new Map((prods || []).map(p => [p.id as string, p.categoria_id as string | null]))
-  const precoBasePorId = new Map((prods || []).map(p => [p.id as string, Number(p.brl_price) || 0]))
+  const precoBasePorId = new Map((prods || []).map(p => {
+    const usdBase = (p.usd_price_promo != null && Number(p.usd_price_promo) < Number(p.usd_price)) ? Number(p.usd_price_promo) : Number(p.usd_price)
+    return [p.id as string, brlFromUsd(usdBase, config.brl_rate)]
+  }))
   const tiersPorId = new Map<string, Tier[]>()
   for (const t of (tiersRows || [])) {
     const arr = tiersPorId.get(t.product_id as string) || []
-    arr.push({ qty_min: t.qty_min as number, qty_max: t.qty_max as number | null, brl_price: Number(t.brl_price) })
+    arr.push(tierComBrlAoVivo({ qty_min: t.qty_min as number, qty_max: t.qty_max as number | null, usd_price: Number(t.usd_price) }, config.brl_rate))
     tiersPorId.set(t.product_id as string, arr)
   }
 

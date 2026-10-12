@@ -6,6 +6,8 @@ import SiteFooter from '@/components/SiteFooter'
 import CategoriaProductCard from '@/components/CategoriaProductCard'
 import FiltroMarcas from '@/components/FiltroMarcas'
 import { listarCategoriasSeo } from '@/lib/categorias'
+import { comBrlAoVivo, brlFromUsd } from '@/lib/produto'
+import { getConfig } from '@/lib/config'
 import { SITE_NAME } from '@/lib/site'
 
 const POR_PAGINA = 48
@@ -25,14 +27,14 @@ export const metadata: Metadata = {
   alternates: { canonical: '/produtos' },
 }
 
-async function getProdutos(b: Busca) {
+async function getProdutos(b: Busca, rate: number) {
   const now = new Date().toISOString()
   const pagina = Math.max(1, parseInt(b.pagina || '1', 10) || 1)
   const de = (pagina - 1) * POR_PAGINA
 
   let q = supabaseAdmin
     .from('products')
-    .select('id, name, brand, sku, brl_price, brl_price_promo, usd_price, usd_price_promo, img_url, estoque, badges, categoria_id', { count: 'exact' })
+    .select('id, name, brand, sku, usd_price, usd_price_promo, img_url, estoque, badges, categoria_id', { count: 'exact' })
     .eq('ativo', true)
     .or(`published_at.is.null,published_at.lte.${now}`)
 
@@ -41,16 +43,18 @@ async function getProdutos(b: Busca) {
   if (b.q) q = q.ilike('name', `%${b.q}%`)
   const precoMin = b.precoMin ? Number(b.precoMin) : null
   const precoMax = b.precoMax ? Number(b.precoMax) : null
-  if (precoMin != null && !Number.isNaN(precoMin)) q = q.gte('brl_price', precoMin)
-  if (precoMax != null && !Number.isNaN(precoMax)) q = q.lte('brl_price', precoMax)
+  // precoMin/Max vêm em R$ da tela — convertidos pro USD do banco com o câmbio
+  // vivo, já que não existe mais coluna brl_price confiável pra filtrar direto.
+  if (precoMin != null && !Number.isNaN(precoMin)) q = q.gte('usd_price', precoMin / rate)
+  if (precoMax != null && !Number.isNaN(precoMax)) q = q.lte('usd_price', precoMax / rate)
 
-  if (b.ordem === 'menor') q = q.order('brl_price', { ascending: true })
-  else if (b.ordem === 'maior') q = q.order('brl_price', { ascending: false })
+  if (b.ordem === 'menor') q = q.order('usd_price', { ascending: true })
+  else if (b.ordem === 'maior') q = q.order('usd_price', { ascending: false })
   else if (b.ordem === 'nome') q = q.order('name', { ascending: true })
   else q = q.order('sort_order', { ascending: true })
 
   const { data, count } = await q.order('id', { ascending: true }).range(de, de + POR_PAGINA - 1)
-  return { itens: data || [], total: count ?? 0, pagina }
+  return { itens: (data || []).map(p => comBrlAoVivo(p, rate)), total: count ?? 0, pagina }
 }
 
 async function getMarcas(b: Busca) {
@@ -65,28 +69,29 @@ async function getMarcas(b: Busca) {
   return Object.entries(cont).sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'))
 }
 
-async function getMenorTierPorProduto(produtoIds: string[]): Promise<Record<string, number>> {
+async function getMenorTierPorProduto(produtoIds: string[], rate: number): Promise<Record<string, number>> {
   if (!produtoIds.length) return {}
   const { data } = await supabaseAdmin
     .from('product_price_tiers')
-    .select('product_id, brl_price')
+    .select('product_id, usd_price')
     .in('product_id', produtoIds)
-    .order('brl_price', { ascending: true })
+    .order('usd_price', { ascending: true })
   const menor: Record<string, number> = {}
   for (const t of data || []) {
-    if (menor[t.product_id] === undefined) menor[t.product_id] = Number(t.brl_price)
+    if (menor[t.product_id] === undefined) menor[t.product_id] = brlFromUsd(t.usd_price, rate)
   }
   return menor
 }
 
 export default async function ProdutosPage({ searchParams }: { searchParams: Promise<Busca> }) {
   const b = await searchParams
-  const [categorias, { itens, total, pagina }, marcas] = await Promise.all([
+  const [config, categorias, marcas] = await Promise.all([
+    getConfig(),
     listarCategoriasSeo(),
-    getProdutos(b),
     getMarcas(b),
   ])
-  const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id))
+  const { itens, total, pagina } = await getProdutos(b, config.brl_rate)
+  const menorTierPorProduto = await getMenorTierPorProduto(itens.map(p => p.id), config.brl_rate)
   const totalPaginas = Math.max(1, Math.ceil(total / POR_PAGINA))
 
   // Categorias-folha (produto ligado direto), ordenadas por volume — mesmo
