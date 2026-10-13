@@ -45,12 +45,12 @@ async function getTopCats(): Promise<NavItem[]> {
 
     const total = (it: NavItem) =>
       (counts[it.id] || 0) + it.subs.reduce((s, f) => s + (counts[f.id] || 0), 0)
-    // Apple sempre primeiro — pedido explícito do Guilherme, não é mais
+    // Eletrônicos sempre primeiro — pedido explícito do Guilherme, não é mais
     // ordenado só por tamanho de estoque (Perfumes tem mais produto, mas
-    // Apple é a vitrine que ele quer na frente).
+    // Eletrônicos é a vitrine que ele quer na frente).
     return base.sort((a, b) => {
-      if (a.nome === 'Apple') return -1
-      if (b.nome === 'Apple') return 1
+      if (a.nome === 'Eletrônicos') return -1
+      if (b.nome === 'Eletrônicos') return 1
       return total(b) - total(a)
     })
   } catch { return [] }

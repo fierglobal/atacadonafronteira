@@ -39,7 +39,7 @@ const L_LINE = '#e1e7dc'
 // "Abrindo em breve", tracejado, sem link pra vitrine vazia.
 const DEPARTAMENTOS_LOJA = [
   { nome: 'Perfumes', href: '/categoria/perfumes-de-nicho', totalKey: 'perfumes' as const },
-  { nome: 'Eletrônicos', href: '/categoria/apple', totalKey: 'eletronicos' as const },
+  { nome: 'Eletrônicos', href: '/categoria/eletronicos', totalKey: 'eletronicos' as const },
   { nome: 'Medicamentos', href: null, totalKey: null },
   { nome: 'Cosméticos', href: null, totalKey: null },
 ] as const

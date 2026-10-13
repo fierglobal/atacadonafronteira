@@ -166,8 +166,8 @@ export default function HeroRotativo({ apple, total, brlRate, heroApple, heroPro
                 </>
               )}
               <div className="hero-cta-row">
-                <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/apple'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
-                  {limitePorCpf ? 'Garantir o meu' : `Ver Apple (${apple})`}
+                <Link href={limitePorCpf && eletronico.id ? `/produtos/${eletronico.id}` : '/categoria/eletronicos'} className="hero-cta" tabIndex={active === idxEletronicos ? 0 : -1}>
+                  {limitePorCpf ? 'Garantir o meu' : `Ver Eletrônicos (${apple})`}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#111111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Link>
                 <Link href="#como-funciona" className="hero-cta-secondary" tabIndex={active === idxEletronicos ? 0 : -1}>Como comprar →</Link>

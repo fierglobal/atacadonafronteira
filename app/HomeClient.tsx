@@ -92,7 +92,7 @@ export default function Home({ initial }: { initial?: HomeInitial }) {
           />
           <VitrineCarrossel
             titulo="Vitrine — Eletrônicos" subtitulo="Linha Apple completa: iPhone, Mac, iPad, Watch e AirPods."
-            href="/categoria/apple" hrefLabel="Ver catálogo completo"
+            href="/categoria/eletronicos" hrefLabel="Ver catálogo completo"
             produtos={initial.vitrineEletronicos}
           />
           <BannerPromo

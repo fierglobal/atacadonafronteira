@@ -15,11 +15,15 @@ export type TipoRetirada = 'retirada_cde'
 // Nome do departamento raiz que define a tabela cara. Mora aqui e não como UUID
 // porque o id do banco muda entre ambientes; o nome é o contrato do catálogo.
 // 'Eletrônicos' virou 'Apple' em 07/10/2026 (reestruturação de catálogo pra
-// 3 painéis) — DEPARTAMENTO_FARMACIA fica morto de propósito (Farmácia saiu
-// do site, zero produto ativo; idsFarmacia() continua resolvendo a categoria
-// certa, só que sempre vazia de produto, sem efeito prático em frete/seguro,
-// que já são sempre 0 desde a virada pra retirada-only).
-export const DEPARTAMENTO_ELETRONICO = 'Apple'
+// 3 painéis) e voltou a 'Eletrônicos' em 12/10/2026 — o departamento passou a
+// ter Xiaomi/Samsung/Motorola/Realme junto com Apple, e "Apple" como nome do
+// menu/categoria pra conteúdo multi-marca confundia o cliente (e o catálogo em
+// PDF gerado pra revenda). DEPARTAMENTO_FARMACIA fica morto de propósito
+// (Farmácia saiu do site, zero produto ativo; idsFarmacia() continua
+// resolvendo a categoria certa, só que sempre vazia de produto, sem efeito
+// prático em frete/seguro, que já são sempre 0 desde a virada pra
+// retirada-only).
+export const DEPARTAMENTO_ELETRONICO = 'Eletrônicos'
 export const DEPARTAMENTO_FARMACIA = 'Farmácia'
 
 export type ItemEntrega = { quantity: number; eletronico: boolean; farmacia: boolean; subtotalBRL: number }

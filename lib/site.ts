@@ -31,10 +31,12 @@ export const WHATSAPP_GRUPO_HREF =
 
 // Vitrines de marca no menu. Existia pra mostrar uma marca específica (Apple,
 // Xiaomi, JBL) ao lado de departamentos com nome diferente (Eletrônicos,
-// Farmácia). Desde 07/10/2026 a categoria raiz "Apple" JÁ É a marca — manter
-// 'APPLE' aqui duplicava o item no menu (categoria raiz + vitrine, lado a
-// lado, mesmo conteúdo). Vazio até existir marca que não bata com nome de
-// categoria de novo.
+// Farmácia). Entre 07/10 e 12/10/2026 a categoria raiz chamou "Apple" e
+// coincidia com a marca — manter 'APPLE' aqui duplicava o item no menu. Em
+// 12/10/2026 a categoria voltou a "Eletrônicos" (o departamento já tem
+// Xiaomi/Samsung/Motorola/Realme além de Apple, então o nome "Apple" pro
+// departamento inteiro confundia o cliente). Segue vazio porque nenhuma marca
+// precisa de vitrine própria hoje — não por coincidência de nome.
 export const MARCAS_VITRINE: string[] = []
 
 // Tokens da comunicação visual "branco e dourado" (09/10/2026, substitui o

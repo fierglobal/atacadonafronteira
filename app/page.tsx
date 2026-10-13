@@ -146,7 +146,7 @@ async function getInitial(): Promise<HomeInitial | null> {
       marcasDe[raiz][p.brand] = (marcasDe[raiz][p.brand] ?? 0) + 1
     }
     const DESC_DEPT: Record<string, string> = {
-      'Apple': 'Linha Apple: iPhone, Mac, iPad, Apple Watch e AirPods, direto do Paraguai.',
+      'Eletrônicos': 'Celulares, notebooks, tablets e smartwatches — Apple, Xiaomi, Samsung, Motorola e Realme, direto do Paraguai.',
       'Perfumes de Nicho': 'Perfumaria de nicho e designers importados, direto do Paraguai.',
       'Perfumes Árabes': 'Os perfumes árabes mais vendidos, atacado em caixa fechada.',
     }
@@ -188,7 +188,7 @@ async function getInitial(): Promise<HomeInitial | null> {
     // O slide de oferta mostra o MAIOR desconto real ativo hoje, em QUALQUER
     // painel — se não houver nenhuma promoção rodando, o slide some sozinho
     // em vez de inventar uma.
-    const appleRaiz = raizes.find(r => r.nome === 'Apple')
+    const appleRaiz = raizes.find(r => r.nome === 'Eletrônicos')
     const vitrineEletronicos = appleRaiz ? (destaquesPorDept[appleRaiz.id as string] || []).map(comTier) : []
     const appleIds = appleRaiz
       ? [appleRaiz.id as string, ...cats.filter(c => c.parent_id === appleRaiz.id).map(c => c.id as string)]
@@ -237,13 +237,13 @@ async function getInitial(): Promise<HomeInitial | null> {
 
     return {
       total: ativos.length,
-      deptApple: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
+      deptApple: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
       // Totais honestos pra faixa omnichannel: Perfumes soma os 2 departamentos
       // raiz (Nicho+Árabes), Medicamentos/Cosméticos ficam de fora do payload
       // de propósito — hoje é zero produto ativo, "em breve" é texto fixo no
       // componente, não um número que ia aparecer como "0 produtos".
       totalPerfumes: departamentos.filter(d => d.nome.startsWith('Perfumes')).reduce((s, d) => s + d.total, 0),
-      totalEletronicos: departamentos.find(d => d.nome === 'Apple')?.total ?? 0,
+      totalEletronicos: departamentos.find(d => d.nome === 'Eletrônicos')?.total ?? 0,
       vitrinePerfumes,
       vitrineEletronicos,
       heroEletronico: heroEletronico
