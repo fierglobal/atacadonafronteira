@@ -351,3 +351,9 @@ renomear o projeto depois de criado.
 
 <!-- session 2026-10-11 09:26 -->
 <!-- arquivos: app/onde-retirar/page.tsx,app/politica-privacidade/page.tsx,app/sitemap.ts,app/termos/page.tsx,components/DesktopNav.tsx,components/HeaderActions.tsx,components/SiteFooter.tsx,lib/config.ts,lib/pix.ts,lib/site.ts -->
+
+<!-- session 2026-10-16 12:49 -->
+<!-- arquivos: proxy.ts -->
+
+<!-- session 2026-10-16 12:50 -->
+<!-- arquivos: PROJECT_MEMORY.md,proxy.ts -->
