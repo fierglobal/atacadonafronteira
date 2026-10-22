@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const SITE_OFFLINE = true
+const SITE_OFFLINE = false
 
 // Preview usa as mesmas credenciais de produção, então fala com o banco real.
 // Só leitura passa; senão um teste de branch grava no catálogo de verdade.
